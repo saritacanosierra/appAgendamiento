@@ -49,3 +49,15 @@ export const ReportesVista = lazy(
 export const InicioVista = lazy(
   () => import('../../vistas/plataforma/inicio/InicioVista')
 );
+export const MarcasPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/marcas/MarcasPlataformaVista')
+);
+export const EditarMarcaPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/marcas/EditarMarcaPlataformaVista')
+);
+export const PanelPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/panel/PanelPlataformaVista')
+);
+export const ReportesPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/reportes/ReportesPlataformaVista')
+);

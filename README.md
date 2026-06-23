@@ -1,4 +1,4 @@
-# appAgendamiento — Spa Unas
+# appAgendamiento — AGENDAR CITAS
 
 Plataforma SaaS multi-marca para spas de uñas con reservas, galería, blog y panel administrativo por marca.
 
@@ -64,8 +64,25 @@ El proxy de Vite redirige `/api/*` al backend en el puerto 3001.
 
 ## Credenciales de prueba
 
-- **Correo:** admin@lunanails.test
-- **Contrasena:** Admin123!
+| Rol | Correo | Contrasena | Panel |
+|-----|--------|------------|-------|
+| Admin marca (Luna Nails) | admin@lunanails.test | Admin123! | `/admin/panel` |
+| Superadmin plataforma | platform@spa-unas.test | Platform123! | `/plataforma/marcas` |
+
+Crear superadmin (tras migracion plataforma):
+
+```bash
+cd backend && npm run migrar:plataforma && npm run semilla:superadmin
+```
+
+## Panel plataforma (superadmin)
+
+Gestiona empresas (marcas), reportes globales y control de planes:
+
+- `/plataforma/marcas` — crear empresas, activar/suspender, habilitar plan, **entrar al panel** de cada marca (modo soporte)
+- `/plataforma/reportes` — reportes globales de todas las marcas
+
+Cada empresa conecta **su propio** Google Calendar en **Admin → Configuracion** (cuenta Google independiente por marca).
 
 ## Fases
 
@@ -74,7 +91,7 @@ El proxy de Vite redirige `/api/*` al backend en el puerto 3001.
 | Fase 1 | Completada — estructura, API Node, esquema BD |
 | Fase 2 | Completada — reservas, clientes, citas, auth admin |
 | Fase 3 | Completada — blog, galeria, config, notificaciones |
-| Fase 4 | En progreso — reportes, tokens, email, WhatsApp, optimizacion |
+| Fase 4 | Casi completa — reportes, tokens, email, WhatsApp, optimizacion, panel plataforma, control de plan |
 
 Ver `documentacion/` para detalles. Google Calendar: `documentacion/google_calendar.md`.
 
@@ -96,10 +113,7 @@ cd backend && npm run verificar:whatsapp
 
 ## Google Calendar (opcional)
 
-Configura credenciales en `backend/.env` siguiendo `documentacion/google_calendar.md`.
+1. Configura las credenciales OAuth de la app en `backend/.env` (una sola vez por servidor).
+2. Cada empresa conecta **su propia cuenta** en **Admin → Configuracion**.
 
-Verificar variables (sin mostrar secretos):
-
-```bash
-cd backend && npm run verificar:google
-```
+Ver `documentacion/google_calendar.md` y `documentacion/modelo_multi_marca.md`.

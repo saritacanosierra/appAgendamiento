@@ -105,3 +105,24 @@
   flex-wrap: wrap;
   gap: var(--espacio-sm);
 }
+
+.configuracion-marca__google-pendiente {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.configuracion-marca__google-lista {
+  margin: 0;
+  padding-left: var(--espacio-lg);
+  font-size: var(--tamano-texto-sm);
+  color: #555;
+}
+
+.configuracion-marca__google-lista code,
+.configuracion-marca__google-pendiente code {
+  font-size: 0.85em;
+  background: var(--color-fondo);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

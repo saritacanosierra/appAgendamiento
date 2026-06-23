@@ -54,7 +54,18 @@ import {
   callbackGoogle,
 } from '../controladores/googleCalendarControlador.js';
 import { obtenerReporte } from '../controladores/reporteControlador.js';
+import {
+  listarMarcasPlataforma,
+  obtenerMarcaPlataforma,
+  obtenerResumenPlataforma,
+  crearMarcaPlataforma,
+  actualizarMarcaPlataforma,
+  impersonarMarcaPlataforma,
+  obtenerReportePlataforma,
+  resetearContrasenaMarcaPlataforma,
+} from '../controladores/plataformaControlador.js';
 import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.js';
+import { superadminMiddleware, soloMarcaAdminMiddleware } from '../middlewares/plataformaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
 import { limitarLogin, limitarReservas } from '../middlewares/limitarTasa.js';
 
@@ -81,8 +92,8 @@ router.post('/auth/logout', autenticacionMiddleware, logout);
 router.post('/auth/rotar', autenticacionMiddleware, rotarToken);
 router.get('/auth/me', autenticacionMiddleware, me);
 
-// Admin protegido
-router.use('/admin', autenticacionMiddleware);
+// Admin protegido (solo admin de marca)
+router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware);
 
 router.get('/admin/agenda', obtenerAgenda);
 router.get('/admin/citas', listarCitas);
@@ -114,5 +125,16 @@ router.delete('/admin/integraciones/google', desconectarGoogle);
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);
+
+// Plataforma (superadmin)
+router.use('/plataforma', autenticacionMiddleware, superadminMiddleware);
+router.get('/plataforma/resumen', obtenerResumenPlataforma);
+router.get('/plataforma/reportes', obtenerReportePlataforma);
+router.get('/plataforma/marcas', listarMarcasPlataforma);
+router.get('/plataforma/marcas/:id', obtenerMarcaPlataforma);
+router.post('/plataforma/marcas', crearMarcaPlataforma);
+router.put('/plataforma/marcas/:id', actualizarMarcaPlataforma);
+router.post('/plataforma/marcas/:id/impersonar', impersonarMarcaPlataforma);
+router.put('/plataforma/marcas/:id/reset-contrasena', resetearContrasenaMarcaPlataforma);
 
 export default router;

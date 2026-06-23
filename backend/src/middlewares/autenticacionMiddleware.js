@@ -14,16 +14,33 @@ export async function autenticacionMiddleware(req, res, next) {
       return respuestaError(res, 'Autenticacion requerida o sesion expirada.', 401);
     }
 
-    const marcaFila = await marcaRepo.buscarPorId(sesion.marcaId);
-
     req.usuario = {
       id: sesion.usuarioId,
-      marcaId: sesion.marcaId,
+      marcaId: sesion.marcaId ?? null,
       nombre: sesion.nombre,
       correo: sesion.correo,
       rol: sesion.rol,
     };
-    req.marcaId = sesion.marcaId;
+    req.marcaId = sesion.marcaId ?? null;
+
+    if (sesion.rol === 'superadmin') {
+      req.marca = null;
+      req.token = token;
+
+      const esRotacionExplicita = req.originalUrl?.includes('/auth/rotar');
+      if (!esRotacionExplicita) {
+        const rotacion = await authServicio.rotarTokenSiNecesario(token);
+        if (rotacion) {
+          res.setHeader('X-Nuevo-Token', rotacion.token);
+          res.setHeader('X-Token-Expira', rotacion.expiraEn);
+          req.token = rotacion.token;
+        }
+      }
+
+      return next();
+    }
+
+    const marcaFila = await marcaRepo.buscarPorId(sesion.marcaId);
     req.marca = mapearMarcaPublica(marcaFila);
     req.token = token;
 

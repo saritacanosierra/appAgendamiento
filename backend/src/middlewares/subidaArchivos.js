@@ -9,7 +9,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const directorioSubidas = path.resolve(__dirname, '../../subidas');
 
 const CARPETAS_PERMITIDAS = new Set(['galeria', 'blog', 'logos']);
-const MIME_PERMITIDOS = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+const MIME_POR_EXTENSION = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+};
+
+const MIME_PERMITIDOS = new Set(Object.values(MIME_POR_EXTENSION));
 const TAMANO_MAXIMO = 5 * 1024 * 1024;
 
 function asegurarCarpetas() {
@@ -39,12 +49,36 @@ function almacenamiento(carpeta) {
   });
 }
 
-function filtroArchivo(_req, file, cb) {
-  if (!MIME_PERMITIDOS.has(file.mimetype)) {
-    cb(new Error('Tipo de archivo no permitido. Use JPG, PNG, WEBP o GIF.'));
-    return;
+function resolverMime(file, carpeta) {
+  if (MIME_PERMITIDOS.has(file.mimetype)) {
+    return file.mimetype;
   }
-  cb(null, true);
+
+  const ext = path.extname(file.originalname).toLowerCase();
+  const mimePorExt = MIME_POR_EXTENSION[ext];
+  if (!mimePorExt) return null;
+
+  if (mimePorExt === 'image/svg+xml' && carpeta !== 'logos') {
+    return null;
+  }
+
+  return mimePorExt;
+}
+
+function filtroArchivo(carpeta) {
+  return (_req, file, cb) => {
+    const mime = resolverMime(file, carpeta);
+    if (!mime) {
+      const formatos = carpeta === 'logos'
+        ? 'JPG, PNG, WEBP, GIF o SVG'
+        : 'JPG, PNG, WEBP o GIF';
+      cb(new Error(`Tipo de archivo no permitido. Use ${formatos}.`));
+      return;
+    }
+
+    file.mimetype = mime;
+    cb(null, true);
+  };
 }
 
 export function subidaImagenMiddleware(carpeta) {
@@ -55,7 +89,7 @@ export function subidaImagenMiddleware(carpeta) {
   const upload = multer({
     storage: almacenamiento(carpeta),
     limits: { fileSize: TAMANO_MAXIMO },
-    fileFilter: filtroArchivo,
+    fileFilter: filtroArchivo(carpeta),
   }).single('archivo');
 
   return (req, res, next) => {
@@ -72,14 +106,12 @@ export function subidaImagenMiddleware(carpeta) {
 
       try {
         const resultado = await optimizarImagenSubida(req.file.path, req.file.mimetype);
-        if (resultado.optimizado) {
-          req.file.filename = resultado.nombreArchivo;
-          req.file.path = resultado.ruta;
-        }
+        req.file.filename = resultado.nombreArchivo;
+        req.file.path = resultado.ruta;
         req.rutaSubida = `/subidas/${carpeta}/${req.file.filename}`;
         next();
       } catch (errorOpt) {
-        return respuestaError(res, errorOpt.message || 'Error al optimizar imagen.', 422);
+        return respuestaError(res, errorOpt.message || 'Error al procesar imagen.', 422);
       }
     });
   };

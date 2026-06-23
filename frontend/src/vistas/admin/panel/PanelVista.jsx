@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { BotonPrincipal, Cargando } from '../../../compartido/componentes';
-import { RUTAS_ADMIN } from '../../../compartido/constantes';
+import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { fechaHoyLocal } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { obtenerAgenda } from '../../../modulos/agenda/servicios/agendaServicio';
 import PanelNotificaciones from '../../../componentes/admin/panel_notificaciones/PanelNotificaciones';
@@ -20,10 +20,15 @@ export default function PanelVista() {
       .finally(() => setCargando(false));
   }, []);
 
+  const slug = marca?.slug;
+
   return (
     <div className="panel-admin">
-      <h1>Panel principal</h1>
-      <p>Bienvenida, <strong>{usuario?.nombre}</strong> — {marca?.nombreComercial}</p>
+      <h1>Tu app — {marca?.nombreComercial}</h1>
+      <p>
+        Bienvenida, <strong>{usuario?.nombre}</strong>. Aqui gestionas todo lo de tu empresa
+        de forma independiente.
+      </p>
 
       <section className="panel-admin__resumen">
         <div className="panel-admin__tarjeta">
@@ -37,6 +42,36 @@ export default function PanelVista() {
         <div className="panel-admin__tarjeta">
           <span>Confirmadas</span>
           <strong>{cargando ? '...' : agenda?.resumen?.confirmadas ?? 0}</strong>
+        </div>
+      </section>
+
+      <section className="panel-admin__modulos">
+        <h2>Gestion de tu marca</h2>
+        <div className="panel-admin__modulos-grid">
+          <Link to={RUTAS_ADMIN.configuracionMarca} className="panel-admin__modulo">
+            <strong>Mi marca</strong>
+            <span>Nombre, colores, logo, horarios y Google Calendar</span>
+          </Link>
+          <Link to={RUTAS_ADMIN.agenda} className="panel-admin__modulo">
+            <strong>Agenda</strong>
+            <span>Citas y calendario de tu empresa</span>
+          </Link>
+          <Link to={RUTAS_ADMIN.galeria} className="panel-admin__modulo">
+            <strong>Galeria</strong>
+            <span>Fotos de disenos y trabajos</span>
+          </Link>
+          <Link to={RUTAS_ADMIN.blog} className="panel-admin__modulo">
+            <strong>Blog</strong>
+            <span>Publicaciones y novedades</span>
+          </Link>
+          <Link to={RUTAS_ADMIN.clientes} className="panel-admin__modulo">
+            <strong>Clientes</strong>
+            <span>Base de clientes propia</span>
+          </Link>
+          <Link to={RUTAS_ADMIN.servicios} className="panel-admin__modulo">
+            <strong>Servicios</strong>
+            <span>Catalogo y precios</span>
+          </Link>
         </div>
       </section>
 
@@ -59,10 +94,15 @@ export default function PanelVista() {
         <BotonPrincipal href={RUTAS_ADMIN.agenda} anchoCompleto>
           Ver agenda completa
         </BotonPrincipal>
-        <BotonPrincipal href={RUTAS_ADMIN.reportes} variante="secundario" anchoCompleto>
-          Ver reportes del mes
-        </BotonPrincipal>
-        <Link to={RUTAS_ADMIN.clientes}>Gestionar clientes</Link>
+        {slug && (
+          <BotonPrincipal
+            href={RUTAS_PUBLICAS.inicioMarca(slug)}
+            variante="secundario"
+            anchoCompleto
+          >
+            Ver sitio publico de clientes
+          </BotonPrincipal>
+        )}
       </div>
     </div>
   );

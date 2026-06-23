@@ -9,6 +9,8 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
+    "semilla:superadmin": "node scripts/semilla-superadmin.js",
+    "migrar:plataforma": "node scripts/migrar-plataforma.js",
     "verificar:google": "node scripts/verificar-google-calendar.js",
     "verificar:whatsapp": "node scripts/verificar-whatsapp.js"
   },

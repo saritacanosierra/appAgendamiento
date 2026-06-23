@@ -1,6 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const CLAVE_TOKEN_SESION = 'spa_unas_token';
+export const CLAVE_IMPERSONACION = 'spa_unas_impersonando';
 
 export const RUTAS_PUBLICAS = {
   inicioMarca: (slug) => `/m/${slug}`,
@@ -21,6 +22,14 @@ export const RUTAS_ADMIN = {
   blog: '/admin/blog',
   galeria: '/admin/galeria',
   configuracionMarca: '/admin/configuracion-marca',
+};
+
+export const RUTAS_PLATAFORMA = {
+  login: '/plataforma/login',
+  panel: '/plataforma/panel',
+  marcas: '/plataforma/marcas',
+  reportes: '/plataforma/reportes',
+  editarMarca: (id) => `/plataforma/marcas/${id}`,
 };
 
 export const ESTADOS_CITA = {

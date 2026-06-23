@@ -1,5 +1,6 @@
-
+import { Link } from 'react-router-dom';
 import '../../../estilos/compartido/boton_principal/boton_principal.css';
+
 export default function BotonPrincipal({
   children,
   tipo = 'button',
@@ -8,6 +9,7 @@ export default function BotonPrincipal({
   deshabilitado = false,
   onClick,
   href,
+  to,
 }) {
   const clases = [
     'boton-principal',
@@ -16,6 +18,14 @@ export default function BotonPrincipal({
   ]
     .filter(Boolean)
     .join(' ');
+
+  if (to) {
+    return (
+      <Link className={clases} to={to}>
+        {children}
+      </Link>
+    );
+  }
 
   if (href) {
     return (

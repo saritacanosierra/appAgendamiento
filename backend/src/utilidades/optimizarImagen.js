@@ -5,9 +5,16 @@ import sharp from 'sharp';
 const ANCHO_MAXIMO = Number(process.env.IMAGEN_ANCHO_MAXIMO ?? 1920);
 const CALIDAD_WEBP = Number(process.env.IMAGEN_CALIDAD_WEBP ?? 80);
 
+const FORMATOS_SIN_OPTIMIZAR = new Set(['image/gif', 'image/svg+xml']);
+
 export async function optimizarImagenSubida(rutaAbsoluta, mimetype) {
-  if (mimetype === 'image/gif') {
-    return { ruta: rutaAbsoluta, optimizado: false, motivo: 'gif_sin_cambios' };
+  if (FORMATOS_SIN_OPTIMIZAR.has(mimetype)) {
+    return {
+      ruta: rutaAbsoluta,
+      optimizado: false,
+      nombreArchivo: path.basename(rutaAbsoluta),
+      motivo: 'formato_sin_optimizar',
+    };
   }
 
   const ext = path.extname(rutaAbsoluta).toLowerCase();
@@ -15,22 +22,31 @@ export async function optimizarImagenSubida(rutaAbsoluta, mimetype) {
   const nombreBase = path.basename(rutaAbsoluta, ext);
   const destino = path.join(directorio, `${nombreBase}.webp`);
 
-  await sharp(rutaAbsoluta)
-    .rotate()
-    .resize({
-      width: ANCHO_MAXIMO,
-      height: ANCHO_MAXIMO,
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .webp({ quality: CALIDAD_WEBP })
-    .toFile(destino);
+  try {
+    await sharp(rutaAbsoluta)
+      .rotate()
+      .resize({
+        width: ANCHO_MAXIMO,
+        height: ANCHO_MAXIMO,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .webp({ quality: CALIDAD_WEBP })
+      .toFile(destino);
 
-  await fs.unlink(rutaAbsoluta);
+    await fs.unlink(rutaAbsoluta);
 
-  return {
-    ruta: destino,
-    optimizado: true,
-    nombreArchivo: path.basename(destino),
-  };
+    return {
+      ruta: destino,
+      optimizado: true,
+      nombreArchivo: path.basename(destino),
+    };
+  } catch {
+    return {
+      ruta: rutaAbsoluta,
+      optimizado: false,
+      nombreArchivo: path.basename(rutaAbsoluta),
+      motivo: 'optimizacion_omitida',
+    };
+  }
 }

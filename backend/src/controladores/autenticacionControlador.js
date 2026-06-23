@@ -26,7 +26,7 @@ export async function login(req, res) {
 
   if (resultado.error) {
     registrarAuditoria('login_fallido', { ip: req.ip, correo });
-    return respuestaError(res, resultado.error, 401);
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 401);
   }
 
   registrarAuditoria('login_exitoso', {

@@ -1,0 +1,82 @@
+.reportes-plataforma__cabecera {
+  margin-bottom: var(--espacio-lg);
+}
+
+.reportes-plataforma__cabecera h2 {
+  margin: 0 0 var(--espacio-xs);
+  color: #1a237e;
+}
+
+.reportes-plataforma__cabecera p {
+  margin: 0;
+  color: #666;
+}
+
+.reportes-plataforma__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-md);
+  align-items: flex-end;
+  margin-bottom: var(--espacio-lg);
+}
+
+.reportes-plataforma__metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--espacio-md);
+  margin-bottom: var(--espacio-lg);
+}
+
+.reportes-plataforma__metricas article {
+  padding: var(--espacio-md);
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #c5cae9;
+}
+
+.reportes-plataforma__metricas span {
+  display: block;
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+  margin-bottom: var(--espacio-xs);
+}
+
+.reportes-plataforma__metricas strong {
+  font-size: 1.35rem;
+  color: #1a237e;
+}
+
+.reportes-plataforma__bloque {
+  padding: var(--espacio-lg);
+  margin-bottom: var(--espacio-lg);
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+.reportes-plataforma__bloque h3 {
+  margin: 0 0 var(--espacio-md);
+  color: #1a237e;
+}
+
+.reportes-plataforma__bloque ul {
+  margin: 0;
+  padding-left: var(--espacio-lg);
+}
+
+.reportes-plataforma__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--tamano-texto-sm);
+}
+
+.reportes-plataforma__tabla th,
+.reportes-plataforma__tabla td {
+  padding: var(--espacio-sm);
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.reportes-plataforma__tabla th {
+  color: #666;
+}

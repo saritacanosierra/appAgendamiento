@@ -8,7 +8,7 @@ export async function obtenerEstadoGoogle(req, res) {
 }
 
 export async function iniciarAutorizacionGoogle(req, res) {
-  const resultado = googleCalendarServicio.generarUrlAutorizacion(req.marcaId);
+  const resultado = await googleCalendarServicio.generarUrlAutorizacion(req.marcaId);
 
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 503);

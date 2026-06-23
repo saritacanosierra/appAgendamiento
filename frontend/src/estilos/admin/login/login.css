@@ -3,35 +3,145 @@
   display: grid;
   place-items: center;
   padding: var(--espacio-md);
-  background: linear-gradient(180deg, var(--color-secundario), var(--color-fondo));
+}
+
+/* Plataforma — azul oscuro / control total */
+.login-vista--plataforma {
+  background: linear-gradient(160deg, #1a237e 0%, #283593 40%, #3949ab 100%);
+}
+
+.login-vista--plataforma .login-vista__tarjeta {
+  border-top: 5px solid #5c6bc0;
+}
+
+.login-vista--plataforma .login-vista__badge--plataforma {
+  background: #1a237e;
+  color: #fff;
+}
+
+.login-vista--plataforma h1 {
+  color: #1a237e;
+}
+
+.login-vista--plataforma .login-vista__demo,
+.login-vista--plataforma .login-vista__alterno a {
+  color: #283593;
+}
+
+/* Marca — rosa / Luna Nails */
+.login-vista--marca {
+  background: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 50%, #fff 100%);
+}
+
+.login-vista--marca .login-vista__tarjeta {
+  border-top: 5px solid #c2185b;
+}
+
+.login-vista--marca .login-vista__badge--marca {
+  background: #c2185b;
+  color: #fff;
+}
+
+.login-vista--marca h1 {
+  color: #c2185b;
+}
+
+.login-vista--marca .login-vista__demo,
+.login-vista--marca .login-vista__alterno a {
+  color: #c2185b;
 }
 
 .login-vista__tarjeta {
-  width: min(100%, 400px);
+  width: min(100%, 440px);
   padding: var(--espacio-xl);
   border-radius: var(--radio-borde);
   background: #fff;
-  box-shadow: var(--sombra-suave);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   text-align: center;
 }
 
+.login-vista__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: var(--espacio-sm);
+  border-radius: 999px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .login-vista__tarjeta h1 {
-  color: var(--color-principal);
   margin-bottom: var(--espacio-xs);
+  font-size: 1.35rem;
+}
+
+.login-vista__url {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #888 !important;
+  margin-bottom: var(--espacio-sm) !important;
 }
 
 .login-vista__tarjeta > p {
   color: #666;
   font-size: var(--tamano-texto-sm);
-  margin-bottom: var(--espacio-lg);
+  margin-bottom: var(--espacio-md);
+}
+
+.login-vista__destino {
+  padding: var(--espacio-sm) var(--espacio-md);
+  margin-bottom: var(--espacio-md) !important;
+  border-radius: 8px;
+  background: #e8eaf6;
+  color: #1a237e !important;
+  text-align: left;
 }
 
 .login-vista__formulario {
   text-align: left;
 }
 
-.login-vista__ayuda {
-  margin-top: var(--espacio-md);
+.login-vista__demo {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--espacio-sm);
+  padding: 0;
+  border: none;
+  background: none;
   font-size: var(--tamano-texto-sm);
-  color: #888;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+}
+
+.login-vista__alterno {
+  margin: var(--espacio-sm) 0 0;
+  font-size: var(--tamano-texto-sm);
+}
+
+.login-vista__alterno a {
+  text-decoration: none;
+}
+
+.login-vista__alterno a:hover {
+  text-decoration: underline;
+}
+
+.login-vista__conflicto {
+  text-align: left;
+  padding: var(--espacio-md);
+  margin-bottom: var(--espacio-md);
+  border-radius: 8px;
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+  font-size: var(--tamano-texto-sm);
+}
+
+.login-vista__conflicto p {
+  margin: 0 0 var(--espacio-sm);
+  color: #5d4037;
+}
+
+.login-vista__conflicto p:last-of-type {
+  margin-bottom: var(--espacio-md);
 }

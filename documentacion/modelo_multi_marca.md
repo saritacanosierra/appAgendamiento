@@ -46,10 +46,41 @@ SELECT * FROM clientes WHERE telefono = :telefono;
 
 | Rol | Permisos |
 |-----|----------|
+| `superadmin` | Panel plataforma: crear empresas, habilitar plan, reportes globales |
 | `admin` | Acceso completo a su marca |
 | `staff` | Agenda y clientes (futuro) |
 
-Un usuario solo puede pertenecer a **una** marca en el MVP.
+Un usuario de marca pertenece a **una** empresa. El superadmin no tiene `marca_id` y opera en `/plataforma`.
+
+## Panel plataforma (superadmin)
+
+Rutas frontend:
+
+- `/plataforma/marcas` — listar, crear y activar/suspender empresas
+- `/plataforma/reportes` — reportes globales agregados
+
+Cada empresa creada recibe un admin inicial con correo y contrasena. El slug define la URL publica `/m/{slug}`.
+
+Campos de control por empresa:
+
+| Campo | Uso |
+|-------|-----|
+| `activa` | Empresa visible o suspendida |
+| `plan_habilitado` | Si puede operar (reservas, panel) segun plan contratado |
+
+Si `activa` o `plan_habilitado` estan off, el admin de marca no puede iniciar sesion y las reservas publicas se bloquean.
+
+## Modo soporte (superadmin)
+
+Desde **Mis marcas**, el boton **Entrar al panel** abre el panel admin de esa empresa sin conocer su contraseña. Aparece un aviso azul "Modo soporte" con enlace para volver a Mis marcas.
+
+## Google Calendar por empresa
+
+1. Las credenciales OAuth de la **aplicacion** se configuran en `backend/.env` (infraestructura del servidor).
+2. **Cada empresa** conecta su propia cuenta Google en Admin → Configuracion.
+3. El `refresh_token` se guarda en `configuraciones_marca.configuracion_json` por `marca_id`.
+
+Las empresas no comparten calendario ni cuenta de Google.
 
 ## Configuracion visual
 

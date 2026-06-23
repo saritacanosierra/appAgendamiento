@@ -1,0 +1,111 @@
+.panel-plataforma__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--espacio-md);
+  margin-bottom: var(--espacio-lg);
+}
+
+.panel-plataforma__cabecera h2 {
+  margin: 0 0 var(--espacio-xs);
+}
+
+.panel-plataforma__cabecera p {
+  margin: 0;
+  color: #666;
+}
+
+.panel-plataforma__metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--espacio-md);
+  margin-bottom: var(--espacio-lg);
+}
+
+.panel-plataforma__metrica {
+  padding: var(--espacio-md);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.panel-plataforma__metrica span {
+  display: block;
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+  margin-bottom: var(--espacio-xs);
+}
+
+.panel-plataforma__metrica strong {
+  font-size: 1.5rem;
+}
+
+.panel-plataforma__bloques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--espacio-lg);
+  margin-bottom: var(--espacio-lg);
+}
+
+.panel-plataforma__bloque {
+  padding: var(--espacio-lg);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.panel-plataforma__bloque-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espacio-sm);
+  margin-bottom: var(--espacio-md);
+}
+
+.panel-plataforma__bloque-cabecera h3 {
+  margin: 0;
+}
+
+.panel-plataforma__bloque--marcas {
+  grid-column: 1 / -1;
+}
+
+.panel-plataforma__lista-marcas span {
+  display: block;
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+}
+
+.panel-plataforma__bloque h3 {
+  margin: 0 0 var(--espacio-md);
+}
+
+.panel-plataforma__acciones,
+.panel-plataforma__lista-marcas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-plataforma__acciones li + li,
+.panel-plataforma__lista-marcas li + li {
+  margin-top: var(--espacio-sm);
+}
+
+.panel-plataforma__lista-marcas li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espacio-sm);
+}
+
+.panel-plataforma__lista-marcas span {
+  display: block;
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+}
+
+.panel-plataforma__nota {
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+}

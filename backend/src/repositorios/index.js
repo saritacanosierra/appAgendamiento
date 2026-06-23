@@ -103,6 +103,18 @@ export class MarcaRepositorio {
     );
     return filas[0] ?? null;
   }
+
+  async buscarPorIdCompleto(marcaId) {
+    const [filas] = await pool.execute(
+      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia
+       FROM marcas m
+       LEFT JOIN configuraciones_marca c ON c.marca_id = m.id
+       WHERE m.id = ?
+       LIMIT 1`,
+      [marcaId]
+    );
+    return filas[0] ?? null;
+  }
 }
 
 export class UsuarioRepositorio {
@@ -126,6 +138,34 @@ export class UsuarioRepositorio {
     await pool.execute(
       'UPDATE usuarios SET ultimo_acceso_at = NOW() WHERE id = ?',
       [id]
+    );
+  }
+
+  async crear({ marcaId, nombre, correo, contrasenaHash, rol = 'admin' }) {
+    const [resultado] = await pool.execute(
+      `INSERT INTO usuarios (marca_id, nombre, correo, contrasena_hash, rol, activo)
+       VALUES (?, ?, ?, ?, ?, 1)`,
+      [marcaId ?? null, nombre, correo, contrasenaHash, rol]
+    );
+    return resultado.insertId;
+  }
+
+  async buscarAdminPrincipalPorMarca(marcaId) {
+    const [filas] = await pool.execute(
+      `SELECT id, marca_id, nombre, correo, rol, activo
+       FROM usuarios
+       WHERE marca_id = ? AND rol = 'admin' AND activo = 1
+       ORDER BY id ASC
+       LIMIT 1`,
+      [marcaId]
+    );
+    return filas[0] ?? null;
+  }
+
+  async actualizarContrasena(usuarioId, contrasenaHash) {
+    await pool.execute(
+      'UPDATE usuarios SET contrasena_hash = ? WHERE id = ?',
+      [contrasenaHash, usuarioId]
     );
   }
 }

@@ -38,7 +38,7 @@ La plataforma ofrece dos niveles de integracion con calendario:
 
 4. Copia **Client ID** y **Client Secret**.
 
-## 4. Variables de entorno
+## 4. Configuracion OAuth del servidor
 
 En `backend/.env`:
 
@@ -49,19 +49,23 @@ GOOGLE_REDIRECT_URI=http://localhost:3001/api/integraciones/google/callback
 FRONTEND_URL=http://localhost:5173
 ```
 
-Reinicia el backend despues de guardar:
+Reinicia el backend despues de cambiar `.env`:
 
 ```bash
 cd backend && npm run dev
 ```
 
-## 5. Conectar desde el panel admin
+Estas credenciales identifican la **aplicacion** ante Google. No son la cuenta de calendario de ninguna marca.
 
-1. Inicia sesion como administrador de marca.
+## 5. Conectar desde el panel de cada empresa
+
+1. Inicia sesion como administrador de **esa** marca.
 2. Ve a **Admin → Configuracion**.
 3. Seccion **Google Calendar** → **Conectar Google Calendar**.
-4. Autoriza la cuenta de Google que recibira los eventos.
+4. Autoriza la cuenta de Google de la empresa (Gmail/Workspace de esa marca).
 5. Tras el redirect, veras "Conectado — las nuevas citas se sincronizan automaticamente."
+
+**Cada marca conecta su propia cuenta.** Luna Nails y DaniSpa pueden usar calendarios distintos sin compartir acceso.
 
 ## 6. Verificacion
 
@@ -90,7 +94,7 @@ Respuesta esperada (conectado):
 
 1. En **Admin → Configuracion**, con Google conectado, pulsa **Probar sincronizacion**.
 2. O crea una reserva publica o cita admin.
-3. Revisa el calendario **primary** de la cuenta conectada.
+3. Revisa el calendario **primary** de la cuenta conectada de esa marca.
 
 Endpoint manual:
 
@@ -103,7 +107,7 @@ Authorization: Bearer <token>
 
 | Sintoma | Causa | Solucion |
 |---------|-------|----------|
-| UI dice "integracion no configurada" | Faltan variables en `.env` | Completa GOOGLE_* y reinicia backend |
+| UI dice "no habilitado en el servidor" | Faltan GOOGLE_* en `.env` | Completa variables y reinicia backend |
 | `redirect_uri_mismatch` | URI no registrada en Google | Agrega la URI exacta en credenciales OAuth |
 | `access_denied` | Usuario cancelo o app no verificada | Revisa pantalla de consentimiento |
 | Evento no aparece | Cuenta desconectada o error de API | Revisa logs del backend; reconecta en Configuracion |

@@ -1,0 +1,76 @@
+.editar-marca-plataforma__volver {
+  margin: 0 0 var(--espacio-md);
+}
+
+.editar-marca-plataforma__cabecera {
+  margin-bottom: var(--espacio-lg);
+}
+
+.editar-marca-plataforma__cabecera h2 {
+  margin: 0 0 var(--espacio-xs);
+}
+
+.editar-marca-plataforma__cabecera p {
+  margin: 0;
+  color: #666;
+}
+
+.editar-marca-plataforma__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  max-width: 640px;
+  padding: var(--espacio-lg);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.editar-marca-plataforma__check {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+}
+
+.editar-marca-plataforma__hint {
+  margin: 0;
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+}
+
+.editar-marca-plataforma__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-sm);
+}
+
+.editar-marca-plataforma__exito {
+  color: var(--color-principal);
+  margin-bottom: var(--espacio-md);
+}
+
+.editar-marca-plataforma__admin {
+  max-width: 640px;
+  margin-top: var(--espacio-lg);
+  padding: var(--espacio-lg);
+  border: 1px solid #c5cae9;
+  border-radius: 12px;
+  background: #f5f6fc;
+}
+
+.editar-marca-plataforma__admin h3 {
+  margin: 0 0 var(--espacio-sm);
+  color: #1a237e;
+}
+
+.editar-marca-plataforma__admin p {
+  margin: 0 0 var(--espacio-md);
+  color: #555;
+}
+
+.editar-marca-plataforma__reset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}

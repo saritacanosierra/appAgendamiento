@@ -7,6 +7,7 @@ import {
 } from '../repositorios/index.js';
 import { entorno } from '../configuracion/entorno.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
+import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 
 const HORAS_EXPIRACION = Number(process.env.TOKEN_EXPIRACION_HORAS ?? 168);
 const HORAS_ROTACION = Number(process.env.TOKEN_ROTACION_HORAS ?? 24);
@@ -38,22 +39,47 @@ export class AutenticacionServicio {
       return { error: 'Credenciales invalidas.' };
     }
 
+    if (usuario.rol !== 'superadmin') {
+      const marca = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
+      const operativa = verificarMarcaOperativa(marca);
+      if (!operativa.ok) {
+        return { error: operativa.error, codigoHttp: operativa.codigoHttp };
+      }
+    }
+
+    return this.crearSesionParaUsuario(usuario);
+  }
+
+  async crearSesionParaUsuario(usuario) {
     const token = this.seguridad.generarToken();
     const tokenHash = this.seguridad.hashToken(token);
     const expiraEn = new Date(Date.now() + HORAS_EXPIRACION * 60 * 60 * 1000);
 
     await this.tokenRepo.crear({
       usuarioId: usuario.id,
-      marcaId: usuario.marca_id,
+      marcaId: usuario.marca_id ?? null,
       tokenHash,
       expiraEn,
     });
 
-    this.tokenRepo.limpiarExpirados().catch(() => {});
-
     await this.usuarioRepo.actualizarUltimoAcceso(usuario.id);
 
-    const marcaFila = await this.marcaRepo.buscarPorId(usuario.marca_id);
+    if (usuario.rol === 'superadmin') {
+      return {
+        token,
+        expiraEn: expiraEn.toISOString(),
+        usuario: {
+          id: usuario.id,
+          marcaId: null,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+          rol: usuario.rol,
+        },
+        marca: null,
+      };
+    }
+
+    const marcaFila = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
     const marca = mapearMarcaPublica(marcaFila);
 
     return {
@@ -136,12 +162,23 @@ export class AutenticacionServicio {
     const sesion = await this.validarToken(token);
     if (!sesion) return null;
 
-    const [usuario, marcaFila] = await Promise.all([
-      this.usuarioRepo.buscarPorId(sesion.usuarioId),
-      this.marcaRepo.buscarPorId(sesion.marcaId),
-    ]);
-
+    const usuario = await this.usuarioRepo.buscarPorId(sesion.usuarioId);
     if (!usuario) return null;
+
+    if (usuario.rol === 'superadmin') {
+      return {
+        usuario: {
+          id: usuario.id,
+          marcaId: null,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+          rol: usuario.rol,
+        },
+        marca: null,
+      };
+    }
+
+    const marcaFila = await this.marcaRepo.buscarPorId(sesion.marcaId);
 
     return {
       usuario: {

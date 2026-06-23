@@ -1,10 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { Cargando } from '../../compartido/componentes';
-import { RUTAS_ADMIN } from '../../compartido/constantes';
+import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../compartido/constantes';
 import { useAuth } from '../proveedores/ProveedorAuth';
 
 export default function RutaProtegidaAdmin({ children }) {
-  const { autenticado, cargando } = useAuth();
+  const { autenticado, cargando, usuario } = useAuth();
   const ubicacion = useLocation();
 
   if (cargando) {
@@ -13,6 +13,10 @@ export default function RutaProtegidaAdmin({ children }) {
 
   if (!autenticado) {
     return <Navigate to={RUTAS_ADMIN.login} state={{ desde: ubicacion.pathname }} replace />;
+  }
+
+  if (usuario?.rol === 'superadmin') {
+    return <Navigate to={RUTAS_PLATAFORMA.panel} replace />;
   }
 
   return children;

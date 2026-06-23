@@ -18,40 +18,47 @@ function normalizarHoraGoogle(hora) {
   return `${coincidencia[1].padStart(2, '0')}:${coincidencia[2]}:00`;
 }
 
-function obtenerConfigGoogle() {
-  return {
-    clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? '',
-    frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:5173',
-  };
-}
-
 export class GoogleCalendarServicio {
   constructor(configRepo = new ConfiguracionRepositorio()) {
     this.configRepo = configRepo;
   }
 
+  obtenerConfigGoogle() {
+    return {
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      redirectUri: process.env.GOOGLE_REDIRECT_URI ?? '',
+      frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    };
+  }
+
   estaConfigurado() {
-    const { clientId, clientSecret, redirectUri } = obtenerConfigGoogle();
+    const { clientId, clientSecret, redirectUri } = this.obtenerConfigGoogle();
     return Boolean(clientId && clientSecret && redirectUri);
   }
 
   async obtenerEstado(marcaId) {
     const config = await this.configRepo.obtenerConfiguracionJson(marcaId);
     const google = config.google_calendar ?? null;
+    const disponible = this.estaConfigurado();
 
     return {
-      disponible: this.estaConfigurado(),
+      disponible,
       conectado: Boolean(google?.refresh_token),
       conectadoEn: google?.conectado_en ?? null,
       calendarioId: google?.calendario_id ?? 'primary',
+      mensajePlataforma: disponible
+        ? null
+        : 'Google Calendar no esta habilitado en el servidor. Contacta a soporte tecnico.',
     };
   }
 
-  generarUrlAutorizacion(marcaId) {
+  async generarUrlAutorizacion(marcaId) {
     if (!this.estaConfigurado()) {
-      return { error: 'Google Calendar no esta configurado en el servidor.', codigoHttp: 503 };
+      return {
+        error: 'Google Calendar no esta disponible. Contacta al administrador del sistema.',
+        codigoHttp: 503,
+      };
     }
 
     limpiarEstadosExpirados();
@@ -69,7 +76,7 @@ export class GoogleCalendarServicio {
       expira: Date.now() + TTL_ESTADO_MS,
     });
 
-    const { clientId, redirectUri } = obtenerConfigGoogle();
+    const { clientId, redirectUri } = this.obtenerConfigGoogle();
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -98,7 +105,7 @@ export class GoogleCalendarServicio {
 
     estadosPendientes.delete(state);
 
-    const { clientId, clientSecret, redirectUri, frontendUrl } = obtenerConfigGoogle();
+    const { clientId, clientSecret, redirectUri, frontendUrl } = this.obtenerConfigGoogle();
 
     const body = new URLSearchParams({
       client_id: clientId,
@@ -158,7 +165,7 @@ export class GoogleCalendarServicio {
     const refreshToken = config.google_calendar?.refresh_token;
     if (!refreshToken) return null;
 
-    const { clientId, clientSecret } = obtenerConfigGoogle();
+    const { clientId, clientSecret } = this.obtenerConfigGoogle();
     const body = new URLSearchParams({
       client_id: clientId,
       client_secret: clientSecret,

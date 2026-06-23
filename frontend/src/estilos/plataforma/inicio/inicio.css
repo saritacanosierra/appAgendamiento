@@ -11,8 +11,106 @@
 
 .inicio-plataforma__hero p {
   color: #555;
-  max-width: 480px;
+  max-width: 520px;
   margin-inline: auto;
+}
+
+.inicio-plataforma__accesos {
+  display: grid;
+  gap: var(--espacio-lg);
+  margin: var(--espacio-xl) auto;
+  max-width: 920px;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .inicio-plataforma__accesos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.inicio-plataforma__tarjeta {
+  padding: var(--espacio-lg);
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.inicio-plataforma__etiqueta {
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: var(--espacio-sm);
+  border-radius: 999px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+}
+
+.inicio-plataforma__etiqueta--plataforma {
+  background: #1a237e;
+  color: #fff;
+}
+
+.inicio-plataforma__etiqueta--marca {
+  background: #c2185b;
+  color: #fff;
+}
+
+.inicio-plataforma__tarjeta--plataforma {
+  background: linear-gradient(180deg, #fff 0%, #e8eaf6 100%);
+  border-color: #5c6bc0;
+}
+
+.inicio-plataforma__tarjeta--plataforma h2 {
+  color: #1a237e;
+}
+
+.inicio-plataforma__tarjeta--marca {
+  background: linear-gradient(180deg, #fff 0%, #fce4ec 100%);
+  border-color: #f48fb1;
+}
+
+.inicio-plataforma__tarjeta--marca h2 {
+  color: #c2185b;
+}
+
+.inicio-plataforma__tarjeta h2 {
+  margin: 0 0 var(--espacio-xs);
+  font-size: 1.25rem;
+}
+
+.inicio-plataforma__url {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #888 !important;
+  margin: 0 0 var(--espacio-sm) !important;
+}
+
+.inicio-plataforma__tarjeta > p {
+  margin: 0 0 var(--espacio-md);
+  color: #555;
+}
+
+.inicio-plataforma__lista {
+  margin: 0 0 var(--espacio-md);
+  padding-left: var(--espacio-lg);
+  color: #555;
+  font-size: var(--tamano-texto-sm);
+}
+
+.inicio-plataforma__hint {
+  display: block;
+  margin-top: var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+  color: #777;
+}
+
+.inicio-plataforma__demo {
+  margin-bottom: var(--espacio-lg);
+}
+
+.inicio-plataforma__demo h3 {
+  margin-bottom: var(--espacio-sm);
 }
 
 .inicio-plataforma__estado {
@@ -27,16 +125,3 @@
   margin: var(--espacio-sm) 0 0;
   padding-left: var(--espacio-lg);
 }
-
-.inicio-plataforma__enlaces {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-md);
-  max-width: 320px;
-  margin: var(--espacio-xl) auto;
-}
-
-.inicio-plataforma__link-admin {
-  font-size: var(--tamano-texto-sm);
-}
-

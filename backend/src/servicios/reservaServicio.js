@@ -9,6 +9,7 @@ import {
 } from '../repositorios/index.js';
 import { CalendarioServicio } from './calendarioServicio.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
+import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { esFechaValida, esHoraValida } from '../utilidades/fechaHora.js';
 import { requerido, telefono, email, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
@@ -41,11 +42,13 @@ export class ReservaServicio {
     }
 
     const [marca, servicio] = await Promise.all([
-      this.marcaRepo.buscarPorId(marcaId),
+      this.marcaRepo.buscarPorIdCompleto(marcaId),
       this.servicioRepo.buscarActivoPorId(marcaId, servicioId),
     ]);
 
     if (!marca) return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    const operativa = verificarMarcaOperativa(marca);
+    if (!operativa.ok) return { error: operativa.error, codigoHttp: operativa.codigoHttp };
     if (!servicio) return { error: 'Servicio no encontrado.', codigoHttp: 404 };
 
     const horarios = parsearJsonCampo(marca.horarios_json, {});

@@ -202,9 +202,10 @@ export default function ConfiguracionMarcaVista() {
 
   return (
     <div className="configuracion-marca">
-      <h1>Configuracion de marca</h1>
+      <h1>Mi marca — perfil e identidad</h1>
       <p className="configuracion-marca__intro">
-        Personaliza colores, contacto y horarios. Los cambios se previsualizan al instante.
+        Personaliza nombre, colores, contacto, horarios y conecta el Google Calendar de tu empresa.
+        Los cambios solo afectan a tu marca.
       </p>
 
       {error && <MensajeError mensaje={error} />}
@@ -229,7 +230,8 @@ export default function ConfiguracionMarcaVista() {
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Logo" id="cfg-logo">
-            <input id="cfg-logo" type="file" accept="image/*" onChange={manejarLogo} />
+            <input id="cfg-logo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.jpg,.jpeg,.png,.webp,.gif,.svg" onChange={manejarLogo} />
+            <p className="configuracion-marca__hint">JPG, PNG, WEBP, GIF o SVG. Maximo 5 MB.</p>
             {subiendoLogo && <p className="configuracion-marca__hint">Subiendo logo...</p>}
             {config.logo && <img src={config.logo} alt="" className="configuracion-marca__logo" />}
           </CampoFormulario>
@@ -321,10 +323,16 @@ export default function ConfiguracionMarcaVista() {
         <section className="configuracion-marca__seccion">
           <h2>Google Calendar</h2>
           {!googleEstado?.disponible ? (
-            <p className="configuracion-marca__hint">
-              La integracion no esta configurada en el servidor. Define GOOGLE_CLIENT_ID,
-              GOOGLE_CLIENT_SECRET y GOOGLE_REDIRECT_URI en el backend.
-            </p>
+            <div className="configuracion-marca__google-pendiente">
+              <p className="configuracion-marca__hint">
+                {googleEstado?.mensajePlataforma
+                  ?? 'Google Calendar no esta habilitado en este servidor.'}
+              </p>
+              <p className="configuracion-marca__hint">
+                Cuando este disponible, conecta <strong>tu cuenta de Google</strong> aqui.
+                Cada empresa enlaza su propio calendario; los cambios no afectan a otras marcas.
+              </p>
+            </div>
           ) : googleEstado.conectado ? (
             <>
               <p className="configuracion-marca__google-ok">
@@ -352,7 +360,8 @@ export default function ConfiguracionMarcaVista() {
           ) : (
             <>
               <p className="configuracion-marca__hint">
-                Conecta tu cuenta de Google para crear eventos al registrar citas.
+                Conecta la cuenta de Google de tu empresa. Las citas nuevas se sincronizaran
+                con el calendario de esta marca unicamente.
               </p>
               <BotonPrincipal
                 type="button"
