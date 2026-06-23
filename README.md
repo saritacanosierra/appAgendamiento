@@ -1,11 +1,11 @@
-# Spa Unas — Plataforma SaaS multi-marca
+# appAgendamiento — Spa Unas
 
-Aplicacion web para spas de unas con reservas, galeria, blog y panel administrativo por marca.
+Plataforma SaaS multi-marca para spas de uñas con reservas, galería, blog y panel administrativo por marca.
 
 ## Estructura del proyecto
 
 ```
-appcitas/
+appAgendamiento/
 ├── frontend/          # React + Vite
 ├── backend/           # Node.js + Express + MySQL
 ├── base_de_datos/     # Esquema SQL y migraciones
