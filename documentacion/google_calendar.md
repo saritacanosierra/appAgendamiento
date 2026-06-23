@@ -88,9 +88,16 @@ Respuesta esperada (conectado):
 
 ### Probar sync
 
-1. Crea una reserva publica o cita admin.
-2. Revisa el calendario **primary** de la cuenta conectada.
-3. Debe aparecer un evento con titulo `{servicio} — {cliente}`.
+1. En **Admin → Configuracion**, con Google conectado, pulsa **Probar sincronizacion**.
+2. O crea una reserva publica o cita admin.
+3. Revisa el calendario **primary** de la cuenta conectada.
+
+Endpoint manual:
+
+```http
+POST /api/admin/integraciones/google/probar
+Authorization: Bearer <token>
+```
 
 ## 7. Errores comunes
 

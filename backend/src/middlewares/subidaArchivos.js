@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import multer from 'multer';
 import { respuestaError } from '../utilidades/respuestaJson.js';
+import { optimizarImagenSubida } from '../utilidades/optimizarImagen.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const directorioSubidas = path.resolve(__dirname, '../../subidas');
@@ -58,7 +59,7 @@ export function subidaImagenMiddleware(carpeta) {
   }).single('archivo');
 
   return (req, res, next) => {
-    upload(req, res, (err) => {
+    upload(req, res, async (err) => {
       if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
         return respuestaError(res, 'La imagen supera el tamano maximo de 5 MB.', 422);
       }
@@ -68,8 +69,18 @@ export function subidaImagenMiddleware(carpeta) {
       if (!req.file) {
         return respuestaError(res, 'No se recibio ningun archivo.', 422);
       }
-      req.rutaSubida = `/subidas/${carpeta}/${req.file.filename}`;
-      next();
+
+      try {
+        const resultado = await optimizarImagenSubida(req.file.path, req.file.mimetype);
+        if (resultado.optimizado) {
+          req.file.filename = resultado.nombreArchivo;
+          req.file.path = resultado.ruta;
+        }
+        req.rutaSubida = `/subidas/${carpeta}/${req.file.filename}`;
+        next();
+      } catch (errorOpt) {
+        return respuestaError(res, errorOpt.message || 'Error al optimizar imagen.', 422);
+      }
     });
   };
 }

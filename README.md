@@ -74,7 +74,7 @@ El proxy de Vite redirige `/api/*` al backend en el puerto 3001.
 | Fase 1 | Completada — estructura, API Node, esquema BD |
 | Fase 2 | Completada — reservas, clientes, citas, auth admin |
 | Fase 3 | Completada — blog, galeria, config, notificaciones |
-| Fase 4 | En progreso — reportes, rotacion tokens, email, Google Calendar |
+| Fase 4 | En progreso — reportes, tokens, email, WhatsApp, optimizacion |
 
 Ver `documentacion/` para detalles. Google Calendar: `documentacion/google_calendar.md`.
 
@@ -85,6 +85,14 @@ Ruta: `/admin/reportes` — resumen de citas, ingresos y clientes por periodo.
 ## Email de confirmacion (opcional)
 
 Configura SMTP en `backend/.env` (`SMTP_HOST`, `SMTP_USUARIO`, `SMTP_CONTRASENA`). Si el cliente deja correo al reservar, recibe confirmacion automatica.
+
+## WhatsApp de confirmacion (opcional)
+
+Configura la API de Meta en `backend/.env` siguiendo `documentacion/whatsapp.md`.
+
+```bash
+cd backend && npm run verificar:whatsapp
+```
 
 ## Google Calendar (opcional)
 

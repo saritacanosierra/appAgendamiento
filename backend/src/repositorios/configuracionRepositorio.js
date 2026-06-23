@@ -76,6 +76,12 @@ export class ConfiguracionRepositorio {
     const actual = await this.obtenerConfiguracionJson(marcaId);
     const fusionado = { ...actual, ...parcial };
 
+    for (const [clave, valor] of Object.entries(parcial)) {
+      if (valor === null || valor === undefined) {
+        delete fusionado[clave];
+      }
+    }
+
     const [existentes] = await pool.execute(
       `SELECT id FROM configuraciones_marca WHERE marca_id = ? LIMIT 1`,
       [marcaId]

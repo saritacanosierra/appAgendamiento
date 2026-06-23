@@ -17,6 +17,7 @@ import {
   desconectarGoogleCalendar,
   iniciarAutorizacionGoogle,
   obtenerEstadoGoogleCalendar,
+  probarGoogleCalendar,
 } from '../../../modulos/configuracion_marca/servicios/integracionesServicio';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
@@ -29,6 +30,7 @@ export default function ConfiguracionMarcaVista() {
   const [googleEstado, setGoogleEstado] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [conectandoGoogle, setConectandoGoogle] = useState(false);
+  const [probandoGoogle, setProbandoGoogle] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [error, setError] = useState(null);
@@ -64,8 +66,10 @@ export default function ConfiguracionMarcaVista() {
       setSearchParams(searchParams, { replace: true });
       obtenerEstadoGoogleCalendar().then(setGoogleEstado).catch(() => {});
     } else if (resultado === 'error') {
-      setError('No se pudo conectar Google Calendar.');
+      const motivo = searchParams.get('motivo');
+      setError(motivo ? decodeURIComponent(motivo) : 'No se pudo conectar Google Calendar.');
       searchParams.delete('google');
+      searchParams.delete('motivo');
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -138,6 +142,23 @@ export default function ConfiguracionMarcaVista() {
       setMensajeExito('Google Calendar desconectado.');
     } catch (err) {
       setError(err.message);
+    }
+  }
+
+  async function probarGoogle() {
+    setProbandoGoogle(true);
+    setError(null);
+    setMensajeExito(null);
+    try {
+      const datos = await probarGoogleCalendar();
+      setMensajeExito('Evento de prueba creado en Google Calendar.');
+      if (datos?.htmlLink) {
+        window.open(datos.htmlLink, '_blank', 'noopener,noreferrer');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProbandoGoogle(false);
     }
   }
 
@@ -314,9 +335,19 @@ export default function ConfiguracionMarcaVista() {
                   Desde {new Date(googleEstado.conectadoEn).toLocaleString('es-MX')}
                 </p>
               )}
-              <BotonPrincipal variante="secundario" type="button" onClick={desconectarGoogle}>
-                Desconectar Google Calendar
-              </BotonPrincipal>
+              <div className="configuracion-marca__google-acciones">
+                <BotonPrincipal
+                  type="button"
+                  variante="secundario"
+                  onClick={probarGoogle}
+                  deshabilitado={probandoGoogle}
+                >
+                  {probandoGoogle ? 'Probando...' : 'Probar sincronizacion'}
+                </BotonPrincipal>
+                <BotonPrincipal variante="secundario" type="button" onClick={desconectarGoogle}>
+                  Desconectar
+                </BotonPrincipal>
+              </div>
             </>
           ) : (
             <>

@@ -99,3 +99,9 @@
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-sm);
 }
+
+.configuracion-marca__google-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-sm);
+}

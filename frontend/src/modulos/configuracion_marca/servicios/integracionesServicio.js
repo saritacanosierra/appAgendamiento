@@ -18,3 +18,10 @@ export async function desconectarGoogleCalendar() {
   });
   return respuesta.datos;
 }
+
+export async function probarGoogleCalendar() {
+  const respuesta = await peticionAdmin('/admin/integraciones/google/probar', {
+    method: 'POST',
+  });
+  return respuesta.datos;
+}

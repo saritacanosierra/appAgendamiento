@@ -219,12 +219,25 @@ export class ReservaServicio {
         const { emailServicio } = await import('./emailServicio.js');
         const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
         const slug = marca.slug ?? '';
+        const urlConfirmacion = `${frontendUrl}/m/${slug}/confirmacion/${codigoConfirmacion}`;
         await emailServicio.enviarConfirmacionReserva({
+          confirmacion,
+          urlConfirmacion,
+        });
+      } catch {
+        // Email no bloquea la reserva
+      }
+
+      try {
+        const { whatsappServicio } = await import('./whatsappServicio.js');
+        const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+        const slug = marca.slug ?? '';
+        await whatsappServicio.enviarConfirmacionReserva({
           confirmacion,
           urlConfirmacion: `${frontendUrl}/m/${slug}/confirmacion/${codigoConfirmacion}`,
         });
       } catch {
-        // Email no bloquea la reserva
+        // WhatsApp no bloquea la reserva
       }
 
       return { confirmacion };

@@ -9,7 +9,8 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
-    "verificar:google": "node scripts/verificar-google-calendar.js"
+    "verificar:google": "node scripts/verificar-google-calendar.js",
+    "verificar:whatsapp": "node scripts/verificar-whatsapp.js"
   },
   "engines": {
     "node": ">=18"
@@ -21,6 +22,7 @@
     "express": "^4.21.2",
     "multer": "^2.2.0",
     "mysql2": "^3.12.0",
-    "nodemailer": "^6.10.1"
+    "nodemailer": "^6.10.1",
+    "sharp": "^0.33.5"
   }
 }

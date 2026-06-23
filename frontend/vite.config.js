@@ -9,6 +9,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    target: 'es2020',
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom')) return 'react-dom';
+          if (id.includes('node_modules/react-router')) return 'react-router';
+          if (id.includes('node_modules/react/')) return 'react';
+        },
+      },
+    },
+  },
   server: {
     host: true,
     port: 5173,

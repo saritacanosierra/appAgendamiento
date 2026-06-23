@@ -50,6 +50,7 @@ import {
   obtenerEstadoGoogle,
   iniciarAutorizacionGoogle,
   desconectarGoogle,
+  probarGoogle,
   callbackGoogle,
 } from '../controladores/googleCalendarControlador.js';
 import { obtenerReporte } from '../controladores/reporteControlador.js';
@@ -108,6 +109,7 @@ router.get('/admin/notificaciones', listarNotificaciones);
 router.get('/admin/reportes', obtenerReporte);
 router.get('/admin/integraciones/google', obtenerEstadoGoogle);
 router.post('/admin/integraciones/google/autorizar', iniciarAutorizacionGoogle);
+router.post('/admin/integraciones/google/probar', probarGoogle);
 router.delete('/admin/integraciones/google', desconectarGoogle);
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);

@@ -123,6 +123,7 @@ Archivos estaticos servidos en `/subidas/...` (max 5 MB, JPG/PNG/WEBP/GIF).
 | PUT | `/api/admin/notificaciones/marcar-todas-leidas` | Si | Marcar todas como leidas |
 | GET | `/api/admin/integraciones/google` | Si | Estado de conexion Google Calendar |
 | POST | `/api/admin/integraciones/google/autorizar` | Si | URL OAuth con PKCE |
+| POST | `/api/admin/integraciones/google/probar` | Si | Crear evento de prueba en Calendar |
 | DELETE | `/api/admin/integraciones/google` | Si | Desconectar cuenta |
 | GET | `/api/integraciones/google/callback` | No | Callback OAuth (redirect al frontend) |
 
@@ -144,6 +145,16 @@ Respuesta `429` si se supera el limite.
 Variables SMTP en `backend/.env`: `SMTP_HOST`, `SMTP_PUERTO`, `SMTP_USUARIO`, `SMTP_CONTRASENA`, `EMAIL_REMITENTE`.
 
 Si SMTP no esta configurado, la reserva funciona igual; en desarrollo se registra un mensaje simulado en consola.
+
+### WhatsApp de confirmacion
+
+Variables en `backend/.env`: `WHATSAPP_HABILITADO=1`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_CODIGO_PAIS`.
+
+Guia: `documentacion/whatsapp.md`. Verificar: `npm run verificar:whatsapp`.
+
+### Optimizacion de imagenes
+
+Las subidas admin (`/admin/subidas/*`) se convierten a WebP (max 1920px) salvo GIF. Variables: `IMAGEN_ANCHO_MAXIMO`, `IMAGEN_CALIDAD_WEBP`.
 
 ### Auditoria
 

@@ -11,6 +11,13 @@ function limpiarEstadosExpirados() {
   }
 }
 
+function normalizarHoraGoogle(hora) {
+  const texto = String(hora ?? '').trim();
+  const coincidencia = texto.match(/^(\d{1,2}):(\d{2})/);
+  if (!coincidencia) return '09:00:00';
+  return `${coincidencia[1].padStart(2, '0')}:${coincidencia[2]}:00`;
+}
+
 function obtenerConfigGoogle() {
   return {
     clientId: process.env.GOOGLE_CLIENT_ID ?? '',
@@ -109,18 +116,28 @@ export class GoogleCalendarServicio {
     });
 
     const tokens = await respuesta.json();
-    if (!respuesta.ok || !tokens.refresh_token) {
+    if (!respuesta.ok) {
       return {
-        error: tokens.error_description ?? 'No se pudo obtener el token de Google.',
+        error: tokens.error_description ?? tokens.error ?? 'No se pudo obtener el token de Google.',
+        codigoHttp: 502,
+      };
+    }
+
+    const configActual = await this.configRepo.obtenerConfiguracionJson(pendiente.marcaId);
+    const refreshToken = tokens.refresh_token ?? configActual.google_calendar?.refresh_token;
+
+    if (!refreshToken) {
+      return {
+        error: 'Google no devolvio refresh_token. Revoca el acceso en tu cuenta Google y vuelve a conectar con prompt de consentimiento.',
         codigoHttp: 502,
       };
     }
 
     await this.configRepo.actualizarConfiguracionJson(pendiente.marcaId, {
       google_calendar: {
-        refresh_token: tokens.refresh_token,
+        refresh_token: refreshToken,
         conectado_en: new Date().toISOString(),
-        calendario_id: 'primary',
+        calendario_id: configActual.google_calendar?.calendario_id ?? 'primary',
       },
     });
 
@@ -130,9 +147,9 @@ export class GoogleCalendarServicio {
   }
 
   async desconectar(marcaId) {
-    const config = await this.configRepo.obtenerConfiguracionJson(marcaId);
-    const { google_calendar: _, ...resto } = config;
-    await this.configRepo.actualizarConfiguracionJson(marcaId, resto);
+    await this.configRepo.actualizarConfiguracionJson(marcaId, {
+      google_calendar: null,
+    });
     return { ok: true };
   }
 
@@ -156,7 +173,12 @@ export class GoogleCalendarServicio {
     });
 
     const datos = await respuesta.json();
-    if (!respuesta.ok) return null;
+    if (!respuesta.ok) {
+      if (datos.error === 'invalid_grant') {
+        await this.desconectar(marcaId);
+      }
+      return null;
+    }
 
     return {
       accessToken: datos.access_token,
@@ -164,18 +186,34 @@ export class GoogleCalendarServicio {
     };
   }
 
+  async probarSincronizacion(marcaId) {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const fecha = manana.toISOString().slice(0, 10);
+
+    return this.sincronizarCita(marcaId, {
+      fecha,
+      horaInicio: '10:00',
+      horaFin: '10:30',
+      titulo: 'Prueba Spa Unas — Google Calendar',
+      descripcion: 'Evento de prueba generado desde el panel admin. Puedes eliminarlo.',
+      clienteNombre: 'Prueba',
+    });
+  }
+
   async sincronizarCita(marcaId, cita) {
     const credenciales = await this.obtenerAccessToken(marcaId);
-    if (!credenciales) return { omitido: true };
+    if (!credenciales) return { omitido: true, motivo: 'sin_conexion' };
 
-    const inicio = `${cita.fecha}T${cita.horaInicio ?? cita.hora_inicio}:00`;
-    const fin = `${cita.fecha}T${cita.horaFin ?? cita.hora_fin}:00`;
+    const zona = process.env.ZONA_HORARIA ?? 'America/Mexico_City';
+    const inicio = `${cita.fecha}T${normalizarHoraGoogle(cita.horaInicio ?? cita.hora_inicio)}`;
+    const fin = `${cita.fecha}T${normalizarHoraGoogle(cita.horaFin ?? cita.hora_fin)}`;
 
     const evento = {
       summary: cita.titulo ?? `Cita — ${cita.clienteNombre ?? 'Cliente'}`,
       description: cita.descripcion ?? '',
-      start: { dateTime: inicio, timeZone: process.env.ZONA_HORARIA ?? 'America/Mexico_City' },
-      end: { dateTime: fin, timeZone: process.env.ZONA_HORARIA ?? 'America/Mexico_City' },
+      start: { dateTime: inicio, timeZone: zona },
+      end: { dateTime: fin, timeZone: zona },
     };
 
     const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(credenciales.calendarioId)}/events`;
@@ -189,12 +227,16 @@ export class GoogleCalendarServicio {
       body: JSON.stringify(evento),
     });
 
+    const cuerpo = await respuesta.json().catch(() => ({}));
+
     if (!respuesta.ok) {
-      return { error: 'No se pudo crear el evento en Google Calendar.' };
+      return {
+        error: cuerpo.error?.message ?? 'No se pudo crear el evento en Google Calendar.',
+        codigoHttp: respuesta.status,
+      };
     }
 
-    const eventoCreado = await respuesta.json();
-    return { eventoId: eventoCreado.id, htmlLink: eventoCreado.htmlLink };
+    return { eventoId: cuerpo.id, htmlLink: cuerpo.htmlLink };
   }
 }
 

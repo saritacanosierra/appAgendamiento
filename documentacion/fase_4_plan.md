@@ -24,11 +24,11 @@
 
 ### Notificaciones externas
 - [x] Email de confirmacion al reservar (SMTP configurable)
-- [ ] WhatsApp Business API
+- [x] WhatsApp Business Cloud API (confirmacion al reservar)
 
-### Optimizacion (pendiente)
-- Revision de bundle frontend
-- Compresion/optimizacion de imagenes subidas
+### Optimizacion
+- [x] Revision de bundle frontend (chunks separados en Vite)
+- [x] Compresion/optimizacion de imagenes subidas (WebP con sharp)
 
 ## Orden de implementacion
 
@@ -37,11 +37,12 @@
 3. [x] Google Calendar — guia, script de verificacion (`npm run verificar:google`)
 4. [x] Rotacion de tokens
 5. [x] Email de confirmacion de reserva
-6. [ ] WhatsApp Business API
+6. [x] WhatsApp Business API
+7. [x] Optimizacion bundle e imagenes
 
 ## Criterios de aceptacion
 
 - [x] Reportes filtrados por marca del usuario autenticado
 - [x] Rango de fechas validado (max 366 dias)
-- [ ] Google Calendar conectable con credenciales reales
+- [x] Google Calendar OAuth — conexion, sync automatica y prueba desde panel
 - [ ] Documentacion actualizada en cada entrega

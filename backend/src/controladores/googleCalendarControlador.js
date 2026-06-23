@@ -25,7 +25,8 @@ export async function callbackGoogle(req, res) {
 
   if (resultado.error) {
     const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/admin/configuracion-marca?google=error`);
+    const motivo = encodeURIComponent(resultado.error);
+    return res.redirect(`${frontendUrl}/admin/configuracion-marca?google=error&motivo=${motivo}`);
   }
 
   return res.redirect(resultado.redirectUrl);
@@ -34,4 +35,21 @@ export async function callbackGoogle(req, res) {
 export async function desconectarGoogle(req, res) {
   await googleCalendarServicio.desconectar(req.marcaId);
   return respuestaExito(res, null, 'Google Calendar desconectado');
+}
+
+export async function probarGoogle(req, res) {
+  const resultado = await googleCalendarServicio.probarSincronizacion(req.marcaId);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 502);
+  }
+
+  if (resultado.omitido) {
+    return respuestaError(res, 'Google Calendar no esta conectado para esta marca.', 409);
+  }
+
+  return respuestaExito(res, {
+    eventoId: resultado.eventoId,
+    htmlLink: resultado.htmlLink,
+  }, 'Evento de prueba creado en Google Calendar');
 }
