@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spa Unas — Inicio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 520px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      line-height: 1.5;
+      color: #1a1a1a;
+    }
+    h1 { color: #9c27b0; font-size: 1.5rem; }
+    .aviso {
+      background: #fff3e0;
+      border-left: 4px solid #e65100;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    a { color: #9c27b0; font-weight: 600; }
+    code { background: #f5f5f5; padding: 0.15rem 0.4rem; border-radius: 4px; }
+    ul { padding-left: 1.25rem; }
+    li { margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Spa Unas</h1>
+  <p>Plataforma SaaS multi-marca para spas de uñas.</p>
+
+  <div class="aviso">
+    <strong>Para ver Home, Agenda, Blog y el resto de pantallas</strong> debes usar el servidor de desarrollo Vite.
+    Esta pagina (Apache/XAMPP) <em>no</em> carga React.
+  </div>
+
+  <p style="text-align:center;margin:1.5rem 0;">
+    <a href="http://localhost:5173" style="display:inline-block;padding:0.75rem 1.5rem;background:#9c27b0;color:#fff;text-decoration:none;border-radius:8px;">
+      Abrir app en localhost:5173
+    </a>
+  </p>
+
+  <h2>URLs correctas (desarrollo)</h2>
+  <ul>
+    <li><strong>App pública:</strong> <a href="http://localhost:5173">http://localhost:5173</a></li>
+    <li><strong>Demo marca:</strong> <a href="http://localhost:5173/m/luna-nails">/m/luna-nails</a></li>
+    <li><strong>Login admin Spa Unas:</strong> <a href="http://localhost:5173/admin/login">http://localhost:5173/admin/login</a></li>
+    <li><strong>API Node:</strong> <a href="http://localhost:3001/api/estado">http://localhost:3001/api/estado</a></li>
+  </ul>
+
+  <h2>Antes de abrir el navegador</h2>
+  <pre><code>cd backend && npm run dev
+cd frontend && npm run dev</code></pre>
+
+  <p>Solo necesitas <strong>MySQL</strong> de XAMPP para la base de datos. Apache no sirve esta app.</p>
+</body>
+</html>

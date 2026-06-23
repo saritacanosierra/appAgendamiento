@@ -1,0 +1,25 @@
+@media (min-width: 768px) {
+  :root {
+    --tamano-titulo: 1.75rem;
+    --ancho-maximo-contenedor: 960px;
+  }
+
+  .contenedor-app {
+    padding: var(--espacio-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .contenedor-admin {
+    max-width: 1100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

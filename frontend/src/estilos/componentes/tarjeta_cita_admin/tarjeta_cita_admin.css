@@ -1,0 +1,86 @@
+.tarjeta-cita-admin {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--espacio-md);
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde);
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--sombra-suave);
+}
+
+.tarjeta-cita-admin--cancelada {
+  opacity: 0.55;
+}
+
+.tarjeta-cita-admin__hora {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espacio-sm);
+  border-radius: var(--radio-borde);
+  background: var(--color-secundario);
+  font-size: var(--tamano-texto-sm);
+}
+
+.tarjeta-cita-admin__hora strong {
+  font-size: var(--tamano-texto-base);
+  color: var(--color-principal);
+}
+
+.tarjeta-cita-admin__cuerpo h3 {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-texto-base);
+}
+
+.tarjeta-cita-admin__cuerpo p {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-texto-sm);
+  color: #555;
+}
+
+.tarjeta-cita-admin__tel {
+  color: #888;
+}
+
+.tarjeta-cita-admin__notas {
+  font-style: italic;
+  margin-top: var(--espacio-sm) !important;
+}
+
+.tarjeta-cita-admin__acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--espacio-sm);
+}
+
+.tarjeta-cita-admin__acciones button {
+  flex: 1;
+  min-height: 40px;
+  border: none;
+  border-radius: var(--radio-borde);
+  background: var(--color-principal);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tarjeta-cita-admin__cancelar {
+  background: transparent !important;
+  color: var(--color-error) !important;
+  border: 1px solid var(--color-error) !important;
+}
+
+@media (min-width: 640px) {
+  .tarjeta-cita-admin {
+    grid-template-columns: 72px 1fr auto;
+    align-items: center;
+  }
+
+  .tarjeta-cita-admin__acciones {
+    grid-column: auto;
+    flex-direction: column;
+    min-width: 100px;
+  }
+}

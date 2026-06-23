@@ -1,0 +1,27 @@
+.mensaje-error {
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde);
+  background: #ffebee;
+  color: var(--color-error);
+  text-align: center;
+}
+
+.mensaje-error h2 {
+  margin-bottom: var(--espacio-sm);
+  font-size: var(--tamano-texto-lg);
+}
+
+.mensaje-error p {
+  margin: 0;
+}
+
+.mensaje-error__reintentar {
+  margin-top: var(--espacio-md);
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radio-borde);
+  background: transparent;
+  color: var(--color-error);
+  cursor: pointer;
+}

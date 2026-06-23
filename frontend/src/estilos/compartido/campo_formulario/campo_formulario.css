@@ -1,0 +1,38 @@
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+  margin-bottom: var(--espacio-md);
+}
+
+.campo-formulario label {
+  font-weight: 600;
+  font-size: var(--tamano-texto-sm);
+}
+
+.campo-formulario input,
+.campo-formulario textarea,
+.campo-formulario select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: #fff;
+}
+
+.campo-formulario textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.campo-formulario--error input,
+.campo-formulario--error select,
+.campo-formulario--error textarea {
+  border-color: var(--color-error);
+}
+
+.campo-formulario__error {
+  color: var(--color-error);
+  font-size: var(--tamano-texto-sm);
+}

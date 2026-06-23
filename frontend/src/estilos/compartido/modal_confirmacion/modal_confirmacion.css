@@ -1,0 +1,34 @@
+.modal-confirmacion {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-md);
+}
+
+.modal-confirmacion__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.modal-confirmacion__contenido {
+  position: relative;
+  width: min(100%, 400px);
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde);
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+}
+
+.modal-confirmacion__contenido h2 {
+  margin-bottom: var(--espacio-sm);
+}
+
+.modal-confirmacion__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espacio-sm);
+  margin-top: var(--espacio-lg);
+}

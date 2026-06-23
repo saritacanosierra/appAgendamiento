@@ -1,0 +1,31 @@
+---
+description: Reglas generales del proyecto Spa Unas — fases, español, sin romper estructura
+alwaysApply: true
+---
+
+# Spa Unas — reglas generales
+
+## Prioridades
+
+1. Confidencialidad multi-marca (`marca_id`)
+2. Respetar arquitectura frontend/backend (ver reglas `arquitectura-frontend` y `arquitectura-backend`)
+3. Cambios mínimos; no mover archivos sin motivo
+4. Código y carpetas en español (sin tildes en nombres de carpeta)
+
+## Fases
+
+No implementar funcionalidades de fases futuras sin solicitud explícita. Consultar `documentacion/fase_*_plan.md`.
+
+## Prohibiciones frecuentes
+
+- Estilos inline en React (`style={}`) → usar CSS en `frontend/src/estilos/`
+- Vistas o CSS dentro de `frontend/src/modulos/` → usar `vistas/` y `estilos/`
+- SQL en controladores → usar repositorios
+- Duplicar pantallas o hojas de estilo en dos carpetas
+- Commits solo cuando el usuario lo pida
+
+## Documentación
+
+Actualizar `documentacion/` al agregar endpoints, cambiar BD o flujos importantes.
+
+Referencia de estructura frontend: `documentacion/estructura_frontend.md`

@@ -1,0 +1,38 @@
+.tarjeta-servicio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  padding: var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+}
+
+.tarjeta-servicio h3 {
+  margin-bottom: var(--espacio-xs);
+  font-size: var(--tamano-texto-lg);
+}
+
+.tarjeta-servicio p {
+  margin: 0;
+  color: #555;
+  font-size: var(--tamano-texto-sm);
+}
+
+.tarjeta-servicio__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--espacio-sm);
+}
+
+.tarjeta-servicio__accion {
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radio-borde);
+  background: var(--color-principal);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}

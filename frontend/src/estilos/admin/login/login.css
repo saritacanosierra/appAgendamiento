@@ -1,0 +1,37 @@
+.login-vista {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-md);
+  background: linear-gradient(180deg, var(--color-secundario), var(--color-fondo));
+}
+
+.login-vista__tarjeta {
+  width: min(100%, 400px);
+  padding: var(--espacio-xl);
+  border-radius: var(--radio-borde);
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+  text-align: center;
+}
+
+.login-vista__tarjeta h1 {
+  color: var(--color-principal);
+  margin-bottom: var(--espacio-xs);
+}
+
+.login-vista__tarjeta > p {
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+  margin-bottom: var(--espacio-lg);
+}
+
+.login-vista__formulario {
+  text-align: left;
+}
+
+.login-vista__ayuda {
+  margin-top: var(--espacio-md);
+  font-size: var(--tamano-texto-sm);
+  color: #888;
+}

@@ -1,0 +1,143 @@
+.reportes-vista {
+  text-align: left;
+}
+
+.reportes-vista__cabecera h1 {
+  margin: 0;
+  color: var(--color-principal);
+}
+
+.reportes-vista__subtitulo {
+  margin: var(--espacio-xs) 0 0;
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+}
+
+.reportes-vista__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--espacio-md);
+  margin: var(--espacio-lg) 0;
+}
+
+.reportes-vista__periodo {
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+  margin-bottom: var(--espacio-md);
+}
+
+.reportes-vista__tarjetas {
+  display: grid;
+  gap: var(--espacio-md);
+  margin-bottom: var(--espacio-lg);
+}
+
+@media (min-width: 640px) {
+  .reportes-vista__tarjetas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .reportes-vista__tarjetas {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.reportes-vista__tarjeta {
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde);
+  background: #fff;
+  border: 1px solid var(--color-borde);
+}
+
+.reportes-vista__tarjeta--destacada {
+  border-color: var(--color-principal);
+  background: color-mix(in srgb, var(--color-secundario) 40%, #fff);
+}
+
+.reportes-vista__tarjeta span {
+  display: block;
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+  margin-bottom: var(--espacio-xs);
+}
+
+.reportes-vista__tarjeta strong {
+  font-size: 1.35rem;
+  color: var(--color-principal);
+}
+
+.reportes-vista__tarjeta small {
+  display: block;
+  margin-top: var(--espacio-xs);
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.reportes-vista__seccion {
+  margin-bottom: var(--espacio-xl);
+}
+
+.reportes-vista__seccion h2 {
+  font-size: var(--tamano-texto-base);
+  margin-bottom: var(--espacio-sm);
+  color: var(--color-texto);
+}
+
+.reportes-vista__estados {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--espacio-sm);
+}
+
+@media (min-width: 640px) {
+  .reportes-vista__estados {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.reportes-vista__estados li {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--espacio-sm) var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: #fff;
+}
+
+.reportes-vista__estados strong {
+  color: var(--color-principal);
+}
+
+.reportes-vista__tabla-wrap {
+  overflow-x: auto;
+}
+
+.reportes-vista__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--tamano-texto-sm);
+}
+
+.reportes-vista__tabla th,
+.reportes-vista__tabla td {
+  padding: var(--espacio-sm) var(--espacio-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.reportes-vista__tabla th {
+  background: var(--color-secundario);
+  color: var(--color-texto);
+  font-weight: 600;
+}
+
+.reportes-vista__vacio {
+  text-align: center;
+  color: #666;
+  padding: var(--espacio-xl);
+}

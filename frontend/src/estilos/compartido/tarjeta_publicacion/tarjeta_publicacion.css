@@ -1,0 +1,33 @@
+.tarjeta-publicacion {
+  display: block;
+  border-radius: var(--radio-borde);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+  color: inherit;
+}
+
+.tarjeta-publicacion img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.tarjeta-publicacion__cuerpo {
+  padding: var(--espacio-md);
+}
+
+.tarjeta-publicacion__cuerpo h3 {
+  margin-bottom: var(--espacio-sm);
+}
+
+.tarjeta-publicacion__cuerpo p {
+  margin-bottom: var(--espacio-sm);
+  color: #555;
+  font-size: var(--tamano-texto-sm);
+}
+
+.tarjeta-publicacion time {
+  font-size: var(--tamano-texto-sm);
+  color: #888;
+}

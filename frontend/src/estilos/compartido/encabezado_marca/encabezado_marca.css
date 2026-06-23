@@ -1,0 +1,26 @@
+.encabezado-marca {
+  display: flex;
+  gap: var(--espacio-md);
+  align-items: center;
+  padding: var(--espacio-lg) 0;
+}
+
+.encabezado-marca__logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-secundario);
+}
+
+.encabezado-marca h1 {
+  font-size: var(--tamano-titulo);
+  color: var(--color-principal);
+  margin-bottom: var(--espacio-xs);
+}
+
+.encabezado-marca p {
+  margin: 0;
+  color: #555;
+  font-size: var(--tamano-texto-sm);
+}

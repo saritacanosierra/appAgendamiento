@@ -1,0 +1,44 @@
+.boton-principal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-sm);
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--radio-borde);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.boton-principal:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.boton-principal:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.boton-principal--principal {
+  background: var(--color-principal);
+  color: #fff;
+}
+
+.boton-principal--secundario {
+  background: var(--color-secundario);
+  color: var(--color-texto);
+}
+
+.boton-principal--texto {
+  background: transparent;
+  color: var(--color-principal);
+  min-height: auto;
+  padding: 0.5rem;
+}
+
+.boton-principal--completo {
+  width: 100%;
+}

@@ -1,0 +1,31 @@
+.tarjeta-diseno {
+  border-radius: var(--radio-borde);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--sombra-suave);
+}
+
+.tarjeta-diseno__imagen img,
+.tarjeta-diseno__placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.tarjeta-diseno__placeholder {
+  background: linear-gradient(135deg, var(--color-secundario), #fff);
+}
+
+.tarjeta-diseno__info {
+  padding: var(--espacio-md);
+}
+
+.tarjeta-diseno__info h3 {
+  margin-bottom: var(--espacio-xs);
+  font-size: var(--tamano-texto-base);
+}
+
+.tarjeta-diseno__info span {
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+}

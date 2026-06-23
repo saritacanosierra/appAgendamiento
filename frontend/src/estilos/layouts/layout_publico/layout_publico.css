@@ -1,0 +1,15 @@
+.layout-publico {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--altura-menu-movil) + env(safe-area-inset-bottom));
+}
+
+.layout-publico__contenido {
+  padding-top: var(--espacio-md);
+  padding-bottom: var(--espacio-xl);
+}
+
+@media (min-width: 768px) {
+  .layout-publico {
+    padding-bottom: var(--espacio-lg);
+  }
+}

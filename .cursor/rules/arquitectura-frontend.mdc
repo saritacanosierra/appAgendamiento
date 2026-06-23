@@ -1,0 +1,51 @@
+---
+description: Arquitectura frontend — carpetas, vistas, estilos y sin duplicados
+globs: frontend/**/*
+alwaysApply: true
+---
+
+# Arquitectura frontend (obligatoria)
+
+Antes de crear o mover archivos, consulta `documentacion/estructura_frontend.md`.
+
+## Ubicación de cada tipo de archivo
+
+| Tipo | Carpeta | Prohibido en |
+|------|---------|--------------|
+| Pantallas | `frontend/src/vistas/{publico\|admin\|plataforma}/` | `modulos/`, JSX sueltos |
+| CSS de pantallas | `frontend/src/estilos/{admin\|publico\|plataforma}/` | `compartido/`, `aplicacion/`, junto al JSX |
+| Componentes admin | `frontend/src/componentes/admin/` | `modulos/*/componentes/` |
+| CSS componentes admin | `frontend/src/estilos/componentes/` | inline, `compartido/` |
+| CSS UI compartida | `frontend/src/estilos/compartido/` | `compartido/estilos/` |
+| CSS global / layouts | `frontend/src/estilos/global/`, `estilos/layouts/` | `aplicacion/estilos/` |
+| Servicios API | `frontend/src/modulos/*/servicios/` | `vistas/`, `componentes/` |
+| UI compartida | `frontend/src/compartido/` | módulos de dominio |
+| Rutas y layouts | `frontend/src/aplicacion/` | `vistas/` |
+
+**Un archivo = un solo lugar.** No duplicar vistas ni CSS en `modulos/`.
+
+## Convención de nombres
+
+- Carpeta en snake_case: `blog_detalle`, `formulario_cita_admin`
+- Vista: `NombreVista.jsx` dentro de su subcarpeta
+- CSS: mismo nombre que la carpeta (`agenda/agenda.css`, `home/home.css`)
+
+## Estilos — prohibido inline
+
+- No usar `style={{ ... }}` salvo casos excepcionales y justificados (p. ej. posición dinámica calculada).
+- No `<style>` embebido en JSX.
+- Importar CSS al inicio del archivo:
+
+```jsx
+import '../../../estilos/admin/agenda/agenda.css';
+```
+
+- Variables de marca: usar `var(--color-principal)` en CSS, no colores hardcodeados en JSX.
+
+## Al crear una pantalla nueva
+
+1. JSX en `vistas/{publico|admin|plataforma}/{nombre}/`
+2. CSS en `estilos/{publico|admin|plataforma}/{nombre}/{nombre}.css`
+3. Lógica API en `modulos/{dominio}/servicios/`
+4. Registrar lazy en `aplicacion/rutas/vistasLazy.js` y ruta en `RutasApp.jsx`
+5. Documentar endpoint si aplica en `documentacion/endpoints.md`

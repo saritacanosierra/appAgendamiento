@@ -1,0 +1,31 @@
+---
+description: Arquitectura backend — capas, JSON y multi-marca
+globs: backend/**/*
+alwaysApply: true
+---
+
+# Arquitectura backend (obligatoria)
+
+## Capas — responsabilidad única
+
+| Capa | Carpeta | Prohibido |
+|------|---------|-----------|
+| Rutas | `backend/src/rutas/` | SQL, reglas de negocio |
+| Controladores | `backend/src/controladores/` | SQL directo |
+| Servicios | `backend/src/servicios/` | respuesta HTTP |
+| Repositorios | `backend/src/repositorios/` | reglas de negocio complejas |
+| Middlewares | `backend/src/middlewares/` | consultas de negocio |
+| Utilidades | `backend/src/utilidades/` | acceso a BD |
+
+## Multi-marca
+
+- Toda consulta operativa filtra por `marca_id`.
+- Rutas admin: `marca_id` del usuario autenticado, nunca del body del frontend.
+
+## Respuestas JSON uniformes
+
+```json
+{ "exito": true, "mensaje": "...", "datos": {} }
+```
+
+Documentar endpoints nuevos en `documentacion/endpoints.md`.

@@ -1,0 +1,44 @@
+.inicio-marca__contacto {
+  margin: 0 0 var(--espacio-md);
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+}
+
+.inicio-marca__servicios {
+  margin-top: var(--espacio-xl);
+  text-align: left;
+}
+
+.inicio-marca__servicios h2 {
+  font-size: var(--tamano-texto-lg);
+  margin-bottom: var(--espacio-md);
+  color: var(--color-principal);
+}
+
+.inicio-marca__lista-servicios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.inicio-marca__vacio {
+  color: #666;
+  font-size: var(--tamano-texto-sm);
+}
+
+.inicio-marca__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  margin-top: var(--espacio-lg);
+}
+
+.inicio-marca__secundarias {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacio-lg);
+}
+
+.inicio-marca__secundarias a {
+  font-weight: 600;
+}

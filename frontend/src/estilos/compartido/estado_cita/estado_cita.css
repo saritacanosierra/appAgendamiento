@@ -1,0 +1,27 @@
+.estado-cita {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+}
+
+.estado-cita--pendiente {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.estado-cita--confirmada {
+  background: #e8f5e9;
+  color: var(--color-exito);
+}
+
+.estado-cita--cancelada {
+  background: #ffebee;
+  color: var(--color-error);
+}
+
+.estado-cita--completada {
+  background: #e3f2fd;
+  color: #1565c0;
+}

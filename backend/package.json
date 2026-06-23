@@ -1,0 +1,26 @@
+{
+  "name": "spa-unas-backend",
+  "version": "1.0.0-fase1",
+  "private": true,
+  "type": "module",
+  "description": "API REST Node.js para plataforma SaaS multi-marca de spas de unas",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "semilla:admin": "node scripts/actualizar-admin-demo.js",
+    "verificar:google": "node scripts/verificar-google-calendar.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^2.2.0",
+    "mysql2": "^3.12.0",
+    "nodemailer": "^6.10.1"
+  }
+}

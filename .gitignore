@@ -1,0 +1,25 @@
+# Dependencias
+node_modules/
+frontend/dist/
+backend/node_modules/
+
+# Entorno
+.env
+.env.local
+backend/.env
+
+# Logs y subidas
+backend/logs/*
+!backend/logs/.gitkeep
+backend/subidas/**/*
+!backend/subidas/**/.gitkeep
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Base de datos respaldos locales
+base_de_datos/respaldos/*.sql

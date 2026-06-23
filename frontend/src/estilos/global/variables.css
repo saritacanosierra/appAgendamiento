@@ -1,0 +1,23 @@
+:root {
+  --color-principal: #c2185b;
+  --color-secundario: #f8bbd0;
+  --color-fondo: #ffffff;
+  --color-texto: #1a1a1a;
+  --color-borde: #e8e8e8;
+  --color-error: #b00020;
+  --color-exito: #2e7d32;
+  --radio-borde: 12px;
+  --sombra-suave: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --espacio-xs: 0.25rem;
+  --espacio-sm: 0.5rem;
+  --espacio-md: 1rem;
+  --espacio-lg: 1.5rem;
+  --espacio-xl: 2rem;
+  --altura-menu-movil: 64px;
+  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --tamano-texto-base: 16px;
+  --tamano-texto-sm: 0.875rem;
+  --tamano-texto-lg: 1.125rem;
+  --tamano-titulo: 1.5rem;
+  --ancho-maximo-contenedor: 720px;
+}
