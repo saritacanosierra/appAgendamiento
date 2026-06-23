@@ -1,9 +1,9 @@
 .tarjeta-publicacion {
   display: block;
-  border-radius: var(--radio-borde);
+  border-radius: var(--radio-borde-lg);
   overflow: hidden;
-  background: #fff;
-  box-shadow: var(--sombra-suave);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
   color: inherit;
 }
 

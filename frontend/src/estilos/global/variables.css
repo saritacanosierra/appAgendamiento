@@ -1,23 +1,47 @@
 :root {
+  /* Colores de marca (sobrescritos por temaMarca por marca) */
   --color-principal: #c2185b;
   --color-secundario: #f8bbd0;
   --color-fondo: #ffffff;
   --color-texto: #1a1a1a;
-  --color-borde: #e8e8e8;
+
+  /* Superficies y neutros */
+  --color-borde: #ebebeb;
+  --color-superficie: #ffffff;
+  --color-fondo-app: #f7f6f4;
+  --color-texto-muted: #6b7280;
+  --color-texto-suave: #9ca3af;
   --color-error: #b00020;
   --color-exito: #2e7d32;
-  --radio-borde: 12px;
-  --sombra-suave: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  /* Formas — estilo app móvil suave (referencia Lumiere) */
+  --radio-borde-sm: 12px;
+  --radio-borde: 20px;
+  --radio-borde-lg: 24px;
+  --radio-pill: 999px;
+
+  /* Elevación */
+  --sombra-suave: 0 2px 16px rgba(0, 0, 0, 0.06);
+  --sombra-card: 0 4px 24px rgba(0, 0, 0, 0.07);
+  --sombra-nav: 0 -4px 24px rgba(0, 0, 0, 0.06);
+
+  /* Espaciado */
   --espacio-xs: 0.25rem;
   --espacio-sm: 0.5rem;
   --espacio-md: 1rem;
   --espacio-lg: 1.5rem;
   --espacio-xl: 2rem;
-  --altura-menu-movil: 64px;
-  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --espacio-2xl: 2.5rem;
+
+  /* Layout móvil */
+  --altura-menu-movil: 72px;
+  --ancho-maximo-contenedor: 480px;
+
+  /* Tipografía */
+  --fuente-base: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   --tamano-texto-base: 16px;
   --tamano-texto-sm: 0.875rem;
   --tamano-texto-lg: 1.125rem;
   --tamano-titulo: 1.5rem;
-  --ancho-maximo-contenedor: 720px;
+  --tamano-titulo-lg: 1.75rem;
 }

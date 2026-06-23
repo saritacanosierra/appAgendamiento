@@ -1,34 +1,40 @@
 .confirmacion-reserva {
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
   padding-bottom: var(--espacio-xl);
 }
 
-.confirmacion-reserva__exito {
+.confirmacion-reserva__tarjeta {
   text-align: center;
-  padding: var(--espacio-lg) 0;
+  padding: var(--espacio-xl) var(--espacio-lg);
 }
 
 .confirmacion-reserva__icono {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: var(--color-secundario);
+  background: color-mix(in srgb, var(--color-secundario) 50%, var(--color-superficie));
   color: var(--color-principal);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   margin-bottom: var(--espacio-md);
+  box-shadow: var(--sombra-suave);
 }
 
-.confirmacion-reserva__exito h1 {
-  color: var(--color-principal);
+.confirmacion-reserva__tarjeta h1 {
+  font-size: var(--tamano-titulo-lg);
+  font-weight: 800;
+  color: var(--color-texto);
   margin-bottom: var(--espacio-sm);
+  letter-spacing: -0.03em;
 }
 
-.confirmacion-reserva__exito p {
-  color: #555;
+.confirmacion-reserva__tarjeta p {
+  color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-md);
 }
@@ -37,26 +43,29 @@
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--espacio-sm) var(--espacio-md);
-  padding: var(--espacio-md);
-  border-radius: var(--radio-borde);
-  background: #f9f9f9;
-  margin-bottom: var(--espacio-lg);
+  margin: 0;
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
 }
 
 .confirmacion-reserva__detalle dt {
-  font-weight: 600;
-  color: #666;
+  font-weight: 700;
+  color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
 }
 
 .confirmacion-reserva__detalle dd {
   margin: 0;
+  font-weight: 600;
 }
 
 .confirmacion-reserva__codigo {
-  font-family: monospace;
+  font-family: ui-monospace, monospace;
   font-size: var(--tamano-texto-lg);
   letter-spacing: 0.05em;
+  color: var(--color-principal);
 }
 
 .confirmacion-reserva__calendario {

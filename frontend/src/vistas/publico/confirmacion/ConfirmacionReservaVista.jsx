@@ -40,11 +40,11 @@ export default function ConfirmacionReservaVista() {
 
   return (
     <div className="confirmacion-reserva">
-      <EncabezadoMarca marca={marca} />
+      <EncabezadoMarca marca={marca} compacto />
 
-      <div className="confirmacion-reserva__exito">
+      <div className="confirmacion-reserva__tarjeta tarjeta-app">
         <span className="confirmacion-reserva__icono" aria-hidden="true">✓</span>
-        <h1>Reserva confirmada</h1>
+        <h1>¡Cita confirmada!</h1>
         <p>{mensajeConfirmacion}</p>
         <EstadoCita estado={cita.estado} />
       </div>

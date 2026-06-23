@@ -1,5 +1,6 @@
 import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositorio.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
+import { normalizarHorariosMarca } from '../utilidades/horarios.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 
@@ -27,7 +28,7 @@ export function mapearConfiguracionAdmin(fila) {
     telefono: fila.telefono,
     whatsapp: fila.whatsapp,
     direccion: fila.direccion,
-    horarios: parsearJsonCampo(fila.horarios_json, {}),
+    horarios: normalizarHorariosMarca(parsearJsonCampo(fila.horarios_json, {})),
   };
 }
 
@@ -59,7 +60,9 @@ export class ConfiguracionMarcaServicio {
     const telefono = datos.telefono !== undefined ? texto(datos.telefono) || null : actual.telefono;
     const whatsapp = datos.whatsapp !== undefined ? texto(datos.whatsapp) || null : actual.whatsapp;
     const direccion = datos.direccion !== undefined ? texto(datos.direccion) || null : actual.direccion;
-    const horariosJson = datos.horarios ?? parsearJsonCampo(actual.horarios_json, {});
+    const horariosJson = normalizarHorariosMarca(
+      datos.horarios ?? parsearJsonCampo(actual.horarios_json, {})
+    );
 
     const errores = validar(
       { nombreComercial, colorPrincipal, colorSecundario, colorFondo, colorTexto },

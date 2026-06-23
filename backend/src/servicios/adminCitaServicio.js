@@ -14,7 +14,8 @@ import {
 import { esFechaValida, esHoraValida } from '../utilidades/fechaHora.js';
 import { requerido, telefono, email, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
-import { normalizarHora, sumarMinutosAHora } from '../utilidades/horarios.js';
+import { normalizarHora, sumarMinutosAHora, nombreDiaDesdeFecha, normalizarHorariosMarca, horarioPermitidoParaCita } from '../utilidades/horarios.js';
+import { parsearJsonCampo } from '../utilidades/mapeador.js';
 
 const ESTADOS_VALIDOS = ['pendiente', 'confirmada', 'cancelada', 'completada'];
 
@@ -117,6 +118,17 @@ export class AdminCitaServicio {
     }
 
     const horaFin = sumarMinutosAHora(horaInicio, servicio.duracion_minutos);
+
+    const marca = await this.marcaRepo.buscarPorIdCompleto(marcaId);
+    if (marca) {
+      const horarios = normalizarHorariosMarca(parsearJsonCampo(marca.horarios_json, {}));
+      const dia = nombreDiaDesdeFecha(fecha);
+      const permitido = horarioPermitidoParaCita(horarios[dia], horaInicio, servicio.duracion_minutos);
+      if (!permitido.ok) {
+        return { error: permitido.error, codigoHttp: 409 };
+      }
+    }
+
     const conexion = await pool.getConnection();
 
     try {
@@ -209,6 +221,18 @@ export class AdminCitaServicio {
 
     const servicio = await this.servicioRepo.buscarActivoPorId(marcaId, citaActual.servicio_id);
     const horaFin = sumarMinutosAHora(horaInicio, servicio?.duracion_minutos ?? 60);
+
+    if (estado !== 'cancelada') {
+      const marca = await this.marcaRepo.buscarPorIdCompleto(marcaId);
+      if (marca && servicio) {
+        const horarios = normalizarHorariosMarca(parsearJsonCampo(marca.horarios_json, {}));
+        const dia = nombreDiaDesdeFecha(fecha);
+        const permitido = horarioPermitidoParaCita(horarios[dia], horaInicio, servicio.duracion_minutos);
+        if (!permitido.ok) {
+          return { error: permitido.error, codigoHttp: 409 };
+        }
+      }
+    }
 
     const conexion = await pool.getConnection();
 

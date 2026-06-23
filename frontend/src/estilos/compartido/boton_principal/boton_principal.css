@@ -3,14 +3,16 @@
   align-items: center;
   justify-content: center;
   gap: var(--espacio-sm);
-  min-height: 48px;
-  padding: 0.75rem 1.25rem;
+  min-height: 52px;
+  padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: var(--radio-borde);
-  font-weight: 600;
+  border-radius: var(--radio-pill);
+  font-weight: 700;
+  font-size: var(--tamano-texto-base);
   cursor: pointer;
   text-decoration: none;
-  transition: opacity 0.2s ease, transform 0.1s ease;
+  transition: opacity 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+  box-shadow: var(--sombra-suave);
 }
 
 .boton-principal:active:not(:disabled) {
@@ -20,6 +22,7 @@
 .boton-principal:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .boton-principal--principal {
@@ -28,8 +31,9 @@
 }
 
 .boton-principal--secundario {
-  background: var(--color-secundario);
+  background: var(--color-superficie);
   color: var(--color-texto);
+  border: 1.5px solid var(--color-borde);
 }
 
 .boton-principal--texto {
@@ -37,6 +41,7 @@
   color: var(--color-principal);
   min-height: auto;
   padding: 0.5rem;
+  box-shadow: none;
 }
 
 .boton-principal--completo {

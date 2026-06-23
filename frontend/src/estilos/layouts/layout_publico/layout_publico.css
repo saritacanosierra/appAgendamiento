@@ -1,15 +1,16 @@
 .layout-publico {
   min-height: 100dvh;
-  padding-bottom: calc(var(--altura-menu-movil) + env(safe-area-inset-bottom));
+  background: var(--color-fondo-app);
+  padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-md) + env(safe-area-inset-bottom));
 }
 
 .layout-publico__contenido {
-  padding-top: var(--espacio-md);
-  padding-bottom: var(--espacio-xl);
+  padding-top: var(--espacio-sm);
+  padding-bottom: var(--espacio-lg);
 }
 
 @media (min-width: 768px) {
   .layout-publico {
-    padding-bottom: var(--espacio-lg);
+    padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-xl));
   }
 }

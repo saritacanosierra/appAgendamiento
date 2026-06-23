@@ -1,18 +1,67 @@
+.inicio-marca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+}
+
+.inicio-marca__saludo {
+  padding: 0 var(--espacio-xs);
+}
+
+.inicio-marca__bienvenida {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inicio-marca__titulo {
+  margin: 0;
+  font-size: var(--tamano-titulo-lg);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-texto);
+}
+
 .inicio-marca__contacto {
-  margin: 0 0 var(--espacio-md);
-  color: #666;
+  margin: 0;
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
+  color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
 }
 
-.inicio-marca__servicios {
-  margin-top: var(--espacio-xl);
-  text-align: left;
+.inicio-marca__disponibilidad {
+  padding: var(--espacio-lg);
+}
+
+.inicio-marca__cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.inicio-marca__secundarias {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacio-xl);
+}
+
+.inicio-marca__secundarias a {
+  font-weight: 700;
+  font-size: var(--tamano-texto-sm);
 }
 
 .inicio-marca__servicios h2 {
   font-size: var(--tamano-texto-lg);
-  margin-bottom: var(--espacio-md);
-  color: var(--color-principal);
+  font-weight: 700;
+  margin: 0 0 var(--espacio-md);
+  color: var(--color-texto);
+  letter-spacing: -0.02em;
 }
 
 .inicio-marca__lista-servicios {
@@ -22,23 +71,11 @@
 }
 
 .inicio-marca__vacio {
-  color: #666;
+  color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
-}
-
-.inicio-marca__acciones {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-md);
-  margin-top: var(--espacio-lg);
-}
-
-.inicio-marca__secundarias {
-  display: flex;
-  justify-content: center;
-  gap: var(--espacio-lg);
-}
-
-.inicio-marca__secundarias a {
-  font-weight: 600;
+  padding: var(--espacio-lg);
+  text-align: center;
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
 }

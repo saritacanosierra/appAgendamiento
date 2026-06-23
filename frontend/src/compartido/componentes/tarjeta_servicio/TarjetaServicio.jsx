@@ -4,6 +4,7 @@ import '../../../estilos/compartido/tarjeta_servicio/tarjeta_servicio.css';
 export default function TarjetaServicio({ servicio, onSeleccionar }) {
   return (
     <article className="tarjeta-servicio">
+      <div className="tarjeta-servicio__thumb" aria-hidden="true">💅</div>
       <div className="tarjeta-servicio__contenido">
         <h3>{servicio.nombre}</h3>
         {servicio.descripcion && <p>{servicio.descripcion}</p>}

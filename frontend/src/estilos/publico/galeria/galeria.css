@@ -21,10 +21,11 @@
 }
 
 .galeria-publica__item {
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-borde);
+  border: 1px solid color-mix(in srgb, var(--color-borde) 80%, transparent);
+  border-radius: var(--radio-borde-lg);
   overflow: hidden;
-  background: #fff;
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
 }
 
 .galeria-publica__item img {

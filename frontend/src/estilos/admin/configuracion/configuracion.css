@@ -73,10 +73,24 @@
   color: #666;
 }
 
+.configuracion-marca__hint--bloque {
+  margin-bottom: var(--espacio-md);
+}
+
 .configuracion-marca__horarios {
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-sm);
+  gap: var(--espacio-md);
+}
+
+.configuracion-marca__horario-dia {
+  padding-bottom: var(--espacio-sm);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.configuracion-marca__horario-dia:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .configuracion-marca__horario-fila {
@@ -85,6 +99,51 @@
   align-items: center;
   gap: var(--espacio-sm);
   font-size: var(--tamano-texto-sm);
+}
+
+.configuracion-marca__bloqueos {
+  margin-top: var(--espacio-sm);
+  margin-left: var(--espacio-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+}
+
+.configuracion-marca__bloqueos-etiqueta {
+  font-size: var(--tamano-texto-sm);
+  color: #666;
+  font-weight: 500;
+}
+
+.configuracion-marca__bloqueo-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+}
+
+.configuracion-marca__bloqueo-quitar,
+.configuracion-marca__bloqueo-agregar {
+  font-size: var(--tamano-texto-sm);
+  padding: 4px 10px;
+  border-radius: var(--radio-borde);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-borde);
+  color: #555;
+}
+
+.configuracion-marca__bloqueo-agregar {
+  align-self: flex-start;
+  margin-top: var(--espacio-xs);
+  color: var(--color-principal);
+  border-color: var(--color-principal);
+}
+
+.configuracion-marca__bloqueo-quitar:hover,
+.configuracion-marca__bloqueo-agregar:hover {
+  background: var(--color-fondo);
 }
 
 .configuracion-marca__horario-fila label {

@@ -91,9 +91,46 @@ export default function ConfiguracionMarcaVista() {
         ...prev.horarios,
         [dia]: prev.horarios?.[dia]
           ? { ...prev.horarios[dia], [campo]: valor }
-          : { apertura: '10:00', cierre: '19:00', [campo]: valor },
+          : { apertura: '10:00', cierre: '19:00', bloqueos: [], [campo]: valor },
       },
     }));
+  }
+
+  function agregarBloqueo(dia) {
+    setConfig((prev) => {
+      const horario = prev.horarios?.[dia] ?? { apertura: '10:00', cierre: '19:00', bloqueos: [] };
+      const bloqueos = [...(horario.bloqueos ?? []), { desde: '14:00', hasta: '15:00' }];
+      return {
+        ...prev,
+        horarios: { ...prev.horarios, [dia]: { ...horario, bloqueos } },
+      };
+    });
+  }
+
+  function actualizarBloqueo(dia, indice, campo, valor) {
+    setConfig((prev) => {
+      const horario = prev.horarios?.[dia];
+      if (!horario) return prev;
+      const bloqueos = (horario.bloqueos ?? []).map((b, i) =>
+        i === indice ? { ...b, [campo]: valor } : b
+      );
+      return {
+        ...prev,
+        horarios: { ...prev.horarios, [dia]: { ...horario, bloqueos } },
+      };
+    });
+  }
+
+  function quitarBloqueo(dia, indice) {
+    setConfig((prev) => {
+      const horario = prev.horarios?.[dia];
+      if (!horario) return prev;
+      const bloqueos = (horario.bloqueos ?? []).filter((_, i) => i !== indice);
+      return {
+        ...prev,
+        horarios: { ...prev.horarios, [dia]: { ...horario, bloqueos } },
+      };
+    });
   }
 
   function toggleDia(dia, activo) {
@@ -101,7 +138,7 @@ export default function ConfiguracionMarcaVista() {
       ...prev,
       horarios: {
         ...prev.horarios,
-        [dia]: activo ? { apertura: '10:00', cierre: '19:00' } : null,
+        [dia]: activo ? { apertura: '10:00', cierre: '19:00', bloqueos: [] } : null,
       },
     }));
   }
@@ -285,34 +322,77 @@ export default function ConfiguracionMarcaVista() {
 
         <section className="configuracion-marca__seccion">
           <h2>Horarios</h2>
+          <p className="configuracion-marca__hint configuracion-marca__hint--bloque">
+            Define apertura y cierre por dia. Los descansos (ej. comida) bloquean reservas
+            en ese tramo sin crear citas ni cargos.
+          </p>
           <div className="configuracion-marca__horarios">
             {DIAS.map((dia) => {
               const horario = config.horarios?.[dia];
               const activo = Boolean(horario);
+              const bloqueos = horario?.bloqueos ?? [];
               return (
-                <div key={dia} className="configuracion-marca__horario-fila">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={activo}
-                      onChange={(e) => toggleDia(dia, e.target.checked)}
-                    />
-                    {dia.charAt(0).toUpperCase() + dia.slice(1)}
-                  </label>
+                <div key={dia} className="configuracion-marca__horario-dia">
+                  <div className="configuracion-marca__horario-fila">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={activo}
+                        onChange={(e) => toggleDia(dia, e.target.checked)}
+                      />
+                      {dia.charAt(0).toUpperCase() + dia.slice(1)}
+                    </label>
+                    {activo && (
+                      <>
+                        <input
+                          type="time"
+                          value={horario.apertura ?? '10:00'}
+                          onChange={(e) => actualizarHorario(dia, 'apertura', e.target.value)}
+                        />
+                        <span>a</span>
+                        <input
+                          type="time"
+                          value={horario.cierre ?? '19:00'}
+                          onChange={(e) => actualizarHorario(dia, 'cierre', e.target.value)}
+                        />
+                      </>
+                    )}
+                  </div>
                   {activo && (
-                    <>
-                      <input
-                        type="time"
-                        value={horario.apertura ?? '10:00'}
-                        onChange={(e) => actualizarHorario(dia, 'apertura', e.target.value)}
-                      />
-                      <span>a</span>
-                      <input
-                        type="time"
-                        value={horario.cierre ?? '19:00'}
-                        onChange={(e) => actualizarHorario(dia, 'cierre', e.target.value)}
-                      />
-                    </>
+                    <div className="configuracion-marca__bloqueos">
+                      <span className="configuracion-marca__bloqueos-etiqueta">Descansos</span>
+                      {bloqueos.map((bloqueo, indice) => (
+                        <div key={indice} className="configuracion-marca__bloqueo-fila">
+                          <input
+                            type="time"
+                            value={bloqueo.desde ?? '14:00'}
+                            onChange={(e) => actualizarBloqueo(dia, indice, 'desde', e.target.value)}
+                            aria-label={`Inicio descanso ${dia}`}
+                          />
+                          <span>a</span>
+                          <input
+                            type="time"
+                            value={bloqueo.hasta ?? '15:00'}
+                            onChange={(e) => actualizarBloqueo(dia, indice, 'hasta', e.target.value)}
+                            aria-label={`Fin descanso ${dia}`}
+                          />
+                          <button
+                            type="button"
+                            className="configuracion-marca__bloqueo-quitar"
+                            onClick={() => quitarBloqueo(dia, indice)}
+                          >
+                            Quitar
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="configuracion-marca__bloqueo-agregar"
+                        onClick={() => agregarBloqueo(dia)}
+                      >
+                        + Agregar descanso
+                      </button>
+                    </div>
                   )}
                 </div>
               );

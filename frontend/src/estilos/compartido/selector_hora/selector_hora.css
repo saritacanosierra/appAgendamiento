@@ -1,8 +1,46 @@
-.selector-hora {
-  width: 100%;
-  min-height: 48px;
-  padding: 0.75rem;
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-borde);
-  background: #fff;
+.selector-hora-grid {
+  margin-bottom: var(--espacio-lg);
+}
+
+.selector-hora-grid__etiqueta {
+  display: block;
+  margin-bottom: var(--espacio-sm);
+  font-weight: 700;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto);
+}
+
+.selector-hora-grid__opciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espacio-sm);
+}
+
+.selector-hora-grid__pill {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-pill);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-weight: 600;
+  font-size: var(--tamano-texto-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.selector-hora-grid__pill--activo {
+  border-color: var(--color-principal);
+  background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
+  color: var(--color-principal);
+}
+
+.selector-hora-grid__pill:active {
+  transform: scale(0.98);
+}
+
+@media (min-width: 400px) {
+  .selector-hora-grid__opciones {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }

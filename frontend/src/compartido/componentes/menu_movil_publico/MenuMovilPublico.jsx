@@ -9,7 +9,7 @@ export default function MenuMovilPublico() {
 
   const enlaces = [
     { to: RUTAS_PUBLICAS.inicioMarca(slug), etiqueta: 'Inicio', icono: '🏠' },
-    { to: RUTAS_PUBLICAS.reservar(slug), etiqueta: 'Reservar', icono: '📅' },
+    { to: RUTAS_PUBLICAS.reservar(slug), etiqueta: 'Citas', icono: '📅' },
     { to: RUTAS_PUBLICAS.galeria(slug), etiqueta: 'Galeria', icono: '💅' },
     { to: RUTAS_PUBLICAS.blog(slug), etiqueta: 'Blog', icono: '📖' },
   ];

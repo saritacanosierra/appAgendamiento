@@ -11,6 +11,10 @@ export function aplicarTemaMarca(marca = {}) {
   raiz.style.setProperty('--color-secundario', colores.colorSecundario);
   raiz.style.setProperty('--color-fondo', colores.colorFondo);
   raiz.style.setProperty('--color-texto', colores.colorTexto);
+  raiz.style.setProperty(
+    '--color-fondo-app',
+    `color-mix(in srgb, ${colores.colorSecundario} 14%, ${colores.colorFondo})`
+  );
 }
 
 export function formatearPrecio(precio, moneda = 'MXN') {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
 import {
@@ -26,6 +26,7 @@ const PASOS = ['Servicio', 'Fecha y hora', 'Tus datos', 'Confirmar'];
 export default function ReservarVista() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { marca, cargando: cargandoMarca } = useMarca();
 
   const [paso, setPaso] = useState(0);
@@ -37,6 +38,7 @@ export default function ReservarVista() {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correo, setCorreo] = useState('');
+  const [prefillListo, setPrefillListo] = useState(false);
 
   const [cargandoServicios, setCargandoServicios] = useState(false);
   const [cargandoHorarios, setCargandoHorarios] = useState(false);
@@ -53,6 +55,36 @@ export default function ReservarVista() {
   }, [marca?.id]);
 
   useEffect(() => {
+    if (!servicios.length || prefillListo) return;
+
+    const sid = searchParams.get('servicio');
+    const f = searchParams.get('fecha');
+    const h = searchParams.get('hora');
+
+    if (!sid) {
+      setPrefillListo(true);
+      return;
+    }
+
+    const seleccionado = servicios.find((s) => String(s.id) === String(sid));
+    if (!seleccionado) {
+      setPrefillListo(true);
+      return;
+    }
+
+    setServicio(seleccionado);
+    const minimo = fechaHoyLocal();
+    if (f && f >= minimo) setFecha(f);
+    if (h) setHora(h);
+
+    if (f && h) setPaso(2);
+    else if (f) setPaso(1);
+    else setPaso(1);
+
+    setPrefillListo(true);
+  }, [servicios, searchParams, prefillListo]);
+
+  useEffect(() => {
     if (!marca?.id || !servicio?.id || !fecha) {
       setHorarios([]);
       setHora('');
@@ -63,8 +95,9 @@ export default function ReservarVista() {
     setError(null);
     obtenerDisponibilidad(marca.id, servicio.id, fecha)
       .then((datos) => {
-        setHorarios(datos.horarios ?? []);
-        setHora('');
+        const lista = datos.horarios ?? [];
+        setHorarios(lista);
+        setHora((prev) => (prev && lista.includes(prev) ? prev : ''));
       })
       .catch((err) => {
         setHorarios([]);
@@ -126,23 +159,16 @@ export default function ReservarVista() {
 
   return (
     <div className="reservar-vista">
-      <EncabezadoMarca marca={marca} />
+      <EncabezadoMarca marca={marca} titulo="Agendar cita" compacto />
 
-      <nav className="reservar-vista__pasos" aria-label="Pasos de reserva">
-        {PASOS.map((etiqueta, i) => (
-          <span
-            key={etiqueta}
-            className={`reservar-vista__paso ${i === paso ? 'reservar-vista__paso--activo' : ''} ${i < paso ? 'reservar-vista__paso--hecho' : ''}`}
-          >
-            {i + 1}. {etiqueta}
-          </span>
-        ))}
-      </nav>
+      <p className="paso-indicador reservar-vista__indicador">
+        Paso {paso + 1} de {PASOS.length}
+      </p>
 
       {error && <MensajeError mensaje={error} />}
 
       {paso === 0 && (
-        <section className="reservar-vista__seccion">
+        <section className="reservar-vista__seccion tarjeta-app">
           <h2>Elige un servicio</h2>
           {cargandoServicios && <Cargando mensaje="Cargando servicios..." />}
           <div className="reservar-vista__lista">
@@ -154,7 +180,7 @@ export default function ReservarVista() {
       )}
 
       {paso === 1 && servicio && (
-        <section className="reservar-vista__seccion">
+        <section className="reservar-vista__seccion tarjeta-app">
           <h2>Fecha y hora</h2>
           <p className="reservar-vista__resumen-servicio">
             {servicio.nombre} · {servicio.duracionMinutos} min · {formatearPrecio(servicio.precio)}
@@ -164,6 +190,8 @@ export default function ReservarVista() {
             valor={fecha}
             min={fechaHoyLocal()}
             onChange={setFecha}
+            modo="calendario"
+            etiqueta="Selecciona un dia"
           />
 
           {fecha && (
@@ -188,7 +216,7 @@ export default function ReservarVista() {
       )}
 
       {paso === 2 && (
-        <section className="reservar-vista__seccion">
+        <section className="reservar-vista__seccion tarjeta-app">
           <h2>Tus datos</h2>
           <CampoFormulario etiqueta="Nombre completo" id="nombre" requerido>
             <input
@@ -228,7 +256,7 @@ export default function ReservarVista() {
       )}
 
       {paso === 3 && (
-        <section className="reservar-vista__seccion">
+        <section className="reservar-vista__seccion tarjeta-app">
           <h2>Confirma tu cita</h2>
           <dl className="reservar-vista__resumen-final">
             <dt>Servicio</dt>

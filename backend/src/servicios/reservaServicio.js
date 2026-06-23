@@ -18,6 +18,7 @@ import {
   nombreDiaDesdeFecha,
   sumarMinutosAHora,
   normalizarHora,
+  normalizarHorariosMarca,
   construirFechaHoraLocal,
   fechaEsPasada,
   filtrarHorasPasadas,
@@ -51,7 +52,7 @@ export class ReservaServicio {
     if (!operativa.ok) return { error: operativa.error, codigoHttp: operativa.codigoHttp };
     if (!servicio) return { error: 'Servicio no encontrado.', codigoHttp: 404 };
 
-    const horarios = parsearJsonCampo(marca.horarios_json, {});
+    const horarios = normalizarHorariosMarca(parsearJsonCampo(marca.horarios_json, {}));
     const dia = nombreDiaDesdeFecha(fecha);
     const horarioDia = horarios[dia];
 

@@ -1,22 +1,29 @@
-import CampoFormulario from '../campo_formulario/CampoFormulario';
+import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import '../../../estilos/compartido/selector_hora/selector_hora.css';
 
-export default function SelectorHora({ valor, onChange, opciones = [], etiqueta = 'Hora' }) {
+export default function SelectorHora({ valor, onChange, opciones = [], etiqueta = 'Horarios disponibles' }) {
+  if (opciones.length === 0) return null;
+
   return (
-    <CampoFormulario etiqueta={etiqueta} id="selector-hora">
-      <select
-        id="selector-hora"
-        className="selector-hora"
-        value={valor}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">Selecciona una hora</option>
-        {opciones.map((hora) => (
-          <option key={hora} value={hora}>
-            {hora}
-          </option>
-        ))}
-      </select>
-    </CampoFormulario>
+    <div className="selector-hora-grid">
+      <span className="selector-hora-grid__etiqueta">{etiqueta}</span>
+      <div className="selector-hora-grid__opciones" role="listbox" aria-label={etiqueta}>
+        {opciones.map((hora) => {
+          const activo = valor === hora;
+          return (
+            <button
+              key={hora}
+              type="button"
+              role="option"
+              aria-selected={activo}
+              className={`selector-hora-grid__pill ${activo ? 'selector-hora-grid__pill--activo' : ''}`}
+              onClick={() => onChange(hora)}
+            >
+              {formatearHoraLegible(hora)}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

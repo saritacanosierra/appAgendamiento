@@ -60,8 +60,8 @@ export default function ReportesPlataformaVista() {
       </header>
 
       <section className="reportes-plataforma__filtros">
-        <SelectorFecha valor={desde} onChange={setDesde} etiqueta="Desde" />
-        <SelectorFecha valor={hasta} onChange={setHasta} etiqueta="Hasta" />
+        <SelectorFecha valor={desde} onChange={setDesde} etiqueta="Desde" modo="nativo" />
+        <SelectorFecha valor={hasta} onChange={setHasta} etiqueta="Hasta" modo="nativo" />
         <BotonPrincipal tipo="button" onClick={cargar} deshabilitado={cargando}>
           {cargando ? 'Cargando...' : 'Actualizar'}
         </BotonPrincipal>

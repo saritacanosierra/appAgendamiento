@@ -1,7 +1,7 @@
 @media (min-width: 768px) {
   :root {
     --tamano-titulo: 1.75rem;
-    --ancho-maximo-contenedor: 960px;
+    --ancho-maximo-contenedor: 520px;
   }
 
   .contenedor-app {

@@ -1,0 +1,41 @@
+/* Patrones globales de UI — formas y distribución (colores vienen de la marca) */
+
+.tarjeta-app {
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
+  border: 1px solid color-mix(in srgb, var(--color-borde) 80%, transparent);
+}
+
+.titulo-seccion {
+  font-size: var(--tamano-texto-lg);
+  font-weight: 700;
+  color: var(--color-texto);
+  margin: 0 0 var(--espacio-md);
+  letter-spacing: -0.02em;
+}
+
+.texto-muted {
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+}
+
+.paso-indicador {
+  display: inline-block;
+  margin-bottom: var(--espacio-md);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--color-secundario) 45%, var(--color-superficie));
+  color: var(--color-principal);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.enlace-seccion {
+  font-weight: 600;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-principal);
+}
