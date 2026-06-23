@@ -53,6 +53,14 @@ export class PlataformaServicio {
   }
 
   async obtenerMarca(marcaId) {
+    const fila = await this.marcaRepo.buscarPorId(marcaId);
+    if (!fila) {
+      return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    }
+    return { marca: mapearMarcaPlataforma(fila) };
+  }
+
+  async crearMarca(datosEntrada) {
     const nombreComercial = texto(datosEntrada.nombre_comercial ?? datosEntrada.nombreComercial);
     const slugBase = texto(datosEntrada.slug) || nombreComercial;
     const adminNombre = texto(datosEntrada.admin_nombre ?? datosEntrada.adminNombre);
