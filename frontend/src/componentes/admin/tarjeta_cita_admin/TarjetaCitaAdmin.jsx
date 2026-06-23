@@ -2,7 +2,7 @@ import { EstadoCita } from '../../../compartido/componentes';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import '../../../estilos/componentes/tarjeta_cita_admin/tarjeta_cita_admin.css';
 
-export default function TarjetaCitaAdmin({ cita, onConfirmar, onCancelar }) {
+export default function TarjetaCitaAdmin({ cita, onConfirmar, onCancelar, onAtender }) {
   return (
     <article className={`tarjeta-cita-admin tarjeta-cita-admin--${cita.estado}`}>
       <div className="tarjeta-cita-admin__hora">
@@ -20,6 +20,15 @@ export default function TarjetaCitaAdmin({ cita, onConfirmar, onCancelar }) {
       </div>
       {cita.estado !== 'cancelada' && cita.estado !== 'completada' && (
         <div className="tarjeta-cita-admin__acciones">
+          {onAtender && (
+            <button
+              type="button"
+              className="tarjeta-cita-admin__atender"
+              onClick={() => onAtender(cita)}
+            >
+              Atender ahora
+            </button>
+          )}
           {cita.estado === 'pendiente' && onConfirmar && (
             <button type="button" onClick={() => onConfirmar(cita)}>
               Confirmar

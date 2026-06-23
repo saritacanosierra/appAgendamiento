@@ -13,7 +13,7 @@
 
 .blog-admin__cabecera h1 {
   margin: 0;
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .blog-admin__formulario {
@@ -21,7 +21,7 @@
   margin-bottom: var(--espacio-lg);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-borde);
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .blog-admin__fila {
@@ -44,7 +44,7 @@
 
 .blog-admin__hint {
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   margin-top: var(--espacio-xs);
 }
 
@@ -66,7 +66,7 @@
   padding: var(--espacio-md);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-borde);
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .blog-admin__estado {
@@ -79,15 +79,15 @@
 
 .blog-admin__estado--publicado {
   background: var(--color-secundario);
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .blog-admin__meta {
   display: block;
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .blog-admin__vacio {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }

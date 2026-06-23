@@ -12,7 +12,13 @@ export default function RutaProtegidaAdmin({ children }) {
   }
 
   if (!autenticado) {
-    return <Navigate to={RUTAS_ADMIN.login} state={{ desde: ubicacion.pathname }} replace />;
+    return (
+      <Navigate
+        to={RUTAS_ADMIN.login}
+        state={{ desde: `${ubicacion.pathname}${ubicacion.search}` }}
+        replace
+      />
+    );
   }
 
   if (usuario?.rol === 'superadmin') {

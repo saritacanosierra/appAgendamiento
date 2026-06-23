@@ -9,7 +9,7 @@
 
 .reportes-plataforma__cabecera p {
   margin: 0;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .reportes-plataforma__filtros {
@@ -30,14 +30,14 @@
 .reportes-plataforma__metricas article {
   padding: var(--espacio-md);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-superficie);
   border: 1px solid #c5cae9;
 }
 
 .reportes-plataforma__metricas span {
   display: block;
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   margin-bottom: var(--espacio-xs);
 }
 
@@ -50,7 +50,7 @@
   padding: var(--espacio-lg);
   margin-bottom: var(--espacio-lg);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-superficie);
   border: 1px solid #eee;
 }
 
@@ -78,5 +78,5 @@
 }
 
 .reportes-plataforma__tabla th {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }

@@ -1,12 +1,15 @@
 import { BrowserRouter } from 'react-router-dom';
 import { ProveedorAuth } from './proveedores/ProveedorAuth';
+import { ProveedorVisorImagen } from './proveedores/ProveedorVisorImagen';
 import RutasApp from './rutas/RutasApp';
 
 export default function App() {
   return (
     <BrowserRouter>
       <ProveedorAuth>
-        <RutasApp />
+        <ProveedorVisorImagen>
+          <RutasApp />
+        </ProveedorVisorImagen>
       </ProveedorAuth>
     </BrowserRouter>
   );

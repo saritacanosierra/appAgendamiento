@@ -7,11 +7,15 @@ import {
   listarAdmin as listarServiciosAdmin,
   crearAdmin as crearServicioAdmin,
   actualizarAdmin as actualizarServicioAdmin,
+  eliminarAdmin as eliminarServicioAdmin,
 } from '../controladores/servicioControlador.js';
 import {
   obtenerDisponibilidad,
   crearReserva,
   obtenerConfirmacion,
+  consultarCitas,
+  cancelarReservaPublica,
+  solicitarReagendamiento,
 } from '../controladores/reservaControlador.js';
 import {
   listarCitas,
@@ -36,6 +40,12 @@ import {
   actualizarAdmin as actualizarGaleriaAdmin,
 } from '../controladores/galeriaControlador.js';
 import {
+  listarPublicos as listarCarruselPublicos,
+  listarAdmin as listarCarruselAdmin,
+  crearAdmin as crearCarruselAdmin,
+  actualizarAdmin as actualizarCarruselAdmin,
+} from '../controladores/carruselControlador.js';
+import {
   obtenerAdmin as obtenerConfiguracionAdmin,
   actualizarAdmin as actualizarConfiguracionAdmin,
   subirArchivo,
@@ -55,6 +65,15 @@ import {
 } from '../controladores/googleCalendarControlador.js';
 import { obtenerReporte } from '../controladores/reporteControlador.js';
 import {
+  listarCitasAtencion,
+  cerrarServicioAtencion,
+} from '../controladores/atencionControlador.js';
+import {
+  listarSolicitudesReagendamiento,
+  aprobarSolicitudReagendamiento,
+  rechazarSolicitudReagendamiento,
+} from '../controladores/solicitudReagendamientoControlador.js';
+import {
   listarMarcasPlataforma,
   obtenerMarcaPlataforma,
   obtenerResumenPlataforma,
@@ -67,7 +86,7 @@ import {
 import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.js';
 import { superadminMiddleware, soloMarcaAdminMiddleware } from '../middlewares/plataformaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
-import { limitarLogin, limitarReservas } from '../middlewares/limitarTasa.js';
+import { limitarLogin, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
 
 const router = Router();
 
@@ -80,8 +99,12 @@ router.get('/marcas/:marca_id/disponibilidad', obtenerDisponibilidad);
 router.get('/marcas/:marca_id/blog', listarBlogPublicos);
 router.get('/marcas/:marca_id/blog/slug/:slug', obtenerBlogPublico);
 router.get('/marcas/:marca_id/galeria', listarGaleriaPublicos);
+router.get('/marcas/:marca_id/carrusel-inicio', listarCarruselPublicos);
 router.post('/reservas', limitarReservas, crearReserva);
+router.post('/reservas/consultar', limitarConsultasReservas, consultarCitas);
 router.get('/reservas/confirmacion/:codigo', obtenerConfirmacion);
+router.post('/reservas/:codigo/cancelar', limitarConsultasReservas, cancelarReservaPublica);
+router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, solicitarReagendamiento);
 
 // OAuth callback (publico)
 router.get('/integraciones/google/callback', callbackGoogle);
@@ -96,21 +119,30 @@ router.get('/auth/me', autenticacionMiddleware, me);
 router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware);
 
 router.get('/admin/agenda', obtenerAgenda);
+router.get('/admin/atencion/citas', listarCitasAtencion);
+router.post('/admin/atencion/citas/:id/cerrar', cerrarServicioAtencion);
 router.get('/admin/citas', listarCitas);
 router.post('/admin/citas', crearCitaAdmin);
 router.put('/admin/citas/:id', actualizarCitaAdmin);
 router.delete('/admin/citas/:id', eliminarCitaAdmin);
+router.get('/admin/solicitudes-reagendamiento', listarSolicitudesReagendamiento);
+router.put('/admin/solicitudes-reagendamiento/:id/aprobar', aprobarSolicitudReagendamiento);
+router.put('/admin/solicitudes-reagendamiento/:id/rechazar', rechazarSolicitudReagendamiento);
 router.get('/admin/clientes', listarClientes);
 router.post('/admin/clientes', crearCliente);
 router.get('/admin/servicios', listarServiciosAdmin);
 router.post('/admin/servicios', crearServicioAdmin);
 router.put('/admin/servicios/:id', actualizarServicioAdmin);
+router.delete('/admin/servicios/:id', eliminarServicioAdmin);
 router.get('/admin/blog', listarBlogAdmin);
 router.post('/admin/blog', crearBlogAdmin);
 router.put('/admin/blog/:id', actualizarBlogAdmin);
 router.get('/admin/galeria', listarGaleriaAdmin);
 router.post('/admin/galeria', crearGaleriaAdmin);
 router.put('/admin/galeria/:id', actualizarGaleriaAdmin);
+router.get('/admin/carrusel-inicio', listarCarruselAdmin);
+router.post('/admin/carrusel-inicio', crearCarruselAdmin);
+router.put('/admin/carrusel-inicio/:id', actualizarCarruselAdmin);
 router.get('/admin/configuracion-marca', obtenerConfiguracionAdmin);
 router.put('/admin/configuracion-marca', actualizarConfiguracionAdmin);
 router.get('/admin/notificaciones/resumen', obtenerResumen);
@@ -125,6 +157,8 @@ router.delete('/admin/integraciones/google', desconectarGoogle);
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);
+router.post('/admin/subidas/carrusel', subidaImagenMiddleware('carrusel'), subirArchivo);
+router.post('/admin/subidas/servicios', subidaImagenMiddleware('servicios'), subirArchivo);
 
 // Plataforma (superadmin)
 router.use('/plataforma', autenticacionMiddleware, superadminMiddleware);

@@ -11,6 +11,8 @@
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
     "semilla:superadmin": "node scripts/semilla-superadmin.js",
     "migrar:plataforma": "node scripts/migrar-plataforma.js",
+    "migrar:galeria-tendencia": "node scripts/migrar-galeria-tendencia.js",
+    "migrar:servicios-imagen": "node scripts/migrar-servicios-imagen.js",
     "verificar:google": "node scripts/verificar-google-calendar.js",
     "verificar:whatsapp": "node scripts/verificar-whatsapp.js"
   },

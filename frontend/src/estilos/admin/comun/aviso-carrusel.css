@@ -1,0 +1,18 @@
+.admin-aviso-carrusel {
+  margin: 0 0 var(--espacio-lg);
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-radius: var(--radio-borde);
+  background: color-mix(in srgb, var(--color-secundario) 22%, var(--color-superficie));
+  border: 1px solid color-mix(in srgb, var(--color-principal) 18%, var(--color-borde));
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+  line-height: 1.5;
+}
+
+.admin-aviso-carrusel strong {
+  color: var(--color-texto);
+}
+
+.admin-aviso-carrusel a {
+  font-weight: 700;
+}

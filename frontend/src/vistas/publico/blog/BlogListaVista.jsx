@@ -1,8 +1,7 @@
-import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
-import { Cargando, EncabezadoMarca, MensajeError } from '../../../compartido/componentes';
-import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
+import { Cargando, EncabezadoMarca, ImagenAmpliable, MensajeError } from '../../../compartido/componentes';
+import ModalBlogPublico from '../../../componentes/publico/modal_blog_publico/ModalBlogPublico';
 import { listarBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
 import '../../../estilos/publico/blog/blog.css';
 
@@ -16,11 +15,11 @@ function formatearFecha(valor) {
 }
 
 export default function BlogListaVista() {
-  const { slug } = useParams();
   const { marca, cargando: cargandoMarca, error: errorMarca } = useMarca();
   const [publicaciones, setPublicaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [slugAbierto, setSlugAbierto] = useState(null);
 
   useEffect(() => {
     if (!marca?.id) return;
@@ -43,26 +42,36 @@ export default function BlogListaVista() {
       {cargando && <Cargando />}
 
       {!cargando && publicaciones.length === 0 && (
-        <p className="blog-lista__vacio">Aun no hay publicaciones.</p>
+        <p className="blog-lista__vacio">Aún no hay publicaciones.</p>
       )}
 
       <div className="blog-lista__grid">
         {publicaciones.map((pub) => (
-          <article key={pub.id} className="blog-lista__tarjeta">
+          <button
+            key={pub.id}
+            type="button"
+            className="blog-lista__tarjeta"
+            onClick={() => setSlugAbierto(pub.slug)}
+          >
             {pub.imagenDestacada && (
-              <img src={pub.imagenDestacada} alt="" className="blog-lista__imagen" />
+              <ImagenAmpliable src={pub.imagenDestacada} alt={pub.titulo} className="blog-lista__imagen" />
             )}
             <div className="blog-lista__cuerpo">
               {pub.categoria && <span className="blog-lista__categoria">{pub.categoria}</span>}
-              <h2>
-                <Link to={RUTAS_PUBLICAS.blogPublicacion(slug, pub.slug)}>{pub.titulo}</Link>
-              </h2>
+              <h2>{pub.titulo}</h2>
               {pub.extracto && <p>{pub.extracto}</p>}
-              <time>{formatearFecha(pub.fechaPublicacion)}</time>
+              <time dateTime={pub.fechaPublicacion}>{formatearFecha(pub.fechaPublicacion)}</time>
             </div>
-          </article>
+          </button>
         ))}
       </div>
+
+      <ModalBlogPublico
+        abierto={Boolean(slugAbierto)}
+        marcaId={marca?.id}
+        slugPublicacion={slugAbierto}
+        onCerrar={() => setSlugAbierto(null)}
+      />
     </div>
   );
 }

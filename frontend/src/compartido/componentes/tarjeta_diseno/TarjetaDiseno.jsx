@@ -1,11 +1,11 @@
-
+import ImagenAmpliable from '../imagen_ampliable/ImagenAmpliable';
 import '../../../estilos/compartido/tarjeta_diseno/tarjeta_diseno.css';
 export default function TarjetaDiseno({ diseno }) {
   return (
     <article className="tarjeta-diseno">
       <div className="tarjeta-diseno__imagen">
         {diseno.imagen ? (
-          <img src={diseno.imagen} alt={diseno.titulo} loading="lazy" />
+          <ImagenAmpliable src={diseno.imagen} alt={diseno.titulo} loading="lazy" />
         ) : (
           <div className="tarjeta-diseno__placeholder" aria-hidden="true" />
         )}

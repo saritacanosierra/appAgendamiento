@@ -18,6 +18,12 @@ export const BlogDetalleVista = lazy(
 export const ConfirmacionReservaVista = lazy(
   () => import('../../vistas/publico/confirmacion/ConfirmacionReservaVista')
 );
+export const ConsultarCitaVista = lazy(
+  () => import('../../vistas/publico/mi_cita/ConsultarCitaVista')
+);
+export const CitasMarcaVista = lazy(
+  () => import('../../vistas/publico/citas/CitasMarcaVista')
+);
 
 export const LoginVista = lazy(
   () => import('../../vistas/admin/login/LoginVista')
@@ -43,8 +49,14 @@ export const GaleriaAdminVista = lazy(
 export const ConfiguracionMarcaVista = lazy(
   () => import('../../vistas/admin/configuracion/ConfiguracionMarcaVista')
 );
+export const CarruselAdminVista = lazy(
+  () => import('../../vistas/admin/carrusel/CarruselAdminVista')
+);
 export const ReportesVista = lazy(
   () => import('../../vistas/admin/reportes/ReportesVista')
+);
+export const AtencionVista = lazy(
+  () => import('../../vistas/admin/atencion/AtencionVista')
 );
 export const InicioVista = lazy(
   () => import('../../vistas/plataforma/inicio/InicioVista')

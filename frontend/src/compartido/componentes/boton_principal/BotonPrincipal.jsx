@@ -4,17 +4,21 @@ import '../../../estilos/compartido/boton_principal/boton_principal.css';
 export default function BotonPrincipal({
   children,
   tipo = 'button',
+  type,
   variante = 'principal',
   anchoCompleto = false,
   deshabilitado = false,
   onClick,
   href,
   to,
+  className = '',
 }) {
+  const tipoBoton = type ?? tipo;
   const clases = [
     'boton-principal',
     `boton-principal--${variante}`,
     anchoCompleto ? 'boton-principal--completo' : '',
+    className,
   ]
     .filter(Boolean)
     .join(' ');
@@ -37,7 +41,7 @@ export default function BotonPrincipal({
 
   return (
     <button
-      type={tipo}
+      type={tipoBoton}
       className={clases}
       disabled={deshabilitado}
       onClick={onClick}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
@@ -6,13 +6,14 @@ import {
   crearReserva,
   obtenerDisponibilidad,
 } from '../../../modulos/reservas/servicios/reservasServicio';
-import { fechaHoyLocal, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
+import { fechaHoyLocal, formatearFechaLegible, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
   EncabezadoMarca,
   MensajeError,
+  ModalMensaje,
   SelectorFecha,
   SelectorHora,
   TarjetaServicio,
@@ -44,6 +45,8 @@ export default function ReservarVista() {
   const [cargandoHorarios, setCargandoHorarios] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
+  const [modalSinHorarios, setModalSinHorarios] = useState(false);
+  const ultimaFechaAvisadaRef = useRef('');
 
   useEffect(() => {
     if (!marca?.id) return;
@@ -106,6 +109,23 @@ export default function ReservarVista() {
       .finally(() => setCargandoHorarios(false));
   }, [marca?.id, servicio?.id, fecha]);
 
+  useEffect(() => {
+    if (!fecha || cargandoHorarios || paso !== 1) return;
+
+    if (horarios.length === 0 && ultimaFechaAvisadaRef.current !== fecha) {
+      ultimaFechaAvisadaRef.current = fecha;
+      setModalSinHorarios(true);
+    }
+
+    if (horarios.length > 0) {
+      ultimaFechaAvisadaRef.current = '';
+    }
+  }, [fecha, horarios, cargandoHorarios, paso]);
+
+  function avisarSinHorarios() {
+    setModalSinHorarios(true);
+  }
+
   function seleccionarServicio(s) {
     setServicio(s);
     setPaso(1);
@@ -113,10 +133,24 @@ export default function ReservarVista() {
   }
 
   function avanzarDesdeFechaHora() {
-    if (!fecha || !hora) {
-      setError('Selecciona fecha y hora.');
+    if (!fecha) {
+      setError('Selecciona un dia en el calendario.');
       return;
     }
+
+    if (cargandoHorarios) return;
+
+    if (horarios.length === 0) {
+      setError(null);
+      avisarSinHorarios();
+      return;
+    }
+
+    if (!hora) {
+      setError('Selecciona un horario disponible.');
+      return;
+    }
+
     setError(null);
     setPaso(2);
   }
@@ -159,6 +193,19 @@ export default function ReservarVista() {
 
   return (
     <div className="reservar-vista">
+      <ModalMensaje
+        abierto={modalSinHorarios}
+        titulo="Sin horarios disponibles"
+        mensaje={
+          fecha
+            ? `No hay horarios disponibles para ${formatearFechaLegible(fecha)}. Elige otro dia en el calendario.`
+            : 'No hay horarios disponibles este dia. Elige otro dia en el calendario.'
+        }
+        variante="info"
+        onCerrar={() => setModalSinHorarios(false)}
+        textoCerrar="Entendido"
+      />
+
       <EncabezadoMarca marca={marca} titulo="Agendar cita" compacto />
 
       <p className="paso-indicador reservar-vista__indicador">
@@ -197,9 +244,6 @@ export default function ReservarVista() {
           {fecha && (
             <>
               {cargandoHorarios && <Cargando mensaje="Buscando horarios..." />}
-              {!cargandoHorarios && horarios.length === 0 && (
-                <p className="reservar-vista__sin-horarios">No hay horarios disponibles este dia.</p>
-              )}
               {!cargandoHorarios && horarios.length > 0 && (
                 <SelectorHora valor={hora} opciones={horarios} onChange={setHora} />
               )}
@@ -208,7 +252,11 @@ export default function ReservarVista() {
 
           <div className="reservar-vista__acciones">
             <BotonPrincipal variante="texto" onClick={() => setPaso(0)}>Atras</BotonPrincipal>
-            <BotonPrincipal onClick={avanzarDesdeFechaHora} anchoCompleto>
+            <BotonPrincipal
+              onClick={avanzarDesdeFechaHora}
+              anchoCompleto
+              deshabilitado={cargandoHorarios}
+            >
               Continuar
             </BotonPrincipal>
           </div>

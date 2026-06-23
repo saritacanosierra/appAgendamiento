@@ -12,7 +12,13 @@ export default function RutaProtegidaPlataforma({ children }) {
   }
 
   if (!autenticado) {
-    return <Navigate to={RUTAS_PLATAFORMA.login} state={{ desde: ubicacion.pathname }} replace />;
+    return (
+      <Navigate
+        to={RUTAS_PLATAFORMA.login}
+        state={{ desde: `${ubicacion.pathname}${ubicacion.search}` }}
+        replace
+      />
+    );
   }
 
   if (usuario?.rol !== 'superadmin') {

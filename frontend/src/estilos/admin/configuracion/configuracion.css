@@ -3,12 +3,12 @@
 }
 
 .configuracion-marca h1 {
-  color: var(--color-principal);
+  color: var(--color-acento);
   margin-bottom: var(--espacio-xs);
 }
 
 .configuracion-marca__intro {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-lg);
 }
@@ -18,7 +18,7 @@
   margin-bottom: var(--espacio-md);
   border-radius: var(--radio-borde);
   background: var(--color-secundario);
-  color: var(--color-principal);
+  color: var(--color-texto-sobre-secundario);
   font-size: var(--tamano-texto-sm);
 }
 
@@ -26,19 +26,35 @@
   display: flex;
   flex-direction: column;
   gap: var(--espacio-lg);
+  padding-bottom: var(--espacio-md);
+}
+
+.configuracion-marca__formulario > .boton-principal--completo {
+  position: sticky;
+  bottom: calc(var(--altura-nav-admin-movil, 68px) + var(--espacio-sm));
+  z-index: 10;
+  margin-top: var(--espacio-sm);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+@media (min-width: 960px) {
+  .configuracion-marca__formulario > .boton-principal--completo {
+    position: static;
+    box-shadow: var(--sombra-suave);
+  }
 }
 
 .configuracion-marca__seccion {
   padding: var(--espacio-md);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-borde);
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .configuracion-marca__seccion h2 {
   margin: 0 0 var(--espacio-md);
   font-size: var(--tamano-texto-lg);
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .configuracion-marca__colores {
@@ -70,91 +86,300 @@
 
 .configuracion-marca__hint {
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .configuracion-marca__hint--bloque {
   margin-bottom: var(--espacio-md);
 }
 
+.configuracion-marca__seccion-cabecera {
+  margin-bottom: var(--espacio-lg);
+}
+
+.configuracion-marca__seccion-cabecera h2 {
+  margin-bottom: var(--espacio-xs);
+}
+
+.configuracion-marca__seccion--horarios {
+  padding: var(--espacio-lg);
+}
+
+/* ——— Horarios por día ——— */
 .configuracion-marca__horarios {
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-md);
+  gap: var(--espacio-sm);
 }
 
 .configuracion-marca__horario-dia {
-  padding-bottom: var(--espacio-sm);
-  border-bottom: 1px solid var(--color-borde);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: var(--color-fondo-app);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.configuracion-marca__horario-dia:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.configuracion-marca__horario-dia--activo {
+  background: var(--color-superficie);
+  border-color: color-mix(in srgb, var(--color-principal) 18%, var(--color-borde));
+  box-shadow: var(--sombra-suave);
 }
 
-.configuracion-marca__horario-fila {
-  display: flex;
-  flex-wrap: wrap;
+.configuracion-marca__horario-cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espacio-md);
+  padding: var(--espacio-md);
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .configuracion-marca__horario-cabecera {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+}
+
+.configuracion-marca__horario-toggle {
+  display: inline-flex;
   align-items: center;
   gap: var(--espacio-sm);
-  font-size: var(--tamano-texto-sm);
+  cursor: pointer;
+  user-select: none;
 }
 
-.configuracion-marca__bloqueos {
-  margin-top: var(--espacio-sm);
-  margin-left: var(--espacio-lg);
+.configuracion-marca__horario-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.configuracion-marca__horario-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--radio-pill);
+  background: #d1d5db;
+  transition: background 0.2s;
+}
+
+.configuracion-marca__horario-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-superficie);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+}
+
+.configuracion-marca__horario-toggle input:checked + .configuracion-marca__horario-switch {
+  background: var(--color-principal);
+}
+
+.configuracion-marca__horario-toggle input:checked + .configuracion-marca__horario-switch::after {
+  transform: translateX(18px);
+}
+
+.configuracion-marca__horario-toggle input:focus-visible + .configuracion-marca__horario-switch {
+  outline: 2px solid var(--color-principal);
+  outline-offset: 2px;
+}
+
+.configuracion-marca__horario-nombre {
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  color: var(--color-texto);
+  min-width: 5.5rem;
+}
+
+.configuracion-marca__horario-cerrado {
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto-muted);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--color-borde) 40%, var(--color-superficie));
+  justify-self: start;
+}
+
+@media (min-width: 640px) {
+  .configuracion-marca__horario-cerrado {
+    justify-self: end;
+  }
+}
+
+.configuracion-marca__horario-rango {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: var(--espacio-sm);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .configuracion-marca__horario-rango {
+    justify-content: flex-end;
+    width: auto;
+  }
+}
+
+.configuracion-marca__hora-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+  max-width: 140px;
+}
+
+.configuracion-marca__hora-campo span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-texto-muted);
+}
+
+.configuracion-marca__hora-campo input[type='time'],
+.configuracion-marca__descanso-horas input[type='time'] {
+  min-width: 0;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde-sm);
+  background: var(--color-superficie);
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.configuracion-marca__hora-campo input[type='time']:focus,
+.configuracion-marca__descanso-horas input[type='time']:focus {
+  outline: none;
+  border-color: var(--color-acento);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-principal) 15%, transparent);
+}
+
+.configuracion-marca__hora-sep {
+  align-self: center;
+  padding-bottom: 0.55rem;
+  color: var(--color-texto-muted);
+  font-weight: 600;
+}
+
+/* ——— Descansos ——— */
+.configuracion-marca__descansos {
+  padding: var(--espacio-sm) var(--espacio-md) var(--espacio-md);
+  border-top: 1px solid color-mix(in srgb, var(--color-borde) 70%, transparent);
+  background: color-mix(in srgb, var(--color-fondo-app) 50%, var(--color-superficie));
+}
+
+.configuracion-marca__descansos-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-sm);
+  margin-bottom: var(--espacio-sm);
+}
+
+.configuracion-marca__descansos-cabecera > span:first-child {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-texto-muted);
+}
+
+.configuracion-marca__descansos-vacio {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-suave);
+}
+
+.configuracion-marca__descansos-lista {
+  list-style: none;
+  margin: 0 0 var(--espacio-sm);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--espacio-xs);
 }
 
-.configuracion-marca__bloqueos-etiqueta {
-  font-size: var(--tamano-texto-sm);
-  color: #666;
-  font-weight: 500;
-}
-
-.configuracion-marca__bloqueo-fila {
+.configuracion-marca__descanso-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--espacio-sm);
-  font-size: var(--tamano-texto-sm);
-}
-
-.configuracion-marca__bloqueo-quitar,
-.configuracion-marca__bloqueo-agregar {
-  font-size: var(--tamano-texto-sm);
-  padding: 4px 10px;
-  border-radius: var(--radio-borde);
-  cursor: pointer;
-  background: transparent;
+  padding: var(--espacio-sm);
+  border-radius: var(--radio-borde-sm);
+  background: var(--color-superficie);
   border: 1px solid var(--color-borde);
-  color: #555;
 }
 
-.configuracion-marca__bloqueo-agregar {
-  align-self: flex-start;
-  margin-top: var(--espacio-xs);
-  color: var(--color-principal);
-  border-color: var(--color-principal);
-}
-
-.configuracion-marca__bloqueo-quitar:hover,
-.configuracion-marca__bloqueo-agregar:hover {
-  background: var(--color-fondo);
-}
-
-.configuracion-marca__horario-fila label {
-  min-width: 120px;
+.configuracion-marca__descanso-horas {
   display: flex;
   align-items: center;
-  gap: var(--espacio-xs);
+  gap: var(--espacio-sm);
+  flex: 1;
+  min-width: min(100%, 220px);
+}
+
+.configuracion-marca__descanso-horas input[type='time'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.configuracion-marca__descanso-horas span {
+  color: var(--color-texto-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.configuracion-marca__descanso-quitar {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: var(--radio-pill);
+  background: transparent;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.configuracion-marca__descanso-quitar:hover {
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 8%, var(--color-superficie));
+}
+
+.configuracion-marca__descanso-agregar {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border: 1px dashed color-mix(in srgb, var(--color-principal) 40%, var(--color-borde));
+  border-radius: var(--radio-pill);
+  background: transparent;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  color: var(--color-acento);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.configuracion-marca__descanso-agregar:hover {
+  background: color-mix(in srgb, var(--color-principal) 8%, var(--color-superficie));
+  border-color: var(--color-acento);
 }
 
 .configuracion-marca__google-ok {
-  color: var(--color-principal);
+  color: var(--color-acento);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-sm);
 }

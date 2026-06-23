@@ -55,3 +55,9 @@ export const limitarReservas = limitarTasa({
   max: Number(process.env.RATE_LIMIT_RESERVAS ?? 20),
   mensaje: 'Has superado el limite de reservas por hora. Intenta mas tarde.',
 });
+
+export const limitarConsultasReservas = limitarTasa({
+  ventanaMs: 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_CONSULTAS ?? 30),
+  mensaje: 'Demasiadas consultas. Espera unos minutos e intenta de nuevo.',
+});

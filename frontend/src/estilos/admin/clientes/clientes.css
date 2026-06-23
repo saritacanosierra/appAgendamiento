@@ -13,7 +13,7 @@
 
 .clientes-vista__cabecera h1 {
   margin: 0;
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .clientes-vista__busqueda {
@@ -25,22 +25,30 @@
 .clientes-vista__busqueda input {
   flex: 1;
   min-height: 48px;
-  padding: 0.75rem;
-  border: 1px solid var(--color-borde);
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--color-input-borde);
   border-radius: var(--radio-borde);
+  background: var(--color-input-fondo);
+  color: var(--color-input-texto);
+}
+
+.clientes-vista__busqueda input::placeholder {
+  color: var(--color-texto-muted-superficie);
 }
 
 .clientes-vista__formulario {
   padding: var(--espacio-md);
   margin-bottom: var(--espacio-lg);
   border-radius: var(--radio-borde);
-  background: #f9f9f9;
-  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  border: 1px solid var(--color-borde-superficie);
 }
 
 .clientes-vista__formulario h2 {
   font-size: var(--tamano-texto-base);
   margin-bottom: var(--espacio-md);
+  color: var(--color-texto-superficie);
 }
 
 .clientes-vista__lista {
@@ -58,8 +66,9 @@
   gap: 2px;
   padding: var(--espacio-md);
   border-radius: var(--radio-borde);
-  background: #fff;
-  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  border: 1px solid var(--color-borde-superficie);
 }
 
 .clientes-vista__item strong {
@@ -68,11 +77,11 @@
 
 .clientes-vista__item span {
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .clientes-vista__vacio {
   text-align: center;
-  color: #666;
+  color: var(--color-texto-muted);
   padding: var(--espacio-xl);
 }

@@ -3,12 +3,17 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  ImagenAmpliable,
   MensajeError,
+  ModalConfirmacion,
   TarjetaServicio,
+  IconoApp,
 } from '../../../compartido/componentes';
+import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
   actualizarServicio,
   crearServicio,
+  eliminarServicio,
   obtenerServiciosAdmin,
 } from '../../../modulos/reservas/servicios/serviciosServicio';
 import '../../../estilos/admin/servicios/servicios.css';
@@ -16,6 +21,7 @@ import '../../../estilos/admin/servicios/servicios.css';
 const FORM_VACIO = {
   nombre: '',
   descripcion: '',
+  imagenRuta: '',
   duracionMinutos: '60',
   precio: '',
   activo: true,
@@ -30,6 +36,9 @@ export default function ServiciosAdminVista() {
   const [editandoId, setEditandoId] = useState(null);
   const [form, setForm] = useState(FORM_VACIO);
   const [enviando, setEnviando] = useState(false);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [servicioAEliminar, setServicioAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
 
   async function cargar() {
     setCargando(true);
@@ -58,6 +67,7 @@ export default function ServiciosAdminVista() {
     setForm({
       nombre: servicio.nombre,
       descripcion: servicio.descripcion ?? '',
+      imagenRuta: servicio.imagenRuta ?? '',
       duracionMinutos: String(servicio.duracionMinutos),
       precio: String(servicio.precio),
       activo: servicio.activo,
@@ -76,6 +86,22 @@ export default function ServiciosAdminVista() {
     setForm((prev) => ({ ...prev, [campo]: valor }));
   }
 
+  async function manejarImagen(e) {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+
+    setSubiendoImagen(true);
+    setError(null);
+    try {
+      const { ruta } = await subirImagenAdmin('servicios', archivo);
+      setForm((prev) => ({ ...prev, imagenRuta: ruta }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubiendoImagen(false);
+    }
+  }
+
   async function manejarEnviar(e) {
     e.preventDefault();
     setEnviando(true);
@@ -84,6 +110,7 @@ export default function ServiciosAdminVista() {
     const payload = {
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim() || null,
+      imagen_ruta: form.imagenRuta.trim() || null,
       duracion_minutos: Number(form.duracionMinutos),
       precio: Number(form.precio),
       activo: form.activo,
@@ -105,8 +132,42 @@ export default function ServiciosAdminVista() {
     }
   }
 
+  async function confirmarEliminar() {
+    if (!servicioAEliminar) return;
+
+    setEliminando(true);
+    setError(null);
+    try {
+      await eliminarServicio(servicioAEliminar.id);
+      setServicioAEliminar(null);
+      if (editandoId === servicioAEliminar.id) {
+        cerrarForm();
+      }
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+      setServicioAEliminar(null);
+    } finally {
+      setEliminando(false);
+    }
+  }
+
   return (
     <div className="servicios-admin">
+      <ModalConfirmacion
+        abierto={Boolean(servicioAEliminar)}
+        titulo="Eliminar servicio"
+        mensaje={
+          servicioAEliminar
+            ? `¿Eliminar "${servicioAEliminar.nombre}"? Esta accion no se puede deshacer.`
+            : ''
+        }
+        textoConfirmar={eliminando ? 'Eliminando...' : 'Si, eliminar'}
+        textoCancelar="Cancelar"
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => !eliminando && setServicioAEliminar(null)}
+      />
+
       <header className="servicios-admin__cabecera">
         <div>
           <h1>Servicios de tu marca</h1>
@@ -134,6 +195,17 @@ export default function ServiciosAdminVista() {
               value={form.descripcion}
               onChange={(e) => actualizarCampo('descripcion', e.target.value)}
             />
+          </CampoFormulario>
+          <CampoFormulario etiqueta="Imagen del servicio" id="sv-imagen">
+            <input id="sv-imagen" type="file" accept="image/*" onChange={manejarImagen} />
+            {subiendoImagen && <p className="servicios-admin__hint">Subiendo imagen...</p>}
+            {form.imagenRuta && (
+              <ImagenAmpliable
+                src={form.imagenRuta}
+                alt="Vista previa del servicio"
+                className="servicios-admin__preview"
+              />
+            )}
           </CampoFormulario>
           <div className="servicios-admin__fila">
             <CampoFormulario etiqueta="Duracion (min)" id="sv-duracion" requerido>
@@ -195,15 +267,35 @@ export default function ServiciosAdminVista() {
           ) : (
             <div className="servicios-admin__lista">
               {servicios.map((servicio) => (
-                <div key={servicio.id} className="servicios-admin__item">
-                  <TarjetaServicio servicio={servicio} />
-                  <div className="servicios-admin__acciones">
-                    {!servicio.activo && <span className="badge-fase">Inactivo</span>}
-                    <BotonPrincipal variante="secundario" onClick={() => abrirEditar(servicio)}>
-                      Editar
-                    </BotonPrincipal>
-                  </div>
-                </div>
+                <TarjetaServicio
+                  key={servicio.id}
+                  servicio={servicio}
+                  acciones={
+                    <>
+                      {!servicio.activo && <span className="badge-fase">Inactivo</span>}
+                      <div className="servicios-admin__acciones">
+                        <button
+                          type="button"
+                          className="servicios-admin__accion-icono servicios-admin__accion-icono--editar"
+                          onClick={() => abrirEditar(servicio)}
+                          aria-label={`Editar ${servicio.nombre}`}
+                          title="Editar"
+                        >
+                          <IconoApp nombre="editar" tamano="sm" />
+                        </button>
+                        <button
+                          type="button"
+                          className="servicios-admin__accion-icono servicios-admin__accion-icono--eliminar"
+                          onClick={() => setServicioAEliminar(servicio)}
+                          aria-label={`Eliminar ${servicio.nombre}`}
+                          title="Eliminar"
+                        >
+                          <IconoApp nombre="eliminar" tamano="sm" />
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
               ))}
             </div>
           )}

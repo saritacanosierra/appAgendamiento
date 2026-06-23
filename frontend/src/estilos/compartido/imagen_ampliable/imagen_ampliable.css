@@ -1,0 +1,8 @@
+.imagen-ampliable {
+  cursor: zoom-in;
+}
+
+.imagen-ampliable:focus-visible {
+  outline: 2px solid var(--color-principal);
+  outline-offset: 2px;
+}

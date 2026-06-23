@@ -2,11 +2,12 @@ import crypto from 'crypto';
 import { pool } from '../configuracion/baseDatos.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 export { ReservaRepositorio, ClienteRepositorio } from './citasRepositorio.js';
+export { SolicitudReagendamientoRepositorio } from './solicitudReagendamientoRepositorio.js';
 
 export class ServicioRepositorio {
   async listarActivosPorMarca(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT id, marca_id, nombre, descripcion, duracion_minutos, precio, orden_visualizacion
+      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, orden_visualizacion
        FROM servicios
        WHERE marca_id = ? AND activo = 1
        ORDER BY orden_visualizacion ASC, nombre ASC`,
@@ -17,7 +18,7 @@ export class ServicioRepositorio {
 
   async listarPorMarca(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT id, marca_id, nombre, descripcion, duracion_minutos, precio, activo, orden_visualizacion
+      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, orden_visualizacion
        FROM servicios
        WHERE marca_id = ?
        ORDER BY orden_visualizacion ASC, nombre ASC`,
@@ -44,12 +45,13 @@ export class ServicioRepositorio {
 
   async crear(datos) {
     const [resultado] = await pool.execute(
-      `INSERT INTO servicios (marca_id, nombre, descripcion, duracion_minutos, precio, activo, orden_visualizacion)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO servicios (marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, orden_visualizacion)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.marcaId,
         datos.nombre,
         datos.descripcion ?? null,
+        datos.imagenRuta ?? null,
         datos.duracionMinutos,
         datos.precio,
         datos.activo ? 1 : 0,
@@ -62,12 +64,13 @@ export class ServicioRepositorio {
   async actualizar(marcaId, servicioId, datos) {
     await pool.execute(
       `UPDATE servicios
-       SET nombre = ?, descripcion = ?, duracion_minutos = ?, precio = ?,
+       SET nombre = ?, descripcion = ?, imagen_ruta = ?, duracion_minutos = ?, precio = ?,
            activo = ?, orden_visualizacion = ?
        WHERE id = ? AND marca_id = ?`,
       [
         datos.nombre,
         datos.descripcion ?? null,
+        datos.imagenRuta ?? null,
         datos.duracionMinutos,
         datos.precio,
         datos.activo ? 1 : 0,
@@ -76,6 +79,22 @@ export class ServicioRepositorio {
         marcaId,
       ]
     );
+  }
+
+  async contarCitas(marcaId, servicioId) {
+    const [filas] = await pool.execute(
+      `SELECT COUNT(*) AS total FROM citas WHERE marca_id = ? AND servicio_id = ?`,
+      [marcaId, servicioId]
+    );
+    return Number(filas[0]?.total ?? 0);
+  }
+
+  async eliminar(marcaId, servicioId) {
+    const [resultado] = await pool.execute(
+      `DELETE FROM servicios WHERE id = ? AND marca_id = ?`,
+      [servicioId, marcaId]
+    );
+    return resultado.affectedRows > 0;
   }
 }
 

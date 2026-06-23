@@ -74,6 +74,108 @@ export class ReservaRepositorio {
     return filas[0] ?? null;
   }
 
+  async buscarPorCodigoYMarca(codigo, marcaId) {
+    const [filas] = await pool.execute(
+      `SELECT c.*,
+              s.nombre AS servicio_nombre, s.duracion_minutos, s.precio,
+              cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono, cl.correo AS cliente_correo,
+              m.nombre_comercial, m.slug AS marca_slug, m.direccion AS marca_direccion
+       FROM citas c
+       INNER JOIN servicios s ON s.id = c.servicio_id
+       INNER JOIN clientes cl ON cl.id = c.cliente_id
+       INNER JOIN marcas m ON m.id = c.marca_id
+       WHERE c.codigo_confirmacion = ? AND c.marca_id = ?
+       LIMIT 1`,
+      [codigo, marcaId]
+    );
+    return filas[0] ?? null;
+  }
+
+  async listarActivasPorTelefono(marcaId, telefono) {
+    const [filas] = await pool.execute(
+      `SELECT c.*,
+              s.nombre AS servicio_nombre, s.duracion_minutos, s.precio,
+              cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono, cl.correo AS cliente_correo,
+              m.nombre_comercial, m.slug AS marca_slug, m.direccion AS marca_direccion
+       FROM citas c
+       INNER JOIN servicios s ON s.id = c.servicio_id
+       INNER JOIN clientes cl ON cl.id = c.cliente_id
+       INNER JOIN marcas m ON m.id = c.marca_id
+       WHERE c.marca_id = ? AND cl.telefono = ?
+         AND c.estado IN ('pendiente', 'confirmada')
+         AND (
+           c.fecha > CURDATE()
+           OR (c.fecha = CURDATE() AND c.hora_inicio > CURTIME())
+         )
+       ORDER BY c.fecha ASC, c.hora_inicio ASC`,
+      [marcaId, telefono]
+    );
+    return filas;
+  }
+
+  async listarParaAtencion(marcaId, fecha) {
+    const [filas] = await pool.execute(
+      `${SELECT_CITA_BASE}
+         AND c.fecha = ?
+         AND c.estado != 'cancelada'
+         AND (
+           c.estado IN ('pendiente', 'confirmada')
+           OR (c.estado = 'completada' AND c.confirmada_prestacion = 1)
+         )
+       ORDER BY c.hora_inicio ASC`,
+      [marcaId, fecha]
+    );
+    return filas;
+  }
+
+  async cerrarServicio(conexion, marcaId, citaId, datos) {
+    const db = conexion ?? pool;
+    const [resultado] = await db.execute(
+      `UPDATE citas SET
+         estado = 'completada',
+         confirmada_prestacion = 1,
+         precio_base = ?,
+         precio_adicional = ?,
+         precio_final = ?,
+         duracion_real_minutos = ?,
+         extras_json = ?,
+         cerrada_at = NOW(),
+         notas_internas = COALESCE(?, notas_internas)
+       WHERE id = ? AND marca_id = ? AND estado IN ('pendiente', 'confirmada')`,
+      [
+        datos.precioBase,
+        datos.precioAdicional,
+        datos.precioFinal,
+        datos.duracionRealMinutos,
+        datos.extrasJson,
+        datos.notasInternas,
+        citaId,
+        marcaId,
+      ]
+    );
+    return resultado.affectedRows > 0;
+  }
+
+  /** Citas no confirmadas cuyo horario ya paso → completada automatica (sin facturacion). */
+  async marcarPasadasComoCompletadas(marcaId = null) {
+    let sql = `UPDATE citas SET estado = 'completada'
+       WHERE estado IN ('pendiente', 'confirmada')
+         AND confirmada_prestacion = 0
+         AND (
+           fecha < CURDATE()
+           OR (fecha = CURDATE() AND hora_fin <= CURTIME())
+         )`;
+    const params = [];
+
+    if (marcaId) {
+      sql += ' AND marca_id = ?';
+      params.push(marcaId);
+    }
+
+    const [resultado] = await pool.execute(sql, params);
+    return resultado.affectedRows;
+  }
+
   async buscarPorId(marcaId, citaId) {
     const [filas] = await pool.execute(
       `${SELECT_CITA_BASE} AND c.id = ? LIMIT 1`,

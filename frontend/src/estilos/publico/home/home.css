@@ -35,47 +35,24 @@
   font-size: var(--tamano-texto-sm);
 }
 
-.inicio-marca__disponibilidad {
-  padding: var(--espacio-lg);
-}
-
-.inicio-marca__cta {
+.inicio-marca__agendar {
   display: flex;
   flex-direction: column;
   gap: var(--espacio-md);
+  padding: var(--espacio-xl) var(--espacio-lg);
+  text-align: center;
 }
 
-.inicio-marca__secundarias {
-  display: flex;
-  justify-content: center;
-  gap: var(--espacio-xl);
-}
-
-.inicio-marca__secundarias a {
-  font-weight: 700;
-  font-size: var(--tamano-texto-sm);
-}
-
-.inicio-marca__servicios h2 {
-  font-size: var(--tamano-texto-lg);
-  font-weight: 700;
-  margin: 0 0 var(--espacio-md);
-  color: var(--color-texto);
-  letter-spacing: -0.02em;
-}
-
-.inicio-marca__lista-servicios {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-md);
-}
-
-.inicio-marca__vacio {
+.inicio-marca__agendar-texto {
+  margin: 0;
   color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
-  padding: var(--espacio-lg);
-  text-align: center;
-  border-radius: var(--radio-borde-lg);
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-suave);
+  line-height: 1.5;
+}
+
+.inicio-marca__ver-citas {
+  display: inline-block;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  color: var(--color-acento);
 }

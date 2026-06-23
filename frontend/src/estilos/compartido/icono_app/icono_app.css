@@ -1,0 +1,48 @@
+.icono-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  color: inherit;
+}
+
+.icono-app svg {
+  display: block;
+}
+
+.icono-app--sm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icono-app--md svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icono-app--lg svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icono-app--xl svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Alias heredado del admin */
+.icono-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  color: inherit;
+}
+
+.icono-admin svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}

@@ -55,7 +55,7 @@
   width: min(100%, 440px);
   padding: var(--espacio-xl);
   border-radius: var(--radio-borde);
-  background: #fff;
+  background: var(--color-superficie);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   text-align: center;
 }
@@ -83,7 +83,7 @@
 }
 
 .login-vista__tarjeta > p {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-md);
 }

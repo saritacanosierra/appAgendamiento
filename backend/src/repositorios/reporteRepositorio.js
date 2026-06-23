@@ -1,10 +1,20 @@
 import { pool } from '../configuracion/baseDatos.js';
 
+/** Precio efectivo segun estado y confirmacion de prestacion. */
+const SQL_PRECIO_EFECTIVO = `
+  CASE
+    WHEN c.estado = 'completada' AND c.confirmada_prestacion = 1
+      THEN COALESCE(c.precio_final, s.precio)
+    WHEN c.estado IN ('pendiente', 'confirmada') THEN s.precio
+    ELSE 0
+  END
+`;
+
 export class ReporteRepositorio {
   async resumenCitasPorEstado(marcaId, desde, hasta) {
     const [filas] = await pool.execute(
       `SELECT c.estado, COUNT(*) AS total,
-              COALESCE(SUM(s.precio), 0) AS ingreso
+              COALESCE(SUM(${SQL_PRECIO_EFECTIVO}), 0) AS ingreso
        FROM citas c
        INNER JOIN servicios s ON s.id = c.servicio_id
        WHERE c.marca_id = ? AND c.fecha BETWEEN ? AND ?
@@ -27,7 +37,7 @@ export class ReporteRepositorio {
   async citasPorDia(marcaId, desde, hasta) {
     const [filas] = await pool.execute(
       `SELECT c.fecha, COUNT(*) AS total,
-              COALESCE(SUM(CASE WHEN c.estado != 'cancelada' THEN s.precio ELSE 0 END), 0) AS ingreso
+              COALESCE(SUM(CASE WHEN c.estado != 'cancelada' THEN ${SQL_PRECIO_EFECTIVO} ELSE 0 END), 0) AS ingreso
        FROM citas c
        INNER JOIN servicios s ON s.id = c.servicio_id
        WHERE c.marca_id = ? AND c.fecha BETWEEN ? AND ?
@@ -41,7 +51,7 @@ export class ReporteRepositorio {
   async serviciosPopulares(marcaId, desde, hasta, limite = 5) {
     const [filas] = await pool.execute(
       `SELECT s.nombre, COUNT(*) AS citas,
-              COALESCE(SUM(s.precio), 0) AS ingreso
+              COALESCE(SUM(${SQL_PRECIO_EFECTIVO}), 0) AS ingreso
        FROM citas c
        INNER JOIN servicios s ON s.id = c.servicio_id
        WHERE c.marca_id = ? AND c.fecha BETWEEN ? AND ? AND c.estado != 'cancelada'
@@ -51,6 +61,24 @@ export class ReporteRepositorio {
       [marcaId, desde, hasta, limite]
     );
     return filas;
+  }
+
+  async rendimientoAtencion(marcaId, desde, hasta) {
+    const [filas] = await pool.execute(
+      `SELECT
+         COUNT(*) AS servicios_confirmados,
+         COALESCE(SUM(c.precio_base), 0) AS ingreso_base,
+         COALESCE(SUM(c.precio_adicional), 0) AS ingreso_adicional,
+         COALESCE(SUM(c.precio_final), 0) AS ingreso_total,
+         COALESCE(AVG(c.duracion_real_minutos), 0) AS duracion_promedio_min
+       FROM citas c
+       WHERE c.marca_id = ?
+         AND c.fecha BETWEEN ? AND ?
+         AND c.estado = 'completada'
+         AND c.confirmada_prestacion = 1`,
+      [marcaId, desde, hasta]
+    );
+    return filas[0] ?? {};
   }
 
   async resumenCitasPorEstadoPlataforma(desde, hasta) {

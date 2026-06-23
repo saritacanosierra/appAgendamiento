@@ -11,6 +11,8 @@ import {
   iniciarSesion as iniciarSesionApi,
   obtenerSesionActual,
 } from '../../modulos/autenticacion/servicios/autenticacionServicio';
+import { VARIABLES_MARCA_DEFECTO } from '../../compartido/constantes';
+import { aplicarTemaMarca } from '../../compartido/utilidades/temaMarca';
 import { obtenerToken } from '../../compartido/utilidades/tokenSesion';
 
 const ContextoAuth = createContext(null);
@@ -44,6 +46,14 @@ export function ProveedorAuth({ children }) {
   useEffect(() => {
     cargarSesion();
   }, [cargarSesion]);
+
+  useEffect(() => {
+    if (marca) {
+      aplicarTemaMarca(marca);
+    } else if (!cargando) {
+      aplicarTemaMarca(VARIABLES_MARCA_DEFECTO);
+    }
+  }, [marca, cargando]);
 
   const iniciarSesion = useCallback(async (correo, contrasena) => {
     const datos = await iniciarSesionApi(correo, contrasena);

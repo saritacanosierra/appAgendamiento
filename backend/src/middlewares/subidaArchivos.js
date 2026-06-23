@@ -8,7 +8,7 @@ import { optimizarImagenSubida } from '../utilidades/optimizarImagen.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const directorioSubidas = path.resolve(__dirname, '../../subidas');
 
-const CARPETAS_PERMITIDAS = new Set(['galeria', 'blog', 'logos']);
+const CARPETAS_PERMITIDAS = new Set(['galeria', 'blog', 'logos', 'carrusel', 'servicios']);
 
 const MIME_POR_EXTENSION = {
   '.jpg': 'image/jpeg',

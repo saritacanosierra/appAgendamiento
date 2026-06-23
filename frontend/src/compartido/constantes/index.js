@@ -1,35 +1,48 @@
+import { conBarraFinal } from '../utilidades/rutasApp';
+
 export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const CLAVE_TOKEN_SESION = 'spa_unas_token';
 export const CLAVE_IMPERSONACION = 'spa_unas_impersonando';
 
 export const RUTAS_PUBLICAS = {
-  inicioMarca: (slug) => `/m/${slug}`,
-  reservar: (slug) => `/m/${slug}/reservar`,
-  galeria: (slug) => `/m/${slug}/galeria`,
-  blog: (slug) => `/m/${slug}/blog`,
-  blogPublicacion: (slug, slugPublicacion) => `/m/${slug}/blog/${slugPublicacion}`,
-  confirmacion: (slug, codigo) => `/m/${slug}/confirmacion/${codigo}`,
+  inicioMarca: (slug) => conBarraFinal(`/m/${slug}`),
+  citas: (slug) => conBarraFinal(`/m/${slug}/citas`),
+  reservar: (slug) => conBarraFinal(`/m/${slug}/reservar`),
+  galeria: (slug) => conBarraFinal(`/m/${slug}/galeria`),
+  blog: (slug) => conBarraFinal(`/m/${slug}/blog`),
+  blogPublicacion: (slug, slugPublicacion) => conBarraFinal(`/m/${slug}/blog/${slugPublicacion}`),
+  confirmacion: (slug, codigo) => conBarraFinal(`/m/${slug}/confirmacion/${codigo}`),
+  miCita: (slug) => conBarraFinal(`/m/${slug}/mi-cita`),
 };
 
 export const RUTAS_ADMIN = {
-  login: '/admin/login',
-  panel: '/admin/panel',
-  agenda: '/admin/agenda',
-  reportes: '/admin/reportes',
-  clientes: '/admin/clientes',
-  servicios: '/admin/servicios',
-  blog: '/admin/blog',
-  galeria: '/admin/galeria',
-  configuracionMarca: '/admin/configuracion-marca',
+  login: conBarraFinal('/admin'),
+  panel: conBarraFinal('/admin/panel'),
+  agenda: conBarraFinal('/admin/agenda'),
+  atencion: conBarraFinal('/admin/atencion'),
+  reportes: conBarraFinal('/admin/reportes'),
+  clientes: conBarraFinal('/admin/clientes'),
+  servicios: conBarraFinal('/admin/servicios'),
+  blog: conBarraFinal('/admin/blog'),
+  galeria: conBarraFinal('/admin/galeria'),
+  carruselInicio: conBarraFinal('/admin/carrusel-inicio'),
+  configuracionMarca: conBarraFinal('/admin/configuracion-marca'),
+  atencionCita: (citaId, fecha) => {
+    const params = new URLSearchParams();
+    if (fecha) params.set('fecha', fecha);
+    if (citaId != null) params.set('cita', String(citaId));
+    const query = params.toString();
+    return query ? `${conBarraFinal('/admin/atencion')}?${query}` : conBarraFinal('/admin/atencion');
+  },
 };
 
 export const RUTAS_PLATAFORMA = {
-  login: '/plataforma/login',
-  panel: '/plataforma/panel',
-  marcas: '/plataforma/marcas',
-  reportes: '/plataforma/reportes',
-  editarMarca: (id) => `/plataforma/marcas/${id}`,
+  login: conBarraFinal('/plataforma'),
+  panel: conBarraFinal('/plataforma/panel'),
+  marcas: conBarraFinal('/plataforma/marcas'),
+  reportes: conBarraFinal('/plataforma/reportes'),
+  editarMarca: (id) => conBarraFinal(`/plataforma/marcas/${id}`),
 };
 
 export const ESTADOS_CITA = {

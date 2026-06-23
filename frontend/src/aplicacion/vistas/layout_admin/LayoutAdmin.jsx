@@ -1,5 +1,9 @@
+import { useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { BotonPrincipal, MenuAdmin } from '../../../compartido/componentes';
+import { ImagenAmpliable } from '../../../compartido/componentes';
+import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
+import MenuAdminSidebar, { MenuAdminMovil } from '../../../compartido/componentes/menu_admin/MenuAdmin';
+import CampanaNotificacionesAdmin from '../../../componentes/admin/campana_notificaciones/CampanaNotificacionesAdmin';
 import { RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { obtenerImpersonacion, limpiarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
 import { useAuth } from '../../proveedores/ProveedorAuth';
@@ -10,6 +14,7 @@ export default function LayoutAdmin() {
   const navigate = useNavigate();
   const slugPublico = marca?.slug;
   const impersonando = obtenerImpersonacion();
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   async function salirImpersonacion() {
     await cerrarSesion();
@@ -19,53 +24,91 @@ export default function LayoutAdmin() {
 
   return (
     <div className="layout-admin">
-      <header className="layout-admin__cabecera contenedor-admin">
-        <div className="layout-admin__cabecera-fila">
+      <aside className="layout-admin__sidebar">
+        <div className="layout-admin__sidebar-marca">
+          {marca?.logo ? (
+            <ImagenAmpliable src={marca.logo} alt="" className="layout-admin__sidebar-logo" />
+          ) : (
+            <div className="layout-admin__sidebar-logo layout-admin__sidebar-logo--placeholder">
+              {marca?.nombreComercial?.charAt(0) ?? 'M'}
+            </div>
+          )}
           <div>
-            <p className="layout-admin__etiqueta">Panel de tu empresa</p>
-            <h1>{marca?.nombreComercial ?? 'Panel administrativo'}</h1>
-            <p className="layout-admin__subtitulo">
-              Hola, {usuario?.nombre} — gestiona tu app: reservas, perfil, galeria y blog
+            <strong>{marca?.nombreComercial ?? 'Mi empresa'}</strong>
+            <span>Panel de gestión</span>
+          </div>
+        </div>
+
+        <MenuAdminSidebar />
+
+        <div className="layout-admin__sidebar-pie">
+          {slugPublico && (
+            <a
+              className="layout-admin__sidebar-enlace"
+              href={RUTAS_PUBLICAS.inicioMarca(slugPublico)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <IconoApp nombre="externo" />
+              Ver app del cliente
+            </a>
+          )}
+          {!impersonando && (
+            <p className="layout-admin__sidebar-nota">
+              ¿Otra empresa? <Link to={RUTAS_PLATAFORMA.login}>Ir a plataforma</Link>
             </p>
+          )}
+        </div>
+      </aside>
+
+      <div className="layout-admin__main">
+        <header className="layout-admin__topbar">
+          <div className="layout-admin__topbar-info">
+            <p className="layout-admin__topbar-etiqueta">Bienvenida</p>
+            <strong>{usuario?.nombre}</strong>
+          </div>
+          <div className="layout-admin__topbar-acciones">
             {slugPublico && (
               <a
-                className="layout-admin__sitio-publico"
+                className="layout-admin__topbar-app"
                 href={RUTAS_PUBLICAS.inicioMarca(slugPublico)}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
+                title="Abrir la app tal como la ven tus clientes"
+                aria-label="Ver app del cliente en nueva pestaña"
               >
-                Ver sitio publico → /m/{slugPublico}
+                <IconoApp nombre="externo" />
+                <span>Vista cliente</span>
               </a>
             )}
+            <CampanaNotificacionesAdmin />
+            <button type="button" className="layout-admin__topbar-salir" onClick={cerrarSesion}>
+              Salir
+            </button>
           </div>
-          <BotonPrincipal variante="secundario" onClick={cerrarSesion}>
-            Cerrar sesion
-          </BotonPrincipal>
-        </div>
-      </header>
-      <div className="contenedor-admin">
+        </header>
+
         {impersonando && (
           <div className="layout-admin__impersonacion">
             <p>
-              Modo soporte — estas viendo el panel de <strong>{impersonando}</strong> como superadmin.
+              Modo soporte — panel de <strong>{impersonando}</strong>
             </p>
             <button type="button" onClick={salirImpersonacion}>
               Volver a Mis marcas
             </button>
           </div>
         )}
-        {!impersonando && (
-          <p className="layout-admin__aviso-marca">
-            Estas en el panel de <strong>{marca?.nombreComercial}</strong> solamente.
-            Para crear otras marcas (DaniSpa, AlejaNails…), cierra sesion e inicia en{' '}
-            <Link to={RUTAS_PLATAFORMA.login}><strong>/plataforma/login</strong></Link>.
-          </p>
-        )}
-        <MenuAdmin />
+
         <main className="layout-admin__contenido">
           <Outlet />
         </main>
       </div>
+
+      <MenuAdminMovil
+        menuAbierto={menuMovilAbierto}
+        onAlternarMenu={() => setMenuMovilAbierto((prev) => !prev)}
+        onCerrarMenu={() => setMenuMovilAbierto(false)}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   ClienteRepositorio,
   ServicioRepositorio,
   MarcaRepositorio,
+  SolicitudReagendamientoRepositorio,
   generarCodigoConfirmacion,
 } from '../repositorios/index.js';
 import {
@@ -25,9 +26,11 @@ export class AdminCitaServicio {
     this.clienteRepo = deps.clienteRepo ?? new ClienteRepositorio();
     this.servicioRepo = deps.servicioRepo ?? new ServicioRepositorio();
     this.marcaRepo = deps.marcaRepo ?? new MarcaRepositorio();
+    this.solicitudRepo = deps.solicitudRepo ?? new SolicitudReagendamientoRepositorio();
   }
 
   async listarCitas(marcaId, filtros = {}) {
+    await this.citaRepo.marcarPasadasComoCompletadas(marcaId);
     const filas = await this.citaRepo.listarPorMarca(marcaId, filtros);
     return filas.map(mapearCitaAdmin);
   }
@@ -276,6 +279,7 @@ export class AdminCitaServicio {
   }
 
   async cancelarCita(marcaId, citaId) {
+    await this.solicitudRepo.rechazarPendientesDeCita(null, marcaId, citaId);
     return this.actualizarCita(marcaId, citaId, { estado: 'cancelada' });
   }
 }

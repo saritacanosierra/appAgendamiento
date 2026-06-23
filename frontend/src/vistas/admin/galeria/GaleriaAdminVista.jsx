@@ -1,17 +1,26 @@
-import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  GaleriaFiltrosAcordeon,
+  ImagenAmpliable,
   MensajeError,
 } from '../../../compartido/componentes';
+import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
   actualizarDiseno,
   crearDiseno,
   listarGaleriaAdmin,
 } from '../../../modulos/galeria/servicios/galeriaServicio';
+import {
+  categoriasUnicas,
+  filtrarDisenosGaleria,
+} from '../../../modulos/galeria/utilidades/filtrarDisenosGaleria';
 import '../../../estilos/admin/galeria/galeria.css';
+import '../../../estilos/admin/comun/aviso-carrusel.css';
 
 const FORM_VACIO = {
   titulo: '',
@@ -19,6 +28,7 @@ const FORM_VACIO = {
   colores: '',
   imagenRuta: '',
   activo: true,
+  enTendencia: false,
   ordenVisualizacion: '0',
 };
 
@@ -31,6 +41,9 @@ export default function GaleriaAdminVista() {
   const [form, setForm] = useState(FORM_VACIO);
   const [enviando, setEnviando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
+  const [categoria, setCategoria] = useState('todas');
+  const [tendencia, setTendencia] = useState('todas');
 
   async function cargar() {
     setCargando(true);
@@ -48,6 +61,13 @@ export default function GaleriaAdminVista() {
     cargar();
   }, []);
 
+  const categorias = useMemo(() => categoriasUnicas(disenos), [disenos]);
+
+  const disenosFiltrados = useMemo(
+    () => filtrarDisenosGaleria(disenos, { busqueda, categoria, tendencia }),
+    [disenos, busqueda, categoria, tendencia]
+  );
+
   function abrirCrear() {
     setEditandoId(null);
     setForm(FORM_VACIO);
@@ -62,6 +82,7 @@ export default function GaleriaAdminVista() {
       colores: (diseno.coloresRelacionados ?? []).join(', '),
       imagenRuta: diseno.imagenRuta,
       activo: diseno.activo,
+      enTendencia: Boolean(diseno.enTendencia),
       ordenVisualizacion: String(diseno.ordenVisualizacion ?? 0),
     });
     setMostrarForm(true);
@@ -100,6 +121,7 @@ export default function GaleriaAdminVista() {
       colores_relacionados: form.colores.trim() || null,
       imagen_ruta: form.imagenRuta,
       activo: form.activo,
+      en_tendencia: form.enTendencia,
       orden_visualizacion: Number(form.ordenVisualizacion) || 0,
     };
 
@@ -127,6 +149,30 @@ export default function GaleriaAdminVista() {
         </BotonPrincipal>
       </header>
 
+      {!mostrarForm && (
+        <p className="admin-aviso-carrusel">
+          La galería es independiente del carrusel. Para fotos del inicio ve a{' '}
+          <Link to={RUTAS_ADMIN.carruselInicio}>Carrusel</Link>.
+        </p>
+      )}
+
+      {!mostrarForm && (
+        <GaleriaFiltrosAcordeon
+          busqueda={busqueda}
+          onBusquedaChange={setBusqueda}
+          categoria={categoria}
+          onCategoriaChange={setCategoria}
+          tendencia={tendencia}
+          onTendenciaChange={setTendencia}
+          categorias={categorias}
+          onLimpiar={() => {
+            setBusqueda('');
+            setCategoria('todas');
+            setTendencia('todas');
+          }}
+        />
+      )}
+
       {mostrarForm && (
         <form className="galeria-admin__formulario" onSubmit={manejarEnviar}>
           <h2>{editandoId ? 'Editar diseno' : 'Nuevo diseno'}</h2>
@@ -142,7 +188,7 @@ export default function GaleriaAdminVista() {
             <input id="gal-imagen" type="file" accept="image/*" onChange={manejarImagen} />
             {subiendoImagen && <p className="galeria-admin__hint">Subiendo imagen...</p>}
             {form.imagenRuta && (
-              <img src={form.imagenRuta} alt="" className="galeria-admin__preview" />
+              <ImagenAmpliable src={form.imagenRuta} alt="Vista previa" className="galeria-admin__preview" />
             )}
           </CampoFormulario>
           <div className="galeria-admin__fila">
@@ -171,7 +217,7 @@ export default function GaleriaAdminVista() {
               />
             </CampoFormulario>
           </div>
-          <CampoFormulario etiqueta="Activo" id="gal-activo">
+          <CampoFormulario etiqueta="Opciones" id="gal-opciones">
             <label className="galeria-admin__checkbox">
               <input
                 id="gal-activo"
@@ -180,6 +226,15 @@ export default function GaleriaAdminVista() {
                 onChange={(e) => setForm({ ...form, activo: e.target.checked })}
               />
               Visible en la galeria publica
+            </label>
+            <label className="galeria-admin__checkbox">
+              <input
+                id="gal-tendencia"
+                type="checkbox"
+                checked={form.enTendencia}
+                onChange={(e) => setForm({ ...form, enTendencia: e.target.checked })}
+              />
+              Marcar como en tendencia
             </label>
           </CampoFormulario>
           <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando || !form.imagenRuta}>
@@ -191,16 +246,26 @@ export default function GaleriaAdminVista() {
       {error && <MensajeError mensaje={error} onReintentar={cargar} />}
       {cargando && <Cargando />}
 
-      {!cargando && (
+      {!cargando && !mostrarForm && disenos.length > 0 && disenosFiltrados.length === 0 && (
+        <p className="galeria-admin__vacio">No hay disenos con esos filtros.</p>
+      )}
+
+      {!cargando && !mostrarForm && (
         <div className="galeria-admin__grid">
           {disenos.length === 0 ? (
             <p className="galeria-admin__vacio">No hay disenos registrados.</p>
           ) : (
-            disenos.map((diseno) => (
+            disenosFiltrados.map((diseno) => (
               <article key={diseno.id} className="galeria-admin__item">
-                <img src={diseno.imagenRuta} alt={diseno.titulo} />
+                <div className="galeria-admin__item-media">
+                  <ImagenAmpliable src={diseno.imagenRuta} alt={diseno.titulo} />
+                  {diseno.enTendencia && (
+                    <span className="galeria-admin__tendencia">En tendencia</span>
+                  )}
+                </div>
                 <div className="galeria-admin__item-info">
                   <strong>{diseno.titulo}</strong>
+                  {diseno.categoria && <span className="galeria-admin__item-cat">{diseno.categoria}</span>}
                   {!diseno.activo && <span className="badge-fase">Inactivo</span>}
                   <BotonPrincipal variante="secundario" onClick={() => abrirEditar(diseno)}>
                     Editar

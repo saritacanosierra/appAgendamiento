@@ -18,7 +18,7 @@
   height: 72px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-secundario) 50%, var(--color-superficie));
-  color: var(--color-principal);
+  color: var(--color-acento);
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: var(--espacio-md);
@@ -65,7 +65,7 @@
   font-family: ui-monospace, monospace;
   font-size: var(--tamano-texto-lg);
   letter-spacing: 0.05em;
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .confirmacion-reserva__calendario {

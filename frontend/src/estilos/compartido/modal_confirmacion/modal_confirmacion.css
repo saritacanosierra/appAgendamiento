@@ -1,7 +1,7 @@
 .modal-confirmacion {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 500;
   display: grid;
   place-items: center;
   padding: var(--espacio-md);
@@ -10,20 +10,33 @@
 .modal-confirmacion__fondo {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  z-index: 0;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
 }
 
 .modal-confirmacion__contenido {
   position: relative;
-  width: min(100%, 400px);
-  padding: var(--espacio-lg);
-  border-radius: var(--radio-borde);
-  background: #fff;
-  box-shadow: var(--sombra-suave);
+  z-index: 1;
+  width: min(100%, 420px);
+  padding: var(--espacio-xl) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
 .modal-confirmacion__contenido h2 {
   margin-bottom: var(--espacio-sm);
+  color: var(--color-texto-superficie);
+}
+
+.modal-confirmacion__contenido p {
+  color: var(--color-texto-muted-superficie);
 }
 
 .modal-confirmacion__acciones {

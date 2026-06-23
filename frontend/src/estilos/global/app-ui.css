@@ -4,8 +4,51 @@
   padding: var(--espacio-lg);
   border-radius: var(--radio-borde-lg);
   background: var(--color-superficie);
+  color: var(--color-texto-superficie);
   box-shadow: var(--sombra-card);
-  border: 1px solid color-mix(in srgb, var(--color-borde) 80%, transparent);
+  border: 1px solid var(--color-borde-superficie);
+}
+
+/* Contenedores elevados: heredan texto legible sobre superficie */
+:is(
+  .tarjeta-app,
+  .tarjeta-diseno,
+  [class*='__formulario'],
+  [class*='__item'],
+  [class*='__panel'],
+  [class*='__tarjeta'],
+  [class*='__card'],
+  .formulario-cita-admin,
+  .modal-mensaje__panel,
+  .modal-confirmacion__panel
+) {
+  color: var(--color-texto-superficie);
+}
+
+:is(
+  .tarjeta-app,
+  [class*='__formulario'],
+  [class*='__item']
+) :is(h1, h2, h3, h4, p, label, span, li) {
+  color: inherit;
+}
+
+:is(
+  .tarjeta-app,
+  [class*='__formulario'],
+  [class*='__item']
+) .texto-muted,
+:is(
+  .tarjeta-app,
+  [class*='__formulario'],
+  [class*='__item']
+) [class*='__vacio'],
+:is(
+  .tarjeta-app,
+  [class*='__formulario'],
+  [class*='__item']
+) [class*='__meta'] {
+  color: var(--color-texto-muted-superficie);
 }
 
 .titulo-seccion {
@@ -27,7 +70,7 @@
   padding: 0.35rem 0.75rem;
   border-radius: var(--radio-pill);
   background: color-mix(in srgb, var(--color-secundario) 45%, var(--color-superficie));
-  color: var(--color-principal);
+  color: var(--color-acento-superficie);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -37,5 +80,9 @@
 .enlace-seccion {
   font-weight: 600;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-principal);
+  color: var(--color-acento);
+}
+
+.enlace-seccion--superficie {
+  color: var(--color-acento-superficie);
 }

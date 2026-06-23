@@ -3,13 +3,13 @@
   margin-bottom: var(--espacio-lg);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-borde);
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .formulario-cita-admin h2 {
   margin: 0 0 var(--espacio-md);
   font-size: var(--tamano-texto-lg);
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .formulario-cita-admin__cliente {
@@ -21,7 +21,7 @@
 
 .formulario-cita-admin__cliente legend {
   font-weight: 600;
-  color: var(--color-principal);
+  color: var(--color-acento);
   padding: 0 var(--espacio-xs);
 }
 
@@ -60,7 +60,7 @@
 }
 
 .formulario-cita-admin__cargando {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-md);
 }

@@ -1,5 +1,6 @@
-
+import ImagenAmpliable from '../imagen_ampliable/ImagenAmpliable';
 import '../../../estilos/compartido/encabezado_marca/encabezado_marca.css';
+
 export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
   if (!marca) return null;
 
@@ -10,7 +11,11 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
   return (
     <header className={clases}>
       {marca.logo && (
-        <img className="encabezado-marca__logo" src={marca.logo} alt={marca.nombreComercial} />
+        <ImagenAmpliable
+          className="encabezado-marca__logo"
+          src={marca.logo}
+          alt={marca.nombreComercial}
+        />
       )}
       <div>
         <h1>{titulo ?? marca.nombreComercial}</h1>

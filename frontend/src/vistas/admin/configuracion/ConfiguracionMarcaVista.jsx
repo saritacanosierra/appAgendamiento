@@ -5,7 +5,9 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  ImagenAmpliable,
   MensajeError,
+  ModalMensaje,
 } from '../../../compartido/componentes';
 import { aplicarTemaMarca } from '../../../compartido/utilidades/temaMarca';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
@@ -21,7 +23,15 @@ import {
 } from '../../../modulos/configuracion_marca/servicios/integracionesServicio';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
-const DIAS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+const DIAS = [
+  { id: 'lunes', etiqueta: 'Lunes' },
+  { id: 'martes', etiqueta: 'Martes' },
+  { id: 'miercoles', etiqueta: 'Miércoles' },
+  { id: 'jueves', etiqueta: 'Jueves' },
+  { id: 'viernes', etiqueta: 'Viernes' },
+  { id: 'sabado', etiqueta: 'Sábado' },
+  { id: 'domingo', etiqueta: 'Domingo' },
+];
 
 export default function ConfiguracionMarcaVista() {
   const { recargarSesion } = useAuth();
@@ -34,7 +44,7 @@ export default function ConfiguracionMarcaVista() {
   const [enviando, setEnviando] = useState(false);
   const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [error, setError] = useState(null);
-  const [mensajeExito, setMensajeExito] = useState(null);
+  const [modalMensaje, setModalMensaje] = useState(null);
 
   async function cargar() {
     setCargando(true);
@@ -61,7 +71,11 @@ export default function ConfiguracionMarcaVista() {
   useEffect(() => {
     const resultado = searchParams.get('google');
     if (resultado === 'conectado') {
-      setMensajeExito('Google Calendar conectado correctamente.');
+      setModalMensaje({
+        titulo: 'Google Calendar conectado',
+        mensaje: 'Tu calendario quedó vinculado correctamente.',
+        variante: 'exito',
+      });
       searchParams.delete('google');
       setSearchParams(searchParams, { replace: true });
       obtenerEstadoGoogleCalendar().then(setGoogleEstado).catch(() => {});
@@ -176,7 +190,11 @@ export default function ConfiguracionMarcaVista() {
     try {
       await desconectarGoogleCalendar();
       setGoogleEstado((prev) => ({ ...prev, conectado: false, conectadoEn: null }));
-      setMensajeExito('Google Calendar desconectado.');
+      setModalMensaje({
+        titulo: 'Google Calendar desconectado',
+        mensaje: 'Ya no se sincronizarán citas con Google.',
+        variante: 'info',
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -185,10 +203,13 @@ export default function ConfiguracionMarcaVista() {
   async function probarGoogle() {
     setProbandoGoogle(true);
     setError(null);
-    setMensajeExito(null);
     try {
       const datos = await probarGoogleCalendar();
-      setMensajeExito('Evento de prueba creado en Google Calendar.');
+      setModalMensaje({
+        titulo: 'Sincronización correcta',
+        mensaje: 'Se creó un evento de prueba en Google Calendar.',
+        variante: 'exito',
+      });
       if (datos?.htmlLink) {
         window.open(datos.htmlLink, '_blank', 'noopener,noreferrer');
       }
@@ -203,7 +224,6 @@ export default function ConfiguracionMarcaVista() {
     e.preventDefault();
     setEnviando(true);
     setError(null);
-    setMensajeExito(null);
 
     const payload = {
       nombre_comercial: config.nombreComercial,
@@ -225,9 +245,17 @@ export default function ConfiguracionMarcaVista() {
       setConfig(actualizada);
       await recargarSesion();
       aplicarTemaMarca(actualizada);
-      setMensajeExito('Configuracion guardada correctamente.');
+      setModalMensaje({
+        titulo: 'Configuración guardada',
+        mensaje: 'Los cambios de tu marca, horarios y contacto ya están activos.',
+        variante: 'exito',
+      });
     } catch (err) {
-      setError(err.message);
+      setModalMensaje({
+        titulo: 'No se pudo guardar',
+        mensaje: err.message,
+        variante: 'error',
+      });
     } finally {
       setEnviando(false);
     }
@@ -239,14 +267,21 @@ export default function ConfiguracionMarcaVista() {
 
   return (
     <div className="configuracion-marca">
+      <ModalMensaje
+        abierto={Boolean(modalMensaje)}
+        titulo={modalMensaje?.titulo ?? ''}
+        mensaje={modalMensaje?.mensaje}
+        variante={modalMensaje?.variante ?? 'exito'}
+        onCerrar={() => setModalMensaje(null)}
+      />
+
       <h1>Mi marca — perfil e identidad</h1>
       <p className="configuracion-marca__intro">
         Personaliza nombre, colores, contacto, horarios y conecta el Google Calendar de tu empresa.
-        Los cambios solo afectan a tu marca.
+        Para las fotos del carrusel del inicio, usa la sección Carrusel del menú.
       </p>
 
       {error && <MensajeError mensaje={error} />}
-      {mensajeExito && <p className="configuracion-marca__exito">{mensajeExito}</p>}
 
       <form className="configuracion-marca__formulario" onSubmit={manejarGuardar}>
         <section className="configuracion-marca__seccion">
@@ -270,7 +305,9 @@ export default function ConfiguracionMarcaVista() {
             <input id="cfg-logo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,.jpg,.jpeg,.png,.webp,.gif,.svg" onChange={manejarLogo} />
             <p className="configuracion-marca__hint">JPG, PNG, WEBP, GIF o SVG. Maximo 5 MB.</p>
             {subiendoLogo && <p className="configuracion-marca__hint">Subiendo logo...</p>}
-            {config.logo && <img src={config.logo} alt="" className="configuracion-marca__logo" />}
+            {config.logo && (
+              <ImagenAmpliable src={config.logo} alt="Logo de la marca" className="configuracion-marca__logo" />
+            )}
           </CampoFormulario>
         </section>
 
@@ -320,81 +357,113 @@ export default function ConfiguracionMarcaVista() {
           </CampoFormulario>
         </section>
 
-        <section className="configuracion-marca__seccion">
-          <h2>Horarios</h2>
-          <p className="configuracion-marca__hint configuracion-marca__hint--bloque">
-            Define apertura y cierre por dia. Los descansos (ej. comida) bloquean reservas
-            en ese tramo sin crear citas ni cargos.
-          </p>
+        <section className="configuracion-marca__seccion configuracion-marca__seccion--horarios">
+          <div className="configuracion-marca__seccion-cabecera">
+            <div>
+              <h2>Horarios</h2>
+              <p className="configuracion-marca__hint">
+                Activa los días que atiendes y define apertura, cierre y descansos (ej. comida).
+              </p>
+            </div>
+          </div>
+
           <div className="configuracion-marca__horarios">
-            {DIAS.map((dia) => {
+            {DIAS.map(({ id: dia, etiqueta }) => {
               const horario = config.horarios?.[dia];
               const activo = Boolean(horario);
               const bloqueos = horario?.bloqueos ?? [];
+
               return (
-                <div key={dia} className="configuracion-marca__horario-dia">
-                  <div className="configuracion-marca__horario-fila">
-                    <label>
+                <article
+                  key={dia}
+                  className={`configuracion-marca__horario-dia ${activo ? 'configuracion-marca__horario-dia--activo' : ''}`}
+                >
+                  <div className="configuracion-marca__horario-cabecera">
+                    <label className="configuracion-marca__horario-toggle">
                       <input
                         type="checkbox"
                         checked={activo}
                         onChange={(e) => toggleDia(dia, e.target.checked)}
                       />
-                      {dia.charAt(0).toUpperCase() + dia.slice(1)}
+                      <span className="configuracion-marca__horario-switch" aria-hidden="true" />
+                      <span className="configuracion-marca__horario-nombre">{etiqueta}</span>
                     </label>
-                    {activo && (
-                      <>
-                        <input
-                          type="time"
-                          value={horario.apertura ?? '10:00'}
-                          onChange={(e) => actualizarHorario(dia, 'apertura', e.target.value)}
-                        />
-                        <span>a</span>
-                        <input
-                          type="time"
-                          value={horario.cierre ?? '19:00'}
-                          onChange={(e) => actualizarHorario(dia, 'cierre', e.target.value)}
-                        />
-                      </>
+
+                    {!activo ? (
+                      <span className="configuracion-marca__horario-cerrado">Cerrado</span>
+                    ) : (
+                      <div className="configuracion-marca__horario-rango">
+                        <label className="configuracion-marca__hora-campo">
+                          <span>Abre</span>
+                          <input
+                            type="time"
+                            value={horario.apertura ?? '10:00'}
+                            onChange={(e) => actualizarHorario(dia, 'apertura', e.target.value)}
+                          />
+                        </label>
+                        <span className="configuracion-marca__hora-sep" aria-hidden="true">—</span>
+                        <label className="configuracion-marca__hora-campo">
+                          <span>Cierra</span>
+                          <input
+                            type="time"
+                            value={horario.cierre ?? '19:00'}
+                            onChange={(e) => actualizarHorario(dia, 'cierre', e.target.value)}
+                          />
+                        </label>
+                      </div>
                     )}
                   </div>
+
                   {activo && (
-                    <div className="configuracion-marca__bloqueos">
-                      <span className="configuracion-marca__bloqueos-etiqueta">Descansos</span>
-                      {bloqueos.map((bloqueo, indice) => (
-                        <div key={indice} className="configuracion-marca__bloqueo-fila">
-                          <input
-                            type="time"
-                            value={bloqueo.desde ?? '14:00'}
-                            onChange={(e) => actualizarBloqueo(dia, indice, 'desde', e.target.value)}
-                            aria-label={`Inicio descanso ${dia}`}
-                          />
-                          <span>a</span>
-                          <input
-                            type="time"
-                            value={bloqueo.hasta ?? '15:00'}
-                            onChange={(e) => actualizarBloqueo(dia, indice, 'hasta', e.target.value)}
-                            aria-label={`Fin descanso ${dia}`}
-                          />
-                          <button
-                            type="button"
-                            className="configuracion-marca__bloqueo-quitar"
-                            onClick={() => quitarBloqueo(dia, indice)}
-                          >
-                            Quitar
-                          </button>
-                        </div>
-                      ))}
+                    <div className="configuracion-marca__descansos">
+                      <div className="configuracion-marca__descansos-cabecera">
+                        <span>Descansos</span>
+                        {bloqueos.length === 0 && (
+                          <span className="configuracion-marca__descansos-vacio">Sin pausas</span>
+                        )}
+                      </div>
+
+                      {bloqueos.length > 0 && (
+                        <ul className="configuracion-marca__descansos-lista">
+                          {bloqueos.map((bloqueo, indice) => (
+                            <li key={indice} className="configuracion-marca__descanso-item">
+                              <div className="configuracion-marca__descanso-horas">
+                                <input
+                                  type="time"
+                                  value={bloqueo.desde ?? '14:00'}
+                                  onChange={(e) => actualizarBloqueo(dia, indice, 'desde', e.target.value)}
+                                  aria-label={`Inicio descanso ${etiqueta}`}
+                                />
+                                <span aria-hidden="true">—</span>
+                                <input
+                                  type="time"
+                                  value={bloqueo.hasta ?? '15:00'}
+                                  onChange={(e) => actualizarBloqueo(dia, indice, 'hasta', e.target.value)}
+                                  aria-label={`Fin descanso ${etiqueta}`}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                className="configuracion-marca__descanso-quitar"
+                                onClick={() => quitarBloqueo(dia, indice)}
+                              >
+                                Quitar
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
                       <button
                         type="button"
-                        className="configuracion-marca__bloqueo-agregar"
+                        className="configuracion-marca__descanso-agregar"
                         onClick={() => agregarBloqueo(dia)}
                       >
                         + Agregar descanso
                       </button>
                     </div>
                   )}
-                </div>
+                </article>
               );
             })}
           </div>

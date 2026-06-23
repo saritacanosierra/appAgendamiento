@@ -1,7 +1,7 @@
 .tarjeta-diseno {
   border-radius: var(--radio-borde);
   overflow: hidden;
-  background: #fff;
+  background: var(--color-superficie);
   box-shadow: var(--sombra-suave);
 }
 
@@ -13,7 +13,7 @@
 }
 
 .tarjeta-diseno__placeholder {
-  background: linear-gradient(135deg, var(--color-secundario), #fff);
+  background: linear-gradient(135deg, var(--color-secundario), var(--color-superficie));
 }
 
 .tarjeta-diseno__info {
@@ -27,5 +27,5 @@
 
 .tarjeta-diseno__info span {
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }

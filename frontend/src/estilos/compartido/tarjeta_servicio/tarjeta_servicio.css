@@ -19,7 +19,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  color: var(--color-acento);
+  overflow: hidden;
+}
+
+.tarjeta-servicio__thumb--imagen {
+  background: var(--color-superficie);
+}
+
+.tarjeta-servicio__thumb img {
+  width: 100%;
+  height: 100%;
+  min-height: 72px;
+  object-fit: cover;
+  display: block;
 }
 
 .tarjeta-servicio__contenido {
@@ -54,7 +67,7 @@
 }
 
 .tarjeta-servicio__meta strong {
-  color: var(--color-principal);
+  color: var(--color-acento);
   font-size: var(--tamano-texto-base);
 }
 
@@ -66,7 +79,7 @@
   border: none;
   border-radius: var(--radio-pill);
   background: var(--color-principal);
-  color: #fff;
+  color: var(--color-texto-sobre-principal);
   font-weight: 700;
   font-size: var(--tamano-texto-sm);
   cursor: pointer;
@@ -75,4 +88,47 @@
 
 .tarjeta-servicio__accion:active {
   transform: scale(0.98);
+}
+
+.tarjeta-servicio--admin {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tarjeta-servicio--admin h3 {
+  color: var(--color-texto-superficie, var(--color-texto));
+}
+
+.tarjeta-servicio--admin p,
+.tarjeta-servicio--admin .tarjeta-servicio__meta {
+  color: var(--color-texto-muted-superficie, var(--color-texto-muted));
+}
+
+.tarjeta-servicio--admin .tarjeta-servicio__thumb {
+  grid-row: auto;
+  flex-shrink: 0;
+}
+
+.tarjeta-servicio--admin .tarjeta-servicio__contenido {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarjeta-servicio__acciones-admin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--espacio-xs);
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: var(--espacio-sm);
+}
+
+.tarjeta-servicio__acciones-admin .servicios-admin__acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-xs);
 }

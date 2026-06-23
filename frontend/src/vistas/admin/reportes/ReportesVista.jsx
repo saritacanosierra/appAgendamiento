@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BotonPrincipal, Cargando, MensajeError, SelectorFecha } from '../../../compartido/componentes';
+import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import { obtenerReporte } from '../../../modulos/reportes/servicios/reportesServicio';
 import '../../../estilos/admin/reportes/reportes.css';
 
@@ -16,12 +17,20 @@ function finMesActual() {
   return `${ultimo.getFullYear()}-${pad(ultimo.getMonth() + 1)}-${pad(ultimo.getDate())}`;
 }
 
-function formatearMoneda(valor) {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN',
-    maximumFractionDigits: 0,
-  }).format(valor ?? 0);
+function inicioAnioActual() {
+  const hoy = new Date();
+  return `${hoy.getFullYear()}-01-01`;
+}
+
+function finAnioActual() {
+  const hoy = new Date();
+  return `${hoy.getFullYear()}-12-31`;
+}
+
+function fechaHoyLocal() {
+  const hoy = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${hoy.getFullYear()}-${pad(hoy.getMonth() + 1)}-${pad(hoy.getDate())}`;
 }
 
 function formatearFechaLegible(fecha) {
@@ -70,6 +79,17 @@ export default function ReportesVista() {
       <section className="reportes-vista__filtros">
         <SelectorFecha valor={desde} onChange={setDesde} etiqueta="Desde" modo="nativo" />
         <SelectorFecha valor={hasta} onChange={setHasta} etiqueta="Hasta" modo="nativo" />
+        <div className="reportes-vista__periodos-rapidos">
+          <button type="button" onClick={() => { setDesde(fechaHoyLocal()); setHasta(fechaHoyLocal()); }}>
+            Hoy
+          </button>
+          <button type="button" onClick={() => { setDesde(inicioMesActual()); setHasta(finMesActual()); }}>
+            Este mes
+          </button>
+          <button type="button" onClick={() => { setDesde(inicioAnioActual()); setHasta(finAnioActual()); }}>
+            Este año
+          </button>
+        </div>
         <BotonPrincipal type="button" onClick={cargar} deshabilitado={cargando}>
           {cargando ? 'Cargando...' : 'Actualizar'}
         </BotonPrincipal>
@@ -101,15 +121,43 @@ export default function ReportesVista() {
             </div>
             <div className="reportes-vista__tarjeta reportes-vista__tarjeta--destacada">
               <span>Ingreso estimado</span>
-              <strong>{formatearMoneda(reporte.ingresos.estimado)}</strong>
-              <small>Sin canceladas</small>
+              <strong>{formatearPrecio(reporte.ingresos.estimado)}</strong>
+              <small>Citas programadas</small>
             </div>
             <div className="reportes-vista__tarjeta">
               <span>Ingreso realizado</span>
-              <strong>{formatearMoneda(reporte.ingresos.realizado)}</strong>
-              <small>Citas completadas</small>
+              <strong>{formatearPrecio(reporte.ingresos.realizado)}</strong>
+              <small>Servicios confirmados en atencion</small>
             </div>
           </section>
+
+          {reporte.rendimiento && (
+            <section className="reportes-vista__seccion">
+              <h2>Rendimiento de atencion</h2>
+              <ul className="reportes-vista__estados">
+                <li>
+                  <span>Servicios confirmados</span>
+                  <strong>{reporte.rendimiento.serviciosConfirmados}</strong>
+                </li>
+                <li>
+                  <span>Duracion promedio</span>
+                  <strong>{reporte.rendimiento.duracionPromedioMin} min</strong>
+                </li>
+                <li>
+                  <span>Ingreso base</span>
+                  <strong>{formatearPrecio(reporte.rendimiento.ingresoBase)}</strong>
+                </li>
+                <li>
+                  <span>Ingreso por adicionales</span>
+                  <strong>{formatearPrecio(reporte.rendimiento.ingresoAdicional)}</strong>
+                </li>
+                <li>
+                  <span>Ingreso total confirmado</span>
+                  <strong>{formatearPrecio(reporte.rendimiento.ingresoTotal)}</strong>
+                </li>
+              </ul>
+            </section>
+          )}
 
           <section className="reportes-vista__seccion">
             <h2>Por estado</h2>
@@ -138,7 +186,7 @@ export default function ReportesVista() {
                       <tr key={s.nombre}>
                         <td>{s.nombre}</td>
                         <td>{s.citas}</td>
-                        <td>{formatearMoneda(s.ingreso)}</td>
+                        <td>{formatearPrecio(s.ingreso)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -164,7 +212,7 @@ export default function ReportesVista() {
                       <tr key={d.fecha}>
                         <td>{formatearFechaLegible(d.fecha)}</td>
                         <td>{d.total}</td>
-                        <td>{formatearMoneda(d.ingreso)}</td>
+                        <td>{formatearPrecio(d.ingreso)}</td>
                       </tr>
                     ))}
                   </tbody>

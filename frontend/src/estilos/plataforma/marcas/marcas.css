@@ -12,7 +12,7 @@
 
 .marcas-plataforma__cabecera p {
   margin: 0;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   max-width: 640px;
 }
 
@@ -24,12 +24,12 @@
   margin-bottom: var(--espacio-lg);
   border: 1px solid #eee;
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .marcas-plataforma__form-hint {
   margin: 0;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
 }
 
@@ -41,7 +41,7 @@
 }
 
 .marcas-plataforma__tabla-seccion {
-  background: #fff;
+  background: var(--color-superficie);
   border: 1px solid #eee;
   border-radius: 12px;
   padding: var(--espacio-lg);
@@ -88,7 +88,7 @@
 }
 
 .marcas-plataforma__tabla th {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -108,7 +108,7 @@
 
 .marcas-plataforma__admin-correo {
   display: block;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: 0.85em;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .marcas-plataforma__sin-dato {
-  color: #999;
+  color: var(--color-texto-suave-superficie);
   font-style: italic;
 }
 
@@ -162,7 +162,7 @@
   background: none;
   border: none;
   padding: 0;
-  color: var(--color-principal);
+  color: var(--color-acento);
   cursor: pointer;
   text-align: left;
   font: inherit;
@@ -172,7 +172,7 @@
 .marcas-plataforma__vacio {
   text-align: center;
   padding: var(--espacio-xl);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .marcas-plataforma__vacio p {
@@ -184,11 +184,11 @@
 }
 
 .marcas-plataforma__sin-resultados {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   margin: 0;
 }
 
 .marcas-plataforma__exito {
-  color: var(--color-principal);
+  color: var(--color-acento);
   margin-bottom: var(--espacio-md);
 }

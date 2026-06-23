@@ -1,0 +1,71 @@
+.modal-mensaje {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-md);
+}
+
+.modal-mensaje__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.modal-mensaje__contenido {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  padding: var(--espacio-xl) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.modal-mensaje__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: var(--espacio-md);
+}
+
+.modal-mensaje--exito .modal-mensaje__icono {
+  background: color-mix(in srgb, #2e7d32 15%, var(--color-superficie));
+  color: #2e7d32;
+}
+
+.modal-mensaje--error .modal-mensaje__icono {
+  background: color-mix(in srgb, #c62828 15%, var(--color-superficie));
+  color: #c62828;
+}
+
+.modal-mensaje--info .modal-mensaje__icono {
+  background: color-mix(in srgb, var(--color-principal) 15%, var(--color-superficie));
+  color: var(--color-acento-superficie);
+}
+
+.modal-mensaje__contenido h2 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-lg);
+  color: var(--color-texto-superficie);
+}
+
+.modal-mensaje__contenido p {
+  margin: 0 0 var(--espacio-lg);
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}

@@ -1,0 +1,75 @@
+.citas-hub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+}
+
+.citas-hub__intro h2 {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-titulo-lg);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-texto);
+}
+
+.citas-hub__intro p {
+  margin: 0;
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}
+
+.citas-hub__contacto {
+  margin: 0;
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+}
+
+.citas-hub__disponibilidad {
+  padding: var(--espacio-lg);
+}
+
+.citas-hub__cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.citas-hub__secundarias {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacio-xl);
+}
+
+.citas-hub__secundarias a {
+  font-weight: 700;
+  font-size: var(--tamano-texto-sm);
+}
+
+.citas-hub__servicios h2 {
+  font-size: var(--tamano-texto-lg);
+  font-weight: 700;
+  margin: 0 0 var(--espacio-md);
+  color: var(--color-texto);
+  letter-spacing: -0.02em;
+}
+
+.citas-hub__lista-servicios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.citas-hub__vacio {
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+  padding: var(--espacio-lg);
+  text-align: center;
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}

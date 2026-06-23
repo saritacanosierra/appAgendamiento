@@ -11,6 +11,7 @@ import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerConfirmacion } from '../../../modulos/reservas/servicios/reservasServicio';
 import { descargarArchivoIcs, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
+import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import '../../../estilos/publico/confirmacion/confirmacion.css';
 
 export default function ConfirmacionReservaVista() {
@@ -67,6 +68,12 @@ export default function ConfirmacionReservaVista() {
       </dl>
 
       <div className="confirmacion-reserva__calendario">
+        <BotonPrincipal
+          href={RUTAS_PUBLICAS.miCita(marca?.slug ?? cita.marca.slug)}
+          anchoCompleto
+        >
+          Gestionar mi cita
+        </BotonPrincipal>
         <BotonPrincipal
           href={calendario.enlaceGoogle}
           anchoCompleto

@@ -89,17 +89,17 @@
 .horarios-dia__dia em {
   font-style: normal;
   font-size: 0.6rem;
-  color: var(--color-principal);
+  color: var(--color-acento);
   font-weight: 700;
 }
 
 .horarios-dia__dia--activo {
-  border-color: var(--color-principal);
+  border-color: var(--color-acento);
   background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
 }
 
 .horarios-dia__dia--activo strong {
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .horarios-dia__servicios {
@@ -120,9 +120,9 @@
 }
 
 .horarios-dia__servicio-tab--activo {
-  border-color: var(--color-principal);
+  border-color: var(--color-acento);
   background: var(--color-principal);
-  color: #fff;
+  color: var(--color-texto-sobre-principal);
 }
 
 .horarios-dia__servicio-unico {
@@ -168,9 +168,9 @@
 }
 
 .horarios-dia__hora:hover {
-  border-color: var(--color-principal);
+  border-color: var(--color-acento);
   background: color-mix(in srgb, var(--color-secundario) 30%, var(--color-superficie));
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .horarios-dia__hora:active {

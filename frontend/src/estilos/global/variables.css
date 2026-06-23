@@ -4,13 +4,27 @@
   --color-secundario: #f8bbd0;
   --color-fondo: #ffffff;
   --color-texto: #1a1a1a;
+  --color-texto-sobre-principal: #ffffff;
+  --color-texto-sobre-secundario: #1a1a1a;
+  --color-acento: var(--color-principal);
+  --color-acento-superficie: var(--color-principal);
+  --color-texto-nav: #1a1a1a;
+  --color-texto-nav-muted: #4b5563;
+  --color-acento-nav: var(--color-principal);
 
   /* Superficies y neutros */
   --color-borde: #ebebeb;
+  --color-borde-superficie: #ebebeb;
   --color-superficie: #ffffff;
   --color-fondo-app: #f7f6f4;
+  --color-input-fondo: #ffffff;
+  --color-input-borde: #ebebeb;
+  --color-input-texto: #1a1a1a;
   --color-texto-muted: #6b7280;
   --color-texto-suave: #9ca3af;
+  --color-texto-superficie: #1a1a1a;
+  --color-texto-muted-superficie: #6b7280;
+  --color-texto-suave-superficie: #9ca3af;
   --color-error: #b00020;
   --color-exito: #2e7d32;
 

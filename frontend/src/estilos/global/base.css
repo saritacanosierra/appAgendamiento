@@ -31,7 +31,7 @@ h1, h2, h3, p {
 }
 
 a {
-  color: var(--color-principal);
+  color: var(--color-acento);
   text-decoration: none;
 }
 
@@ -67,7 +67,7 @@ textarea {
 
 .pagina-placeholder h1 {
   font-size: var(--tamano-titulo);
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .pagina-placeholder p {
@@ -79,7 +79,7 @@ textarea {
   padding: var(--espacio-xs) var(--espacio-sm);
   border-radius: 999px;
   background: var(--color-secundario);
-  color: var(--color-texto);
+  color: var(--color-texto-sobre-secundario);
   font-size: var(--tamano-texto-sm);
   margin-top: var(--espacio-sm);
 }

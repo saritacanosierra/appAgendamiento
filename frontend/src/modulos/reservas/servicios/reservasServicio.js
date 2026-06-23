@@ -30,3 +30,42 @@ export async function obtenerConfirmacion(codigo) {
   );
   return respuesta.datos;
 }
+
+export async function consultarCitas(marcaId, { telefono, correo }) {
+  const respuesta = await peticionPublica('/reservas/consultar', {
+    method: 'POST',
+    body: JSON.stringify({
+      marca_id: marcaId,
+      telefono,
+      correo: correo?.trim().toLowerCase() || null,
+    }),
+  });
+  return respuesta.datos;
+}
+
+export async function cancelarCitaPublica(marcaId, codigo, telefono) {
+  const respuesta = await peticionPublica(
+    `/reservas/${encodeURIComponent(codigo)}/cancelar`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ marca_id: marcaId, telefono }),
+    }
+  );
+  return respuesta.datos;
+}
+
+export async function solicitarReagendamiento(marcaId, codigo, telefono, fecha, horaInicio) {
+  const respuesta = await peticionPublica(
+    `/reservas/${encodeURIComponent(codigo)}/reagendar`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        marca_id: marcaId,
+        telefono,
+        fecha,
+        hora_inicio: horaInicio,
+      }),
+    }
+  );
+  return respuesta.datos;
+}

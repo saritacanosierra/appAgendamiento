@@ -28,7 +28,7 @@ export class NotificacionServicio {
   async resumen(marcaId) {
     const [noLeidas, recientes] = await Promise.all([
       this.repo.contarNoLeidas(marcaId),
-      this.repo.listarPorMarca(marcaId, { limite: 5 }),
+      this.repo.listarPorMarca(marcaId, { limite: 20 }),
     ]);
 
     return {
@@ -50,6 +50,41 @@ export class NotificacionServicio {
       tipo: esPublica ? 'nueva_reserva_publica' : 'nueva_cita_admin',
       titulo: esPublica ? 'Nueva reserva en linea' : 'Cita creada manualmente',
       mensaje: `${clienteNombre} — ${servicioNombre}, ${fecha} a las ${horaInicio}`,
+      referenciaTipo: 'cita',
+      referenciaId: citaId,
+    });
+  }
+
+  async registrarSolicitudReagendamiento({
+    marcaId, citaId, clienteNombre, servicioNombre, fechaActual, horaActual, fechaSolicitada, horaSolicitada,
+  }) {
+    return this.registrar({
+      marcaId,
+      tipo: 'solicitud_reagendamiento',
+      titulo: 'Solicitud de reagendamiento',
+      mensaje: `${clienteNombre} — ${servicioNombre}: ${fechaActual} ${horaActual} → ${fechaSolicitada} ${horaSolicitada}`,
+      referenciaTipo: 'cita',
+      referenciaId: citaId,
+    });
+  }
+
+  async registrarCancelacionCliente({ marcaId, citaId, clienteNombre, servicioNombre, fecha, horaInicio }) {
+    return this.registrar({
+      marcaId,
+      tipo: 'cancelacion_cliente',
+      titulo: 'Cita cancelada por el cliente',
+      mensaje: `${clienteNombre} — ${servicioNombre}, ${fecha} a las ${horaInicio}`,
+      referenciaTipo: 'cita',
+      referenciaId: citaId,
+    });
+  }
+
+  async registrarReagendamientoAprobado({ marcaId, citaId, clienteNombre, servicioNombre, fecha, horaInicio }) {
+    return this.registrar({
+      marcaId,
+      tipo: 'reagendamiento_aprobado',
+      titulo: 'Reagendamiento confirmado',
+      mensaje: `${clienteNombre} — ${servicioNombre}, nueva fecha ${fecha} a las ${horaInicio}`,
       referenciaTipo: 'cita',
       referenciaId: citaId,
     });

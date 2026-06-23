@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { formatearFecha } from '../../utilidades/temaMarca';
+import ImagenAmpliable from '../imagen_ampliable/ImagenAmpliable';
 import '../../../estilos/compartido/tarjeta_publicacion/tarjeta_publicacion.css';
 
 export default function TarjetaPublicacion({ publicacion, enlace }) {
   const contenido = (
     <article className="tarjeta-publicacion">
       {publicacion.imagenDestacada && (
-        <img src={publicacion.imagenDestacada} alt="" loading="lazy" />
+        <ImagenAmpliable src={publicacion.imagenDestacada} alt={publicacion.titulo} loading="lazy" />
       )}
       <div className="tarjeta-publicacion__cuerpo">
         <h3>{publicacion.titulo}</h3>

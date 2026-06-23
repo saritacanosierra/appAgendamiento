@@ -1,0 +1,11 @@
+.icono-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.icono-admin svg {
+  display: block;
+}

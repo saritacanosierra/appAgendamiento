@@ -8,7 +8,7 @@
 .campo-formulario label {
   font-weight: 700;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
 }
 
 .campo-formulario input,
@@ -17,11 +17,17 @@
   width: 100%;
   min-height: 52px;
   padding: 0.875rem 1rem;
-  border: 1.5px solid var(--color-borde);
+  border: 1.5px solid var(--color-input-borde);
   border-radius: var(--radio-borde);
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--color-input-fondo);
+  color: var(--color-input-texto);
   box-shadow: var(--sombra-suave);
+}
+
+.campo-formulario input::placeholder,
+.campo-formulario textarea::placeholder {
+  color: var(--color-texto-muted-superficie);
+  opacity: 0.85;
 }
 
 .campo-formulario input:focus,
@@ -29,7 +35,7 @@
 .campo-formulario select:focus {
   outline: 2px solid color-mix(in srgb, var(--color-principal) 35%, transparent);
   outline-offset: 2px;
-  border-color: var(--color-principal);
+  border-color: var(--color-acento-superficie);
 }
 
 .campo-formulario textarea {

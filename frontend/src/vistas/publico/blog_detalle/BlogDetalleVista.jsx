@@ -1,7 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
-import { Cargando, EncabezadoMarca, MensajeError } from '../../../compartido/componentes';
+import { Cargando, EncabezadoMarca, ImagenAmpliable, MensajeError } from '../../../compartido/componentes';
+import { useImagenesEnContenedor } from '../../../compartido/hooks/useImagenesEnContenedor';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
 import '../../../estilos/publico/blog_detalle/blog_detalle.css';
@@ -22,6 +23,9 @@ export default function BlogDetalleVista() {
   const [publicacion, setPublicacion] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const refContenido = useRef(null);
+
+  useImagenesEnContenedor(refContenido, [publicacion?.contenido]);
 
   useEffect(() => {
     if (!marca?.id || !slugPublicacion) return;
@@ -50,9 +54,9 @@ export default function BlogDetalleVista() {
       {publicacion && (
         <article className="blog-detalle__articulo">
           {publicacion.imagenDestacada && (
-            <img
+            <ImagenAmpliable
               src={publicacion.imagenDestacada}
-              alt=""
+              alt={publicacion.titulo}
               className="blog-detalle__imagen"
             />
           )}
@@ -67,6 +71,7 @@ export default function BlogDetalleVista() {
             <p className="blog-detalle__extracto">{publicacion.extracto}</p>
           )}
           <div
+            ref={refContenido}
             className="blog-detalle__contenido"
             dangerouslySetInnerHTML={{ __html: publicacion.contenido }}
           />

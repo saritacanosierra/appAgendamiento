@@ -14,6 +14,7 @@ export function mapearDisenoPublico(fila) {
       ? fila.colores_relacionados.split(',').map((c) => c.trim()).filter(Boolean)
       : [],
     ordenVisualizacion: fila.orden_visualizacion,
+    enTendencia: Boolean(fila.en_tendencia),
   };
 }
 
@@ -77,6 +78,11 @@ export class GaleriaServicio {
     const ordenVisualizacion = entero(
       datos.orden_visualizacion ?? datos.ordenVisualizacion ?? existente?.orden_visualizacion ?? 0
     ) ?? 0;
+    const enTendencia = datos.en_tendencia !== undefined
+      ? Boolean(datos.en_tendencia)
+      : datos.enTendencia !== undefined
+        ? Boolean(datos.enTendencia)
+        : Boolean(existente?.en_tendencia ?? 0);
 
     const errores = validar(
       { titulo, imagen_ruta: imagenRuta },
@@ -98,6 +104,7 @@ export class GaleriaServicio {
         coloresRelacionados,
         activo,
         ordenVisualizacion,
+        enTendencia,
       },
     };
   }

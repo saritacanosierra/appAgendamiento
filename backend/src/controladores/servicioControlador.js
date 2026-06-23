@@ -49,3 +49,16 @@ export async function actualizarAdmin(req, res) {
 
   return respuestaExito(res, resultado.servicio, 'Servicio actualizado');
 }
+
+export async function eliminarAdmin(req, res) {
+  const servicioId = entero(req.params.id);
+  if (!servicioId) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await servicioServicio.eliminarAdmin(req.marcaId, servicioId);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  return respuestaExito(res, { id: resultado.id }, 'Servicio eliminado');
+}

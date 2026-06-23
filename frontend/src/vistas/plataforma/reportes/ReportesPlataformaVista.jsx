@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BotonPrincipal, Cargando, MensajeError, SelectorFecha } from '../../../compartido/componentes';
 import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
+import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import { obtenerReportePlataforma } from '../../../modulos/plataforma/servicios/plataformaServicio';
 import '../../../estilos/plataforma/reportes/reportes.css';
 
@@ -16,14 +17,6 @@ function finMesActual() {
   const ultimo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
   const pad = (n) => String(n).padStart(2, '0');
   return `${ultimo.getFullYear()}-${pad(ultimo.getMonth() + 1)}-${pad(ultimo.getDate())}`;
-}
-
-function formatearMoneda(valor) {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN',
-    maximumFractionDigits: 0,
-  }).format(valor ?? 0);
 }
 
 export default function ReportesPlataformaVista() {
@@ -80,11 +73,11 @@ export default function ReportesPlataformaVista() {
             </article>
             <article>
               <span>Ingreso estimado</span>
-              <strong>{formatearMoneda(reporte.ingresos.estimado)}</strong>
+              <strong>{formatearPrecio(reporte.ingresos.estimado)}</strong>
             </article>
             <article>
               <span>Ingreso realizado</span>
-              <strong>{formatearMoneda(reporte.ingresos.realizado)}</strong>
+              <strong>{formatearPrecio(reporte.ingresos.realizado)}</strong>
             </article>
             <article>
               <span>Clientes nuevas</span>
@@ -121,7 +114,7 @@ export default function ReportesPlataformaVista() {
                     <tr key={marca.id}>
                       <td>{marca.nombreComercial}</td>
                       <td>{marca.citas}</td>
-                      <td>{formatearMoneda(marca.ingreso)}</td>
+                      <td>{formatearPrecio(marca.ingreso)}</td>
                       <td>
                         <Link to={RUTAS_PLATAFORMA.editarMarca(marca.id)}>Editar</Link>
                       </td>

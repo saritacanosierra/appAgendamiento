@@ -1,27 +1,52 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BotonPrincipal,
   Cargando,
   MensajeError,
+  ModalConfirmacion,
+  ModalMensaje,
   SelectorFecha,
 } from '../../../compartido/componentes';
+import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { fechaHoyLocal } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import FormularioCitaAdmin from '../../../componentes/admin/formulario_cita_admin/FormularioCitaAdmin';
 import TarjetaCitaAdmin from '../../../componentes/admin/tarjeta_cita_admin/TarjetaCitaAdmin';
+import { emitirActualizacionNotificaciones } from '../../../componentes/admin/campana_notificaciones/CampanaNotificacionesAdmin';
 import {
   actualizarCita,
   cancelarCita,
   obtenerAgenda,
 } from '../../../modulos/agenda/servicios/agendaServicio';
+import {
+  aprobarSolicitudReagendamiento,
+  listarSolicitudesReagendamiento,
+  rechazarSolicitudReagendamiento,
+} from '../../../modulos/agenda/servicios/solicitudesReagendamientoServicio';
+import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import '../../../estilos/admin/agenda/agenda.css';
 
 export default function AgendaVista() {
+  const navigate = useNavigate();
   const [fecha, setFecha] = useState(fechaHoyLocal());
   const [vista, setVista] = useState('dia');
   const [agenda, setAgenda] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [mostrarFormCita, setMostrarFormCita] = useState(false);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [procesandoSolicitud, setProcesandoSolicitud] = useState(null);
+  const [modalConfirmacion, setModalConfirmacion] = useState(null);
+  const [modalMensaje, setModalMensaje] = useState(null);
+
+  const cargarSolicitudes = useCallback(async () => {
+    try {
+      const datos = await listarSolicitudesReagendamiento();
+      setSolicitudes(Array.isArray(datos) ? datos : []);
+    } catch {
+      setSolicitudes([]);
+    }
+  }, []);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -38,25 +63,166 @@ export default function AgendaVista() {
 
   useEffect(() => {
     cargar();
-  }, [cargar]);
+    cargarSolicitudes();
+  }, [cargar, cargarSolicitudes]);
+
+  async function ejecutarAprobar(solicitud) {
+    setProcesandoSolicitud(solicitud.id);
+    setError(null);
+    try {
+      await aprobarSolicitudReagendamiento(solicitud.id);
+      await Promise.all([cargar(), cargarSolicitudes()]);
+      emitirActualizacionNotificaciones();
+      setModalMensaje({
+        titulo: 'Reagendamiento aprobado',
+        mensaje: `La cita de ${solicitud.cliente.nombre} quedo en ${solicitud.fechaSolicitada} a las ${formatearHoraLegible(solicitud.horaInicioSolicitada)}.`,
+        variante: 'exito',
+      });
+    } catch (err) {
+      setModalMensaje({
+        titulo: 'No se pudo aprobar',
+        mensaje: err.message,
+        variante: 'error',
+      });
+    } finally {
+      setProcesandoSolicitud(null);
+    }
+  }
+
+  async function ejecutarRechazar(solicitud) {
+    setProcesandoSolicitud(solicitud.id);
+    setError(null);
+    try {
+      await rechazarSolicitudReagendamiento(solicitud.id);
+      await cargarSolicitudes();
+      emitirActualizacionNotificaciones();
+      setModalMensaje({
+        titulo: 'Solicitud rechazada',
+        mensaje: `Se rechazo el reagendamiento de ${solicitud.cliente.nombre}. La cita original se mantiene.`,
+        variante: 'info',
+      });
+    } catch (err) {
+      setModalMensaje({
+        titulo: 'No se pudo rechazar',
+        mensaje: err.message,
+        variante: 'error',
+      });
+    } finally {
+      setProcesandoSolicitud(null);
+    }
+  }
+
+  function pedirAprobar(solicitud) {
+    setModalConfirmacion({
+      titulo: 'Aprobar reagendamiento',
+      mensaje: `${solicitud.cliente.nombre} solicita cambiar de ${solicitud.fechaActual} ${formatearHoraLegible(solicitud.horaActual)} a ${solicitud.fechaSolicitada} ${formatearHoraLegible(solicitud.horaInicioSolicitada)}. ¿Confirmas el nuevo horario?`,
+      textoConfirmar: 'Aprobar',
+      onConfirmar: () => {
+        setModalConfirmacion(null);
+        ejecutarAprobar(solicitud);
+      },
+    });
+  }
+
+  function pedirRechazar(solicitud) {
+    setModalConfirmacion({
+      titulo: 'Rechazar solicitud',
+      mensaje: `¿Rechazar el reagendamiento de ${solicitud.cliente.nombre}? La cita actual no cambiara.`,
+      textoConfirmar: 'Rechazar',
+      onConfirmar: () => {
+        setModalConfirmacion(null);
+        ejecutarRechazar(solicitud);
+      },
+    });
+  }
 
   async function confirmarCita(cita) {
     try {
       await actualizarCita(cita.id, { estado: 'confirmada' });
       cargar();
+      emitirActualizacionNotificaciones();
+      setModalMensaje({
+        titulo: 'Cita confirmada',
+        mensaje: `La cita de ${cita.cliente.nombre} quedo confirmada.`,
+        variante: 'exito',
+      });
     } catch (err) {
-      setError(err.message);
+      setModalMensaje({
+        titulo: 'Error',
+        mensaje: err.message,
+        variante: 'error',
+      });
     }
   }
 
-  async function cancelarCitaHandler(cita) {
-    if (!window.confirm(`¿Cancelar cita de ${cita.cliente.nombre}?`)) return;
+  async function ejecutarCancelarCita(cita) {
     try {
       await cancelarCita(cita.id);
       cargar();
+      emitirActualizacionNotificaciones();
+      setModalMensaje({
+        titulo: 'Cita cancelada',
+        mensaje: `La cita de ${cita.cliente.nombre} fue cancelada.`,
+        variante: 'info',
+      });
     } catch (err) {
-      setError(err.message);
+      setModalMensaje({
+        titulo: 'Error',
+        mensaje: err.message,
+        variante: 'error',
+      });
     }
+  }
+
+  function pedirCancelarDesdeSolicitud(solicitud) {
+    setModalConfirmacion({
+      titulo: 'Cancelar cita',
+      mensaje: `¿Cancelar la cita de ${solicitud.cliente.nombre} el ${solicitud.fechaActual} a las ${formatearHoraLegible(solicitud.horaActual)}? La solicitud de reagendamiento tambien se cerrara.`,
+      textoConfirmar: 'Cancelar cita',
+      onConfirmar: () => {
+        setModalConfirmacion(null);
+        ejecutarCancelarDesdeSolicitud(solicitud);
+      },
+    });
+  }
+
+  async function ejecutarCancelarDesdeSolicitud(solicitud) {
+    setProcesandoSolicitud(solicitud.id);
+    setError(null);
+    try {
+      await cancelarCita(solicitud.citaId);
+      await Promise.all([cargar(), cargarSolicitudes()]);
+      emitirActualizacionNotificaciones();
+      setModalMensaje({
+        titulo: 'Cita cancelada',
+        mensaje: `La cita de ${solicitud.cliente.nombre} fue cancelada y la solicitud de reagendamiento se cerro.`,
+        variante: 'info',
+      });
+    } catch (err) {
+      setModalMensaje({
+        titulo: 'Error',
+        mensaje: err.message,
+        variante: 'error',
+      });
+    } finally {
+      setProcesandoSolicitud(null);
+    }
+  }
+
+  function pedirCancelarCita(cita) {
+    setModalConfirmacion({
+      titulo: 'Cancelar cita',
+      mensaje: `¿Cancelar la cita de ${cita.cliente.nombre} el ${cita.fecha} a las ${cita.horaInicio}?`,
+      textoConfirmar: 'Cancelar cita',
+      onConfirmar: () => {
+        setModalConfirmacion(null);
+        ejecutarCancelarCita(cita);
+      },
+    });
+  }
+
+  function irAtenderCita(cita) {
+    navigate(RUTAS_ADMIN.atencionCita(cita.id, cita.fecha));
   }
 
   function cambiarDia(offset) {
@@ -69,6 +235,23 @@ export default function AgendaVista() {
 
   return (
     <div className="agenda-vista">
+      <ModalConfirmacion
+        abierto={Boolean(modalConfirmacion)}
+        titulo={modalConfirmacion?.titulo ?? ''}
+        mensaje={modalConfirmacion?.mensaje}
+        textoConfirmar={modalConfirmacion?.textoConfirmar ?? 'Confirmar'}
+        onConfirmar={modalConfirmacion?.onConfirmar ?? (() => setModalConfirmacion(null))}
+        onCancelar={() => setModalConfirmacion(null)}
+      />
+
+      <ModalMensaje
+        abierto={Boolean(modalMensaje)}
+        titulo={modalMensaje?.titulo ?? ''}
+        mensaje={modalMensaje?.mensaje}
+        variante={modalMensaje?.variante ?? 'exito'}
+        onCerrar={() => setModalMensaje(null)}
+      />
+
       <header className="agenda-vista__cabecera">
         <h1>Agenda</h1>
         <div className="agenda-vista__cabecera-acciones">
@@ -100,19 +283,80 @@ export default function AgendaVista() {
           onCreada={() => {
             setMostrarFormCita(false);
             cargar();
+            emitirActualizacionNotificaciones();
+            setModalMensaje({
+              titulo: 'Cita creada',
+              mensaje: 'La nueva cita se agrego a la agenda.',
+              variante: 'exito',
+            });
           }}
           onCancelar={() => setMostrarFormCita(false)}
         />
       )}
 
+      {solicitudes.length > 0 && (
+        <section className="agenda-vista__solicitudes">
+          <h2>Reagendamientos pendientes ({solicitudes.length})</h2>
+          <p className="agenda-vista__solicitudes-aviso">
+            Aprueba o rechaza el nuevo horario, o cancela la cita si ya no procede. Tambien recibiras aviso en la campana 🔔.
+          </p>
+          <div className="agenda-vista__solicitudes-lista">
+            {solicitudes.map((solicitud) => (
+              <article key={solicitud.id} className="agenda-vista__solicitud">
+                <div>
+                  <strong>{solicitud.cliente.nombre}</strong> — {solicitud.servicio.nombre}
+                  <p>
+                    Actual: {solicitud.fechaActual} {formatearHoraLegible(solicitud.horaActual)}
+                    {' → '}
+                    Solicita: {solicitud.fechaSolicitada}{' '}
+                    {formatearHoraLegible(solicitud.horaInicioSolicitada)}
+                  </p>
+                  <p className="agenda-vista__solicitud-codigo">Codigo: {solicitud.codigoConfirmacion}</p>
+                </div>
+                <div className="agenda-vista__solicitud-acciones">
+                  <BotonPrincipal
+                    type="button"
+                    onClick={() => pedirAprobar(solicitud)}
+                    deshabilitado={procesandoSolicitud === solicitud.id}
+                  >
+                    Aprobar
+                  </BotonPrincipal>
+                  <BotonPrincipal
+                    type="button"
+                    variante="secundario"
+                    onClick={() => pedirRechazar(solicitud)}
+                    deshabilitado={procesandoSolicitud === solicitud.id}
+                  >
+                    Rechazar
+                  </BotonPrincipal>
+                  <BotonPrincipal
+                    type="button"
+                    variante="texto"
+                    className="agenda-vista__solicitud-cancelar"
+                    onClick={() => pedirCancelarDesdeSolicitud(solicitud)}
+                    deshabilitado={procesandoSolicitud === solicitud.id}
+                  >
+                    Cancelar cita
+                  </BotonPrincipal>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="agenda-vista__navegacion">
-        <BotonPrincipal variante="texto" onClick={() => cambiarDia(vista === 'dia' ? -1 : -7)}>
-          ← Anterior
-        </BotonPrincipal>
-        <SelectorFecha valor={fecha} onChange={setFecha} etiqueta="Fecha" />
-        <BotonPrincipal variante="texto" onClick={() => cambiarDia(vista === 'dia' ? 1 : 7)}>
-          Siguiente →
-        </BotonPrincipal>
+        <div className="agenda-vista__calendario">
+          <SelectorFecha valor={fecha} onChange={setFecha} etiqueta="Fecha" />
+        </div>
+        <div className="agenda-vista__navegacion-botones">
+          <BotonPrincipal variante="texto" onClick={() => cambiarDia(vista === 'dia' ? -1 : -7)}>
+            ← Anterior
+          </BotonPrincipal>
+          <BotonPrincipal variante="texto" onClick={() => cambiarDia(vista === 'dia' ? 1 : 7)}>
+            Siguiente →
+          </BotonPrincipal>
+        </div>
       </div>
 
       {agenda?.resumen && (
@@ -139,7 +383,8 @@ export default function AgendaVista() {
                 <TarjetaCitaAdmin
                   cita={cita}
                   onConfirmar={confirmarCita}
-                  onCancelar={cancelarCitaHandler}
+                  onCancelar={pedirCancelarCita}
+                  onAtender={irAtenderCita}
                 />
               </div>
             ))

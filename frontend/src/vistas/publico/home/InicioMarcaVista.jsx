@@ -1,43 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import {
   BotonPrincipal,
+  CarruselMarca,
   Cargando,
   EncabezadoMarca,
-  HorariosDisponiblesDia,
   MensajeError,
-  TarjetaServicio,
 } from '../../../compartido/componentes';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
-import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
+import { Link, useParams } from 'react-router-dom';
 import '../../../estilos/publico/home/home.css';
 
 export default function InicioMarcaVista() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const { marca, cargando, error } = useMarca();
-  const [servicios, setServicios] = useState([]);
-  const [cargandoServicios, setCargandoServicios] = useState(false);
-
-  useEffect(() => {
-    if (!marca?.id) return;
-
-    setCargandoServicios(true);
-    obtenerServiciosPublicos(marca.id)
-      .then(setServicios)
-      .catch(() => setServicios([]))
-      .finally(() => setCargandoServicios(false));
-  }, [marca?.id]);
-
-  function reservarHorario(servicio, fecha, hora) {
-    const params = new URLSearchParams({
-      servicio: String(servicio.id),
-      fecha,
-      hora,
-    });
-    navigate(`${RUTAS_PUBLICAS.reservar(slug)}?${params.toString()}`);
-  }
 
   if (cargando) return <Cargando />;
   if (error) return <MensajeError titulo="Marca no disponible" mensaje={error} />;
@@ -47,46 +22,27 @@ export default function InicioMarcaVista() {
     <div className="inicio-marca">
       <EncabezadoMarca marca={marca} />
 
+      <CarruselMarca marca={marca} slug={slug} />
+
       <div className="inicio-marca__saludo">
         <p className="inicio-marca__bienvenida">Bienvenida</p>
-        <h2 className="inicio-marca__titulo">¿Lista para tu proxima cita?</h2>
+        <h2 className="inicio-marca__titulo">Tu momento de cuidado personal</h2>
       </div>
 
       {marca.direccion && (
         <p className="inicio-marca__contacto">{marca.direccion}</p>
       )}
 
-      {!cargandoServicios && servicios.length > 0 && (
-        <section className="inicio-marca__disponibilidad tarjeta-app">
-          <HorariosDisponiblesDia
-            marcaId={marca.id}
-            servicios={servicios}
-            onElegirHorario={reservarHorario}
-          />
-        </section>
-      )}
-
-      <section className="inicio-marca__cta tarjeta-app">
+      <section className="inicio-marca__agendar tarjeta-app">
+        <p className="inicio-marca__agendar-texto">
+          Reserva en segundos y elige el horario que más te convenga.
+        </p>
         <BotonPrincipal href={RUTAS_PUBLICAS.reservar(slug)} anchoCompleto>
-          + Agendar nueva cita
+          Agendar cita
         </BotonPrincipal>
-        <div className="inicio-marca__secundarias">
-          <Link to={RUTAS_PUBLICAS.galeria(slug)}>Ver galeria</Link>
-          <Link to={RUTAS_PUBLICAS.blog(slug)}>Leer blog</Link>
-        </div>
-      </section>
-
-      <section className="inicio-marca__servicios">
-        <h2>Servicios</h2>
-        {cargandoServicios && <Cargando mensaje="Cargando servicios..." />}
-        {!cargandoServicios && servicios.length === 0 && (
-          <p className="inicio-marca__vacio">Pronto habra servicios disponibles.</p>
-        )}
-        <div className="inicio-marca__lista-servicios">
-          {servicios.map((servicio) => (
-            <TarjetaServicio key={servicio.id} servicio={servicio} />
-          ))}
-        </div>
+        <Link to={RUTAS_PUBLICAS.citas(slug)} className="inicio-marca__ver-citas">
+          Ver horarios y servicios →
+        </Link>
       </section>
     </div>
   );

@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { BotonPrincipal, CampoFormulario, Cargando, MensajeError } from '../../../compartido/componentes';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
+import { esRutaPlataforma } from '../../../compartido/utilidades/rutasApp';
 import '../../../estilos/admin/login/login.css';
 
 const MODOS = {
@@ -34,10 +35,10 @@ const MODOS = {
 
 function destinoPorRol(usuario, destinoSolicitado) {
   if (usuario?.rol === 'superadmin') {
-    if (destinoSolicitado.startsWith('/plataforma')) return destinoSolicitado;
+    if (esRutaPlataforma(destinoSolicitado)) return destinoSolicitado;
     return RUTAS_PLATAFORMA.marcas;
   }
-  if (destinoSolicitado.startsWith('/plataforma')) return RUTAS_ADMIN.panel;
+  if (esRutaPlataforma(destinoSolicitado)) return RUTAS_ADMIN.panel;
   return destinoSolicitado;
 }
 
@@ -102,11 +103,11 @@ export default function LoginVista({ modo = 'marca' }) {
       const rol = datos.usuario?.rol;
 
       if (modoActivo === 'plataforma' && rol !== 'superadmin') {
-        setError('Esta cuenta es de una marca. Usa el login de empresa en /admin/login');
+        setError(`Esta cuenta es de una marca. Usa el login de empresa en ${RUTAS_ADMIN.login}`);
         return;
       }
       if (modoActivo === 'marca' && rol === 'superadmin') {
-        setError('Esta cuenta es de plataforma. Usa el login en /plataforma/login');
+        setError(`Esta cuenta es de plataforma. Usa el login en ${RUTAS_PLATAFORMA.login}`);
         return;
       }
 

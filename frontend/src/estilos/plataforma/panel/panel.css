@@ -12,7 +12,7 @@
 
 .panel-plataforma__cabecera p {
   margin: 0;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .panel-plataforma__metricas {
@@ -26,13 +26,13 @@
   padding: var(--espacio-md);
   border: 1px solid #eee;
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .panel-plataforma__metrica span {
   display: block;
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   margin-bottom: var(--espacio-xs);
 }
 
@@ -51,7 +51,7 @@
   padding: var(--espacio-lg);
   border: 1px solid #eee;
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-superficie);
 }
 
 .panel-plataforma__bloque-cabecera {
@@ -73,7 +73,7 @@
 .panel-plataforma__lista-marcas span {
   display: block;
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .panel-plataforma__bloque h3 {
@@ -102,10 +102,10 @@
 .panel-plataforma__lista-marcas span {
   display: block;
   font-size: var(--tamano-texto-sm);
-  color: #666;
+  color: var(--color-texto-muted-superficie);
 }
 
 .panel-plataforma__nota {
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
 }

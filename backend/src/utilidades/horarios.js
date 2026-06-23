@@ -152,6 +152,28 @@ export function construirFechaHoraLocal(fecha, hora) {
   return `${fecha}T${normalizarHora(hora)}:00`;
 }
 
+export const ANTELACION_MINIMA_CLIENTE_HORAS = 2;
+
+/** Minutos restantes hasta el inicio de la cita (negativo si ya paso). */
+export function minutosHastaInicioCita(fecha, horaInicio) {
+  const inicio = new Date(construirFechaHoraLocal(fecha, horaInicio));
+  return (inicio.getTime() - Date.now()) / 60_000;
+}
+
+export function cumpleAntelacionMinimaCliente(fecha, horaInicio, horasMinimas = ANTELACION_MINIMA_CLIENTE_HORAS) {
+  return minutosHastaInicioCita(fecha, horaInicio) >= horasMinimas * 60;
+}
+
+/** Cancelacion publica permitida hasta el inicio del servicio (no incluye la hora exacta de inicio). */
+export function puedeCancelarCitaPublica(fecha, horaInicio) {
+  return minutosHastaInicioCita(fecha, horaInicio) > 0;
+}
+
+/** true si el servicio ya termino (para marcar como completada/atendida). */
+export function citaServicioYaFinalizo(fecha, horaFin) {
+  return minutosHastaInicioCita(fecha, horaFin) <= 0;
+}
+
 export function fechaEsPasada(fecha) {
   const [anio, mes, dia] = fecha.split('-').map(Number);
   const objetivo = new Date(anio, mes - 1, dia);

@@ -57,3 +57,57 @@ export async function obtenerConfirmacion(req, res) {
 
   return respuestaExito(res, confirmacion, 'Confirmacion de reserva');
 }
+
+export async function consultarCitas(req, res) {
+  const marcaId = entero(req.body?.marca_id ?? req.body?.marcaId);
+  const correo = texto(req.body?.correo) || null;
+  const telefono = texto(req.body?.telefono);
+
+  const resultado = await reservaServicio.consultarCitas(marcaId, { correo, telefono });
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  return respuestaExito(res, resultado, 'Consulta de citas');
+}
+
+export async function cancelarReservaPublica(req, res) {
+  const marcaId = entero(req.body?.marca_id ?? req.body?.marcaId);
+  const codigo = texto(req.params.codigo)?.toUpperCase();
+  const telefono = texto(req.body?.telefono);
+
+  const resultado = await reservaServicio.cancelarReservaPublica(marcaId, codigo, telefono);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  registrarAuditoria('reserva_publica_cancelada', { ip: req.ip, marcaId, codigo });
+
+  return respuestaExito(res, resultado.cita, 'Cita cancelada');
+}
+
+export async function solicitarReagendamiento(req, res) {
+  const marcaId = entero(req.body?.marca_id ?? req.body?.marcaId);
+  const codigo = texto(req.params.codigo)?.toUpperCase();
+  const telefono = texto(req.body?.telefono);
+  const fecha = texto(req.body?.fecha);
+  const horaInicio = texto(req.body?.hora_inicio ?? req.body?.horaInicio);
+
+  const resultado = await reservaServicio.solicitarReagendamiento(
+    marcaId,
+    codigo,
+    telefono,
+    fecha,
+    horaInicio
+  );
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  registrarAuditoria('reserva_solicitud_reagendamiento', { ip: req.ip, marcaId, codigo });
+
+  return respuestaExito(res, resultado, 'Solicitud de reagendamiento enviada', 201);
+}

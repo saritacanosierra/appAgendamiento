@@ -13,16 +13,19 @@
 .selector-fecha:focus {
   outline: 2px solid color-mix(in srgb, var(--color-principal) 35%, transparent);
   outline-offset: 2px;
-  border-color: var(--color-principal);
+  border-color: var(--color-acento);
 }
 
 /* Calendario mensual — tablero de dias */
 .calendario-mes {
-  margin-bottom: var(--espacio-lg);
+  width: 100%;
+  margin-bottom: 0;
   padding: var(--espacio-md);
   border-radius: var(--radio-borde-lg);
-  background: color-mix(in srgb, var(--color-secundario) 12%, var(--color-superficie));
-  border: 1px solid color-mix(in srgb, var(--color-borde) 70%, transparent);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  border: 1px solid var(--color-borde-superficie);
+  box-shadow: var(--sombra-card);
 }
 
 .calendario-mes__etiqueta {
@@ -30,7 +33,7 @@
   margin-bottom: var(--espacio-sm);
   font-weight: 700;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
 }
 
 .calendario-mes__cabecera {
@@ -46,7 +49,7 @@
   text-align: center;
   font-size: var(--tamano-texto-base);
   font-weight: 800;
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
   letter-spacing: -0.02em;
   text-transform: capitalize;
 }
@@ -59,8 +62,8 @@
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--color-input-fondo);
+  color: var(--color-texto-superficie);
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
@@ -82,7 +85,7 @@
   text-align: center;
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -99,7 +102,7 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
   font-weight: 600;
   font-size: var(--tamano-texto-sm);
   cursor: pointer;
@@ -107,7 +110,7 @@
 }
 
 .calendario-mes__celda--otro-mes {
-  color: var(--color-texto-suave);
+  color: var(--color-texto-suave-superficie);
 }
 
 .calendario-mes__celda--hoy:not(.calendario-mes__celda--activa) {
@@ -116,7 +119,7 @@
 
 .calendario-mes__celda--activa {
   background: var(--color-principal);
-  color: #fff;
+  color: var(--color-texto-sobre-principal);
   font-weight: 800;
   box-shadow: var(--sombra-suave);
 }
@@ -137,12 +140,12 @@
 .calendario-mes__seleccion {
   margin: var(--espacio-md) 0 0;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
   text-align: center;
   text-transform: capitalize;
 }
 
 .calendario-mes__seleccion strong {
-  color: var(--color-principal);
+  color: var(--color-acento-superficie);
   font-weight: 700;
 }

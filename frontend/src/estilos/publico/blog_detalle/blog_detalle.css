@@ -7,11 +7,11 @@
 }
 
 .blog-detalle__volver a {
-  color: var(--color-principal);
+  color: var(--color-acento);
 }
 
 .blog-detalle__articulo h1 {
-  color: var(--color-principal);
+  color: var(--color-acento);
   margin-bottom: var(--espacio-sm);
 }
 
@@ -26,14 +26,14 @@
 .blog-detalle__categoria {
   display: inline-block;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-principal);
+  color: var(--color-acento);
   font-weight: 600;
   margin-bottom: var(--espacio-xs);
 }
 
 .blog-detalle__fecha {
   display: block;
-  color: #666;
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-md);
 }

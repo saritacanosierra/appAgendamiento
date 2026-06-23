@@ -40,6 +40,7 @@ export function mapearServicioPublico(fila) {
     marcaId: fila.marca_id,
     nombre: fila.nombre,
     descripcion: fila.descripcion,
+    imagenRuta: fila.imagen_ruta ?? null,
     duracionMinutos: fila.duracion_minutos,
     precio: Number(fila.precio),
     ordenVisualizacion: fila.orden_visualizacion,
@@ -89,6 +90,23 @@ export class ServicioServicio {
     return { servicio: mapearServicioAdmin(fila) };
   }
 
+  async eliminarAdmin(marcaId, servicioId) {
+    const existente = await this.servicioRepo.buscarPorId(marcaId, servicioId);
+    if (!existente) return { error: 'Servicio no encontrado.', codigoHttp: 404 };
+
+    const citas = await this.servicioRepo.contarCitas(marcaId, servicioId);
+    if (citas > 0) {
+      return {
+        error:
+          'No se puede eliminar porque tiene citas registradas. Desactivalo para ocultarlo en reservas.',
+        codigoHttp: 409,
+      };
+    }
+
+    await this.servicioRepo.eliminar(marcaId, servicioId);
+    return { eliminado: true, id: servicioId };
+  }
+
   parsearDatosServicio(datos, existente = null) {
     const nombre = texto(datos.nombre ?? existente?.nombre);
     const descripcion = datos.descripcion !== undefined
@@ -102,6 +120,9 @@ export class ServicioServicio {
     const ordenVisualizacion = entero(
       datos.orden_visualizacion ?? datos.ordenVisualizacion ?? existente?.orden_visualizacion ?? 0
     );
+    const imagenRuta = datos.imagen_ruta !== undefined || datos.imagenRuta !== undefined
+      ? texto(datos.imagen_ruta ?? datos.imagenRuta) || null
+      : existente?.imagen_ruta ?? null;
 
     const errores = validar(
       { nombre, duracion_minutos: duracion, precio },
@@ -124,6 +145,7 @@ export class ServicioServicio {
       datos: {
         nombre,
         descripcion,
+        imagenRuta,
         duracionMinutos: duracion,
         precio,
         activo,

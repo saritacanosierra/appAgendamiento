@@ -1,10 +1,13 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  ImagenAmpliable,
   MensajeError,
 } from '../../../compartido/componentes';
+import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
   actualizarPublicacion,
@@ -12,6 +15,7 @@ import {
   listarBlogAdmin,
 } from '../../../modulos/blog/servicios/blogServicio';
 import '../../../estilos/admin/blog/blog.css';
+import '../../../estilos/admin/comun/aviso-carrusel.css';
 
 const FORM_VACIO = {
   titulo: '',
@@ -127,6 +131,13 @@ export default function BlogAdminVista() {
         </BotonPrincipal>
       </header>
 
+      {!mostrarForm && (
+        <p className="admin-aviso-carrusel">
+          El blog es independiente del carrusel. Para fotos del inicio ve a{' '}
+          <Link to={RUTAS_ADMIN.carruselInicio}>Carrusel</Link>.
+        </p>
+      )}
+
       {mostrarForm && (
         <form className="blog-admin__formulario" onSubmit={manejarEnviar}>
           <h2>{editandoId ? 'Editar publicacion' : 'Nueva publicacion'}</h2>
@@ -177,7 +188,7 @@ export default function BlogAdminVista() {
             <input id="blog-imagen" type="file" accept="image/*" onChange={manejarImagen} />
             {subiendoImagen && <p className="blog-admin__hint">Subiendo imagen...</p>}
             {form.imagenDestacada && (
-              <img src={form.imagenDestacada} alt="" className="blog-admin__preview" />
+              <ImagenAmpliable src={form.imagenDestacada} alt="Vista previa" className="blog-admin__preview" />
             )}
           </CampoFormulario>
           <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>

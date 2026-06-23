@@ -4,7 +4,7 @@ export class GaleriaRepositorio {
   async listarActivos(marcaId) {
     const [filas] = await pool.execute(
       `SELECT id, marca_id, titulo, imagen_ruta, categoria, colores_relacionados,
-              activo, orden_visualizacion, created_at
+              activo, orden_visualizacion, en_tendencia, created_at
        FROM disenos_galeria
        WHERE marca_id = ? AND activo = 1
        ORDER BY orden_visualizacion ASC, created_at DESC`,
@@ -34,8 +34,8 @@ export class GaleriaRepositorio {
   async crear(datos) {
     const [resultado] = await pool.execute(
       `INSERT INTO disenos_galeria
-       (marca_id, titulo, imagen_ruta, categoria, colores_relacionados, activo, orden_visualizacion)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+       (marca_id, titulo, imagen_ruta, categoria, colores_relacionados, activo, orden_visualizacion, en_tendencia)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.marcaId,
         datos.titulo,
@@ -44,6 +44,7 @@ export class GaleriaRepositorio {
         datos.coloresRelacionados ?? null,
         datos.activo ? 1 : 0,
         datos.ordenVisualizacion ?? 0,
+        datos.enTendencia ? 1 : 0,
       ]
     );
     return resultado.insertId;
@@ -53,7 +54,7 @@ export class GaleriaRepositorio {
     await pool.execute(
       `UPDATE disenos_galeria
        SET titulo = ?, imagen_ruta = ?, categoria = ?, colores_relacionados = ?,
-           activo = ?, orden_visualizacion = ?
+           activo = ?, orden_visualizacion = ?, en_tendencia = ?
        WHERE id = ? AND marca_id = ?`,
       [
         datos.titulo,
@@ -62,6 +63,7 @@ export class GaleriaRepositorio {
         datos.coloresRelacionados ?? null,
         datos.activo ? 1 : 0,
         datos.ordenVisualizacion ?? 0,
+        datos.enTendencia ? 1 : 0,
         id,
         marcaId,
       ]

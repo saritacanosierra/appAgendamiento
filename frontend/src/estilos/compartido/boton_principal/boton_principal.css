@@ -27,7 +27,7 @@
 
 .boton-principal--principal {
   background: var(--color-principal);
-  color: #fff;
+  color: var(--color-texto-sobre-principal);
 }
 
 .boton-principal--secundario {
@@ -38,7 +38,7 @@
 
 .boton-principal--texto {
   background: transparent;
-  color: var(--color-principal);
+  color: var(--color-acento);
   min-height: auto;
   padding: 0.5rem;
   box-shadow: none;

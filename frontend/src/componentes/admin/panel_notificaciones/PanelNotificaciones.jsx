@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BotonPrincipal } from '../../../compartido/componentes';
 import {
   marcarNotificacionLeida,
   marcarTodasNotificacionesLeidas,
   obtenerResumenNotificaciones,
 } from '../../../modulos/agenda/servicios/notificacionesServicio';
+import { emitirActualizacionNotificaciones } from '../campana_notificaciones/CampanaNotificacionesAdmin';
 import '../../../estilos/componentes/panel_notificaciones/panel_notificaciones.css';
+
+const EVENTO_ACTUALIZAR = 'spa-unas:notificaciones';
 
 function formatearHora(fechaIso) {
   if (!fechaIso) return '';
@@ -21,7 +24,7 @@ export default function PanelNotificaciones() {
   const [resumen, setResumen] = useState({ noLeidas: 0, recientes: [] });
   const [cargando, setCargando] = useState(true);
 
-  async function cargar() {
+  const cargar = useCallback(async () => {
     setCargando(true);
     try {
       setResumen(await obtenerResumenNotificaciones());
@@ -30,20 +33,29 @@ export default function PanelNotificaciones() {
     } finally {
       setCargando(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     cargar();
-  }, []);
+    const intervalo = setInterval(cargar, 30_000);
+    const escuchar = () => cargar();
+    window.addEventListener(EVENTO_ACTUALIZAR, escuchar);
+    return () => {
+      clearInterval(intervalo);
+      window.removeEventListener(EVENTO_ACTUALIZAR, escuchar);
+    };
+  }, [cargar]);
 
   async function marcarLeida(id) {
     await marcarNotificacionLeida(id);
     cargar();
+    emitirActualizacionNotificaciones();
   }
 
   async function marcarTodas() {
     await marcarTodasNotificacionesLeidas();
     cargar();
+    emitirActualizacionNotificaciones();
   }
 
   return (

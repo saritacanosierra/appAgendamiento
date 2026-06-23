@@ -20,3 +20,10 @@ export async function actualizarServicio(id, datos) {
   });
   return respuesta.datos;
 }
+
+export async function eliminarServicio(id) {
+  const respuesta = await peticionAdmin(`/admin/servicios/${id}`, {
+    method: 'DELETE',
+  });
+  return respuesta.datos;
+}
