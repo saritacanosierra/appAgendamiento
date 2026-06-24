@@ -1,0 +1,57 @@
+.cita-en-curso {
+  border-color: var(--color-principal) !important;
+  animation: cita-en-curso-brillo 2.2s ease-in-out infinite;
+}
+
+@keyframes cita-en-curso-brillo {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--color-principal) 40%, transparent),
+      0 0 14px color-mix(in srgb, var(--color-principal) 35%, transparent),
+      0 0 28px color-mix(in srgb, var(--color-principal) 18%, transparent),
+      var(--sombra-card, var(--sombra-suave));
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--color-principal) 55%, transparent),
+      0 0 22px color-mix(in srgb, var(--color-principal) 50%, transparent),
+      0 0 44px color-mix(in srgb, var(--color-principal) 28%, transparent),
+      var(--sombra-card, var(--sombra-suave));
+  }
+}
+
+.cita-en-curso__etiqueta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-principal);
+  animation: cita-en-curso-pulso-texto 2.2s ease-in-out infinite;
+}
+
+@keyframes cita-en-curso-pulso-texto {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cita-en-curso {
+    animation: none;
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--color-principal) 45%, transparent),
+      0 0 20px color-mix(in srgb, var(--color-principal) 40%, transparent),
+      var(--sombra-card, var(--sombra-suave));
+  }
+
+  .cita-en-curso__etiqueta {
+    animation: none;
+  }
+}

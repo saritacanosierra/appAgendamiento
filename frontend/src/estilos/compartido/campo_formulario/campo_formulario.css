@@ -53,3 +53,9 @@
   color: var(--color-error);
   font-size: var(--tamano-texto-sm);
 }
+
+.campo-formulario__ayuda {
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.4;
+}

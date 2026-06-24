@@ -18,7 +18,7 @@ export async function crearReserva(datos) {
       hora_inicio: datos.horaInicio,
       nombre: datos.nombre,
       telefono: datos.telefono,
-      correo: datos.correo || null,
+      correo: datos.correo.trim().toLowerCase(),
     }),
   });
   return respuesta.datos;

@@ -1,0 +1,105 @@
+.modal-acceso-galeria {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espacio-md);
+}
+
+.modal-acceso-galeria__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-acceso-galeria__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  max-height: min(90dvh, 560px);
+  overflow-y: auto;
+  padding: var(--espacio-xl) var(--espacio-lg);
+  text-align: left;
+}
+
+.modal-acceso-galeria__cerrar {
+  position: absolute;
+  top: var(--espacio-sm);
+  right: var(--espacio-sm);
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-texto-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-acceso-galeria__panel h2 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-lg);
+  color: var(--color-texto);
+}
+
+.modal-acceso-galeria__intro {
+  margin: 0 0 var(--espacio-lg);
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+  line-height: 1.5;
+}
+
+.modal-acceso-galeria__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.modal-acceso-galeria__error {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-error);
+}
+
+.modal-acceso-galeria__citas {
+  list-style: none;
+  margin: 0 0 var(--espacio-lg);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.modal-acceso-galeria__cita {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--espacio-md);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.modal-acceso-galeria__cita strong {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-acento);
+}
+
+.modal-acceso-galeria__cita span {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+}
+
+.modal-acceso-galeria__cita--activa {
+  border-color: var(--color-acento);
+  background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
+}

@@ -4,6 +4,7 @@ import {
 } from '../repositorios/index.js';
 import { ClienteFavoritosRepositorio } from '../repositorios/clienteFavoritosRepositorio.js';
 import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
+import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { MarcaRepositorio } from '../repositorios/index.js';
 import { requerido, telefono, email, validar } from '../utilidades/validador.js';
@@ -31,6 +32,7 @@ export class ClientePerfilServicio {
     this.favoritosRepo = deps.favoritosRepo ?? new ClienteFavoritosRepositorio();
     this.servicioRepo = deps.servicioRepo ?? new ServicioRepositorio();
     this.galeriaRepo = deps.galeriaRepo ?? new GaleriaRepositorio();
+    this.seleccionGaleriaRepo = deps.seleccionGaleriaRepo ?? new CitaDisenosGaleriaRepositorio();
   }
 
   normalizarCredenciales({ marcaId, telefono, correo }) {
@@ -170,6 +172,14 @@ export class ClientePerfilServicio {
 
     if (!eliminado) {
       return { error: 'No estaba en tus favoritos.', codigoHttp: 404 };
+    }
+
+    if (tipo === 'diseno_galeria') {
+      await this.seleccionGaleriaRepo.quitarPorTelefonoYDiseno(
+        credenciales.marcaId,
+        credenciales.telefono,
+        referenciaId
+      );
     }
 
     const perfil = await this.obtenerPerfil(credenciales.marcaId, auth.cliente.id);

@@ -15,6 +15,18 @@
   margin: 0;
 }
 
+.mensaje-error__detalles {
+  margin: var(--espacio-sm) 0 0;
+  padding-left: var(--espacio-lg);
+  text-align: left;
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}
+
+.mensaje-error__detalles li {
+  margin: var(--espacio-xs) 0;
+}
+
 .mensaje-error__reintentar {
   margin-top: var(--espacio-md);
   min-height: 44px;

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useVisorImagen } from '../../../aplicacion/proveedores/ProveedorVisorImagen';
-import { Cargando, ImagenAmpliable, MensajeError } from '../../../compartido/componentes';
+import Cargando from '../../../compartido/componentes/cargando/Cargando';
+import ImagenAmpliable from '../../../compartido/componentes/imagen_ampliable/ImagenAmpliable';
+import MensajeError from '../../../compartido/componentes/mensaje_error/MensajeError';
 import { useImagenesEnContenedor } from '../../../compartido/hooks/useImagenesEnContenedor';
+import { ModalPortal } from '../../../compartido/utilidades/modalPortal';
 import { obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
 import '../../../estilos/publico/blog/modal_blog_publico.css';
 
@@ -60,24 +63,21 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
       if (e.key === 'Escape' && !imagenAbierta) onCerrar();
     }
 
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', manejarTecla);
 
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', manejarTecla);
     };
   }, [abierto, onCerrar, imagenAbierta]);
 
-  if (!abierto) return null;
-
   return (
-    <div
-      className="modal-blog-publico"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-blog-titulo"
-    >
+    <ModalPortal abierto={abierto}>
+      <div
+        className="modal-blog-publico"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-blog-titulo"
+      >
       <button type="button" className="modal-blog-publico__fondo" onClick={onCerrar} aria-label="Cerrar" />
       <div className="modal-blog-publico__panel">
         <header className="modal-blog-publico__cabecera">
@@ -122,6 +122,7 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }

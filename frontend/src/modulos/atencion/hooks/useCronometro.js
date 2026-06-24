@@ -17,9 +17,93 @@ function leerEstadoPersistido(citaId) {
 function guardarEstadoPersistido(estado) {
   if (!estado) {
     sessionStorage.removeItem(CLAVE_STORAGE);
-    return;
+  } else {
+    sessionStorage.setItem(CLAVE_STORAGE, JSON.stringify(estado));
   }
-  sessionStorage.setItem(CLAVE_STORAGE, JSON.stringify(estado));
+  window.dispatchEvent(new CustomEvent('spa:cronometro-actualizado'));
+}
+
+export function leerCronometroGlobal() {
+  try {
+    const raw = sessionStorage.getItem(CLAVE_STORAGE);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function limpiarCronometroPersistido() {
+  guardarEstadoPersistido(null);
+}
+
+export function limpiarCronometroSiEsCita(citaId) {
+  const data = leerCronometroGlobal();
+  if (data && Number(data.citaId) === Number(citaId)) {
+    guardarEstadoPersistido(null);
+  }
+}
+
+export function citaPermiteEstadoEnCurso(estado) {
+  return ['pendiente', 'confirmada'].includes(estado);
+}
+
+export function sincronizarCronometroConCitasActivas(citas) {
+  const data = leerCronometroGlobal();
+  if (!data?.citaId) return;
+
+  const idsActivos = new Set(
+    (citas ?? [])
+      .filter((c) => citaPermiteEstadoEnCurso(c.estado))
+      .map((c) => Number(c.id))
+  );
+
+  if (!idsActivos.has(Number(data.citaId))) {
+    guardarEstadoPersistido(null);
+  }
+}
+
+export function useCitaEnCurso(citasReferencia = null) {
+  const [citaIdEnCurso, setCitaIdEnCurso] = useState(null);
+
+  useEffect(() => {
+    function actualizar() {
+      const data = leerCronometroGlobal();
+      if (!data?.activo) {
+        setCitaIdEnCurso(null);
+        return;
+      }
+
+      const id = Number(data.citaId);
+      if (!id) {
+        setCitaIdEnCurso(null);
+        return;
+      }
+
+      if (Array.isArray(citasReferencia)) {
+        const cita = citasReferencia.find((c) => Number(c.id) === id);
+        if (!cita || !citaPermiteEstadoEnCurso(cita.estado)) {
+          setCitaIdEnCurso(null);
+          return;
+        }
+      }
+
+      setCitaIdEnCurso(id);
+    }
+
+    actualizar();
+    const intervalo = setInterval(actualizar, 1000);
+    window.addEventListener('spa:cronometro-actualizado', actualizar);
+    window.addEventListener('storage', actualizar);
+
+    return () => {
+      clearInterval(intervalo);
+      window.removeEventListener('spa:cronometro-actualizado', actualizar);
+      window.removeEventListener('storage', actualizar);
+    };
+  }, [citasReferencia]);
+
+  return citaIdEnCurso;
 }
 
 export function formatearCronometro(totalSegundos) {
@@ -185,6 +269,6 @@ export function useCronometro(citaId) {
     reanudar,
     reiniciar,
     establecerSegundos,
-    limpiarPersistencia: () => guardarEstadoPersistido(null),
+    limpiarPersistencia: limpiarCronometroPersistido,
   };
 }

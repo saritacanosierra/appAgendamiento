@@ -7,6 +7,8 @@ import {
   SolicitudReagendamientoRepositorio,
   generarCodigoConfirmacion,
 } from '../repositorios/index.js';
+import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { adjuntarDisenosGaleriaACitas } from '../utilidades/adjuntarDisenosGaleria.js';
 import {
   mapearCitaAdmin,
   mapearClienteAdmin,
@@ -28,12 +30,14 @@ export class AdminCitaServicio {
     this.servicioRepo = deps.servicioRepo ?? new ServicioRepositorio();
     this.marcaRepo = deps.marcaRepo ?? new MarcaRepositorio();
     this.solicitudRepo = deps.solicitudRepo ?? new SolicitudReagendamientoRepositorio();
+    this.seleccionRepo = deps.seleccionRepo ?? new CitaDisenosGaleriaRepositorio();
   }
 
   async listarCitas(marcaId, filtros = {}) {
     await this.citaRepo.marcarPasadasComoCompletadas(marcaId);
     const filas = await this.citaRepo.listarPorMarca(marcaId, filtros);
-    return filas.map(mapearCitaAdmin);
+    const citas = filas.map(mapearCitaAdmin);
+    return adjuntarDisenosGaleriaACitas(citas, marcaId, this.seleccionRepo);
   }
 
   async obtenerAgenda(marcaId, fecha, vista = 'dia') {

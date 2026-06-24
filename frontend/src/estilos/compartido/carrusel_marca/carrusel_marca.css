@@ -200,3 +200,20 @@
     font-size: var(--tamano-titulo);
   }
 }
+
+@media (min-width: 768px) {
+  .carrusel-marca__viewport {
+    aspect-ratio: 21 / 9;
+    max-height: 360px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carrusel-marca__viewport {
+    max-height: 420px;
+  }
+
+  .carrusel-marca__texto {
+    padding: var(--espacio-xl);
+  }
+}

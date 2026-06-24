@@ -37,25 +37,27 @@ export default function ContenidoHubCitas({ marca, tituloSeccion = 'Servicios' }
 
   return (
     <>
-      {!cargandoServicios && servicios.length > 0 && (
-        <section className="citas-hub__disponibilidad tarjeta-app">
-          <HorariosDisponiblesDia
-            marcaId={marca.id}
-            servicios={servicios}
-            onElegirHorario={reservarHorario}
-          />
-        </section>
-      )}
+      <div className="citas-hub__principal">
+        {!cargandoServicios && servicios.length > 0 && (
+          <section className="citas-hub__disponibilidad tarjeta-app">
+            <HorariosDisponiblesDia
+              marcaId={marca.id}
+              servicios={servicios}
+              onElegirHorario={reservarHorario}
+            />
+          </section>
+        )}
 
-      <section className="citas-hub__cta tarjeta-app">
-        <BotonPrincipal href={RUTAS_PUBLICAS.reservar(slug)} anchoCompleto>
-          + Agendar nueva cita
-        </BotonPrincipal>
-        <div className="citas-hub__secundarias">
-          <Link to={RUTAS_PUBLICAS.galeria(slug)}>Ver galería</Link>
-          <Link to={RUTAS_PUBLICAS.blog(slug)}>Leer blog</Link>
-        </div>
-      </section>
+        <section className="citas-hub__cta tarjeta-app">
+          <BotonPrincipal href={RUTAS_PUBLICAS.reservar(slug)} anchoCompleto>
+            + Agendar nueva cita
+          </BotonPrincipal>
+          <div className="citas-hub__secundarias">
+            <Link to={RUTAS_PUBLICAS.galeria(slug)}>Ver galería</Link>
+            <Link to={RUTAS_PUBLICAS.blog(slug)}>Leer blog</Link>
+          </div>
+        </section>
+      </div>
 
       <section className="citas-hub__servicios">
         <h2>{tituloSeccion}</h2>

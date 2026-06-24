@@ -3,16 +3,8 @@
   inset: 0;
   z-index: 300;
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   justify-content: center;
-  padding: 0;
-}
-
-@media (min-width: 640px) {
-  .modal-blog-publico {
-    align-items: center;
-    padding: var(--espacio-md);
-  }
 }
 
 .modal-blog-publico__fondo {
@@ -28,51 +20,64 @@
 .modal-blog-publico__panel {
   position: relative;
   z-index: 1;
-  width: min(100%, 560px);
-  max-height: min(92vh, 720px);
+  width: 100%;
+  height: 100%;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-superficie);
-  border-radius: var(--radio-borde-lg) var(--radio-borde-lg) 0 0;
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+  color: var(--color-texto-superficie);
   overflow: hidden;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
+  .modal-blog-publico {
+    padding: var(--espacio-lg);
+  }
+
   .modal-blog-publico__panel {
+    width: min(100%, 720px);
+    height: auto;
+    max-height: min(94dvh, 900px);
+    margin: auto;
     border-radius: var(--radio-borde-lg);
-    box-shadow: var(--sombra-card);
-    max-height: min(88vh, 720px);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
   }
 }
 
 .modal-blog-publico__cabecera {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--espacio-md);
   padding: var(--espacio-md) var(--espacio-lg);
-  border-bottom: 1px solid var(--color-borde);
-  background: color-mix(in srgb, var(--color-fondo-app) 50%, var(--color-superficie));
+  padding-top: calc(var(--espacio-md) + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--color-borde-superficie);
+  background: var(--color-superficie);
   flex-shrink: 0;
 }
 
 .modal-blog-publico__titulo-placeholder {
   margin: 0;
+  flex: 1;
+  min-width: 0;
   font-size: var(--tamano-texto-sm);
   font-weight: 600;
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
   line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .modal-blog-publico__cerrar {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: none;
   border-radius: 50%;
-  background: var(--color-fondo-app);
-  color: var(--color-texto);
+  background: color-mix(in srgb, var(--color-principal) 12%, var(--color-superficie));
+  color: var(--color-texto-superficie);
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
@@ -80,13 +85,14 @@
 }
 
 .modal-blog-publico__cerrar:hover {
-  background: color-mix(in srgb, var(--color-secundario) 40%, var(--color-superficie));
+  background: color-mix(in srgb, var(--color-principal) 20%, var(--color-superficie));
 }
 
 .modal-blog-publico__cuerpo {
   flex: 1;
   overflow-y: auto;
   padding: var(--espacio-lg);
+  padding-bottom: calc(var(--espacio-lg) + env(safe-area-inset-bottom));
   -webkit-overflow-scrolling: touch;
 }
 
@@ -96,7 +102,7 @@
 
 .modal-blog-publico__imagen {
   width: 100%;
-  max-height: 220px;
+  max-height: min(42vh, 320px);
   object-fit: cover;
   border-radius: var(--radio-borde);
   margin-bottom: var(--espacio-md);
@@ -105,7 +111,7 @@
 .modal-blog-publico__categoria {
   display: inline-block;
   font-size: var(--tamano-texto-sm);
-  color: var(--color-acento);
+  color: var(--color-acento-superficie);
   font-weight: 600;
   margin-bottom: var(--espacio-xs);
 }
@@ -115,27 +121,27 @@
   font-size: var(--tamano-titulo);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
   line-height: 1.2;
 }
 
 .modal-blog-publico__fecha {
   display: block;
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
   font-size: var(--tamano-texto-sm);
   margin-bottom: var(--espacio-md);
 }
 
 .modal-blog-publico__extracto {
   font-size: var(--tamano-texto-lg);
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
   margin: 0 0 var(--espacio-lg);
   line-height: 1.5;
 }
 
 .modal-blog-publico__contenido {
   line-height: 1.65;
-  color: var(--color-texto);
+  color: var(--color-texto-superficie);
   font-size: var(--tamano-texto-sm);
 }
 

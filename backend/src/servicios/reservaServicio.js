@@ -11,6 +11,7 @@ import {
 import { ClientePerfilServicio } from './clientePerfilServicio.js';
 import { CalendarioServicio } from './calendarioServicio.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
+import { sincronizarFavoritosDesdeDisenosCita } from '../utilidades/sincronizarFavoritoDisenoGaleria.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { esFechaValida, esHoraValida } from '../utilidades/fechaHora.js';
 import { requerido, telefono, email, validar } from '../utilidades/validador.js';
@@ -91,7 +92,7 @@ export class ReservaServicio {
     const horaInicio = normalizarHora(texto(datosEntrada.hora_inicio ?? datosEntrada.horaInicio));
     const nombre = texto(datosEntrada.nombre, { capitalizar: 'palabras' });
     const telefonoCliente = texto(datosEntrada.telefono).replace(/\D+/g, '');
-    const correo = texto(datosEntrada.correo) || null;
+    const correo = texto(datosEntrada.correo).trim().toLowerCase();
 
     const errores = validar(
       {
@@ -106,16 +107,37 @@ export class ReservaServicio {
       {
         marca_id: (v) => (v ? null : 'La marca es obligatoria.'),
         servicio_id: (v) => (v ? null : 'El servicio es obligatorio.'),
-        fecha: (v) => requerido(v, 'fecha') ?? (esFechaValida(v) ? null : 'Fecha invalida.'),
-        hora_inicio: (v) => requerido(v, 'hora_inicio') ?? (esHoraValida(v) ? null : 'Hora invalida.'),
-        nombre: (v) => requerido(v, 'nombre'),
-        telefono: (v) => requerido(v, 'telefono') ?? telefono(v),
-        correo: (v) => email(v),
+        fecha: (v) => {
+          if (!v) return 'Selecciona una fecha en el calendario.';
+          return esFechaValida(v) ? null : 'Fecha invalida. Usa el formato AAAA-MM-DD.';
+        },
+        hora_inicio: (v) => {
+          if (!v) return 'Selecciona un horario disponible.';
+          return esHoraValida(v) ? null : 'Hora invalida. Usa el formato HH:MM (24 h).';
+        },
+        nombre: (v) => {
+          if (!v || String(v).trim() === '') return 'Escribe tu nombre completo.';
+          if (String(v).trim().length < 2) return 'El nombre debe tener al menos 2 caracteres.';
+          if (String(v).trim().length > 120) return 'El nombre no puede superar 120 caracteres.';
+          return null;
+        },
+        telefono: (v) => {
+          if (!v || String(v).trim() === '') return 'El telefono es obligatorio.';
+          const err = telefono(v);
+          return err
+            ? `${err} Puedes usar espacios o +57. Ejemplo: 300 123 4567.`
+            : null;
+        },
+        correo: (v) => {
+          if (!v || String(v).trim() === '') return 'El correo electronico es obligatorio.';
+          const err = email(v);
+          return err ? 'Formato invalido. Ejemplo: tu@correo.com' : null;
+        },
       }
     );
 
     if (Object.keys(errores).length > 0) {
-      return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
+      return { error: 'Revisa los campos indicados.', errores, codigoHttp: 422 };
     }
 
     if (fechaEsPasada(fecha)) {
@@ -277,6 +299,7 @@ export class ReservaServicio {
       horaFin: normalizarHora(String(fila.hora_fin).slice(0, 5)),
       estado: fila.estado,
       servicio: {
+        id: fila.servicio_id,
         nombre: fila.servicio_nombre,
         duracion_minutos: fila.duracion_minutos,
         precio: fila.precio,
@@ -334,6 +357,7 @@ export class ReservaServicio {
         horaFin,
         estado,
         servicio: {
+          id: servicio.id ?? servicio.servicio_id ?? null,
           nombre: servicio.nombre,
           duracionMinutos: servicio.duracion_minutos,
           precio: Number(servicio.precio),
@@ -458,6 +482,11 @@ export class ReservaServicio {
     );
 
     const citas = await Promise.all(filas.map((f) => this.mapearCitaPublicaGestion(f)));
+    await sincronizarFavoritosDesdeDisenosCita(
+      marcaId,
+      cliente.id,
+      citas.map((c) => c.id)
+    );
     const perfil = await this.clientePerfil.obtenerPerfil(marcaId, cliente.id);
 
     return {

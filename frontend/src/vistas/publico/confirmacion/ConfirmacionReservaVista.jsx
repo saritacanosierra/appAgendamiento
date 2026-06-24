@@ -5,7 +5,6 @@ import {
   BotonWhatsapp,
   Cargando,
   EncabezadoMarca,
-  EstadoCita,
   MensajeError,
 } from '../../../compartido/componentes';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
@@ -42,6 +41,11 @@ export default function ConfirmacionReservaVista() {
   const { cita, calendario, mensajeConfirmacion } = confirmacion;
   const nombreMarca = marca?.nombreComercial ?? cita.marca.nombreComercial;
   const whatsappReserva = marca?.whatsapp;
+  const slugMarca = marca?.slug ?? cita.marca.slug;
+  const paramsGaleria = new URLSearchParams();
+  if (cita.id) paramsGaleria.set('cita', String(cita.id));
+  if (cita.servicio?.id) paramsGaleria.set('servicio', String(cita.servicio.id));
+  const enlaceGaleria = `${RUTAS_PUBLICAS.galeria(slugMarca)}?${paramsGaleria.toString()}`;
 
   return (
     <div className="confirmacion-reserva">
@@ -51,7 +55,6 @@ export default function ConfirmacionReservaVista() {
         <span className="confirmacion-reserva__icono" aria-hidden="true">✓</span>
         <h1>¡Cita confirmada!</h1>
         <p>{mensajeConfirmacion}</p>
-        <EstadoCita estado={cita.estado} canceladaPor={cita.canceladaPor} />
       </div>
 
       <dl className="confirmacion-reserva__detalle">
@@ -73,10 +76,13 @@ export default function ConfirmacionReservaVista() {
 
       <div className="confirmacion-reserva__calendario">
         <BotonPrincipal
-          href={RUTAS_PUBLICAS.miCita(marca?.slug ?? cita.marca.slug)}
+          href={RUTAS_PUBLICAS.miCita(slugMarca)}
           anchoCompleto
         >
           Gestionar mi cita
+        </BotonPrincipal>
+        <BotonPrincipal href={enlaceGaleria} anchoCompleto variante="secundario">
+          Elegir disenos en galeria
         </BotonPrincipal>
         {whatsappReserva && (
           <BotonWhatsapp

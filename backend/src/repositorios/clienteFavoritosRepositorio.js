@@ -1,5 +1,8 @@
 import { pool } from '../configuracion/baseDatos.js';
 
+/** Puntos otorgados por cada cita completada en la marca. */
+export const PUNTOS_POR_SERVICIO_COMPLETADO = 10;
+
 export class ClienteFavoritosRepositorio {
   async listarPorCliente(marcaId, clienteId) {
     const [filas] = await pool.execute(
@@ -69,20 +72,16 @@ export class ClienteFavoritosRepositorio {
   }
 
   async calcularPuntosCliente(marcaId, clienteId) {
-    const [filas] = await pool.execute(
-      `SELECT COALESCE(SUM(FLOOR(COALESCE(c.precio_final, s.precio) * 10)), 0) AS puntos
-       FROM citas c
-       INNER JOIN servicios s ON s.id = c.servicio_id
-       WHERE c.marca_id = ? AND c.cliente_id = ? AND c.estado = 'completada'`,
-      [marcaId, clienteId]
-    );
-    return Number(filas[0]?.puntos ?? 0);
+    const completados = await this.contarServiciosCompletados(marcaId, clienteId);
+    return completados * PUNTOS_POR_SERVICIO_COMPLETADO;
   }
 
   async contarServiciosCompletados(marcaId, clienteId) {
     const [filas] = await pool.execute(
       `SELECT COUNT(*) AS total FROM citas
-       WHERE marca_id = ? AND cliente_id = ? AND estado = 'completada'`,
+       WHERE marca_id = ? AND cliente_id = ?
+         AND estado = 'completada'
+         AND confirmada_prestacion = 1`,
       [marcaId, clienteId]
     );
     return Number(filas[0]?.total ?? 0);

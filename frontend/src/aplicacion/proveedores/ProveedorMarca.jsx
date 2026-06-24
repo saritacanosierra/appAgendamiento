@@ -14,8 +14,10 @@ export function ProveedorMarca({ slug, children }) {
     if (!slug) return;
 
     let cancelado = false;
+    setMarca(null);
     setCargando(true);
     setError(null);
+    aplicarTemaMarca(VARIABLES_MARCA_DEFECTO);
 
     obtenerMarcaPorSlug(slug)
       .then((datos) => {

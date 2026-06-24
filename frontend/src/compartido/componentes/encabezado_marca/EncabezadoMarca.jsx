@@ -14,13 +14,13 @@ function digitosTelefono(valor) {
 export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
   if (!marca) return null;
 
-  const telefono = marca.telefono?.trim() || null;
-  const whatsapp = marca.whatsapp?.trim() || null;
-  const direccion = marca.direccion?.trim() || null;
-  const numeroVisible = telefono || whatsapp;
-  const enlaceWhatsapp = whatsapp ? construirEnlaceWhatsapp(whatsapp) : null;
-  const enlaceTelefono = telefono ? `tel:${digitosTelefono(telefono)}` : null;
-  const tieneContacto = Boolean(numeroVisible || direccion);
+  const telefonoLimpio = marca.telefono?.trim() || null;
+  const whatsappLimpio = marca.whatsapp?.trim() || null;
+  const direccionLimpia = marca.direccion?.trim() || null;
+  const numeroWhatsapp = whatsappLimpio || telefonoLimpio;
+  const enlaceWhatsapp = numeroWhatsapp ? construirEnlaceWhatsapp(numeroWhatsapp) : null;
+  const enlaceTelefono = telefonoLimpio ? `tel:${digitosTelefono(telefonoLimpio)}` : null;
+  const tieneContacto = Boolean(telefonoLimpio || direccionLimpia || enlaceWhatsapp);
 
   const clases = ['encabezado-marca', compacto ? 'encabezado-marca--compacto' : '']
     .filter(Boolean)
@@ -54,28 +54,39 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
         )}
 
         {tieneContacto && (
-          <ul className="encabezado-marca__contacto">
-            {numeroVisible && (
-              <li>
-                <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
-                {enlaceTelefono ? (
-                  <a href={enlaceTelefono}>{numeroVisible}</a>
-                ) : enlaceWhatsapp ? (
-                  <a href={enlaceWhatsapp} target="_blank" rel="noopener noreferrer">
-                    {numeroVisible}
-                  </a>
-                ) : (
-                  <span>{numeroVisible}</span>
-                )}
-              </li>
+          <div className="encabezado-marca__contacto-fila">
+            {telefonoLimpio && (
+              enlaceTelefono ? (
+                <a className="encabezado-marca__contacto-chip" href={enlaceTelefono}>
+                  <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+                  <span>{telefonoLimpio}</span>
+                </a>
+              ) : (
+                <span className="encabezado-marca__contacto-chip">
+                  <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+                  <span>{telefonoLimpio}</span>
+                </span>
+              )
             )}
-            {direccion && (
-              <li>
+            {direccionLimpia && (
+              <span className="encabezado-marca__contacto-chip">
                 <IconoApp nombre="ubicacion" tamano="sm" className="encabezado-marca__contacto-icono" />
-                <span>{direccion}</span>
-              </li>
+                <span>{direccionLimpia}</span>
+              </span>
             )}
-          </ul>
+            {enlaceWhatsapp && (
+              <a
+                className="encabezado-marca__whatsapp"
+                href={enlaceWhatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Escribir por WhatsApp"
+              >
+                <IconoApp nombre="whatsapp" tamano="sm" />
+                <span>WhatsApp</span>
+              </a>
+            )}
+          </div>
         )}
       </div>
     </header>

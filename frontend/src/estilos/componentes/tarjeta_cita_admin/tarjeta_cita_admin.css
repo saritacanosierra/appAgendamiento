@@ -44,9 +44,25 @@
   color: #888;
 }
 
+.tarjeta-cita-admin__estado-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-sm);
+  margin-bottom: var(--espacio-xs);
+}
+
+.tarjeta-cita-admin.cita-en-curso .tarjeta-cita-admin__hora {
+  background: color-mix(in srgb, var(--color-principal) 22%, var(--color-superficie));
+}
+
 .tarjeta-cita-admin__notas {
   font-style: italic;
   margin-top: var(--espacio-sm) !important;
+}
+
+.tarjeta-cita-admin__cuerpo .disenos-galeria-cita {
+  margin-top: var(--espacio-sm);
 }
 
 .tarjeta-cita-admin__acciones {

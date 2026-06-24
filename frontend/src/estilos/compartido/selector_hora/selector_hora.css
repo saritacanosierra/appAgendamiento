@@ -30,9 +30,9 @@
 }
 
 .selector-hora-grid__pill--activo {
-  border-color: var(--color-acento);
+  border-color: var(--color-acento-superficie, var(--color-acento));
   background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
-  color: var(--color-acento);
+  color: var(--color-acento-superficie, var(--color-acento));
 }
 
 .selector-hora-grid__pill:active {

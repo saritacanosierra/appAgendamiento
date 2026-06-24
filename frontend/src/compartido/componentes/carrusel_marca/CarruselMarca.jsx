@@ -2,9 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModalBlogPublico from '../../../componentes/publico/modal_blog_publico/ModalBlogPublico';
 import { listarCarruselPublico } from '../../../modulos/carrusel/servicios/carruselServicio';
-import { listarBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
-import { listarGaleriaPublica } from '../../../modulos/galeria/servicios/galeriaServicio';
-import { RUTAS_PUBLICAS } from '../../constantes';
 import ImagenAmpliable from '../imagen_ampliable/ImagenAmpliable';
 import IconoApp from '../icono_app/IconoApp';
 import '../../../estilos/compartido/carrusel_marca/carrusel_marca.css';
@@ -21,62 +18,6 @@ function extraerSlugBlogDesdeEnlace(enlace, slugMarca) {
   } catch {
     return null;
   }
-}
-
-function construirSlidesAutomaticos(marca, slug, blog, galeria) {
-  const slides = [];
-
-  slides.push({
-    id: 'marca',
-    imagen: marca.logo || null,
-    titulo: marca.nombreComercial,
-    subtitulo: marca.descripcion || 'Tu espacio de belleza y cuidado personal',
-    enlace: null,
-    enlaceExterno: false,
-    blogSlug: null,
-    tipo: 'marca',
-  });
-
-  for (const pub of blog.slice(0, 3)) {
-    slides.push({
-      id: `blog-${pub.id}`,
-      imagen: pub.imagenDestacada || null,
-      titulo: pub.titulo,
-      subtitulo: pub.extracto || 'Novedades de la marca',
-      enlace: null,
-      enlaceExterno: false,
-      blogSlug: pub.slug,
-      tipo: 'blog',
-    });
-  }
-
-  for (const item of galeria.slice(0, 4)) {
-    slides.push({
-      id: `galeria-${item.id}`,
-      imagen: item.imagenRuta,
-      titulo: item.titulo || 'Inspiración',
-      subtitulo: item.descripcion || 'Descubre nuestros diseños',
-      enlace: RUTAS_PUBLICAS.galeria(slug),
-      enlaceExterno: false,
-      blogSlug: null,
-      tipo: 'galeria',
-    });
-  }
-
-  if (slides.length === 1) {
-    slides.push({
-      id: 'promo',
-      imagen: null,
-      titulo: 'Reserva tu cita',
-      subtitulo: 'Horarios flexibles y atención personalizada',
-      enlace: RUTAS_PUBLICAS.citas(slug),
-      enlaceExterno: false,
-      blogSlug: null,
-      tipo: 'promo',
-    });
-  }
-
-  return slides;
 }
 
 function mapearDiapositivasPropias(items, slugMarca) {
@@ -107,8 +48,6 @@ function etiquetaSlide(tipo) {
 export default function CarruselMarca({ marca, slug }) {
   const navigate = useNavigate();
   const [diapositivasPropias, setDiapositivasPropias] = useState([]);
-  const [blog, setBlog] = useState([]);
-  const [galeria, setGaleria] = useState([]);
   const [indice, setIndice] = useState(0);
   const [pausado, setPausado] = useState(false);
   const [slugBlogAbierto, setSlugBlogAbierto] = useState(null);
@@ -118,29 +57,25 @@ export default function CarruselMarca({ marca, slug }) {
 
     let cancelado = false;
 
-    Promise.all([
-      listarCarruselPublico(marca.id).catch(() => []),
-      listarBlogPublico(marca.id).catch(() => []),
-      listarGaleriaPublica(marca.id).catch(() => []),
-    ]).then(([propias, posts, disenos]) => {
-      if (!cancelado) {
-        setDiapositivasPropias(Array.isArray(propias) ? propias : []);
-        setBlog(Array.isArray(posts) ? posts : []);
-        setGaleria(Array.isArray(disenos) ? disenos : []);
-      }
-    });
+    listarCarruselPublico(marca.id)
+      .then((propias) => {
+        if (!cancelado) {
+          setDiapositivasPropias(Array.isArray(propias) ? propias : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelado) setDiapositivasPropias([]);
+      });
 
     return () => {
       cancelado = true;
     };
   }, [marca?.id]);
 
-  const slides = useMemo(() => {
-    if (diapositivasPropias.length > 0) {
-      return mapearDiapositivasPropias(diapositivasPropias, slug);
-    }
-    return construirSlidesAutomaticos(marca, slug, blog, galeria);
-  }, [diapositivasPropias, marca, slug, blog, galeria]);
+  const slides = useMemo(
+    () => mapearDiapositivasPropias(diapositivasPropias, slug),
+    [diapositivasPropias, slug]
+  );
 
   const irA = useCallback(
     (nuevo) => {
@@ -197,10 +132,7 @@ export default function CarruselMarca({ marca, slug }) {
         />
       ) : (
         <div className="carrusel-marca__placeholder" aria-hidden="true">
-          <IconoApp
-            nombre={slide.tipo === 'marca' ? 'marca' : 'servicios'}
-            tamano="xl"
-          />
+          <IconoApp nombre="carrusel" tamano="xl" />
         </div>
       )}
       <div className="carrusel-marca__overlay" />

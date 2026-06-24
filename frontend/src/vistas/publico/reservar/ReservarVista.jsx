@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
@@ -7,6 +7,10 @@ import {
   obtenerDisponibilidad,
 } from '../../../modulos/reservas/servicios/reservasServicio';
 import { fechaHoyLocal, formatearFechaLegible, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
+import {
+  pasoParaErroresApi,
+  validarDatosCliente,
+} from '../../../modulos/reservas/utilidades/validarReserva';
 import {
   BotonPrincipal,
   CampoFormulario,
@@ -46,8 +50,29 @@ export default function ReservarVista() {
   const [cargandoHorarios, setCargandoHorarios] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
+  const [erroresCampo, setErroresCampo] = useState({});
   const [modalSinHorarios, setModalSinHorarios] = useState(false);
-  const ultimaFechaAvisadaRef = useRef('');
+
+  function limpiarErrorCampo(campo) {
+    setErroresCampo((prev) => {
+      if (!prev[campo]) return prev;
+      const siguiente = { ...prev };
+      delete siguiente[campo];
+      return siguiente;
+    });
+  }
+
+  function mostrarErroresValidacion(errores) {
+    setErroresCampo(errores);
+  }
+
+  function limpiarErrorGeneral() {
+    setError(null);
+  }
+
+  function limpiarErroresFormulario() {
+    setErroresCampo({});
+  }
 
   useEffect(() => {
     if (!marca?.id) return;
@@ -89,6 +114,12 @@ export default function ReservarVista() {
   }, [servicios, searchParams, prefillListo]);
 
   useEffect(() => {
+    if (paso === 1 && servicio && !fecha) {
+      setFecha(fechaHoyLocal());
+    }
+  }, [paso, servicio, fecha]);
+
+  useEffect(() => {
     if (!marca?.id || !servicio?.id || !fecha) {
       setHorarios([]);
       setHora('');
@@ -96,7 +127,7 @@ export default function ReservarVista() {
     }
 
     setCargandoHorarios(true);
-    setError(null);
+    limpiarErrorGeneral();
     obtenerDisponibilidad(marca.id, servicio.id, fecha)
       .then((datos) => {
         const lista = datos.horarios ?? [];
@@ -110,64 +141,70 @@ export default function ReservarVista() {
       .finally(() => setCargandoHorarios(false));
   }, [marca?.id, servicio?.id, fecha]);
 
-  useEffect(() => {
-    if (!fecha || cargandoHorarios || paso !== 1) return;
-
-    if (horarios.length === 0 && ultimaFechaAvisadaRef.current !== fecha) {
-      ultimaFechaAvisadaRef.current = fecha;
-      setModalSinHorarios(true);
-    }
-
-    if (horarios.length > 0) {
-      ultimaFechaAvisadaRef.current = '';
-    }
-  }, [fecha, horarios, cargandoHorarios, paso]);
-
   function avisarSinHorarios() {
     setModalSinHorarios(true);
   }
 
   function seleccionarServicio(s) {
     setServicio(s);
+    setFecha((prev) => prev || fechaHoyLocal());
     setPaso(1);
-    setError(null);
+    limpiarErrorGeneral();
+    limpiarErroresFormulario();
   }
 
   function avanzarDesdeFechaHora() {
     if (!fecha) {
-      setError('Selecciona un dia en el calendario.');
+      setErroresCampo({ fecha: 'Selecciona un dia en el calendario.' });
+      limpiarErrorGeneral();
       return;
     }
 
     if (cargandoHorarios) return;
 
     if (horarios.length === 0) {
-      setError(null);
+      limpiarErrorGeneral();
+      limpiarErroresFormulario();
       avisarSinHorarios();
       return;
     }
 
     if (!hora) {
-      setError('Selecciona un horario disponible.');
+      setErroresCampo({ hora_inicio: 'Selecciona un horario disponible de la lista.' });
+      limpiarErrorGeneral();
       return;
     }
 
-    setError(null);
+    limpiarErrorGeneral();
+    limpiarErroresFormulario();
     setPaso(2);
   }
 
   function avanzarDesdeDatos() {
-    if (!nombre.trim() || !telefono.trim()) {
-      setError('Nombre y telefono son obligatorios.');
+    const errores = validarDatosCliente({ nombre, telefono, correo });
+    if (Object.keys(errores).length > 0) {
+      mostrarErroresValidacion(errores);
+      limpiarErrorGeneral();
       return;
     }
-    setError(null);
+
+    limpiarErrorGeneral();
+    limpiarErroresFormulario();
     setPaso(3);
   }
 
   async function confirmarReserva() {
+    const erroresCliente = validarDatosCliente({ nombre, telefono, correo });
+    if (Object.keys(erroresCliente).length > 0) {
+      mostrarErroresValidacion(erroresCliente);
+      limpiarErrorGeneral();
+      setPaso(2);
+      return;
+    }
+
     setEnviando(true);
-    setError(null);
+    limpiarErrorGeneral();
+    limpiarErroresFormulario();
 
     try {
       const confirmacion = await crearReserva({
@@ -177,14 +214,23 @@ export default function ReservarVista() {
         horaInicio: hora,
         nombre: nombre.trim(),
         telefono: telefono.trim(),
-        correo: correo.trim(),
+        correo: correo.trim().toLowerCase(),
       });
 
       navigate(RUTAS_PUBLICAS.confirmacion(slug, confirmacion.cita.codigo), {
         state: { confirmacion },
       });
     } catch (err) {
-      setError(err.message ?? 'No se pudo completar la reserva.');
+      const apiErrores = err.datos?.errores;
+      if (apiErrores && typeof apiErrores === 'object') {
+        mostrarErroresValidacion(apiErrores);
+        limpiarErrorGeneral();
+        const pasoError = pasoParaErroresApi(apiErrores);
+        if (pasoError !== null) setPaso(pasoError);
+      } else {
+        setError(err.message ?? 'No se pudo completar la reserva.');
+        limpiarErroresFormulario();
+      }
     } finally {
       setEnviando(false);
     }
@@ -213,7 +259,7 @@ export default function ReservarVista() {
         Paso {paso + 1} de {PASOS.length}
       </p>
 
-      {error && <MensajeError mensaje={error} />}
+      {error && paso !== 2 && <MensajeError mensaje={error} />}
 
       {paso === 0 && (
         <section className="reservar-vista__seccion tarjeta-app">
@@ -237,16 +283,38 @@ export default function ReservarVista() {
           <SelectorFecha
             valor={fecha}
             min={fechaHoyLocal()}
-            onChange={setFecha}
+            onChange={(valor) => {
+              setFecha(valor);
+              limpiarErrorCampo('fecha');
+              limpiarErrorCampo('hora_inicio');
+            }}
             modo="calendario"
             etiqueta="Selecciona un dia"
           />
+          {erroresCampo.fecha && (
+            <p className="reservar-vista__error-campo">{erroresCampo.fecha}</p>
+          )}
 
           {fecha && (
             <>
               {cargandoHorarios && <Cargando mensaje="Buscando horarios..." />}
               {!cargandoHorarios && horarios.length > 0 && (
-                <SelectorHora valor={hora} opciones={horarios} onChange={setHora} />
+                <SelectorHora
+                  valor={hora}
+                  opciones={horarios}
+                  onChange={(valor) => {
+                    setHora(valor);
+                    limpiarErrorCampo('hora_inicio');
+                  }}
+                />
+              )}
+              {erroresCampo.hora_inicio && (
+                <p className="reservar-vista__error-campo">{erroresCampo.hora_inicio}</p>
+              )}
+              {!cargandoHorarios && horarios.length === 0 && (
+                <p className="reservar-vista__sin-horarios">
+                  No hay horarios disponibles este dia. Elige otra fecha en el calendario.
+                </p>
               )}
             </>
           )}
@@ -267,33 +335,65 @@ export default function ReservarVista() {
       {paso === 2 && (
         <section className="reservar-vista__seccion tarjeta-app">
           <h2>Tus datos</h2>
-          <CampoFormulario etiqueta="Nombre completo" id="nombre" requerido>
+          <CampoFormulario
+            etiqueta="Nombre completo"
+            id="nombre"
+            requerido
+            error={erroresCampo.nombre}
+            ayuda="Minimo 2 caracteres. Ejemplo: Maria Lopez"
+          >
             <InputTexto
               id="nombre"
               capitalizar="palabras"
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={(e) => {
+                setNombre(e.target.value);
+                limpiarErrorCampo('nombre');
+              }}
               autoComplete="name"
               required
+              maxLength={120}
             />
           </CampoFormulario>
-          <CampoFormulario etiqueta="Telefono" id="telefono" requerido>
+          <CampoFormulario
+            etiqueta="Telefono"
+            id="telefono"
+            requerido
+            error={erroresCampo.telefono}
+            ayuda="Minimo 10 digitos. Puedes usar +57 y espacios."
+          >
             <input
               id="telefono"
               type="tel"
+              inputMode="tel"
               value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
+              onChange={(e) => {
+                setTelefono(e.target.value);
+                limpiarErrorCampo('telefono');
+              }}
               autoComplete="tel"
+              placeholder="300 123 4567"
               required
             />
           </CampoFormulario>
-          <CampoFormulario etiqueta="Correo (opcional)" id="correo">
+          <CampoFormulario
+            etiqueta="Correo electronico"
+            id="correo"
+            requerido
+            error={erroresCampo.correo}
+            ayuda="Formato: ejemplo@correo.com"
+          >
             <input
               id="correo"
               type="email"
               value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
+              onChange={(e) => {
+                setCorreo(e.target.value);
+                limpiarErrorCampo('correo');
+              }}
               autoComplete="email"
+              placeholder="ejemplo@correo.com"
+              required
             />
           </CampoFormulario>
           <div className="reservar-vista__acciones">
@@ -319,12 +419,8 @@ export default function ReservarVista() {
             <dd>{nombre}</dd>
             <dt>Telefono</dt>
             <dd>{telefono}</dd>
-            {correo && (
-              <>
-                <dt>Correo</dt>
-                <dd>{correo}</dd>
-              </>
-            )}
+            <dt>Correo</dt>
+            <dd>{correo}</dd>
           </dl>
           <div className="reservar-vista__acciones">
             <BotonPrincipal variante="texto" onClick={() => setPaso(2)}>Atras</BotonPrincipal>

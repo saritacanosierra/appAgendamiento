@@ -130,15 +130,19 @@ export default function CampanaNotificacionesAdmin() {
                   key={n.id}
                   className={`campana-notificaciones__item ${n.leida ? '' : 'campana-notificaciones__item--nueva'}`}
                 >
-                  <div>
+                  <div className="campana-notificaciones__item-cuerpo">
                     <strong>{n.titulo}</strong>
                     <p>{n.mensaje}</p>
                     <time>{formatearHora(n.createdAt)}</time>
                   </div>
                   {!n.leida && (
-                    <BotonPrincipal variante="secundario" onClick={() => marcarLeida(n.id)}>
-                      Leida
-                    </BotonPrincipal>
+                    <button
+                      type="button"
+                      className="campana-notificaciones__marcar"
+                      onClick={() => marcarLeida(n.id)}
+                    >
+                      Leída
+                    </button>
                   )}
                 </li>
               ))}

@@ -25,6 +25,7 @@ import {
 } from '../../../modulos/agenda/servicios/solicitudesReagendamientoServicio';
 import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { mensajeErrorPanelAdmin } from '../../../compartido/utilidades/erroresAdmin';
+import { useCitaEnCurso, limpiarCronometroSiEsCita } from '../../../modulos/atencion/hooks/useCronometro';
 import '../../../estilos/admin/agenda/agenda.css';
 
 export default function AgendaVista() {
@@ -32,6 +33,7 @@ export default function AgendaVista() {
   const [fecha, setFecha] = useState(fechaHoyLocal());
   const [vista, setVista] = useState('dia');
   const [agenda, setAgenda] = useState(null);
+  const citaIdEnCurso = useCitaEnCurso(agenda?.citas);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [mostrarFormCita, setMostrarFormCita] = useState(false);
@@ -159,6 +161,7 @@ export default function AgendaVista() {
   async function ejecutarCancelarCita(cita) {
     try {
       await cancelarCita(cita.id);
+      limpiarCronometroSiEsCita(cita.id);
       cargar();
       emitirActualizacionNotificaciones();
       setModalMensaje({
@@ -192,6 +195,7 @@ export default function AgendaVista() {
     setError(null);
     try {
       await cancelarCita(solicitud.citaId);
+      limpiarCronometroSiEsCita(solicitud.citaId);
       await Promise.all([cargar(), cargarSolicitudes()]);
       emitirActualizacionNotificaciones();
       setModalMensaje({
@@ -383,6 +387,7 @@ export default function AgendaVista() {
                 )}
                 <TarjetaCitaAdmin
                   cita={cita}
+                  enCurso={cita.id === citaIdEnCurso}
                   onConfirmar={confirmarCita}
                   onCancelar={pedirCancelarCita}
                   onAtender={irAtenderCita}

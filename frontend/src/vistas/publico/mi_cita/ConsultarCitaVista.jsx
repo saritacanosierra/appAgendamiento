@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
-  ContactoWhatsappMarca,
   EncabezadoMarca,
   EstadoCita,
   IconoApp,
@@ -22,15 +21,18 @@ import {
   obtenerDisponibilidad,
   solicitarReagendamiento,
 } from '../../../modulos/reservas/servicios/reservasServicio';
+import { limpiarCronometroSiEsCita } from '../../../modulos/atencion/hooks/useCronometro';
 import {
-  agregarFavorito,
   quitarFavorito,
 } from '../../../modulos/reservas/servicios/clientePerfilServicio';
-import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
-import { listarGaleriaPublica } from '../../../modulos/galeria/servicios/galeriaServicio';
 import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import { mensajeConsultaCita } from '../../../compartido/utilidades/enlaceWhatsapp';
+import {
+  guardarCredencialesMiCita,
+  leerCredencialesMiCita,
+  limpiarCredencialesMiCita,
+} from '../../../modulos/reservas/utilidades/credencialesMiCita';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { Link } from 'react-router-dom';
 import '../../../estilos/publico/mi_cita/mi_cita.css';
@@ -64,7 +66,9 @@ function ResumenPerfilCliente({ cliente }) {
           {cliente.serviciosCompletados > 0 && (
             <span className="mi-cita__stat-detalle">
               {cliente.serviciosCompletados}{' '}
-              {cliente.serviciosCompletados === 1 ? 'servicio' : 'servicios'} completados
+              {cliente.serviciosCompletados === 1
+                ? 'servicio completado'
+                : 'servicios completados'}
             </span>
           )}
         </article>
@@ -78,7 +82,7 @@ function ResumenPerfilCliente({ cliente }) {
 
       {cliente.puntos === 0 && (
         <p className="mi-cita__puntos-info">
-          Ganas 10 puntos por cada peso de servicios que hayas completado con nosotros.
+          Ganas 10 puntos por cada servicio que completes con nosotros.
         </p>
       )}
     </section>
@@ -100,10 +104,10 @@ function BotonFavorito({ activo, deshabilitado, onClick, etiqueta }) {
   );
 }
 
-function ListaFavoritos({ favoritos, credenciales, marcaId, onActualizarPerfil }) {
+function SeccionFavoritos({ favoritos, credenciales, marcaId, slugMarca, onActualizarPerfil }) {
   const [procesando, setProcesando] = useState(null);
 
-  async function toggleFavorito(favorito) {
+  async function toggleFavoritoGuardado(favorito) {
     const clave = claveFavorito(favorito.tipo, favorito.referenciaId);
     setProcesando(clave);
     try {
@@ -119,186 +123,53 @@ function ListaFavoritos({ favoritos, credenciales, marcaId, onActualizarPerfil }
     }
   }
 
-  if (!favoritos.length) {
-    return (
-      <section className="mi-cita__favoritos tarjeta-app">
-        <h3>Mis favoritos</h3>
-        <p className="mi-cita__favoritos-vacio">
-          Aun no tienes favoritos. Explora servicios o disenos y toca el corazon para guardarlos.
-        </p>
-      </section>
-    );
-  }
-
   return (
     <section className="mi-cita__favoritos tarjeta-app">
-      <h3>Mis favoritos</h3>
-      <ul className="mi-cita__favoritos-lista">
-        {favoritos.map((favorito) => {
-          const clave = claveFavorito(favorito.tipo, favorito.referenciaId);
-          return (
-            <li key={favorito.id ?? clave} className="mi-cita__favorito-item">
-              {favorito.imagenRuta ? (
-                <ImagenAmpliable
-                  src={favorito.imagenRuta}
-                  alt={favorito.titulo}
-                  className="mi-cita__favorito-imagen"
-                />
-              ) : (
-                <div className="mi-cita__favorito-imagen mi-cita__favorito-imagen--vacia">
-                  <IconoApp nombre={favorito.tipo === 'servicio' ? 'servicios' : 'galeria'} />
-                </div>
-              )}
-              <div className="mi-cita__favorito-info">
-                <span className="mi-cita__favorito-tipo">
-                  {favorito.tipo === 'servicio' ? 'Servicio' : 'Diseno'}
-                </span>
-                <strong>{favorito.titulo}</strong>
-                {favorito.precio != null && (
-                  <span className="mi-cita__favorito-precio">{formatearPrecio(favorito.precio)}</span>
-                )}
-                {!favorito.activo && (
-                  <span className="mi-cita__favorito-inactivo">Ya no esta disponible</span>
-                )}
-              </div>
-              <BotonFavorito
-                activo
-                deshabilitado={procesando === clave}
-                onClick={() => toggleFavorito(favorito)}
-                etiqueta={favorito.titulo}
-              />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function ExplorarFavoritos({ marcaId, credenciales, favoritos, onActualizarPerfil }) {
-  const [tab, setTab] = useState('servicios');
-  const [servicios, setServicios] = useState([]);
-  const [disenos, setDisenos] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [procesando, setProcesando] = useState(null);
-
-  useEffect(() => {
-    if (!marcaId) return;
-    let cancelado = false;
-    setCargando(true);
-
-    Promise.all([obtenerServiciosPublicos(marcaId), listarGaleriaPublica(marcaId)])
-      .then(([listaServicios, listaDisenos]) => {
-        if (!cancelado) {
-          setServicios(listaServicios ?? []);
-          setDisenos(listaDisenos ?? []);
-        }
-      })
-      .catch(() => {
-        if (!cancelado) {
-          setServicios([]);
-          setDisenos([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelado) setCargando(false);
-      });
-
-    return () => {
-      cancelado = true;
-    };
-  }, [marcaId]);
-
-  const idsFavoritos = useMemo(
-    () => new Set(favoritos.map((f) => claveFavorito(f.tipo, f.referenciaId))),
-    [favoritos]
-  );
-
-  async function toggle(tipo, item) {
-    const clave = claveFavorito(tipo, item.id);
-    const activo = idsFavoritos.has(clave);
-    setProcesando(clave);
-    try {
-      const resultado = activo
-        ? await quitarFavorito(marcaId, credenciales, tipo, item.id)
-        : await agregarFavorito(marcaId, credenciales, tipo, item.id);
-      onActualizarPerfil(resultado.perfil);
-    } finally {
-      setProcesando(null);
-    }
-  }
-
-  const items = tab === 'servicios' ? servicios : disenos;
-  const tipo = tab === 'servicios' ? 'servicio' : 'diseno_galeria';
-
-  return (
-    <section className="mi-cita__explorar tarjeta-app">
-      <header className="mi-cita__explorar-cabecera">
-        <h3>Agregar a favoritos</h3>
-        <div className="mi-cita__tabs" role="tablist" aria-label="Explorar favoritos">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'servicios'}
-            className={`mi-cita__tab${tab === 'servicios' ? ' mi-cita__tab--activa' : ''}`}
-            onClick={() => setTab('servicios')}
-          >
-            Servicios
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'disenos'}
-            className={`mi-cita__tab${tab === 'disenos' ? ' mi-cita__tab--activa' : ''}`}
-            onClick={() => setTab('disenos')}
-          >
-            Galeria
-          </button>
-        </div>
+      <header className="mi-cita__favoritos-cabecera">
+        <h3>Mis favoritos</h3>
+        <span className="mi-cita__favoritos-contador">{favoritos.length}</span>
       </header>
 
-      {cargando && <Cargando mensaje="Cargando opciones..." />}
-
-      {!cargando && items.length === 0 && (
-        <p className="mi-cita__explorar-vacio">
-          {tab === 'servicios'
-            ? 'No hay servicios disponibles por ahora.'
-            : 'No hay disenos en la galeria por ahora.'}
+      {favoritos.length === 0 ? (
+        <p className="mi-cita__favoritos-vacio">
+          Aun no tienes favoritos guardados.{' '}
+          <Link to={RUTAS_PUBLICAS.galeria(slugMarca)}>Explora la galeria</Link>
+          {' '}y guarda los disenos que te gusten.
         </p>
-      )}
-
-      {!cargando && items.length > 0 && (
-        <ul className="mi-cita__explorar-lista">
-          {items.map((item) => {
-            const clave = claveFavorito(tipo, item.id);
-            const activo = idsFavoritos.has(clave);
-            const titulo = item.nombre ?? item.titulo;
-            const imagen = item.imagenRuta ?? item.imagen_ruta;
-
+      ) : (
+        <ul className="mi-cita__favoritos-lista">
+          {favoritos.map((favorito) => {
+            const clave = claveFavorito(favorito.tipo, favorito.referenciaId);
             return (
-              <li key={item.id} className="mi-cita__explorar-item">
-                {imagen ? (
+              <li key={favorito.id ?? clave} className="mi-cita__favorito-item">
+                {favorito.imagenRuta ? (
                   <ImagenAmpliable
-                    src={imagen}
-                    alt={titulo}
-                    className="mi-cita__explorar-imagen"
+                    src={favorito.imagenRuta}
+                    alt={favorito.titulo}
+                    className="mi-cita__favorito-imagen"
                   />
                 ) : (
-                  <div className="mi-cita__explorar-imagen mi-cita__explorar-imagen--vacia">
-                    <IconoApp nombre={tab === 'servicios' ? 'servicios' : 'galeria'} />
+                  <div className="mi-cita__favorito-imagen mi-cita__favorito-imagen--vacia">
+                    <IconoApp nombre={favorito.tipo === 'servicio' ? 'servicios' : 'galeria'} />
                   </div>
                 )}
-                <div className="mi-cita__explorar-info">
-                  <strong>{titulo}</strong>
-                  {item.precio != null && (
-                    <span>{formatearPrecio(item.precio)}</span>
+                <div className="mi-cita__favorito-info">
+                  <span className="mi-cita__favorito-tipo">
+                    {favorito.tipo === 'servicio' ? 'Servicio' : 'Diseno'}
+                  </span>
+                  <strong>{favorito.titulo}</strong>
+                  {favorito.precio != null && (
+                    <span className="mi-cita__favorito-precio">{formatearPrecio(favorito.precio)}</span>
+                  )}
+                  {!favorito.activo && (
+                    <span className="mi-cita__favorito-inactivo">Ya no esta disponible</span>
                   )}
                 </div>
                 <BotonFavorito
-                  activo={activo}
+                  activo
                   deshabilitado={procesando === clave}
-                  onClick={() => toggle(tipo, item)}
-                  etiqueta={titulo}
+                  onClick={() => toggleFavoritoGuardado(favorito)}
+                  etiqueta={favorito.titulo}
                 />
               </li>
             );
@@ -360,6 +231,7 @@ function TarjetaCitaCliente({ cita, marcaId, telefono, onActualizar, whatsappMar
     setEnviando(true);
     try {
       await cancelarCitaPublica(marcaId, cita.codigo, telefono);
+      limpiarCronometroSiEsCita(cita.id);
       setMostrarConfirmCancelar(false);
       setModalMensaje({
         titulo: 'Cita cancelada',
@@ -535,6 +407,7 @@ export default function ConsultarCitaVista() {
   const [buscando, setBuscando] = useState(false);
   const [error, setError] = useState(null);
   const [mostrarBusqueda, setMostrarBusqueda] = useState(true);
+  const sesionRestauradaRef = useRef(false);
 
   const credenciales = useMemo(
     () => ({
@@ -544,6 +417,37 @@ export default function ConsultarCitaVista() {
     [telefono, correo]
   );
 
+  useEffect(() => {
+    sesionRestauradaRef.current = false;
+  }, [marca?.id]);
+
+  useEffect(() => {
+    if (!marca?.id || sesionRestauradaRef.current) return;
+
+    const guardadas = leerCredencialesMiCita(marca.id);
+    if (!guardadas) return;
+
+    sesionRestauradaRef.current = true;
+    setTelefono(guardadas.telefono);
+    setCorreo(guardadas.correo);
+    setBuscando(true);
+    setError(null);
+
+    consultarCitas(marca.id, {
+      telefono: guardadas.telefono.replace(/\D+/g, ''),
+      correo: guardadas.correo.trim().toLowerCase(),
+    })
+      .then((datos) => {
+        setResultado(datos);
+        setMostrarBusqueda(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setMostrarBusqueda(true);
+      })
+      .finally(() => setBuscando(false));
+  }, [marca?.id]);
+
   async function buscar(e) {
     e.preventDefault();
     if (!marca?.id) return;
@@ -552,6 +456,7 @@ export default function ConsultarCitaVista() {
     setResultado(null);
     try {
       const datos = await consultarCitas(marca.id, credenciales);
+      guardarCredencialesMiCita(marca.id, { telefono, correo });
       setResultado(datos);
       setMostrarBusqueda(false);
     } catch (err) {
@@ -588,6 +493,10 @@ export default function ConsultarCitaVista() {
   }
 
   function cerrarSesion() {
+    if (marca?.id) limpiarCredencialesMiCita(marca.id);
+    sesionRestauradaRef.current = false;
+    setTelefono('');
+    setCorreo('');
     setResultado(null);
     setMostrarBusqueda(true);
     setError(null);
@@ -656,21 +565,13 @@ export default function ConsultarCitaVista() {
         <>
           <ResumenPerfilCliente cliente={resultado.cliente} />
 
-          <ListaFavoritos
+          <SeccionFavoritos
             favoritos={resultado.favoritos ?? []}
             credenciales={credenciales}
             marcaId={marca.id}
+            slugMarca={marca.slug}
             onActualizarPerfil={actualizarPerfil}
           />
-
-          <ExplorarFavoritos
-            marcaId={marca.id}
-            credenciales={credenciales}
-            favoritos={resultado.favoritos ?? []}
-            onActualizarPerfil={actualizarPerfil}
-          />
-
-          <ContactoWhatsappMarca marca={marca} mostrarNumero={false} />
 
           <section className="mi-cita__resultados">
             <h3 className="mi-cita__seccion-titulo">Mis citas activas</h3>

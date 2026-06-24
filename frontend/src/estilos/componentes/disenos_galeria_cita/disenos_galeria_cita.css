@@ -1,0 +1,111 @@
+.disenos-galeria-cita__etiqueta {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-texto-xs);
+  font-weight: 600;
+  color: var(--color-acento);
+}
+
+.disenos-galeria-cita__miniaturas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disenos-galeria-cita__miniatura {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radio-borde-sm, 6px);
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+  background: var(--color-secundario);
+}
+
+.disenos-galeria-cita__miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.disenos-galeria-cita--panel {
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde);
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+}
+
+.disenos-galeria-cita__cabecera h3 {
+  margin: 0;
+  font-size: var(--tamano-texto-base);
+  color: var(--color-texto-superficie);
+}
+
+.disenos-galeria-cita__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-sm);
+  margin-bottom: var(--espacio-xs);
+}
+
+.disenos-galeria-cita__contador {
+  font-size: var(--tamano-texto-xs);
+  font-weight: 600;
+  color: var(--color-acento);
+  white-space: nowrap;
+}
+
+.disenos-galeria-cita__ayuda {
+  margin: 0 0 var(--espacio-md);
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted-superficie);
+}
+
+.disenos-galeria-cita__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: var(--espacio-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.disenos-galeria-cita__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+}
+
+.disenos-galeria-cita__imagen {
+  aspect-ratio: 1;
+  border-radius: var(--radio-borde-sm, 6px);
+  overflow: hidden;
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+}
+
+.disenos-galeria-cita__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.disenos-galeria-cita__titulo {
+  font-size: var(--tamano-texto-xs);
+  line-height: 1.3;
+  color: var(--color-texto-superficie);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .disenos-galeria-cita__grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}

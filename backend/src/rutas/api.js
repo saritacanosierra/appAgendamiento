@@ -52,6 +52,12 @@ import {
   eliminarCatalogoAdmin as eliminarGaleriaCatalogoAdmin,
 } from '../controladores/galeriaControlador.js';
 import {
+  iniciarSesionGaleria,
+  listarSeleccionesGaleria,
+  agregarSeleccionGaleria,
+  quitarSeleccionGaleria,
+} from '../controladores/galeriaSeleccionControlador.js';
+import {
   listarPublicos as listarCarruselPublicos,
   listarAdmin as listarCarruselAdmin,
   crearAdmin as crearCarruselAdmin,
@@ -118,6 +124,10 @@ router.get('/marcas/:marca_id/blog', listarBlogPublicos);
 router.get('/marcas/:marca_id/blog/slug/:slug', obtenerBlogPublico);
 router.get('/marcas/:marca_id/galeria', listarGaleriaPublicos);
 router.get('/marcas/:marca_id/galeria/catalogo', listarGaleriaCatalogoPublicos);
+router.post('/marcas/:marca_id/galeria/sesion', limitarConsultasReservas, capturarAsync(iniciarSesionGaleria));
+router.get('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(listarSeleccionesGaleria));
+router.post('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(agregarSeleccionGaleria));
+router.delete('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(quitarSeleccionGaleria));
 router.get('/marcas/:marca_id/carrusel-inicio', listarCarruselPublicos);
 router.post('/reservas', limitarReservas, crearReserva);
 router.post('/reservas/consultar', limitarConsultasReservas, capturarAsync(consultarCitas));

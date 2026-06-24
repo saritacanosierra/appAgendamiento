@@ -46,9 +46,9 @@
 }
 
 .servicios-admin__filtro--activo {
-  border-color: var(--color-acento);
-  background: color-mix(in srgb, var(--color-acento) 15%, transparent);
-  color: var(--color-acento);
+  border-color: var(--color-acento-superficie, var(--color-acento));
+  background: color-mix(in srgb, var(--color-acento) 15%, var(--color-superficie));
+  color: var(--color-acento-superficie, var(--color-acento));
 }
 
 .servicios-admin__badge {

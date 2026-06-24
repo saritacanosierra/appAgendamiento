@@ -51,6 +51,10 @@
   gap: var(--espacio-sm);
 }
 
+.modal-resumen-atencion__contenido .disenos-galeria-cita {
+  margin-bottom: var(--espacio-lg);
+}
+
 .modal-resumen-atencion__detalle > div {
   display: grid;
   grid-template-columns: 120px 1fr;

@@ -86,15 +86,19 @@ export default function PanelNotificaciones() {
             key={n.id}
             className={`panel-notificaciones__item ${n.leida ? '' : 'panel-notificaciones__item--nueva'}`}
           >
-            <div>
+            <div className="panel-notificaciones__item-cuerpo">
               <strong>{n.titulo}</strong>
               <p>{n.mensaje}</p>
               <time>{formatearHora(n.createdAt)}</time>
             </div>
             {!n.leida && (
-              <BotonPrincipal variante="secundario" onClick={() => marcarLeida(n.id)}>
-                Leida
-              </BotonPrincipal>
+              <button
+                type="button"
+                className="panel-notificaciones__marcar"
+                onClick={() => marcarLeida(n.id)}
+              >
+                Leída
+              </button>
             )}
           </li>
         ))}

@@ -73,3 +73,24 @@
   background: var(--color-superficie);
   box-shadow: var(--sombra-suave);
 }
+
+@media (min-width: 768px) {
+  .citas-hub__lista-servicios {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espacio-md);
+  }
+}
+
+@media (min-width: 1024px) {
+  .citas-hub__principal {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--espacio-lg);
+    align-items: start;
+  }
+
+  .citas-hub__lista-servicios {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

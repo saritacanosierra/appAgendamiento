@@ -15,7 +15,7 @@ import {
 } from '../../modulos/autenticacion/servicios/autenticacionServicio';
 import { EVENTO_TOKEN_CAMBIADO, VARIABLES_MARCA_DEFECTO } from '../../compartido/constantes';
 import { aplicarTemaMarca } from '../../compartido/utilidades/temaMarca';
-import { esRutaPlataforma } from '../../compartido/utilidades/rutasApp';
+import { esRutaPlataforma, esRutaPublicaMarca } from '../../compartido/utilidades/rutasApp';
 import {
   CLAVES_TOKEN_SESION,
   limpiarTokenMarca,
@@ -31,6 +31,7 @@ const SESION_VACIA = { usuario: null, marca: null, cargando: false };
 export function ProveedorAuth({ children }) {
   const location = useLocation();
   const enPlataforma = esRutaPlataforma(location.pathname);
+  const enRutaPublicaMarca = esRutaPublicaMarca(location.pathname);
 
   const [sesionMarca, setSesionMarca] = useState({ ...SESION_VACIA, cargando: true });
   const [sesionPlataforma, setSesionPlataforma] = useState({ ...SESION_VACIA, cargando: true });
@@ -105,14 +106,15 @@ export function ProveedorAuth({ children }) {
   const sesionActiva = enPlataforma ? sesionPlataforma : sesionMarca;
 
   useEffect(() => {
-    if (sesionActiva.cargando) return;
+    /* El tema de cada marca publica lo controla ProveedorMarca en /m/:slug */
+    if (sesionActiva.cargando || enPlataforma || enRutaPublicaMarca) return;
 
     if (sesionActiva.marca) {
       aplicarTemaMarca(sesionActiva.marca);
-    } else if (!enPlataforma) {
+    } else {
       aplicarTemaMarca(VARIABLES_MARCA_DEFECTO);
     }
-  }, [sesionActiva.marca, sesionActiva.cargando, enPlataforma]);
+  }, [sesionActiva.marca, sesionActiva.cargando, enPlataforma, enRutaPublicaMarca]);
 
   const iniciarSesion = useCallback(async (correo, contrasena, contexto = 'marca') => {
     const datos = await iniciarSesionApi(correo, contrasena, contexto);

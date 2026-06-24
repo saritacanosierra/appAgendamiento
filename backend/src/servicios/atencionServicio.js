@@ -1,5 +1,7 @@
 import { pool } from '../configuracion/baseDatos.js';
 import { ReservaRepositorio, ServicioRepositorio } from '../repositorios/index.js';
+import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { adjuntarDisenosGaleriaACitas } from '../utilidades/adjuntarDisenosGaleria.js';
 import { mapearCitaAdmin } from '../utilidades/mapeadorCitas.js';
 import { esFechaValida } from '../utilidades/fechaHora.js';
 import { entero, texto } from '../utilidades/sanitizador.js';
@@ -67,6 +69,7 @@ export class AtencionServicio {
   constructor(deps = {}) {
     this.citaRepo = deps.citaRepo ?? new ReservaRepositorio();
     this.servicioRepo = deps.servicioRepo ?? new ServicioRepositorio();
+    this.seleccionRepo = deps.seleccionRepo ?? new CitaDisenosGaleriaRepositorio();
   }
 
   async listarCitasAtencion(marcaId, fecha) {
@@ -77,7 +80,11 @@ export class AtencionServicio {
     }
 
     const filas = await this.citaRepo.listarParaAtencion(marcaId, fechaFinal);
-    const citas = filas.map(mapearCitaAtencion);
+    const citas = await adjuntarDisenosGaleriaACitas(
+      filas.map(mapearCitaAtencion).filter(Boolean),
+      marcaId,
+      this.seleccionRepo
+    );
 
     const pendientes = citas.filter((c) => ['pendiente', 'confirmada'].includes(c.estado));
     const atendidas = citas.filter((c) => c.estado === 'completada' && c.facturacion.confirmadaPrestacion);
@@ -144,7 +151,12 @@ export class AtencionServicio {
       await conexion.commit();
 
       const fila = await this.citaRepo.buscarPorId(marcaId, citaId);
-      return { cita: mapearCitaAtencion(fila) };
+      const [citaConDisenos] = await adjuntarDisenosGaleriaACitas(
+        [mapearCitaAtencion(fila)].filter(Boolean),
+        marcaId,
+        this.seleccionRepo
+      );
+      return { cita: citaConDisenos };
     } catch (err) {
       await conexion.rollback();
       throw err;

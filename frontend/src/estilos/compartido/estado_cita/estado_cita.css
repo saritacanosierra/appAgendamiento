@@ -34,18 +34,18 @@
 }
 
 /* Asegura contraste aun dentro de tarjetas con color heredado */
-:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--pendiente {
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='-vista__item'], [class*='-admin__item']) .estado-cita--pendiente {
   color: #7a4100;
 }
 
-:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--confirmada {
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='-vista__item'], [class*='-admin__item']) .estado-cita--confirmada {
   color: #1b5e20;
 }
 
-:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--cancelada {
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='-vista__item'], [class*='-admin__item']) .estado-cita--cancelada {
   color: #b71c1c;
 }
 
-:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--completada {
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='-vista__item'], [class*='-admin__item']) .estado-cita--completada {
   color: #0d47a1;
 }

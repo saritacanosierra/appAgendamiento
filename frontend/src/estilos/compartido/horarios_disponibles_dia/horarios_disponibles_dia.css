@@ -94,12 +94,12 @@
 }
 
 .horarios-dia__dia--activo {
-  border-color: var(--color-acento);
+  border-color: var(--color-acento-superficie, var(--color-acento));
   background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
 }
 
 .horarios-dia__dia--activo strong {
-  color: var(--color-acento);
+  color: var(--color-acento-superficie, var(--color-acento));
 }
 
 .horarios-dia__servicios {
@@ -151,6 +151,18 @@
 @media (min-width: 400px) {
   .horarios-dia__grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .horarios-dia__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .horarios-dia__grid {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 

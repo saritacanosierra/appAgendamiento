@@ -1,3 +1,5 @@
+@import '../../compartido/cita_en_curso/cita_en_curso.css';
+
 .atencion-vista {
   text-align: left;
   max-width: 1200px;
@@ -275,6 +277,10 @@
     var(--sombra-card);
 }
 
+.atencion-vista__cita-item.cita-en-curso .atencion-vista__cita-hora-badge {
+  background: color-mix(in srgb, var(--color-principal) 22%, var(--color-superficie));
+}
+
 .atencion-vista__cita-item--abierta .atencion-vista__cita {
   border-bottom: 1px solid color-mix(in srgb, var(--color-borde) 85%, var(--color-acento));
 }
@@ -365,6 +371,12 @@
 .atencion-vista__cita-duracion {
   font-size: 0.75rem;
   color: var(--color-texto-suave);
+}
+
+.atencion-vista__cita-disenos {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-acento);
 }
 
 .atencion-vista__cita-precio {
@@ -645,6 +657,10 @@
   border-bottom: none;
   border-radius: var(--radio-borde-sm);
   background: color-mix(in srgb, var(--color-fondo-app) 45%, var(--color-superficie));
+}
+
+.atencion-vista__cita-panel .disenos-galeria-cita--panel {
+  margin-bottom: var(--espacio-md);
 }
 
 .atencion-vista__cita-panel .atencion-vista__avatar {

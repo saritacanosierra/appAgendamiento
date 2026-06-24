@@ -15,6 +15,18 @@ export function esRutaPlataforma(ruta = '') {
   return ruta.startsWith('/plataforma');
 }
 
+/** Sitio publico de una marca: /m/{slug}/... */
+export function esRutaPublicaMarca(ruta = '') {
+  const path = ruta.split('?')[0].replace(/\/+$/, '') || '/';
+  return /^\/m\/[^/]+/.test(path);
+}
+
+/** Panel admin (excluye pantalla de login en /admin). */
+export function esRutaAdminPanel(ruta = '') {
+  const path = ruta.split('?')[0].replace(/\/+$/, '') || '/';
+  return path.startsWith('/admin/');
+}
+
 export function esRutaAdminLogin(ruta = '') {
   const base = ruta.split('?')[0].replace(/\/+$/, '') || '/';
   return base === '/admin';

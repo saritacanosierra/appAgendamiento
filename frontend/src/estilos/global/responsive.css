@@ -1,17 +1,45 @@
+/* Mobile first — anchos progresivos en tablet y escritorio */
+
+@media (min-width: 480px) {
+  :root {
+    --ancho-maximo-contenedor: 520px;
+  }
+}
+
 @media (min-width: 768px) {
   :root {
     --tamano-titulo: 1.75rem;
-    --ancho-maximo-contenedor: 520px;
+    --tamano-titulo-lg: 2rem;
+    --ancho-maximo-contenedor: 680px;
   }
 
   .contenedor-app {
     padding: var(--espacio-lg);
   }
+
+  .contenedor-admin {
+    padding: var(--espacio-lg);
+  }
 }
 
 @media (min-width: 1024px) {
+  :root {
+    --ancho-maximo-contenedor: 920px;
+    --altura-menu-movil: 68px;
+  }
+
   .contenedor-admin {
-    max-width: 1100px;
+    max-width: 1040px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --ancho-maximo-contenedor: 1080px;
+  }
+
+  .contenedor-admin {
+    max-width: 1200px;
   }
 }
 

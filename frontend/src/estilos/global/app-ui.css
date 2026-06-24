@@ -14,7 +14,6 @@
   .tarjeta-app,
   .tarjeta-diseno,
   [class*='__formulario'],
-  [class*='__item'],
   [class*='__panel'],
   [class*='__tarjeta'],
   [class*='__card'],
@@ -25,10 +24,21 @@
   color: var(--color-texto-superficie);
 }
 
+/* Filas tipo tarjeta (excluye tabs, chips y menus de navegacion) */
+:is(
+  [class*='-vista__item'],
+  [class*='__lista-item'],
+  [class*='-admin__item'],
+  [class*='-publica__item']
+):not([class*='menu-']):not([class*='__tab']):not([class*='__filtro']):not([class*='__chip']) {
+  color: var(--color-texto-superficie);
+}
+
 :is(
   .tarjeta-app,
   [class*='__formulario'],
-  [class*='__item']
+  [class*='-vista__item'],
+  [class*='-admin__item']
 ) :is(h1, h2, h3, h4, p, label, span:not(.estado-cita), li) {
   color: inherit;
 }
@@ -36,17 +46,20 @@
 :is(
   .tarjeta-app,
   [class*='__formulario'],
-  [class*='__item']
+  [class*='-vista__item'],
+  [class*='-admin__item']
 ) .texto-muted,
 :is(
   .tarjeta-app,
   [class*='__formulario'],
-  [class*='__item']
+  [class*='-vista__item'],
+  [class*='-admin__item']
 ) [class*='__vacio'],
 :is(
   .tarjeta-app,
   [class*='__formulario'],
-  [class*='__item']
+  [class*='-vista__item'],
+  [class*='-admin__item']
 ) [class*='__meta'] {
   color: var(--color-texto-muted-superficie);
 }

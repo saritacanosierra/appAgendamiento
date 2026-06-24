@@ -2,6 +2,7 @@ import { BotonPrincipal } from '../../../compartido/componentes';
 import { ModalPortal } from '../../../compartido/utilidades/modalPortal';
 import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
+import DisenosGaleriaCita from '../../../componentes/admin/disenos_galeria_cita/DisenosGaleriaCita';
 import '../../../estilos/admin/atencion/modal_resumen_atencion.css';
 
 export default function ModalResumenAtencion({ cita, abierto, onCerrar }) {
@@ -84,6 +85,8 @@ export default function ModalResumenAtencion({ cita, abierto, onCerrar }) {
               </div>
             )}
           </dl>
+
+          <DisenosGaleriaCita disenos={cita.disenosGaleria} variante="panel" />
 
           <BotonPrincipal onClick={onCerrar} anchoCompleto>
             Cerrar

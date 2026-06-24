@@ -4,6 +4,7 @@ export default function CampoFormulario({
   etiqueta,
   id,
   error,
+  ayuda,
   children,
   requerido = false,
 }) {
@@ -16,6 +17,7 @@ export default function CampoFormulario({
         </label>
       )}
       {children}
+      {ayuda && !error && <span className="campo-formulario__ayuda">{ayuda}</span>}
       {error && <span className="campo-formulario__error">{error}</span>}
     </div>
   );

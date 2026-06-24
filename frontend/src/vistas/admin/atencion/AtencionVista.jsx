@@ -11,7 +11,15 @@ import {
 } from '../../../compartido/componentes';
 import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import { fechaHoyLocal, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
-import { useCronometro, formatearCronometro, parsearTiempoCronometro } from '../../../modulos/atencion/hooks/useCronometro';
+import {
+  useCronometro,
+  formatearCronometro,
+  parsearTiempoCronometro,
+  sincronizarCronometroConCitasActivas,
+  citaPermiteEstadoEnCurso,
+  limpiarCronometroPersistido,
+  leerCronometroGlobal,
+} from '../../../modulos/atencion/hooks/useCronometro';
 import {
   obtenerCitasAtencion,
   cerrarServicioAtencion,
@@ -21,6 +29,7 @@ import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import { mensajeErrorPanelAdmin } from '../../../compartido/utilidades/erroresAdmin';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import ModalResumenAtencion from './ModalResumenAtencion';
+import DisenosGaleriaCita from '../../../componentes/admin/disenos_galeria_cita/DisenosGaleriaCita';
 import '../../../estilos/admin/atencion/atencion.css';
 
 const MIN_SEGUNDOS_CRONOMETRO = 5;
@@ -136,6 +145,7 @@ export default function AtencionVista() {
     setError(null);
     try {
       const resultado = await obtenerCitasAtencion(fecha);
+      sincronizarCronometroConCitasActivas(resultado.pendientes);
       setDatos(resultado);
     } catch (err) {
       setError(mensajeErrorPanelAdmin(err));
@@ -148,6 +158,47 @@ export default function AtencionVista() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  useEffect(() => {
+    if (!datos?.pendientes || !citaSeleccionada) return;
+
+    const sigueActiva = datos.pendientes.some(
+      (c) => c.id === citaSeleccionada.id && citaPermiteEstadoEnCurso(c.estado)
+    );
+
+    if (!sigueActiva) {
+      limpiarCronometroPersistido();
+      setCitaSeleccionada(null);
+      setExtras([]);
+      setNotas('');
+      setTiempoManual('');
+      setErrorTiempoManual(null);
+      editandoTiempoRef.current = false;
+    }
+  }, [datos, citaSeleccionada]);
+
+  useEffect(() => {
+    function cerrarSeleccionSiCronometroLimpio() {
+      if (!citaSeleccionada) return;
+
+      const data = leerCronometroGlobal();
+      const idPersistido = data?.citaId ? Number(data.citaId) : null;
+
+      if (idPersistido !== Number(citaSeleccionada.id)) {
+        setCitaSeleccionada(null);
+        setExtras([]);
+        setNotas('');
+        setTiempoManual('');
+        setErrorTiempoManual(null);
+        editandoTiempoRef.current = false;
+      }
+    }
+
+    window.addEventListener('spa:cronometro-actualizado', cerrarSeleccionSiCronometroLimpio);
+    return () => {
+      window.removeEventListener('spa:cronometro-actualizado', cerrarSeleccionSiCronometroLimpio);
+    };
+  }, [citaSeleccionada]);
 
   useEffect(() => {
     obtenerServiciosAdicionalesActivos()
@@ -263,6 +314,8 @@ export default function AtencionVista() {
               </ul>
             </div>
           </div>
+
+          <DisenosGaleriaCita disenos={cita.disenosGaleria} variante="panel" />
 
           <div className="atencion-vista__cronometro">
             <div
@@ -690,12 +743,13 @@ export default function AtencionVista() {
                 <ul className="atencion-vista__citas">
                   {datos?.pendientes?.map((cita) => {
                     const expandida = citaSeleccionada?.id === cita.id;
+                    const enCurso = expandida && cronometro.activo && citaPermiteEstadoEnCurso(cita.estado);
                     return (
                       <li
                         key={cita.id}
                         className={`atencion-vista__cita-item${
                           expandida ? ' atencion-vista__cita-item--abierta' : ''
-                        }`}
+                        }${enCurso ? ' cita-en-curso' : ''}`}
                       >
                         <button
                           type="button"
@@ -714,6 +768,15 @@ export default function AtencionVista() {
                             <span className="atencion-vista__cita-servicio">{cita.servicio.nombre}</span>
                             <div className="atencion-vista__cita-meta">
                               <EstadoCita estado={cita.estado} canceladaPor={cita.canceladaPor} />
+                              {enCurso && (
+                                <span className="cita-en-curso__etiqueta">En curso</span>
+                              )}
+                              {cita.disenosGaleria?.length > 0 && (
+                                <span className="atencion-vista__cita-disenos">
+                                  {cita.disenosGaleria.length} diseno
+                                  {cita.disenosGaleria.length === 1 ? '' : 's'}
+                                </span>
+                              )}
                               <span className="atencion-vista__cita-duracion">
                                 {cita.servicio.duracionMinutos} min est.
                               </span>

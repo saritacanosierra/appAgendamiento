@@ -13,4 +13,19 @@
   .layout-publico {
     padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-xl));
   }
+
+  .layout-publico__contenido {
+    padding-top: var(--espacio-md);
+    padding-bottom: var(--espacio-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-publico {
+    padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-2xl));
+  }
+
+  .layout-publico__contenido {
+    padding-top: var(--espacio-lg);
+  }
 }
