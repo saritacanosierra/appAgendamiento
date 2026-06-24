@@ -30,6 +30,9 @@ export const baseDatos = {
   connectionLimit: 10,
   queueLimit: 0,
   charset: 'utf8mb4',
+  ...(process.env.DB_SSL === '1' || process.env.DB_SSL === 'true'
+    ? { ssl: { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } }
+    : {}),
 };
 
 export const corsOrigenes = (process.env.CORS_ORIGENES ?? 'http://localhost:5173')

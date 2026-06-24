@@ -1,6 +1,13 @@
 import { conBarraFinal } from '../utilidades/rutasApp';
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+function resolverApiBaseUrl() {
+  const configurada = import.meta.env.VITE_API_URL?.trim();
+  if (configurada) return configurada.replace(/\/$/, '');
+  if (import.meta.env.DEV) return '/api';
+  return '/_/backend/api';
+}
+
+export const API_BASE_URL = resolverApiBaseUrl();
 
 export const CLAVE_TOKEN_SESION = 'spa_unas_token';
 export const CLAVE_TOKEN_MARCA = 'spa_unas_token_marca';
