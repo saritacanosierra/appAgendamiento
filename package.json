@@ -1,12 +1,13 @@
 {
   "name": "spa-unas",
   "private": true,
-  "description": "Spa Unas — frontend React + backend Node",
+  "description": "Agendar Citas — frontend React + backend Node",
   "scripts": {
     "dev": "npm run dev:backend & npm run dev:frontend",
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
     "build": "npm run build --prefix frontend",
-    "start:backend": "npm start --prefix backend"
+    "start:backend": "npm start --prefix backend",
+    "preparar:git": "bash scripts/configurar-git-autor.sh"
   }
 }

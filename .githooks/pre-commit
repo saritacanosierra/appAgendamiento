@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Evita commits con un email que Vercel / GitHub no reconocen.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+AUTHOR_FILE="$ROOT/.git-author"
+
+[ -f "$AUTHOR_FILE" ] || exit 0
+
+expected_email="$(grep -E '^email=' "$AUTHOR_FILE" | head -1 | cut -d= -f2- | tr -d '\r')"
+current_email="$(git config user.email || true)"
+
+if [ -n "$expected_email" ] && [ "$current_email" != "$expected_email" ]; then
+  echo ""
+  echo "Commit bloqueado: user.email es '$current_email'"
+  echo "Este proyecto requiere '$expected_email' (ver .git-author)."
+  echo ""
+  echo "Ejecuta: npm run preparar:git"
+  echo ""
+  exit 1
+fi
+
+exit 0
