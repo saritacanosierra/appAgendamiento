@@ -1,11 +1,16 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { Cargando } from '../../compartido/componentes';
-import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../compartido/constantes';
-import { useAuth } from '../proveedores/ProveedorAuth';
+import { RUTAS_PLATAFORMA } from '../../compartido/constantes';
+import { PLATAFORMA_HABILITADA } from '../../compartido/configuracion/entornoApp';
+import { useAuthPlataforma } from '../proveedores/ProveedorAuth';
 
 export default function RutaProtegidaPlataforma({ children }) {
-  const { autenticado, cargando, usuario } = useAuth();
+  const { autenticado, cargando, usuario } = useAuthPlataforma();
   const ubicacion = useLocation();
+
+  if (!PLATAFORMA_HABILITADA) {
+    return <Navigate to="/" replace />;
+  }
 
   if (cargando) {
     return <Cargando mensaje="Verificando sesion..." />;
@@ -22,7 +27,7 @@ export default function RutaProtegidaPlataforma({ children }) {
   }
 
   if (usuario?.rol !== 'superadmin') {
-    return <Navigate to={RUTAS_ADMIN.panel} replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

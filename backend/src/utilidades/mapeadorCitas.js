@@ -24,6 +24,7 @@ export function mapearCitaAdmin(fila) {
     horaInicio: normalizarHoraSql(fila.hora_inicio),
     horaFin: normalizarHoraSql(fila.hora_fin),
     estado: fila.estado,
+    canceladaPor: fila.cancelada_por ?? null,
     notasInternas: fila.notas_internas,
     cliente: {
       id: fila.cliente_id_ref ?? fila.cliente_id,

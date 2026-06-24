@@ -1,6 +1,10 @@
-export function texto(valor) {
+import { aplicarCapitalizacion } from './capitalizarTexto.js';
+
+export function texto(valor, { capitalizar = false } = {}) {
   if (valor === null || valor === undefined) return '';
-  return String(valor).trim().replace(/<[^>]*>/g, '');
+  const limpio = String(valor).trim().replace(/<[^>]*>/g, '');
+  if (!capitalizar || !limpio) return limpio;
+  return aplicarCapitalizacion(limpio, capitalizar);
 }
 
 export function entero(valor) {

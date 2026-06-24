@@ -24,6 +24,7 @@ import {
   rechazarSolicitudReagendamiento,
 } from '../../../modulos/agenda/servicios/solicitudesReagendamientoServicio';
 import { formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
+import { mensajeErrorPanelAdmin } from '../../../compartido/utilidades/erroresAdmin';
 import '../../../estilos/admin/agenda/agenda.css';
 
 export default function AgendaVista() {
@@ -55,7 +56,7 @@ export default function AgendaVista() {
       const datos = await obtenerAgenda(fecha, vista);
       setAgenda(datos);
     } catch (err) {
-      setError(err.message);
+      setError(mensajeErrorPanelAdmin(err));
     } finally {
       setCargando(false);
     }

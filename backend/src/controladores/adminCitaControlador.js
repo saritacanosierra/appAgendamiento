@@ -78,3 +78,29 @@ export async function crearCliente(req, res) {
 
   return respuestaExito(res, resultado.cliente, 'Cliente registrado', 201);
 }
+
+export async function actualizarCliente(req, res) {
+  const clienteId = entero(req.params.id);
+  if (!clienteId) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await clienteServicio.actualizar(req.marcaId, clienteId, req.body);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  return respuestaExito(res, resultado.cliente, 'Cliente actualizado');
+}
+
+export async function desactivarCliente(req, res) {
+  const clienteId = entero(req.params.id);
+  if (!clienteId) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await clienteServicio.desactivar(req.marcaId, clienteId);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  return respuestaExito(res, resultado, 'Cliente eliminado de la lista');
+}

@@ -6,6 +6,7 @@ import RutaProtegidaAdmin from './RutaProtegidaAdmin';
 import RutaProtegidaPlataforma from './RutaProtegidaPlataforma';
 import RedireccionBarraFinal from './RedireccionBarraFinal';
 import { SuspenseCarga } from './SuspenseCarga';
+import { PLATAFORMA_HABILITADA } from '../../compartido/configuracion/entornoApp';
 import {
   InicioMarcaVista,
   ReservarVista,
@@ -75,25 +76,36 @@ export default function RutasApp() {
           </Route>
         </Route>
 
-        <Route path="/plataforma">
-          <Route index element={<SuspenseCarga><LoginVista key="login-plataforma" modo="plataforma" /></SuspenseCarga>} />
-          <Route path="login" element={<Navigate to={RUTAS_PLATAFORMA.login} replace />} />
-          <Route
-            element={
-              <RutaProtegidaPlataforma>
-                <LayoutPlataforma />
-              </RutaProtegidaPlataforma>
-            }
-          >
-            <Route path="panel" element={<SuspenseCarga><PanelPlataformaVista /></SuspenseCarga>} />
-            <Route path="marcas" element={<SuspenseCarga><MarcasPlataformaVista /></SuspenseCarga>} />
-            <Route path="marcas/:id" element={<SuspenseCarga><EditarMarcaPlataformaVista /></SuspenseCarga>} />
-            <Route path="reportes" element={<SuspenseCarga><ReportesPlataformaVista /></SuspenseCarga>} />
-          </Route>
-        </Route>
+        {PLATAFORMA_HABILITADA && (
+          <>
+            <Route path="/plataforma">
+              <Route index element={<SuspenseCarga><LoginVista key="login-plataforma" modo="plataforma" /></SuspenseCarga>} />
+              <Route path="login" element={<Navigate to={RUTAS_PLATAFORMA.login} replace />} />
+              <Route
+                element={
+                  <RutaProtegidaPlataforma>
+                    <LayoutPlataforma />
+                  </RutaProtegidaPlataforma>
+                }
+              >
+                <Route path="panel" element={<SuspenseCarga><PanelPlataformaVista /></SuspenseCarga>} />
+                <Route path="marcas" element={<SuspenseCarga><MarcasPlataformaVista /></SuspenseCarga>} />
+                <Route path="marcas/:id" element={<SuspenseCarga><EditarMarcaPlataformaVista /></SuspenseCarga>} />
+                <Route path="reportes" element={<SuspenseCarga><ReportesPlataformaVista /></SuspenseCarga>} />
+              </Route>
+            </Route>
 
-        <Route path="/plataformas" element={<Navigate to={RUTAS_PLATAFORMA.panel} replace />} />
-        <Route path="/plataformas/*" element={<Navigate to={RUTAS_PLATAFORMA.panel} replace />} />
+            <Route path="/plataformas" element={<Navigate to={RUTAS_PLATAFORMA.panel} replace />} />
+            <Route path="/plataformas/*" element={<Navigate to={RUTAS_PLATAFORMA.panel} replace />} />
+          </>
+        )}
+
+        {!PLATAFORMA_HABILITADA && (
+          <>
+            <Route path="/plataforma/*" element={<Navigate to="/" replace />} />
+            <Route path="/plataformas/*" element={<Navigate to="/" replace />} />
+          </>
+        )}
 
         <Route path="*" element={<SuspenseCarga><InicioVista /></SuspenseCarga>} />
       </Routes>

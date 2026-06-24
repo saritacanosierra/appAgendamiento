@@ -3,25 +3,49 @@
   padding: 0.25rem 0.625rem;
   border-radius: 999px;
   font-size: var(--tamano-texto-sm);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.3;
+  border: 1px solid transparent;
 }
 
+/* Colores fijos con contraste WCAG sobre fondo claro del badge */
 .estado-cita--pendiente {
-  background: #fff3e0;
-  color: #e65100;
+  background: #ffe0b2;
+  color: #7a4100;
+  border-color: color-mix(in srgb, #e65100 25%, transparent);
 }
 
 .estado-cita--confirmada {
-  background: #e8f5e9;
-  color: var(--color-exito);
+  background: #c8e6c9;
+  color: #1b5e20;
+  border-color: color-mix(in srgb, #2e7d32 25%, transparent);
 }
 
 .estado-cita--cancelada {
-  background: #ffebee;
-  color: var(--color-error);
+  background: #ffcdd2;
+  color: #b71c1c;
+  border-color: color-mix(in srgb, #c62828 25%, transparent);
 }
 
 .estado-cita--completada {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #bbdefb;
+  color: #0d47a1;
+  border-color: color-mix(in srgb, #1565c0 25%, transparent);
+}
+
+/* Asegura contraste aun dentro de tarjetas con color heredado */
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--pendiente {
+  color: #7a4100;
+}
+
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--confirmada {
+  color: #1b5e20;
+}
+
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--cancelada {
+  color: #b71c1c;
+}
+
+:is(.tarjeta-app, [class*='__tarjeta'], [class*='__item']) .estado-cita--completada {
+  color: #0d47a1;
 }

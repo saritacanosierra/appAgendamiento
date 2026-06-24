@@ -19,7 +19,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .menu-admin--sidebar .menu-admin__lista {
@@ -157,6 +157,7 @@
   flex-direction: column;
   border-radius: var(--radio-borde-lg) var(--radio-borde-lg) 0 0;
   background: var(--color-superficie);
+  color: var(--color-texto-superficie);
   box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.18);
   animation: menu-admin-slide-up 0.28s ease;
 }
@@ -177,13 +178,14 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--espacio-md) var(--espacio-lg);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde-superficie);
 }
 
 .menu-admin__drawer-cabecera h2 {
   margin: 0;
   font-size: var(--tamano-texto-lg);
   font-weight: 800;
+  color: var(--color-texto-superficie);
 }
 
 .menu-admin__drawer-cabecera button {
@@ -191,10 +193,15 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: none;
+  border: 1px solid var(--color-borde);
   border-radius: 50%;
   background: var(--color-fondo-app);
+  color: var(--color-texto);
   cursor: pointer;
+}
+
+.menu-admin__drawer-cabecera button .icono-app {
+  color: inherit;
 }
 
 .menu-admin__drawer-cuerpo {
@@ -208,7 +215,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-texto-muted);
+  color: var(--color-texto-muted-superficie);
 }
 
 .menu-admin__grupo--drawer .menu-admin__lista {
@@ -238,7 +245,7 @@
 .menu-admin__grupo--drawer .menu-admin__item--activo {
   border-color: color-mix(in srgb, var(--color-principal) 30%, var(--color-borde));
   background: color-mix(in srgb, var(--color-principal) 8%, var(--color-superficie));
-  color: var(--color-acento);
+  color: var(--color-acento-superficie);
 }
 
 .menu-admin__grupo--drawer .menu-admin__icono {
@@ -248,5 +255,5 @@
   place-items: center;
   border-radius: 12px;
   background: color-mix(in srgb, var(--color-secundario) 30%, var(--color-superficie));
-  color: var(--color-acento);
+  color: var(--color-acento-superficie);
 }

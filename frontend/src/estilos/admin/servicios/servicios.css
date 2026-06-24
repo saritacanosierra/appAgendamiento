@@ -22,6 +22,56 @@
   font-size: var(--tamano-texto-sm);
 }
 
+.servicios-admin__cabecera-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-sm);
+}
+
+.servicios-admin__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-xs);
+  margin-bottom: var(--espacio-md);
+}
+
+.servicios-admin__filtro {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  cursor: pointer;
+}
+
+.servicios-admin__filtro--activo {
+  border-color: var(--color-acento);
+  background: color-mix(in srgb, var(--color-acento) 15%, transparent);
+  color: var(--color-acento);
+}
+
+.servicios-admin__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.servicios-admin__badge--marca {
+  background: color-mix(in srgb, var(--color-acento) 18%, transparent);
+  color: var(--color-acento);
+}
+
+.servicios-admin__badge--adicional {
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+  color: #d97706;
+}
+
 .servicios-admin__formulario {
   padding: var(--espacio-md);
   margin-bottom: var(--espacio-lg);

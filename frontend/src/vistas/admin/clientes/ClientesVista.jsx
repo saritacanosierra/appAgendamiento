@@ -3,10 +3,25 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  IconoApp,
+  InputTexto,
   MensajeError,
+  ModalConfirmacion,
 } from '../../../compartido/componentes';
-import { crearCliente, listarClientes } from '../../../modulos/clientes/servicios/clientesServicio';
+import {
+  actualizarCliente,
+  crearCliente,
+  desactivarCliente,
+  listarClientes,
+} from '../../../modulos/clientes/servicios/clientesServicio';
 import '../../../estilos/admin/clientes/clientes.css';
+
+const FORM_VACIO = {
+  nombre: '',
+  telefono: '',
+  correo: '',
+  notas: '',
+};
 
 export default function ClientesVista() {
   const [clientes, setClientes] = useState([]);
@@ -15,11 +30,10 @@ export default function ClientesVista() {
   const [error, setError] = useState(null);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [enviando, setEnviando] = useState(false);
-
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [notas, setNotas] = useState('');
+  const [editandoId, setEditandoId] = useState(null);
+  const [clienteAEliminar, setClienteAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+  const [form, setForm] = useState(FORM_VACIO);
 
   async function cargar(q = busqueda) {
     setCargando(true);
@@ -37,22 +51,53 @@ export default function ClientesVista() {
     cargar();
   }, []);
 
+  function cerrarForm() {
+    setMostrarForm(false);
+    setEditandoId(null);
+    setForm(FORM_VACIO);
+  }
+
+  function abrirCrear() {
+    setEditandoId(null);
+    setForm(FORM_VACIO);
+    setMostrarForm(true);
+  }
+
+  function abrirEditar(cliente) {
+    setEditandoId(cliente.id);
+    setForm({
+      nombre: cliente.nombre ?? '',
+      telefono: cliente.telefono ?? '',
+      correo: cliente.correo ?? '',
+      notas: cliente.notas ?? '',
+    });
+    setMostrarForm(true);
+  }
+
   async function manejarBusqueda(e) {
     e.preventDefault();
     cargar(busqueda);
   }
 
-  async function manejarCrear(e) {
+  async function manejarEnviar(e) {
     e.preventDefault();
     setEnviando(true);
     setError(null);
     try {
-      await crearCliente({ nombre, telefono, correo, notas });
-      setNombre('');
-      setTelefono('');
-      setCorreo('');
-      setNotas('');
-      setMostrarForm(false);
+      const payload = {
+        nombre: form.nombre,
+        telefono: form.telefono,
+        correo: form.correo,
+        notas: form.notas,
+      };
+
+      if (editandoId) {
+        await actualizarCliente(editandoId, payload);
+      } else {
+        await crearCliente(payload);
+      }
+
+      cerrarForm();
       cargar();
     } catch (err) {
       setError(err.message);
@@ -61,12 +106,46 @@ export default function ClientesVista() {
     }
   }
 
+  async function confirmarEliminar() {
+    if (!clienteAEliminar) return;
+
+    setEliminando(true);
+    setError(null);
+    try {
+      await desactivarCliente(clienteAEliminar.id);
+      if (editandoId === clienteAEliminar.id) {
+        cerrarForm();
+      }
+      setClienteAEliminar(null);
+      cargar();
+    } catch (err) {
+      setError(err.message);
+      setClienteAEliminar(null);
+    } finally {
+      setEliminando(false);
+    }
+  }
+
   return (
     <div className="clientes-vista">
+      <ModalConfirmacion
+        abierto={Boolean(clienteAEliminar)}
+        titulo="Eliminar cliente"
+        mensaje={
+          clienteAEliminar
+            ? `¿Eliminar a "${clienteAEliminar.nombre}" de la lista? Sus citas y servicios ya realizados se conservan en el historial.`
+            : ''
+        }
+        textoConfirmar={eliminando ? 'Eliminando...' : 'Si, eliminar'}
+        textoCancelar="Cancelar"
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => !eliminando && setClienteAEliminar(null)}
+      />
+
       <header className="clientes-vista__cabecera">
         <h1>Clientes</h1>
-        <BotonPrincipal onClick={() => setMostrarForm(!mostrarForm)}>
-          {mostrarForm ? 'Cerrar' : '+ Nuevo cliente'}
+        <BotonPrincipal onClick={() => (mostrarForm && !editandoId ? cerrarForm() : abrirCrear())}>
+          {mostrarForm && !editandoId ? 'Cerrar' : '+ Nuevo cliente'}
         </BotonPrincipal>
       </header>
 
@@ -81,23 +160,49 @@ export default function ClientesVista() {
       </form>
 
       {mostrarForm && (
-        <form className="clientes-vista__formulario" onSubmit={manejarCrear}>
-          <h2>Registrar cliente</h2>
+        <form className="clientes-vista__formulario" onSubmit={manejarEnviar}>
+          <h2>{editandoId ? 'Editar cliente' : 'Registrar cliente'}</h2>
           <CampoFormulario etiqueta="Nombre" id="cl-nombre" requerido>
-            <input id="cl-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+            <InputTexto
+              id="cl-nombre"
+              capitalizar="palabras"
+              value={form.nombre}
+              onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))}
+              required
+            />
           </CampoFormulario>
           <CampoFormulario etiqueta="Telefono" id="cl-tel" requerido>
-            <input id="cl-tel" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+            <input
+              id="cl-tel"
+              type="tel"
+              value={form.telefono}
+              onChange={(e) => setForm((prev) => ({ ...prev, telefono: e.target.value }))}
+              required
+            />
           </CampoFormulario>
           <CampoFormulario etiqueta="Correo" id="cl-correo">
-            <input id="cl-correo" type="email" value={correo} onChange={(e) => setCorreo(e.target.value)} />
+            <input
+              id="cl-correo"
+              type="email"
+              value={form.correo}
+              onChange={(e) => setForm((prev) => ({ ...prev, correo: e.target.value }))}
+            />
           </CampoFormulario>
           <CampoFormulario etiqueta="Notas" id="cl-notas">
-            <textarea id="cl-notas" value={notas} onChange={(e) => setNotas(e.target.value)} />
+            <textarea
+              id="cl-notas"
+              value={form.notas}
+              onChange={(e) => setForm((prev) => ({ ...prev, notas: e.target.value }))}
+            />
           </CampoFormulario>
-          <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>
-            {enviando ? 'Guardando...' : 'Guardar cliente'}
-          </BotonPrincipal>
+          <div className="clientes-vista__form-acciones">
+            <BotonPrincipal tipo="button" variante="secundario" onClick={cerrarForm}>
+              Cancelar
+            </BotonPrincipal>
+            <BotonPrincipal tipo="submit" deshabilitado={enviando}>
+              {enviando ? 'Guardando...' : editandoId ? 'Guardar cambios' : 'Guardar cliente'}
+            </BotonPrincipal>
+          </div>
         </form>
       )}
 
@@ -111,9 +216,32 @@ export default function ClientesVista() {
           ) : (
             clientes.map((c) => (
               <li key={c.id} className="clientes-vista__item">
-                <strong>{c.nombre}</strong>
-                <span>{c.telefono}</span>
-                {c.correo && <span>{c.correo}</span>}
+                <div className="clientes-vista__item-datos">
+                  <strong>{c.nombre}</strong>
+                  <span>{c.telefono}</span>
+                  {c.correo && <span>{c.correo}</span>}
+                  {c.notas && <span className="clientes-vista__item-notas">{c.notas}</span>}
+                </div>
+                <div className="clientes-vista__item-acciones">
+                  <button
+                    type="button"
+                    className="clientes-vista__accion-icono clientes-vista__accion-icono--editar"
+                    onClick={() => abrirEditar(c)}
+                    aria-label={`Editar ${c.nombre}`}
+                    title="Editar"
+                  >
+                    <IconoApp nombre="editar" tamano="sm" />
+                  </button>
+                  <button
+                    type="button"
+                    className="clientes-vista__accion-icono clientes-vista__accion-icono--eliminar"
+                    onClick={() => setClienteAEliminar(c)}
+                    aria-label={`Eliminar ${c.nombre}`}
+                    title="Eliminar"
+                  >
+                    <IconoApp nombre="eliminar" tamano="sm" />
+                  </button>
+                </div>
               </li>
             ))
           )}

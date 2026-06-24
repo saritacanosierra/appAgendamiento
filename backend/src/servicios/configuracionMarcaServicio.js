@@ -1,4 +1,8 @@
 import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositorio.js';
+import {
+  mapearWhatsappApiAdmin,
+  whatsappMarcaServicio,
+} from './whatsappMarcaServicio.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 import { normalizarHorariosMarca } from '../utilidades/horarios.js';
 import { requerido, validar } from '../utilidades/validador.js';
@@ -9,6 +13,39 @@ const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 function validarColor(valor, campo) {
   if (!valor) return `El campo ${campo} es obligatorio.`;
   return HEX_COLOR.test(valor) ? null : `${campo} debe ser un color hexadecimal valido.`;
+}
+
+function whatsappApiDesdeFila(fila) {
+  if (!fila) return null;
+  const config = parsearJsonCampo(fila.configuracion_json, {});
+  const wa = config.whatsapp_api ?? {};
+  return mapearWhatsappApiAdmin({
+    numeroPublico: fila.whatsapp,
+    habilitado: Boolean(wa.habilitado),
+    phoneNumberId: wa.phone_number_id ?? null,
+    tokenConfigurado: Boolean(wa.token),
+    codigoPais: wa.codigo_pais ?? '52',
+    plantillaRecordatorio: wa.plantilla_recordatorio ?? null,
+    plantillaIdioma: wa.plantilla_idioma ?? 'es_MX',
+    configurado: Boolean(wa.habilitado && wa.phone_number_id && wa.token),
+  });
+}
+
+function incluyeDatosWhatsappApi(datos) {
+  return [
+    'whatsapp_api_habilitado',
+    'whatsappApiHabilitado',
+    'whatsapp_phone_number_id',
+    'whatsappPhoneNumberId',
+    'whatsapp_token',
+    'whatsappToken',
+    'whatsapp_codigo_pais',
+    'whatsappCodigoPais',
+    'whatsapp_plantilla_recordatorio',
+    'whatsappPlantillaRecordatorio',
+    'whatsapp_plantilla_idioma',
+    'whatsappPlantillaIdioma',
+  ].some((clave) => datos[clave] !== undefined);
 }
 
 export function mapearConfiguracionAdmin(fila) {
@@ -29,6 +66,7 @@ export function mapearConfiguracionAdmin(fila) {
     whatsapp: fila.whatsapp,
     direccion: fila.direccion,
     horarios: normalizarHorariosMarca(parsearJsonCampo(fila.horarios_json, {})),
+    whatsappApi: whatsappApiDesdeFila(fila),
   };
 }
 
@@ -47,7 +85,7 @@ export class ConfiguracionMarcaServicio {
     const actual = await this.configRepo.obtenerAdmin(marcaId);
     if (!actual) return { error: 'Marca no encontrada.', codigoHttp: 404 };
 
-    const nombreComercial = texto(datos.nombre_comercial ?? datos.nombreComercial ?? actual.nombre_comercial);
+    const nombreComercial = texto(datos.nombre_comercial ?? datos.nombreComercial ?? actual.nombre_comercial, { capitalizar: 'palabras' });
     const colorPrincipal = texto(datos.color_principal ?? datos.colorPrincipal ?? actual.color_principal);
     const colorSecundario = texto(datos.color_secundario ?? datos.colorSecundario ?? actual.color_secundario);
     const colorFondo = texto(datos.color_fondo ?? datos.colorFondo ?? actual.color_fondo ?? '#FFFFFF');
@@ -96,6 +134,10 @@ export class ConfiguracionMarcaServicio {
       colorTexto,
       tipografia,
     });
+
+    if (incluyeDatosWhatsappApi(datos)) {
+      await whatsappMarcaServicio.guardarConfigAdmin(marcaId, datos);
+    }
 
     const fila = await this.configRepo.obtenerAdmin(marcaId);
     return { configuracion: mapearConfiguracionAdmin(fila) };

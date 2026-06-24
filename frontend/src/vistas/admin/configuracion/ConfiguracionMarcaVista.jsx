@@ -6,8 +6,10 @@ import {
   CampoFormulario,
   Cargando,
   ImagenAmpliable,
+  InputTexto,
   MensajeError,
   ModalMensaje,
+  TextareaTexto,
 } from '../../../compartido/componentes';
 import { aplicarTemaMarca } from '../../../compartido/utilidades/temaMarca';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
@@ -20,6 +22,7 @@ import {
   iniciarAutorizacionGoogle,
   obtenerEstadoGoogleCalendar,
   probarGoogleCalendar,
+  probarWhatsappMarca,
 } from '../../../modulos/configuracion_marca/servicios/integracionesServicio';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
@@ -41,6 +44,9 @@ export default function ConfiguracionMarcaVista() {
   const [cargando, setCargando] = useState(true);
   const [conectandoGoogle, setConectandoGoogle] = useState(false);
   const [probandoGoogle, setProbandoGoogle] = useState(false);
+  const [probandoWhatsapp, setProbandoWhatsapp] = useState(false);
+  const [telefonoPruebaWhatsapp, setTelefonoPruebaWhatsapp] = useState('');
+  const [whatsappTokenNuevo, setWhatsappTokenNuevo] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [error, setError] = useState(null);
@@ -200,6 +206,37 @@ export default function ConfiguracionMarcaVista() {
     }
   }
 
+  function actualizarWhatsappApi(campo, valor) {
+    setConfig((prev) => ({
+      ...prev,
+      whatsappApi: {
+        ...(prev.whatsappApi ?? {}),
+        [campo]: valor,
+      },
+    }));
+  }
+
+  async function probarWhatsapp() {
+    if (!telefonoPruebaWhatsapp.trim()) {
+      setError('Indica un telefono para la prueba de WhatsApp.');
+      return;
+    }
+    setProbandoWhatsapp(true);
+    setError(null);
+    try {
+      await probarWhatsappMarca(telefonoPruebaWhatsapp.replace(/\D+/g, ''));
+      setModalMensaje({
+        titulo: 'WhatsApp de prueba enviado',
+        mensaje: 'Revisa el telefono indicado. El mensaje sale desde el numero de esta marca.',
+        variante: 'exito',
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProbandoWhatsapp(false);
+    }
+  }
+
   async function probarGoogle() {
     setProbandoGoogle(true);
     setError(null);
@@ -238,11 +275,21 @@ export default function ConfiguracionMarcaVista() {
       whatsapp: config.whatsapp,
       direccion: config.direccion,
       horarios: config.horarios,
+      whatsapp_api_habilitado: config.whatsappApi?.habilitado ?? false,
+      whatsapp_phone_number_id: config.whatsappApi?.phoneNumberId ?? '',
+      whatsapp_codigo_pais: config.whatsappApi?.codigoPais ?? '52',
+      whatsapp_plantilla_recordatorio: config.whatsappApi?.plantillaRecordatorio ?? '',
+      whatsapp_plantilla_idioma: config.whatsappApi?.plantillaIdioma ?? 'es_MX',
     };
+
+    if (whatsappTokenNuevo.trim()) {
+      payload.whatsapp_token = whatsappTokenNuevo.trim();
+    }
 
     try {
       const actualizada = await actualizarConfiguracionMarca(payload);
       setConfig(actualizada);
+      setWhatsappTokenNuevo('');
       await recargarSesion();
       aplicarTemaMarca(actualizada);
       setModalMensaje({
@@ -287,15 +334,16 @@ export default function ConfiguracionMarcaVista() {
         <section className="configuracion-marca__seccion">
           <h2>Identidad</h2>
           <CampoFormulario etiqueta="Nombre comercial" id="cfg-nombre" requerido>
-            <input
+            <InputTexto
               id="cfg-nombre"
+              capitalizar="palabras"
               value={config.nombreComercial}
               onChange={(e) => actualizarCampo('nombreComercial', e.target.value)}
               required
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Descripcion" id="cfg-desc">
-            <textarea
+            <TextareaTexto
               id="cfg-desc"
               value={config.descripcion ?? ''}
               onChange={(e) => actualizarCampo('descripcion', e.target.value)}
@@ -346,10 +394,15 @@ export default function ConfiguracionMarcaVista() {
               id="cfg-wa"
               value={config.whatsapp ?? ''}
               onChange={(e) => actualizarCampo('whatsapp', e.target.value)}
+              placeholder="Numero publico visible en la web"
             />
+            <p className="configuracion-marca__hint">
+              Con este numero las clientas pueden escribirte por WhatsApp (enlace wa.me) sin configurar token de Meta.
+              Para mensajes automaticos al reservar o recordatorios, usa la seccion de abajo.
+            </p>
           </CampoFormulario>
           <CampoFormulario etiqueta="Direccion" id="cfg-dir">
-            <input
+            <InputTexto
               id="cfg-dir"
               value={config.direccion ?? ''}
               onChange={(e) => actualizarCampo('direccion', e.target.value)}
@@ -466,6 +519,94 @@ export default function ConfiguracionMarcaVista() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section className="configuracion-marca__seccion">
+          <h2>WhatsApp Business (esta marca)</h2>
+          <p className="configuracion-marca__hint">
+            Cada marca envia mensajes desde su propio numero de Meta. Las credenciales de una marca
+            no se comparten con otras.
+          </p>
+
+          <label className="configuracion-marca__horario-toggle configuracion-marca__whatsapp-toggle">
+            <input
+              type="checkbox"
+              checked={Boolean(config.whatsappApi?.habilitado)}
+              onChange={(e) => actualizarWhatsappApi('habilitado', e.target.checked)}
+            />
+            <span className="configuracion-marca__horario-switch" aria-hidden="true" />
+            <span>Activar envios automaticos por WhatsApp</span>
+          </label>
+
+          <CampoFormulario etiqueta="Phone Number ID (Meta)" id="cfg-wa-phone-id">
+            <input
+              id="cfg-wa-phone-id"
+              value={config.whatsappApi?.phoneNumberId ?? ''}
+              onChange={(e) => actualizarWhatsappApi('phoneNumberId', e.target.value)}
+              placeholder="ID tecnico de WhatsApp Manager"
+            />
+          </CampoFormulario>
+
+          <CampoFormulario
+            etiqueta={config.whatsappApi?.tokenConfigurado ? 'Token de acceso (dejar vacio para no cambiar)' : 'Token de acceso'}
+            id="cfg-wa-token"
+          >
+            <input
+              id="cfg-wa-token"
+              type="password"
+              value={whatsappTokenNuevo}
+              onChange={(e) => setWhatsappTokenNuevo(e.target.value)}
+              placeholder={config.whatsappApi?.tokenConfigurado ? '••••••••' : 'Pega el token de Meta'}
+              autoComplete="off"
+            />
+          </CampoFormulario>
+
+          <CampoFormulario etiqueta="Codigo de pais" id="cfg-wa-pais">
+            <input
+              id="cfg-wa-pais"
+              value={config.whatsappApi?.codigoPais ?? '52'}
+              onChange={(e) => actualizarWhatsappApi('codigoPais', e.target.value.replace(/\D+/g, ''))}
+              placeholder="52"
+            />
+          </CampoFormulario>
+
+          <CampoFormulario etiqueta="Plantilla recordatorio (opcional)" id="cfg-wa-plantilla">
+            <input
+              id="cfg-wa-plantilla"
+              value={config.whatsappApi?.plantillaRecordatorio ?? ''}
+              onChange={(e) => actualizarWhatsappApi('plantillaRecordatorio', e.target.value)}
+              placeholder="recordatorio_cita"
+            />
+          </CampoFormulario>
+
+          {config.whatsappApi?.configurado ? (
+            <p className="configuracion-marca__google-ok">
+              Configurado — los mensajes saldran desde el numero publico: {config.whatsappApi?.numeroPublico || 'sin numero publico'}.
+            </p>
+          ) : (
+            <p className="configuracion-marca__hint">
+              Guarda Phone Number ID y token, luego prueba el envio antes de usar recordatorios automaticos.
+            </p>
+          )}
+
+          <div className="configuracion-marca__google-acciones">
+            <CampoFormulario etiqueta="Telefono de prueba" id="cfg-wa-prueba">
+              <input
+                id="cfg-wa-prueba"
+                value={telefonoPruebaWhatsapp}
+                onChange={(e) => setTelefonoPruebaWhatsapp(e.target.value)}
+                placeholder="10 digitos"
+              />
+            </CampoFormulario>
+            <BotonPrincipal
+              type="button"
+              variante="secundario"
+              onClick={probarWhatsapp}
+              deshabilitado={probandoWhatsapp || !config.whatsappApi?.configurado}
+            >
+              {probandoWhatsapp ? 'Enviando...' : 'Probar WhatsApp'}
+            </BotonPrincipal>
           </div>
         </section>
 

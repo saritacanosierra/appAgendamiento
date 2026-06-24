@@ -25,3 +25,16 @@ export async function probarGoogleCalendar() {
   });
   return respuesta.datos;
 }
+
+export async function obtenerEstadoWhatsappMarca() {
+  const respuesta = await peticionAdmin('/admin/integraciones/whatsapp');
+  return respuesta.datos;
+}
+
+export async function probarWhatsappMarca(telefono) {
+  const respuesta = await peticionAdmin('/admin/integraciones/whatsapp/probar', {
+    method: 'POST',
+    body: JSON.stringify({ telefono }),
+  });
+  return respuesta.datos;
+}

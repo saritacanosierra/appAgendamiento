@@ -101,11 +101,13 @@ CREATE TABLE IF NOT EXISTS servicios (
   duracion_minutos SMALLINT UNSIGNED NOT NULL DEFAULT 60,
   precio DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   activo TINYINT(1) NOT NULL DEFAULT 1,
+  tipo ENUM('marca', 'adicional') NOT NULL DEFAULT 'marca',
   orden_visualizacion SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_servicios_marca_id (marca_id),
   KEY idx_servicios_activo (marca_id, activo),
+  KEY idx_servicios_tipo (marca_id, tipo, activo),
   CONSTRAINT fk_servicios_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -122,6 +124,7 @@ CREATE TABLE IF NOT EXISTS citas (
   hora_inicio TIME NOT NULL,
   hora_fin TIME NOT NULL,
   estado ENUM('pendiente', 'confirmada', 'cancelada', 'completada') NOT NULL DEFAULT 'pendiente',
+  cancelada_por ENUM('admin', 'cliente') NULL DEFAULT NULL,
   notas_internas TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -165,7 +168,8 @@ CREATE TABLE IF NOT EXISTS disenos_galeria (
   marca_id INT UNSIGNED NOT NULL,
   titulo VARCHAR(150) NOT NULL,
   imagen_ruta VARCHAR(255) NOT NULL,
-  categoria VARCHAR(100) NULL,
+  categoria VARCHAR(100) NULL COMMENT 'Tipo: manicura, pedicura, etc.',
+  temporada VARCHAR(100) NULL COMMENT 'Estilo tematico: halloween, navidad, etc.',
   colores_relacionados VARCHAR(255) NULL COMMENT 'Colores separados por coma',
   activo TINYINT(1) NOT NULL DEFAULT 1,
   orden_visualizacion SMALLINT UNSIGNED NOT NULL DEFAULT 0,
@@ -176,6 +180,22 @@ CREATE TABLE IF NOT EXISTS disenos_galeria (
   KEY idx_disenos_activo (marca_id, activo),
   KEY idx_disenos_orden (marca_id, orden_visualizacion),
   CONSTRAINT fk_disenos_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Catalogo configurable de categorias y temporadas (galeria)
+CREATE TABLE IF NOT EXISTS galeria_catalogo (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  marca_id INT UNSIGNED NOT NULL,
+  tipo ENUM('categoria', 'temporada') NOT NULL,
+  etiqueta VARCHAR(100) NOT NULL,
+  valor VARCHAR(100) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+  orden_visualizacion SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_galeria_catalogo_marca_tipo_valor (marca_id, tipo, valor),
+  KEY idx_galeria_catalogo_lista (marca_id, tipo, activo, orden_visualizacion),
+  CONSTRAINT fk_galeria_catalogo_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------

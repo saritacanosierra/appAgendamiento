@@ -226,9 +226,21 @@ export class ReservaRepositorio {
       campos.push('estado = ?');
       params.push(datos.estado);
     }
+    if (datos.canceladaPor !== undefined) {
+      if (datos.canceladaPor === null) {
+        campos.push('cancelada_por = NULL');
+      } else {
+        campos.push('cancelada_por = ?');
+        params.push(datos.canceladaPor);
+      }
+    }
     if (datos.notasInternas !== undefined) {
       campos.push('notas_internas = ?');
       params.push(datos.notasInternas);
+    }
+
+    if (datos.fecha !== undefined || datos.horaInicio !== undefined) {
+      campos.push('whatsapp_recordatorio_enviado_at = NULL');
     }
 
     if (campos.length === 0) return false;
@@ -240,6 +252,37 @@ export class ReservaRepositorio {
     );
     return resultado.affectedRows > 0;
   }
+
+  async listarPendientesRecordatorioWhatsapp() {
+    const [filas] = await pool.execute(
+      `SELECT c.id, c.marca_id, c.codigo_confirmacion, c.fecha, c.hora_inicio, c.hora_fin, c.estado,
+              cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono,
+              s.nombre AS servicio_nombre,
+              m.nombre_comercial, m.slug AS marca_slug, m.direccion AS marca_direccion
+       FROM citas c
+       INNER JOIN clientes cl ON cl.id = c.cliente_id
+       INNER JOIN servicios s ON s.id = c.servicio_id
+       INNER JOIN marcas m ON m.id = c.marca_id AND m.activa = 1
+       WHERE c.estado IN ('pendiente', 'confirmada')
+         AND c.whatsapp_recordatorio_enviado_at IS NULL
+         AND cl.telefono IS NOT NULL
+         AND TRIM(cl.telefono) != ''
+         AND c.fecha >= CURDATE()
+         AND c.fecha <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
+       ORDER BY c.fecha ASC, c.hora_inicio ASC`
+    );
+    return filas;
+  }
+
+  async marcarRecordatorioWhatsappEnviado(citaId) {
+    const [resultado] = await pool.execute(
+      `UPDATE citas
+       SET whatsapp_recordatorio_enviado_at = NOW()
+       WHERE id = ? AND whatsapp_recordatorio_enviado_at IS NULL`,
+      [citaId]
+    );
+    return resultado.affectedRows > 0;
+  }
 }
 
 export class ClienteRepositorio {
@@ -247,6 +290,18 @@ export class ClienteRepositorio {
     const [filas] = await pool.execute(
       `SELECT * FROM clientes WHERE marca_id = ? AND telefono = ? AND activo = 1 LIMIT 1`,
       [marcaId, telefono]
+    );
+    return filas[0] ?? null;
+  }
+
+  async buscarPorTelefonoYCorreo(marcaId, telefono, correo) {
+    const correoNorm = (correo ?? '').trim().toLowerCase();
+    const [filas] = await pool.execute(
+      `SELECT * FROM clientes
+       WHERE marca_id = ? AND telefono = ? AND activo = 1
+         AND LOWER(TRIM(COALESCE(correo, ''))) = ?
+       LIMIT 1`,
+      [marcaId, telefono, correoNorm]
     );
     return filas[0] ?? null;
   }
@@ -290,5 +345,31 @@ export class ClienteRepositorio {
       `UPDATE clientes SET nombre = ?, correo = COALESCE(?, correo) WHERE id = ?`,
       [nombre, correo || null, clienteId]
     );
+  }
+
+  async actualizarAdmin(marcaId, clienteId, { nombre, telefono, correo, notas }) {
+    const [resultado] = await pool.execute(
+      `UPDATE clientes
+       SET nombre = ?, telefono = ?, correo = ?, notas = ?
+       WHERE id = ? AND marca_id = ? AND activo = 1`,
+      [nombre, telefono, correo || null, notas || null, clienteId, marcaId]
+    );
+    return resultado.affectedRows > 0;
+  }
+
+  async desactivar(marcaId, clienteId) {
+    const [resultado] = await pool.execute(
+      `UPDATE clientes SET activo = 0 WHERE id = ? AND marca_id = ? AND activo = 1`,
+      [clienteId, marcaId]
+    );
+    return resultado.affectedRows > 0;
+  }
+
+  async contarCitas(marcaId, clienteId) {
+    const [filas] = await pool.execute(
+      `SELECT COUNT(*) AS total FROM citas WHERE marca_id = ? AND cliente_id = ?`,
+      [marcaId, clienteId]
+    );
+    return Number(filas[0]?.total ?? 0);
   }
 }

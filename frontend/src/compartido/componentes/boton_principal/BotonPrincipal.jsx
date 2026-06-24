@@ -12,6 +12,8 @@ export default function BotonPrincipal({
   href,
   to,
   className = '',
+  target,
+  rel,
 }) {
   const tipoBoton = type ?? tipo;
   const clases = [
@@ -33,7 +35,7 @@ export default function BotonPrincipal({
 
   if (href) {
     return (
-      <a className={clases} href={href}>
+      <a className={clases} href={href} target={target} rel={rel}>
         {children}
       </a>
     );

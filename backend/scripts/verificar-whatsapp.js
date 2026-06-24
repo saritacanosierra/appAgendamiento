@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Verifica variables de WhatsApp Business Cloud API sin mostrar secretos.
+ * Verifica variables globales de WhatsApp (timing/API version).
+ * Las credenciales de envio son **por marca** en Admin → Mi marca.
  */
 import dotenv from 'dotenv';
 import path from 'path';
@@ -10,33 +11,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const vars = [
-  'WHATSAPP_HABILITADO',
-  'WHATSAPP_TOKEN',
-  'WHATSAPP_PHONE_NUMBER_ID',
-  'WHATSAPP_CODIGO_PAIS',
   'WHATSAPP_API_VERSION',
+  'WHATSAPP_RECORDATORIO_HABILITADO',
+  'WHATSAPP_RECORDATORIO_HORAS',
+  'WHATSAPP_RECORDATORIO_VENTANA_MIN',
+  'WHATSAPP_RECORDATORIO_INTERVALO_MIN',
 ];
 
-console.log('--- Verificacion WhatsApp Business API ---\n');
+console.log('--- Verificacion WhatsApp (global) ---\n');
+console.log('Nota: Phone Number ID y token se configuran por marca en Admin → Mi marca.\n');
 
 for (const nombre of vars) {
   const valor = process.env[nombre];
   if (!valor) {
-    console.log(`[ ] ${nombre}: no definida`);
+    console.log(`[ ] ${nombre}: no definida (usa valor por defecto en codigo)`);
     continue;
   }
-  if (nombre.includes('TOKEN')) {
-    console.log(`[x] ${nombre}: definida (${valor.length} caracteres)`);
-  } else {
-    console.log(`[x] ${nombre}: ${valor}`);
-  }
+  console.log(`[x] ${nombre}: ${valor}`);
 }
 
-const listo = Boolean(
-  process.env.WHATSAPP_HABILITADO === '1'
-  && process.env.WHATSAPP_TOKEN
-  && process.env.WHATSAPP_PHONE_NUMBER_ID
-);
-
-console.log('\nEstado:', listo ? 'LISTO para enviar mensajes' : 'INCOMPLETO — revisa .env');
+console.log('\nEstado: revisa cada marca en Admin → Mi marca → WhatsApp Business');
 console.log('Guia: documentacion/whatsapp.md');

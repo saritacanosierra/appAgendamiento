@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import {
   BotonPrincipal,
+  BotonWhatsapp,
   Cargando,
   EncabezadoMarca,
   EstadoCita,
@@ -11,6 +12,7 @@ import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerConfirmacion } from '../../../modulos/reservas/servicios/reservasServicio';
 import { descargarArchivoIcs, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
+import { mensajeConfirmacionCita } from '../../../compartido/utilidades/enlaceWhatsapp';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import '../../../estilos/publico/confirmacion/confirmacion.css';
 
@@ -38,6 +40,8 @@ export default function ConfirmacionReservaVista() {
   if (!confirmacion) return null;
 
   const { cita, calendario, mensajeConfirmacion } = confirmacion;
+  const nombreMarca = marca?.nombreComercial ?? cita.marca.nombreComercial;
+  const whatsappReserva = marca?.whatsapp;
 
   return (
     <div className="confirmacion-reserva">
@@ -47,7 +51,7 @@ export default function ConfirmacionReservaVista() {
         <span className="confirmacion-reserva__icono" aria-hidden="true">✓</span>
         <h1>¡Cita confirmada!</h1>
         <p>{mensajeConfirmacion}</p>
-        <EstadoCita estado={cita.estado} />
+        <EstadoCita estado={cita.estado} canceladaPor={cita.canceladaPor} />
       </div>
 
       <dl className="confirmacion-reserva__detalle">
@@ -74,6 +78,21 @@ export default function ConfirmacionReservaVista() {
         >
           Gestionar mi cita
         </BotonPrincipal>
+        {whatsappReserva && (
+          <BotonWhatsapp
+            telefono={whatsappReserva}
+            anchoCompleto
+            mensaje={mensajeConfirmacionCita({
+              nombreMarca,
+              servicio: cita.servicio.nombre,
+              fecha: cita.fecha,
+              hora: formatearHoraLegible(cita.horaInicio),
+              codigo: cita.codigo,
+            })}
+          >
+            Confirmar por WhatsApp
+          </BotonWhatsapp>
+        )}
         <BotonPrincipal
           href={calendario.enlaceGoogle}
           anchoCompleto

@@ -1,4 +1,7 @@
 import { useId, useState } from 'react';
+import {
+  etiquetaDesdeCatalogo,
+} from '../../../modulos/galeria/constantes/galeriaCatalogo';
 import '../../../estilos/compartido/galeria_filtros_acordeon/galeria_filtros_acordeon.css';
 
 export default function GaleriaFiltrosAcordeon({
@@ -6,16 +9,23 @@ export default function GaleriaFiltrosAcordeon({
   onBusquedaChange,
   categoria,
   onCategoriaChange,
+  temporada,
+  onTemporadaChange,
   tendencia,
   onTendenciaChange,
   categorias,
+  temporadas,
+  catalogo = [],
   onLimpiar,
 }) {
   const [abierto, setAbierto] = useState(false);
   const panelId = useId();
 
   const hayFiltros =
-    Boolean(busqueda.trim()) || categoria !== 'todas' || tendencia !== 'todas';
+    Boolean(busqueda.trim())
+    || categoria !== 'todas'
+    || temporada !== 'todas'
+    || tendencia !== 'todas';
 
   return (
     <section
@@ -48,7 +58,7 @@ export default function GaleriaFiltrosAcordeon({
                 type="search"
                 value={busqueda}
                 onChange={(e) => onBusquedaChange(e.target.value)}
-                placeholder="Titulo, categoria o color..."
+                placeholder="Titulo, categoria, temporada o color..."
                 autoComplete="off"
               />
             </label>
@@ -59,7 +69,20 @@ export default function GaleriaFiltrosAcordeon({
                 <option value="todas">Todas</option>
                 {categorias.map((cat) => (
                   <option key={cat} value={cat}>
-                    {cat}
+                    {etiquetaDesdeCatalogo(cat, catalogo)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="galeria-filtros__campo">
+              <span className="galeria-filtros__etiqueta">Temporada</span>
+              <select value={temporada} onChange={(e) => onTemporadaChange(e.target.value)}>
+                <option value="todas">Todas</option>
+                <option value="sin-temporada">Sin temporada</option>
+                {temporadas.map((temp) => (
+                  <option key={temp} value={temp}>
+                    {etiquetaDesdeCatalogo(temp, catalogo)}
                   </option>
                 ))}
               </select>

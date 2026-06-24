@@ -21,7 +21,7 @@ Ese comando levanta **los dos servicios a la vez** en la misma terminal:
 
 - App pública demo: http://localhost:5173/m/luna-nails/
 - Admin de marca (login): http://localhost:5173/admin/
-- Plataforma superadmin (login): http://localhost:5173/plataforma/
+- Plataforma superadmin (solo desarrollo / operador SaaS): http://localhost:5173/plataforma/
 
 > **No uses** `http://localhost/appcitas` en Apache/XAMPP para ver la app React.  
 > Con XAMPP solo necesitas **MySQL**; el front y el back corren con Node (`npm run dev`).
@@ -34,7 +34,7 @@ La app tiene **tres zonas** con prefijos fijos. Todas las rutas del front llevan
 |------|---------|---------|--------------|
 | Publica (clientes) | `/m/{slug}/` | `/m/luna-nails/reservar/` | Visitantes |
 | Admin de marca | `/admin/` | `/admin/agenda/` | Dueño/admin de una empresa |
-| Plataforma SaaS | `/plataforma/` | `/plataforma/marcas/` | Superadmin (varias empresas) |
+| Plataforma SaaS | `/plataforma/` | `/plataforma/marcas/` | Superadmin (operador SaaS; oculto en despliegue solo-marca) |
 
 ### Admin de marca
 
@@ -47,14 +47,90 @@ La app tiene **tres zonas** con prefijos fijos. Todas las rutas del front llevan
 - `/plataforma/` — login superadmin
 - `/plataforma/panel/`, `/plataforma/marcas/`, `/plataforma/reportes/`
 
-### Seguridad por rol
+### Seguridad por rol y aislamiento entre marcas
 
-- **Frontend:** `RutaProtegidaAdmin` y `RutaProtegidaPlataforma` envuelven todas las vistas internas (no solo el login). Un superadmin en `/admin/...` se redirige a plataforma; un admin de marca en `/plataforma/...` se redirige a su panel.
-- **Backend:** `/api/admin/*` exige sesion de marca; `/api/plataforma/*` exige superadmin.
+La app separa **tres zonas** que no deben mezclarse: publica (`/m/{slug}/`), admin de marca (`/admin/`) y operaciones internas del SaaS (`/plataforma/`). Un dueño de marca **no debe saber que existe plataforma** ni acceder a datos de otra empresa.
 
-Las rutas del front se centralizan en `frontend/src/compartido/constantes/index.js` (`RUTAS_PUBLICAS`, `RUTAS_ADMIN`, `RUTAS_PLATAFORMA`). Usa siempre esas constantes en enlaces y navegacion.
+#### Reglas principales
 
-Rutas antiguas (`/admin/login`, `/plataforma/login`) redirigen automaticamente a `/admin/` y `/plataforma/`.
+| Regla | Como se aplica |
+|-------|----------------|
+| **Datos aislados por marca** | Toda ruta `/api/admin/*` usa el `marca_id` de la sesion (token), nunca un ID enviado por el cliente. Si el body o query traen otro `marca_id`, el backend responde **403 Acceso denegado**. |
+| **Sin permiso, sin acceso** | Sin sesion valida no hay panel. Solo roles `admin` y `staff` entran a `/admin/`. Solo `superadmin` entra a `/plataforma/`. Cualquier otro rol recibe error generico. |
+| **Login sin filtraciones** | Credenciales de superadmin en `/admin/` → *Credenciales invalidas* (no se menciona plataforma). Credenciales de marca en `/plataforma/` → igual. |
+| **UI sin cruces** | El login de marca no enlaza a plataforma. El panel admin no muestra “ir a plataforma”. Mensajes de error no revelan otros paneles. |
+| **API admin vs plataforma** | `/api/admin/*` → sesion de marca (`admin`/`staff`). `/api/plataforma/*` → solo `superadmin`. |
+| **Sesiones paralelas** | El navegador guarda dos tokens: uno para `/plataforma/` (superadmin) y otro para `/admin/` (marca). Puedes tener ambas pestañas abiertas a la vez; cerrar sesion en una no afecta la otra. |
+
+#### Frontend (guards)
+
+- `RutaProtegidaAdmin` — exige sesion; solo `admin`/`staff` con `marcaId`; superadmin redirigido fuera del panel de marca.
+- `RutaProtegidaPlataforma` — exige `superadmin`; cualquier otro rol va a `/` (no al panel de marca).
+
+Constantes de rutas: `frontend/src/compartido/constantes/index.js` (`RUTAS_PUBLICAS`, `RUTAS_ADMIN`, `RUTAS_PLATAFORMA`).
+
+Rutas antiguas (`/admin/login`, `/plataforma/login`) redirigen a `/admin/` y `/plataforma/`.
+
+#### Backend (middlewares)
+
+| Middleware | Funcion |
+|------------|---------|
+| `autenticacionMiddleware` | Valida token; relee usuario en BD; comprueba que `marca_id` del token coincida con el usuario activo. |
+| `soloMarcaAdminMiddleware` | Bloquea superadmin y roles no autorizados en `/api/admin/*`. |
+| `aislamientoMarcaMiddleware` | Rechaza peticiones con `marca_id` distinto al de la sesion. |
+| `plataformaDisponibleMiddleware` | Si la plataforma esta deshabilitada, `/api/plataforma/*` responde **404** (como si no existiera). |
+| `superadminMiddleware` | Solo superadmin en rutas de plataforma. |
+
+Archivos clave: `backend/src/middlewares/autenticacionMiddleware.js`, `plataformaMiddleware.js`, `aislamientoMarcaMiddleware.js`.
+
+#### Deshabilitar plataforma (despliegue solo-marca)
+
+Para entregar la app a **una marca** sin exponer el panel de operaciones del SaaS, desactiva plataforma en **frontend y backend**:
+
+**Frontend** — `frontend/.env`:
+
+```env
+VITE_PLATAFORMA_HABILITADA=false
+```
+
+**Backend** — `backend/.env`:
+
+```env
+NODE_ENV=produccion
+PLATAFORMA_HABILITADA=false
+```
+
+| Variable | Comportamiento por defecto |
+|----------|----------------------------|
+| `VITE_PLATAFORMA_HABILITADA` | En **desarrollo**: habilitada salvo `false`. En **build produccion**: deshabilitada salvo `true`. |
+| `PLATAFORMA_HABILITADA` | En **desarrollo** (`NODE_ENV` ≠ `produccion`): habilitada salvo `false`. En **produccion**: deshabilitada salvo `true`. |
+
+**Con plataforma deshabilitada:**
+
+- Frontend: rutas `/plataforma/*` redirigen a `/`; no hay enlaces ni tarjetas de superadmin en la home.
+- Backend: `/api/plataforma/*` → **404**; login superadmin → *Credenciales invalidas*; tokens superadmin existentes → **401** (excepto logout).
+
+Reinicia frontend y backend tras cambiar las variables.
+
+#### Dominios recomendados en produccion
+
+| Audiencia | Ruta / subdominio sugerido |
+|-----------|----------------------------|
+| Clientes finales | `app.tudominio.com/m/{slug}/` |
+| Admin de la marca | `app.tudominio.com/admin/` |
+| Operador SaaS (solo interno) | Subdominio restringido, p. ej. `ops.tudominio.com/plataforma/` con `PLATAFORMA_HABILITADA=true` |
+
+Entrega a cada dueño de marca **solo** la URL `/admin/` y su usuario; no compartas la URL de plataforma.
+
+#### Servicios: reserva vs adicional
+
+En **Admin → Servicios** cada item tiene tipo:
+
+- **`marca`** — servicio reservable (agenda publica y citas).
+- **`adicional`** — cargo rapido en **Atencion** (botones configurables); no aparece en reservas publicas.
+
+Migracion: `cd backend && npm run migrar:servicios-tipo`
+
 
 ### Primera vez (instalación)
 
@@ -91,7 +167,10 @@ Migraciones extra (solo si aplican):
 ```bash
 cd backend && npm run migrar:plataforma && npm run semilla:superadmin
 cd backend && npm run migrar:galeria-tendencia
+cd backend && npm run migrar:galeria-temporada
+cd backend && npm run migrar:galeria-catalogo
 cd backend && npm run migrar:servicios-imagen
+cd backend && npm run migrar:servicios-tipo
 ```
 
 ### Correr por separado (dos terminales)
@@ -158,15 +237,28 @@ El proxy de Vite redirige `/api/*` al backend en el puerto **3001**.
 | Rol | Correo | Contrasena | Panel |
 |-----|--------|------------|-------|
 | Admin marca (Luna Nails) | admin@lunanails.test | Admin123! | `/admin/panel/` |
-| Superadmin plataforma | platform@spa-unas.test | Platform123! | `/plataforma/marcas/` |
+| Superadmin plataforma (solo operador SaaS) | saritacanosierra@gmail.com | Ver nota abajo | `/plataforma/` |
 
-Crear superadmin (tras migracion plataforma):
+Crear o actualizar superadmin (tras migracion plataforma):
 
 ```bash
 cd backend && npm run migrar:plataforma && npm run semilla:superadmin
 ```
 
-## Panel plataforma (superadmin)
+**Cuenta unica de plataforma:** `saritacanosierra@gmail.com` — solo para ti como operador del SaaS. Los admins de marca usan otro correo y entran solo en `/admin/`.
+
+Por defecto la semilla usa contrasena `123456789` en desarrollo. En produccion define antes en `backend/.env`:
+
+```env
+SUPERADMIN_CORREO=saritacanosierra@gmail.com
+SUPERADMIN_CONTRASENA=tu-contrasena-segura
+```
+
+Luego ejecuta `npm run semilla:superadmin` para aplicarla.
+
+## Panel plataforma (superadmin — uso interno)
+
+> Visible solo si `VITE_PLATAFORMA_HABILITADA` / `PLATAFORMA_HABILITADA` estan activos. Ver seccion **Seguridad por rol y aislamiento entre marcas**.
 
 Gestiona empresas (marcas), reportes globales y control de planes:
 

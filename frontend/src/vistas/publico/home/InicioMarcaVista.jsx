@@ -3,6 +3,7 @@ import {
   BotonPrincipal,
   CarruselMarca,
   Cargando,
+  ContactoWhatsappMarca,
   EncabezadoMarca,
   MensajeError,
 } from '../../../compartido/componentes';
@@ -29,9 +30,7 @@ export default function InicioMarcaVista() {
         <h2 className="inicio-marca__titulo">Tu momento de cuidado personal</h2>
       </div>
 
-      {marca.direccion && (
-        <p className="inicio-marca__contacto">{marca.direccion}</p>
-      )}
+      <ContactoWhatsappMarca marca={marca} />
 
       <section className="inicio-marca__agendar tarjeta-app">
         <p className="inicio-marca__agendar-texto">

@@ -32,8 +32,8 @@
 
 .boton-principal--secundario {
   background: var(--color-superficie);
-  color: var(--color-texto);
-  border: 1.5px solid var(--color-borde);
+  color: var(--color-texto-superficie);
+  border: 1.5px solid var(--color-borde-superficie);
 }
 
 .boton-principal--texto {
@@ -42,6 +42,15 @@
   min-height: auto;
   padding: 0.5rem;
   box-shadow: none;
+}
+
+.boton-principal--whatsapp {
+  background: #25d366;
+  color: #fff;
+}
+
+.boton-principal--whatsapp:hover {
+  opacity: 0.92;
 }
 
 .boton-principal--completo {

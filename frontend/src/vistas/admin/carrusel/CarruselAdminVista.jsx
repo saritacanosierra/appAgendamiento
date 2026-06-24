@@ -4,6 +4,7 @@ import {
   CampoFormulario,
   Cargando,
   ImagenAmpliable,
+  InputTexto,
   MensajeError,
 } from '../../../compartido/componentes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
@@ -151,7 +152,7 @@ export default function CarruselAdminVista() {
           <h2>{editandoId ? 'Editar diapositiva' : 'Nueva diapositiva'}</h2>
 
           <CampoFormulario etiqueta="Titulo" id="car-titulo" requerido>
-            <input
+            <InputTexto
               id="car-titulo"
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -161,7 +162,7 @@ export default function CarruselAdminVista() {
           </CampoFormulario>
 
           <CampoFormulario etiqueta="Subtitulo (opcional)" id="car-sub">
-            <input
+            <InputTexto
               id="car-sub"
               value={form.subtitulo}
               onChange={(e) => setForm({ ...form, subtitulo: e.target.value })}
@@ -178,8 +179,9 @@ export default function CarruselAdminVista() {
           </CampoFormulario>
 
           <CampoFormulario etiqueta="Enlace al tocar (opcional)" id="car-link">
-            <input
+            <InputTexto
               id="car-link"
+              capitalizar={false}
               value={form.enlaceUrl}
               onChange={(e) => setForm({ ...form, enlaceUrl: e.target.value })}
               placeholder="/m/tu-marca/citas o https://..."

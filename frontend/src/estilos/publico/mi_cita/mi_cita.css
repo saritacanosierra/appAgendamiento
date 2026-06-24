@@ -140,3 +140,265 @@
   color: var(--color-acento);
   font-weight: 600;
 }
+
+/* Perfil, puntos y favoritos */
+.mi-cita__cambiar-datos,
+.mi-cita__cerrar-sesion {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--color-acento);
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mi-cita__cerrar-sesion {
+  align-self: center;
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__perfil {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.mi-cita__saludo h2 {
+  margin: 0;
+  font-size: var(--tamano-titulo-md, 1.5rem);
+  font-weight: 800;
+  color: var(--color-texto);
+}
+
+.mi-cita__saludo-etiqueta {
+  margin: 0 0 var(--espacio-xs);
+  font-size: var(--tamano-texto-xs, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__saludo p:last-child {
+  margin: var(--espacio-xs) 0 0;
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+}
+
+.mi-cita__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espacio-sm);
+}
+
+.mi-cita__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--espacio-xs);
+  padding: var(--espacio-lg) var(--espacio-md);
+}
+
+.mi-cita__stat-icono {
+  color: var(--color-acento);
+  opacity: 0.9;
+}
+
+.mi-cita__stat-etiqueta {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+  font-weight: 600;
+}
+
+.mi-cita__stat-valor {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-texto);
+  line-height: 1.1;
+}
+
+.mi-cita__stat-detalle {
+  font-size: var(--tamano-texto-xs, 0.75rem);
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__puntos-info {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+  text-align: center;
+}
+
+.mi-cita__seccion-titulo {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-lg);
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.mi-cita__favoritos,
+.mi-cita__explorar {
+  padding: var(--espacio-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.mi-cita__favoritos h3,
+.mi-cita__explorar h3 {
+  margin: 0;
+  font-size: var(--tamano-texto-lg);
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.mi-cita__favoritos-vacio,
+.mi-cita__explorar-vacio {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__favoritos-lista,
+.mi-cita__explorar-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.mi-cita__favorito-item,
+.mi-cita__explorar-item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: var(--espacio-sm);
+  align-items: center;
+  padding: var(--espacio-sm);
+  border-radius: var(--radio-borde);
+  background: color-mix(in srgb, var(--color-superficie) 70%, var(--color-secundario) 30%);
+}
+
+.mi-cita__favorito-imagen,
+.mi-cita__explorar-imagen {
+  width: 56px;
+  height: 56px;
+  border-radius: calc(var(--radio-borde) - 2px);
+  object-fit: cover;
+}
+
+.mi-cita__favorito-imagen--vacia,
+.mi-cita__explorar-imagen--vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-superficie);
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__favorito-info,
+.mi-cita__explorar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mi-cita__favorito-info strong,
+.mi-cita__explorar-info strong {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mi-cita__favorito-tipo {
+  font-size: var(--tamano-texto-xs, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-texto-muted);
+}
+
+.mi-cita__favorito-precio,
+.mi-cita__explorar-info span {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-acento);
+  font-weight: 600;
+}
+
+.mi-cita__favorito-inactivo {
+  font-size: var(--tamano-texto-xs, 0.75rem);
+  color: #b45309;
+}
+
+.mi-cita__btn-favorito {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.mi-cita__btn-favorito:hover:not(:disabled) {
+  color: var(--color-acento);
+  border-color: var(--color-acento);
+}
+
+.mi-cita__btn-favorito--activo {
+  color: var(--color-acento);
+  background: color-mix(in srgb, var(--color-acento) 15%, var(--color-superficie));
+  border-color: color-mix(in srgb, var(--color-acento) 40%, var(--color-borde));
+}
+
+.mi-cita__btn-favorito--activo .icono-app svg {
+  fill: currentColor;
+}
+
+.mi-cita__btn-favorito:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.mi-cita__explorar-cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.mi-cita__tabs {
+  display: flex;
+  gap: var(--espacio-xs);
+  padding: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-superficie) 80%, var(--color-borde));
+}
+
+.mi-cita__tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: var(--espacio-xs) var(--espacio-sm);
+  border-radius: 999px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto-muted-superficie);
+  cursor: pointer;
+}
+
+.mi-cita__tab--activa {
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}

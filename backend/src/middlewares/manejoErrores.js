@@ -14,3 +14,10 @@ export function manejoErrores(err, req, res, next) {
 export function rutaNoEncontrada(req, res) {
   respuestaError(res, 'Ruta no encontrada.', 404);
 }
+
+/** Evita que un error async tumbe todo el proceso de Node. */
+export function capturarAsync(fn) {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}

@@ -1,76 +1,122 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
   GaleriaFiltrosAcordeon,
   ImagenAmpliable,
+  InputTexto,
   MensajeError,
 } from '../../../compartido/componentes';
+import GaleriaCatalogoPanel from '../../../componentes/admin/galeria_catalogo/GaleriaCatalogoPanel';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
+import { catalogoActivoPorTipo } from '../../../modulos/galeria/constantes/galeriaCatalogo';
 import {
   actualizarDiseno,
   crearDiseno,
+  listarCatalogoGaleriaAdmin,
   listarGaleriaAdmin,
 } from '../../../modulos/galeria/servicios/galeriaServicio';
 import {
   categoriasUnicas,
+  etiquetaDesdeCatalogo,
   filtrarDisenosGaleria,
+  temporadasUnicas,
 } from '../../../modulos/galeria/utilidades/filtrarDisenosGaleria';
 import '../../../estilos/admin/galeria/galeria.css';
+import '../../../estilos/admin/galeria/galeria_catalogo.css';
 import '../../../estilos/admin/comun/aviso-carrusel.css';
 
-const FORM_VACIO = {
-  titulo: '',
-  categoria: '',
-  colores: '',
-  imagenRuta: '',
-  activo: true,
-  enTendencia: false,
-  ordenVisualizacion: '0',
-};
+function formularioVacio(catalogo) {
+  const primeraCategoria = catalogoActivoPorTipo(catalogo, 'categoria')[0]?.valor ?? '';
+  return {
+    titulo: '',
+    categoria: primeraCategoria,
+    temporada: '',
+    colores: '',
+    imagenRuta: '',
+    activo: true,
+    enTendencia: false,
+    ordenVisualizacion: '0',
+  };
+}
 
 export default function GaleriaAdminVista() {
   const [disenos, setDisenos] = useState([]);
+  const [catalogo, setCatalogo] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [form, setForm] = useState(FORM_VACIO);
+  const [form, setForm] = useState(formularioVacio([]));
   const [enviando, setEnviando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState('todas');
+  const [temporada, setTemporada] = useState('todas');
   const [tendencia, setTendencia] = useState('todas');
 
-  async function cargar() {
+  const categoriasActivas = useMemo(
+    () => catalogoActivoPorTipo(catalogo, 'categoria'),
+    [catalogo]
+  );
+  const temporadasActivas = useMemo(
+    () => catalogoActivoPorTipo(catalogo, 'temporada'),
+    [catalogo]
+  );
+
+  const cargarCatalogo = useCallback(async () => {
+    const items = await listarCatalogoGaleriaAdmin();
+    setCatalogo(Array.isArray(items) ? items : []);
+    return items;
+  }, []);
+
+  const cargar = useCallback(async () => {
     setCargando(true);
     setError(null);
     try {
-      setDisenos(await listarGaleriaAdmin());
+      const [disenosData, catalogoData] = await Promise.all([
+        listarGaleriaAdmin(),
+        listarCatalogoGaleriaAdmin(),
+      ]);
+      setDisenos(Array.isArray(disenosData) ? disenosData : []);
+      setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
     } catch (err) {
       setError(err.message);
     } finally {
       setCargando(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     cargar();
-  }, []);
+  }, [cargar]);
 
-  const categorias = useMemo(() => categoriasUnicas(disenos), [disenos]);
+  const categoriasFiltro = useMemo(
+    () => categoriasUnicas(disenos, catalogo),
+    [disenos, catalogo]
+  );
+  const temporadasFiltro = useMemo(
+    () => temporadasUnicas(disenos, catalogo),
+    [disenos, catalogo]
+  );
 
   const disenosFiltrados = useMemo(
-    () => filtrarDisenosGaleria(disenos, { busqueda, categoria, tendencia }),
-    [disenos, busqueda, categoria, tendencia]
+    () => filtrarDisenosGaleria(disenos, {
+      busqueda,
+      categoria,
+      temporada,
+      tendencia,
+      catalogo,
+    }),
+    [disenos, busqueda, categoria, temporada, tendencia, catalogo]
   );
 
   function abrirCrear() {
     setEditandoId(null);
-    setForm(FORM_VACIO);
+    setForm(formularioVacio(catalogo));
     setMostrarForm(true);
   }
 
@@ -78,7 +124,8 @@ export default function GaleriaAdminVista() {
     setEditandoId(diseno.id);
     setForm({
       titulo: diseno.titulo,
-      categoria: diseno.categoria ?? '',
+      categoria: diseno.categoria ?? categoriasActivas[0]?.valor ?? '',
+      temporada: diseno.temporada ?? '',
       colores: (diseno.coloresRelacionados ?? []).join(', '),
       imagenRuta: diseno.imagenRuta,
       activo: diseno.activo,
@@ -91,7 +138,7 @@ export default function GaleriaAdminVista() {
   function cerrarForm() {
     setMostrarForm(false);
     setEditandoId(null);
-    setForm(FORM_VACIO);
+    setForm(formularioVacio(catalogo));
   }
 
   async function manejarImagen(e) {
@@ -117,7 +164,8 @@ export default function GaleriaAdminVista() {
 
     const payload = {
       titulo: form.titulo.trim(),
-      categoria: form.categoria.trim() || null,
+      categoria: form.categoria || null,
+      temporada: form.temporada || null,
       colores_relacionados: form.colores.trim() || null,
       imagen_ruta: form.imagenRuta,
       activo: form.activo,
@@ -140,11 +188,16 @@ export default function GaleriaAdminVista() {
     }
   }
 
+  const puedeCrearDiseno = categoriasActivas.length > 0;
+
   return (
     <div className="galeria-admin">
       <header className="galeria-admin__cabecera">
         <h1>Galeria</h1>
-        <BotonPrincipal onClick={mostrarForm ? cerrarForm : abrirCrear}>
+        <BotonPrincipal
+          onClick={mostrarForm ? cerrarForm : abrirCrear}
+          deshabilitado={!mostrarForm && !puedeCrearDiseno}
+        >
           {mostrarForm ? 'Cerrar' : '+ Nuevo diseno'}
         </BotonPrincipal>
       </header>
@@ -156,18 +209,31 @@ export default function GaleriaAdminVista() {
         </p>
       )}
 
+      <GaleriaCatalogoPanel catalogo={catalogo} onCambio={cargarCatalogo} />
+
+      {!mostrarForm && !puedeCrearDiseno && (
+        <p className="galeria-admin__aviso-catalogo">
+          Agrega al menos una categoria en el panel de arriba antes de subir disenos.
+        </p>
+      )}
+
       {!mostrarForm && (
         <GaleriaFiltrosAcordeon
           busqueda={busqueda}
           onBusquedaChange={setBusqueda}
           categoria={categoria}
           onCategoriaChange={setCategoria}
+          temporada={temporada}
+          onTemporadaChange={setTemporada}
           tendencia={tendencia}
           onTendenciaChange={setTendencia}
-          categorias={categorias}
+          categorias={categoriasFiltro}
+          temporadas={temporadasFiltro}
+          catalogo={catalogo}
           onLimpiar={() => {
             setBusqueda('');
             setCategoria('todas');
+            setTemporada('todas');
             setTendencia('todas');
           }}
         />
@@ -176,8 +242,13 @@ export default function GaleriaAdminVista() {
       {mostrarForm && (
         <form className="galeria-admin__formulario" onSubmit={manejarEnviar}>
           <h2>{editandoId ? 'Editar diseno' : 'Nuevo diseno'}</h2>
+          {!puedeCrearDiseno && (
+            <p className="galeria-admin__aviso-catalogo">
+              Crea categorias en el panel superior antes de guardar.
+            </p>
+          )}
           <CampoFormulario etiqueta="Titulo" id="gal-titulo" requerido>
-            <input
+            <InputTexto
               id="gal-titulo"
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -192,16 +263,41 @@ export default function GaleriaAdminVista() {
             )}
           </CampoFormulario>
           <div className="galeria-admin__fila">
-            <CampoFormulario etiqueta="Categoria" id="gal-categoria">
-              <input
+            <CampoFormulario etiqueta="Categoria" id="gal-categoria" requerido>
+              <select
                 id="gal-categoria"
                 value={form.categoria}
                 onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-              />
+                required
+              >
+                {categoriasActivas.length === 0 && (
+                  <option value="">Sin categorias — agrega una arriba</option>
+                )}
+                {categoriasActivas.map((item) => (
+                  <option key={item.valor} value={item.valor}>
+                    {item.etiqueta}
+                  </option>
+                ))}
+              </select>
+            </CampoFormulario>
+            <CampoFormulario etiqueta="Temporada" id="gal-temporada">
+              <select
+                id="gal-temporada"
+                value={form.temporada}
+                onChange={(e) => setForm({ ...form, temporada: e.target.value })}
+              >
+                <option value="">Sin temporada</option>
+                {temporadasActivas.map((item) => (
+                  <option key={item.valor} value={item.valor}>
+                    {item.etiqueta}
+                  </option>
+                ))}
+              </select>
             </CampoFormulario>
             <CampoFormulario etiqueta="Colores (separados por coma)" id="gal-colores">
-              <input
+              <InputTexto
                 id="gal-colores"
+                capitalizar="lista"
                 value={form.colores}
                 onChange={(e) => setForm({ ...form, colores: e.target.value })}
                 placeholder="rosa, blanco, nude"
@@ -237,7 +333,11 @@ export default function GaleriaAdminVista() {
               Marcar como en tendencia
             </label>
           </CampoFormulario>
-          <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando || !form.imagenRuta}>
+          <BotonPrincipal
+            tipo="submit"
+            anchoCompleto
+            deshabilitado={enviando || !form.imagenRuta || !puedeCrearDiseno}
+          >
             {enviando ? 'Guardando...' : editandoId ? 'Actualizar' : 'Crear diseno'}
           </BotonPrincipal>
         </form>
@@ -265,7 +365,18 @@ export default function GaleriaAdminVista() {
                 </div>
                 <div className="galeria-admin__item-info">
                   <strong>{diseno.titulo}</strong>
-                  {diseno.categoria && <span className="galeria-admin__item-cat">{diseno.categoria}</span>}
+                  <div className="galeria-admin__item-meta">
+                    {diseno.categoria && (
+                      <span className="galeria-admin__item-etiqueta galeria-admin__item-etiqueta--cat">
+                        {etiquetaDesdeCatalogo(diseno.categoria, catalogo)}
+                      </span>
+                    )}
+                    {diseno.temporada && (
+                      <span className="galeria-admin__item-etiqueta galeria-admin__item-etiqueta--temp">
+                        {etiquetaDesdeCatalogo(diseno.temporada, catalogo)}
+                      </span>
+                    )}
+                  </div>
                   {!diseno.activo && <span className="badge-fase">Inactivo</span>}
                   <BotonPrincipal variante="secundario" onClick={() => abrirEditar(diseno)}>
                     Editar

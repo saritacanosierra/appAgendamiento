@@ -55,12 +55,13 @@ INSERT INTO publicaciones_blog (
 );
 
 INSERT INTO disenos_galeria (
-  marca_id, titulo, imagen_ruta, categoria, colores_relacionados, activo, orden_visualizacion
+  marca_id, titulo, imagen_ruta, categoria, temporada, colores_relacionados, activo, orden_visualizacion
 ) VALUES (
   1,
   'French moderno',
   '/subidas/galeria/ejemplo-french.jpg',
-  'Clasico',
+  'manicura',
+  'clasico',
   'blanco,rosa,nude',
   1,
   1

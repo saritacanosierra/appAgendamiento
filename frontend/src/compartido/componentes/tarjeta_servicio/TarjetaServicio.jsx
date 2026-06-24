@@ -25,7 +25,9 @@ export default function TarjetaServicio({ servicio, onSeleccionar, acciones, cla
         <h3>{servicio.nombre}</h3>
         {servicio.descripcion && <p>{servicio.descripcion}</p>}
         <div className="tarjeta-servicio__meta">
-          <span>{servicio.duracionMinutos} min</span>
+          {(servicio.tipo ?? 'marca') !== 'adicional' && (
+            <span>{servicio.duracionMinutos} min</span>
+          )}
           <strong>{formatearPrecio(servicio.precio)}</strong>
         </div>
       </div>

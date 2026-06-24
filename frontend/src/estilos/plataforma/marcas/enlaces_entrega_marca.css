@@ -1,0 +1,73 @@
+.enlaces-entrega {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.enlaces-entrega__fila {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  gap: 0.35rem 0.5rem;
+  align-items: start;
+}
+
+.enlaces-entrega__etiqueta {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-texto-muted-superficie);
+  padding-top: 0.15rem;
+}
+
+.enlaces-entrega__url {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  word-break: break-all;
+  color: var(--color-acento);
+}
+
+.enlaces-entrega__copiar {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.enlaces-entrega__copiar:hover {
+  border-color: var(--color-acento);
+  color: var(--color-acento);
+}
+
+.enlaces-entrega__correo {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-texto-muted-superficie);
+}
+
+.enlaces-entrega__correo strong {
+  color: var(--color-texto);
+  font-weight: 600;
+}
+
+.enlaces-entrega__copiar-todo {
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-acento) 12%, transparent);
+  color: var(--color-acento);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.enlaces-entrega__copiar-todo:hover {
+  background: color-mix(in srgb, var(--color-acento) 20%, transparent);
+}

@@ -1,10 +1,35 @@
-import { API_BASE_URL } from '../constantes';
-import { obtenerToken, guardarToken } from './tokenSesion';
+import { API_BASE_URL, EVENTO_TOKEN_CAMBIADO } from '../constantes';
+import {
+  guardarTokenMarca,
+  guardarTokenPlataforma,
+  obtenerTokenMarca,
+  obtenerTokenPlataforma,
+} from './tokenSesion';
 
-function aplicarTokenRotado(respuesta) {
+function esConflictoSesionPlataforma(mensaje) {
+  const texto = String(mensaje ?? '').toLowerCase();
+  return (
+    texto.includes('superadministradores') ||
+    texto.includes('panel /plataforma') ||
+    texto.includes('sesion es de plataforma')
+  );
+}
+
+function notificarConflictoSesionPlataforma() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(
+    new CustomEvent(EVENTO_TOKEN_CAMBIADO, { detail: { conflictoPlataforma: true } })
+  );
+}
+
+function aplicarTokenRotado(respuesta, contexto = 'marca') {
   const nuevoToken = respuesta.headers.get('X-Nuevo-Token');
-  if (nuevoToken) {
-    guardarToken(nuevoToken);
+  if (!nuevoToken) return;
+
+  if (contexto === 'plataforma') {
+    guardarTokenPlataforma(nuevoToken);
+  } else {
+    guardarTokenMarca(nuevoToken);
   }
 }
 
@@ -12,9 +37,10 @@ function aplicarTokenRotado(respuesta) {
  * Cliente HTTP base para comunicacion con la API Node.js.
  */
 export async function peticionApi(ruta, opciones = {}) {
+  const contexto = opciones.contexto ?? 'marca';
   const url = ruta.startsWith('http') ? ruta : `${API_BASE_URL}${ruta}`;
-  const token = obtenerToken();
   const requiereAuth = opciones.autenticado !== false;
+  const token = contexto === 'plataforma' ? obtenerTokenPlataforma() : obtenerTokenMarca();
 
   const respuesta = await fetch(url, {
     credentials: 'include',
@@ -27,7 +53,7 @@ export async function peticionApi(ruta, opciones = {}) {
     ...opciones,
   });
 
-  aplicarTokenRotado(respuesta);
+  aplicarTokenRotado(respuesta, contexto);
 
   const datos = await respuesta.json().catch(() => ({
     exito: false,
@@ -38,6 +64,10 @@ export async function peticionApi(ruta, opciones = {}) {
     const error = new Error(datos.mensaje || 'Error en la peticion');
     error.datos = datos;
     error.codigoHttp = respuesta.status;
+    if (respuesta.status === 403 && esConflictoSesionPlataforma(datos.mensaje)) {
+      error.conflictoPlataforma = true;
+      notificarConflictoSesionPlataforma();
+    }
     throw error;
   }
 
@@ -53,12 +83,16 @@ export async function peticionPublica(ruta, opciones = {}) {
 }
 
 export async function peticionAdmin(ruta, opciones = {}) {
-  return peticionApi(ruta, { ...opciones, autenticado: true });
+  return peticionApi(ruta, { ...opciones, autenticado: true, contexto: 'marca' });
+}
+
+export async function peticionPlataforma(ruta, opciones = {}) {
+  return peticionApi(ruta, { ...opciones, autenticado: true, contexto: 'plataforma' });
 }
 
 export async function peticionAdminFormData(ruta, formData, method = 'POST') {
   const url = ruta.startsWith('http') ? ruta : `${API_BASE_URL}${ruta}`;
-  const token = obtenerToken();
+  const token = obtenerTokenMarca();
 
   const respuesta = await fetch(url, {
     method,
@@ -70,7 +104,7 @@ export async function peticionAdminFormData(ruta, formData, method = 'POST') {
     body: formData,
   });
 
-  aplicarTokenRotado(respuesta);
+  aplicarTokenRotado(respuesta, 'marca');
 
   const datos = await respuesta.json().catch(() => ({
     exito: false,
@@ -81,6 +115,10 @@ export async function peticionAdminFormData(ruta, formData, method = 'POST') {
     const error = new Error(datos.mensaje || 'Error en la peticion');
     error.datos = datos;
     error.codigoHttp = respuesta.status;
+    if (respuesta.status === 403 && esConflictoSesionPlataforma(datos.mensaje)) {
+      error.conflictoPlataforma = true;
+      notificarConflictoSesionPlataforma();
+    }
     throw error;
   }
 

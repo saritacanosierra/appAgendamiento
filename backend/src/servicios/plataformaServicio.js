@@ -61,9 +61,9 @@ export class PlataformaServicio {
   }
 
   async crearMarca(datosEntrada) {
-    const nombreComercial = texto(datosEntrada.nombre_comercial ?? datosEntrada.nombreComercial);
+    const nombreComercial = texto(datosEntrada.nombre_comercial ?? datosEntrada.nombreComercial, { capitalizar: 'palabras' });
     const slugBase = texto(datosEntrada.slug) || nombreComercial;
-    const adminNombre = texto(datosEntrada.admin_nombre ?? datosEntrada.adminNombre);
+    const adminNombre = texto(datosEntrada.admin_nombre ?? datosEntrada.adminNombre, { capitalizar: 'palabras' });
     const adminCorreo = texto(datosEntrada.admin_correo ?? datosEntrada.adminCorreo);
     const adminContrasena = datosEntrada.admin_contrasena ?? datosEntrada.adminContrasena ?? '';
     const planHabilitado = datosEntrada.plan_habilitado ?? datosEntrada.planHabilitado ?? true;
@@ -120,7 +120,7 @@ export class PlataformaServicio {
       return { error: 'Marca no encontrada.', codigoHttp: 404 };
     }
 
-    const nombreComercial = texto(datosEntrada.nombre_comercial ?? datosEntrada.nombreComercial ?? existente.nombre_comercial);
+    const nombreComercial = texto(datosEntrada.nombre_comercial ?? datosEntrada.nombreComercial ?? existente.nombre_comercial, { capitalizar: 'palabras' });
     const slugRaw = texto(datosEntrada.slug ?? existente.slug);
     const slug = generarSlug(slugRaw) || existente.slug;
 

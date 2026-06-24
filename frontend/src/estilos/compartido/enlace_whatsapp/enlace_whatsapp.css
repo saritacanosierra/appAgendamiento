@@ -1,0 +1,31 @@
+.enlace-whatsapp .icono-app {
+  flex-shrink: 0;
+}
+
+.contacto-marca-whatsapp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
+}
+
+.contacto-marca-whatsapp__texto {
+  margin: 0;
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}
+
+.contacto-marca-whatsapp__numero {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.mi-cita__whatsapp-cita {
+  margin-top: var(--espacio-sm);
+}

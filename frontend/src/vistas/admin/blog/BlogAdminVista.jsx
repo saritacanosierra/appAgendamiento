@@ -5,7 +5,9 @@ import {
   CampoFormulario,
   Cargando,
   ImagenAmpliable,
+  InputTexto,
   MensajeError,
+  TextareaTexto,
 } from '../../../compartido/componentes';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
@@ -142,7 +144,7 @@ export default function BlogAdminVista() {
         <form className="blog-admin__formulario" onSubmit={manejarEnviar}>
           <h2>{editandoId ? 'Editar publicacion' : 'Nueva publicacion'}</h2>
           <CampoFormulario etiqueta="Titulo" id="blog-titulo" requerido>
-            <input
+            <InputTexto
               id="blog-titulo"
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -157,7 +159,7 @@ export default function BlogAdminVista() {
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Contenido (HTML simple)" id="blog-contenido" requerido>
-            <textarea
+            <TextareaTexto
               id="blog-contenido"
               rows={8}
               value={form.contenido}
@@ -167,7 +169,7 @@ export default function BlogAdminVista() {
           </CampoFormulario>
           <div className="blog-admin__fila">
             <CampoFormulario etiqueta="Categoria" id="blog-categoria">
-              <input
+              <InputTexto
                 id="blog-categoria"
                 value={form.categoria}
                 onChange={(e) => setForm({ ...form, categoria: e.target.value })}

@@ -7,29 +7,50 @@ export { SolicitudReagendamientoRepositorio } from './solicitudReagendamientoRep
 export class ServicioRepositorio {
   async listarActivosPorMarca(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, orden_visualizacion
+      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, orden_visualizacion, tipo
        FROM servicios
-       WHERE marca_id = ? AND activo = 1
+       WHERE marca_id = ? AND activo = 1 AND tipo = 'marca'
        ORDER BY orden_visualizacion ASC, nombre ASC`,
       [marcaId]
     );
     return filas;
   }
 
-  async listarPorMarca(marcaId) {
+  async listarAdicionalesActivosPorMarca(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, orden_visualizacion
+      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, orden_visualizacion, tipo
        FROM servicios
-       WHERE marca_id = ?
+       WHERE marca_id = ? AND activo = 1 AND tipo = 'adicional'
        ORDER BY orden_visualizacion ASC, nombre ASC`,
       [marcaId]
+    );
+    return filas;
+  }
+
+  async listarPorMarca(marcaId, { tipo } = {}) {
+    const condiciones = ['marca_id = ?'];
+    const params = [marcaId];
+
+    if (tipo === 'marca' || tipo === 'adicional') {
+      condiciones.push('tipo = ?');
+      params.push(tipo);
+    }
+
+    const [filas] = await pool.execute(
+      `SELECT id, marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, tipo, orden_visualizacion
+       FROM servicios
+       WHERE ${condiciones.join(' AND ')}
+       ORDER BY orden_visualizacion ASC, nombre ASC`,
+      params
     );
     return filas;
   }
 
   async buscarActivoPorId(marcaId, servicioId) {
     const [filas] = await pool.execute(
-      `SELECT * FROM servicios WHERE id = ? AND marca_id = ? AND activo = 1 LIMIT 1`,
+      `SELECT * FROM servicios
+       WHERE id = ? AND marca_id = ? AND activo = 1 AND tipo = 'marca'
+       LIMIT 1`,
       [servicioId, marcaId]
     );
     return filas[0] ?? null;
@@ -45,8 +66,8 @@ export class ServicioRepositorio {
 
   async crear(datos) {
     const [resultado] = await pool.execute(
-      `INSERT INTO servicios (marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, orden_visualizacion)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO servicios (marca_id, nombre, descripcion, imagen_ruta, duracion_minutos, precio, activo, tipo, orden_visualizacion)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.marcaId,
         datos.nombre,
@@ -55,6 +76,7 @@ export class ServicioRepositorio {
         datos.duracionMinutos,
         datos.precio,
         datos.activo ? 1 : 0,
+        datos.tipo ?? 'marca',
         datos.ordenVisualizacion ?? 0,
       ]
     );
@@ -65,7 +87,7 @@ export class ServicioRepositorio {
     await pool.execute(
       `UPDATE servicios
        SET nombre = ?, descripcion = ?, imagen_ruta = ?, duracion_minutos = ?, precio = ?,
-           activo = ?, orden_visualizacion = ?
+           activo = ?, tipo = ?, orden_visualizacion = ?
        WHERE id = ? AND marca_id = ?`,
       [
         datos.nombre,
@@ -74,6 +96,7 @@ export class ServicioRepositorio {
         datos.duracionMinutos,
         datos.precio,
         datos.activo ? 1 : 0,
+        datos.tipo ?? 'marca',
         datos.ordenVisualizacion ?? 0,
         servicioId,
         marcaId,

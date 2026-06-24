@@ -39,6 +39,14 @@ export class AutenticacionServicio {
       return { error: 'Credenciales invalidas.' };
     }
 
+    if (usuario.rol === 'superadmin' && !entorno.plataformaHabilitada) {
+      return { error: 'Credenciales invalidas.' };
+    }
+
+    if (!['superadmin', 'admin', 'staff'].includes(usuario.rol)) {
+      return { error: 'Credenciales invalidas.' };
+    }
+
     if (usuario.rol !== 'superadmin') {
       const marca = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
       const operativa = verificarMarcaOperativa(marca);

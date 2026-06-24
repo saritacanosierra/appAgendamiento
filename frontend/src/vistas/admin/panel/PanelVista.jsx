@@ -126,7 +126,7 @@ export default function PanelVista() {
                     <p className="panel-admin__cita-cliente">{cita.cliente.nombre}</p>
                     <p className="panel-admin__cita-servicio">{cita.servicio.nombre}</p>
                   </div>
-                  <EstadoCita estado={cita.estado} />
+                  <EstadoCita estado={cita.estado} canceladaPor={cita.canceladaPor} />
                 </li>
               ))}
             </ul>

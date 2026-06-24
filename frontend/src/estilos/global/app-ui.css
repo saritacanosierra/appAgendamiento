@@ -29,7 +29,7 @@
   .tarjeta-app,
   [class*='__formulario'],
   [class*='__item']
-) :is(h1, h2, h3, h4, p, label, span, li) {
+) :is(h1, h2, h3, h4, p, label, span:not(.estado-cita), li) {
   color: inherit;
 }
 

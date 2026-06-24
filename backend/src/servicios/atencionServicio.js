@@ -1,5 +1,5 @@
 import { pool } from '../configuracion/baseDatos.js';
-import { ReservaRepositorio } from '../repositorios/index.js';
+import { ReservaRepositorio, ServicioRepositorio } from '../repositorios/index.js';
 import { mapearCitaAdmin } from '../utilidades/mapeadorCitas.js';
 import { esFechaValida } from '../utilidades/fechaHora.js';
 import { entero, texto } from '../utilidades/sanitizador.js';
@@ -37,20 +37,36 @@ function mapearCitaAtencion(fila) {
   };
 }
 
-function normalizarExtras(extrasRaw) {
+async function resolverExtras(marcaId, extrasRaw, servicioRepo) {
   if (!Array.isArray(extrasRaw)) return [];
 
-  return extrasRaw
-    .map((item) => ({
-      concepto: texto(item?.concepto ?? item?.descripcion)?.trim(),
-      monto: monto(item?.monto),
-    }))
-    .filter((item) => item.concepto && item.monto > 0);
+  const resueltos = [];
+
+  for (const item of extrasRaw) {
+    let concepto = texto(item?.concepto ?? item?.descripcion)?.trim();
+    let montoFinal = monto(item?.monto);
+    const servicioId = entero(item?.servicio_id ?? item?.servicioId);
+
+    if (servicioId) {
+      const servicio = await servicioRepo.buscarPorId(marcaId, servicioId);
+      if (servicio?.tipo === 'adicional') {
+        concepto = concepto || texto(servicio.nombre)?.trim();
+        if (montoFinal <= 0) montoFinal = monto(servicio.precio);
+      }
+    }
+
+    if (concepto && montoFinal > 0) {
+      resueltos.push({ concepto, monto: montoFinal });
+    }
+  }
+
+  return resueltos;
 }
 
 export class AtencionServicio {
   constructor(deps = {}) {
     this.citaRepo = deps.citaRepo ?? new ReservaRepositorio();
+    this.servicioRepo = deps.servicioRepo ?? new ServicioRepositorio();
   }
 
   async listarCitasAtencion(marcaId, fecha) {
@@ -101,7 +117,7 @@ export class AtencionServicio {
       return { error: 'La duracion maxima permitida es de 480 minutos.', codigoHttp: 422 };
     }
 
-    const extras = normalizarExtras(datos.extras);
+    const extras = await resolverExtras(marcaId, datos.extras, this.servicioRepo);
     const precioAdicional = extras.reduce((sum, e) => sum + e.monto, 0);
     const precioBase = Number(cita.precio);
     const precioFinal = precioBase + precioAdicional;

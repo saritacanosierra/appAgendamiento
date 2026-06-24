@@ -3,7 +3,7 @@ import { pool } from '../configuracion/baseDatos.js';
 export class GaleriaRepositorio {
   async listarActivos(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT id, marca_id, titulo, imagen_ruta, categoria, colores_relacionados,
+      `SELECT id, marca_id, titulo, imagen_ruta, categoria, temporada, colores_relacionados,
               activo, orden_visualizacion, en_tendencia, created_at
        FROM disenos_galeria
        WHERE marca_id = ? AND activo = 1
@@ -34,13 +34,14 @@ export class GaleriaRepositorio {
   async crear(datos) {
     const [resultado] = await pool.execute(
       `INSERT INTO disenos_galeria
-       (marca_id, titulo, imagen_ruta, categoria, colores_relacionados, activo, orden_visualizacion, en_tendencia)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       (marca_id, titulo, imagen_ruta, categoria, temporada, colores_relacionados, activo, orden_visualizacion, en_tendencia)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.marcaId,
         datos.titulo,
         datos.imagenRuta,
         datos.categoria ?? null,
+        datos.temporada ?? null,
         datos.coloresRelacionados ?? null,
         datos.activo ? 1 : 0,
         datos.ordenVisualizacion ?? 0,
@@ -53,13 +54,14 @@ export class GaleriaRepositorio {
   async actualizar(marcaId, id, datos) {
     await pool.execute(
       `UPDATE disenos_galeria
-       SET titulo = ?, imagen_ruta = ?, categoria = ?, colores_relacionados = ?,
+       SET titulo = ?, imagen_ruta = ?, categoria = ?, temporada = ?, colores_relacionados = ?,
            activo = ?, orden_visualizacion = ?, en_tendencia = ?
        WHERE id = ? AND marca_id = ?`,
       [
         datos.titulo,
         datos.imagenRuta,
         datos.categoria ?? null,
+        datos.temporada ?? null,
         datos.coloresRelacionados ?? null,
         datos.activo ? 1 : 0,
         datos.ordenVisualizacion ?? 0,

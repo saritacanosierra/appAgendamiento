@@ -3,7 +3,10 @@ import { conBarraFinal } from '../utilidades/rutasApp';
 export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const CLAVE_TOKEN_SESION = 'spa_unas_token';
+export const CLAVE_TOKEN_MARCA = 'spa_unas_token_marca';
+export const CLAVE_TOKEN_PLATAFORMA = 'spa_unas_token_plataforma';
 export const CLAVE_IMPERSONACION = 'spa_unas_impersonando';
+export const EVENTO_TOKEN_CAMBIADO = 'spa-unas:token-cambiado';
 
 export const RUTAS_PUBLICAS = {
   inicioMarca: (slug) => conBarraFinal(`/m/${slug}`),
@@ -50,6 +53,11 @@ export const ESTADOS_CITA = {
   confirmada: 'Confirmada',
   cancelada: 'Cancelada',
   completada: 'Completada',
+};
+
+export const CANCELADA_POR_ETIQUETAS = {
+  admin: 'Admin',
+  cliente: 'Cliente',
 };
 
 export const VARIABLES_MARCA_DEFECTO = {

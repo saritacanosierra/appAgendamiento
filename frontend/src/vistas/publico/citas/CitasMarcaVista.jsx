@@ -1,5 +1,5 @@
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
-import { Cargando, EncabezadoMarca, MensajeError } from '../../../compartido/componentes';
+import { Cargando, ContactoWhatsappMarca, EncabezadoMarca, MensajeError } from '../../../compartido/componentes';
 import ContenidoHubCitas from '../../../componentes/publico/contenido_hub_citas/ContenidoHubCitas';
 import '../../../estilos/publico/citas/citas-hub.css';
 
@@ -19,7 +19,7 @@ export default function CitasMarcaVista() {
         <p>Consulta horarios disponibles, explora servicios y agenda al instante.</p>
       </div>
 
-      {marca.direccion && <p className="citas-hub__contacto">{marca.direccion}</p>}
+      <ContactoWhatsappMarca marca={marca} mostrarNumero={false} />
 
       <ContenidoHubCitas marca={marca} />
     </div>

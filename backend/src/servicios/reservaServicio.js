@@ -8,6 +8,7 @@ import {
   generarCodigoConfirmacion,
   parsearJsonCampo,
 } from '../repositorios/index.js';
+import { ClientePerfilServicio } from './clientePerfilServicio.js';
 import { CalendarioServicio } from './calendarioServicio.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
@@ -36,6 +37,7 @@ export class ReservaServicio {
     this.reservaRepo = deps.reservaRepo ?? new ReservaRepositorio();
     this.solicitudRepo = deps.solicitudRepo ?? new SolicitudReagendamientoRepositorio();
     this.calendario = deps.calendario ?? new CalendarioServicio();
+    this.clientePerfil = deps.clientePerfil ?? new ClientePerfilServicio();
   }
 
   async obtenerDisponibilidad(marcaId, servicioId, fecha) {
@@ -87,7 +89,7 @@ export class ReservaServicio {
     const servicioId = entero(datosEntrada.servicio_id ?? datosEntrada.servicioId);
     const fecha = texto(datosEntrada.fecha);
     const horaInicio = normalizarHora(texto(datosEntrada.hora_inicio ?? datosEntrada.horaInicio));
-    const nombre = texto(datosEntrada.nombre);
+    const nombre = texto(datosEntrada.nombre, { capitalizar: 'palabras' });
     const telefonoCliente = texto(datosEntrada.telefono).replace(/\D+/g, '');
     const correo = texto(datosEntrada.correo) || null;
 
@@ -239,11 +241,14 @@ export class ReservaServicio {
 
       try {
         const { whatsappServicio } = await import('./whatsappServicio.js');
+        const { whatsappMarcaServicio } = await import('./whatsappMarcaServicio.js');
+        const credenciales = await whatsappMarcaServicio.obtenerCredenciales(marcaId);
         const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
         const slug = marca.slug ?? '';
         await whatsappServicio.enviarConfirmacionReserva({
           confirmacion,
           urlConfirmacion: `${frontendUrl}/m/${slug}/confirmacion/${codigoConfirmacion}`,
+          credenciales,
         });
       } catch {
         // WhatsApp no bloquea la reserva
@@ -385,6 +390,7 @@ export class ReservaServicio {
       horaInicio,
       horaFin,
       estado: fila.estado,
+      canceladaPor: fila.cancelada_por ?? null,
       servicio: {
         id: fila.servicio_id,
         nombre: fila.servicio_nombre,
@@ -431,7 +437,7 @@ export class ReservaServicio {
     );
 
     if (Object.keys(errores).length > 0) {
-      return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
+      return { error: 'Datos incorrectos.', codigoHttp: 422 };
     }
 
     const marca = await this.marcaRepo.buscarPorId(marcaId);
@@ -441,22 +447,30 @@ export class ReservaServicio {
 
     await this.reservaRepo.marcarPasadasComoCompletadas(marcaId);
 
-    let filas = await this.reservaRepo.listarActivasPorTelefono(marcaId, tel);
+    const auth = await this.clientePerfil.autenticarCliente(marcaId, tel, correoNorm);
+    if (auth.error) return auth;
 
+    const { cliente } = auth;
+
+    let filas = await this.reservaRepo.listarActivasPorTelefono(marcaId, tel);
     filas = filas.filter(
-      (fila) => (fila.cliente_correo || '').trim().toLowerCase() === correoNorm
+      (fila) => Number(fila.cliente_id) === Number(cliente.id)
     );
 
-    if (filas.length === 0) {
-      return {
-        error: 'No encontramos citas con ese telefono y correo.',
-        codigoHttp: 404,
-      };
-    }
-
     const citas = await Promise.all(filas.map((f) => this.mapearCitaPublicaGestion(f)));
+    const perfil = await this.clientePerfil.obtenerPerfil(marcaId, cliente.id);
 
     return {
+      cliente: {
+        id: cliente.id,
+        nombre: cliente.nombre,
+        telefono: cliente.telefono,
+        correo: cliente.correo,
+        puntos: perfil.puntos,
+        totalFavoritos: perfil.totalFavoritos,
+        serviciosCompletados: perfil.serviciosCompletados,
+      },
+      favoritos: perfil.favoritos,
       citas,
       antelacionReagendarHoras: ANTELACION_MINIMA_CLIENTE_HORAS,
       cancelacionHastaInicio: true,
@@ -509,7 +523,10 @@ export class ReservaServicio {
 
     try {
       await conexion.beginTransaction();
-      await this.reservaRepo.actualizar(conexion, fila.marca_id, fila.id, { estado: 'cancelada' });
+      await this.reservaRepo.actualizar(conexion, fila.marca_id, fila.id, {
+        estado: 'cancelada',
+        canceladaPor: 'cliente',
+      });
       await conexion.commit();
     } catch (err) {
       await conexion.rollback();

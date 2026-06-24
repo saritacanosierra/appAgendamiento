@@ -12,6 +12,7 @@ import {
   CampoFormulario,
   Cargando,
   EncabezadoMarca,
+  InputTexto,
   MensajeError,
   ModalMensaje,
   SelectorFecha,
@@ -267,8 +268,9 @@ export default function ReservarVista() {
         <section className="reservar-vista__seccion tarjeta-app">
           <h2>Tus datos</h2>
           <CampoFormulario etiqueta="Nombre completo" id="nombre" requerido>
-            <input
+            <InputTexto
               id="nombre"
+              capitalizar="palabras"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               autoComplete="name"

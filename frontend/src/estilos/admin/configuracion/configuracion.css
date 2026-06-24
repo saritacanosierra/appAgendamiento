@@ -79,9 +79,19 @@
 
 .configuracion-marca__logo {
   display: block;
-  max-width: 120px;
+  max-width: 112px;
+  max-height: 72px;
   margin-top: var(--espacio-sm);
-  border-radius: var(--radio-borde);
+  padding: 0.65rem 0.85rem;
+  border-radius: 18px;
+  object-fit: contain;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--color-superficie) 96%, #fff) 0%,
+    color-mix(in srgb, var(--color-superficie) 88%, var(--color-secundario) 12%) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-principal) 14%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-principal) 8%, transparent);
 }
 
 .configuracion-marca__hint {

@@ -1,0 +1,109 @@
+.modal-resumen-atencion {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-md);
+}
+
+.modal-resumen-atencion__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.modal-resumen-atencion__contenido {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 440px);
+  max-height: min(90vh, 640px);
+  overflow: auto;
+  padding: var(--espacio-xl) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.modal-resumen-atencion__contenido h2 {
+  margin: 0;
+  font-size: var(--tamano-texto-lg);
+  color: var(--color-texto-superficie);
+}
+
+.modal-resumen-atencion__subtitulo {
+  margin: 0.35rem 0 var(--espacio-lg);
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-resumen-atencion__detalle {
+  margin: 0 0 var(--espacio-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.modal-resumen-atencion__detalle > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--espacio-sm);
+  align-items: start;
+}
+
+.modal-resumen-atencion__detalle dt {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-texto-muted-superficie);
+}
+
+.modal-resumen-atencion__detalle dd {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-superficie);
+  line-height: 1.45;
+}
+
+.modal-resumen-atencion__adicionales ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.modal-resumen-atencion__adicionales li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-sm);
+}
+
+.modal-resumen-atencion__adicionales strong {
+  color: var(--color-acento-superficie);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.modal-resumen-atencion__total dd {
+  font-size: var(--tamano-texto-base);
+  font-weight: 800;
+  color: var(--color-acento-superficie);
+}
+
+@media (max-width: 420px) {
+  .modal-resumen-atencion__detalle > div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}

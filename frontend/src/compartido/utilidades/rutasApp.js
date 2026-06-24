@@ -24,3 +24,10 @@ export function esRutaPlataformaLogin(ruta = '') {
   const base = ruta.split('?')[0].replace(/\/+$/, '') || '/';
   return base === '/plataforma';
 }
+
+/** URL absoluta del front (origen actual + ruta interna). */
+export function urlAbsolutaApp(ruta) {
+  const path = conBarraFinal(ruta);
+  if (typeof window === 'undefined') return path;
+  return `${window.location.origin}${path}`;
+}

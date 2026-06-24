@@ -31,6 +31,32 @@ export function formatearCronometro(totalSegundos) {
   return `${pad(m)}:${pad(s)}`;
 }
 
+export function parsearTiempoCronometro(texto) {
+  const limpio = String(texto ?? '').trim();
+  if (!limpio) return null;
+
+  if (/^\d+$/.test(limpio)) {
+    return Math.max(0, parseInt(limpio, 10));
+  }
+
+  const partes = limpio.split(':').map((parte) => parseInt(parte, 10));
+  if (partes.some((n) => Number.isNaN(n) || n < 0)) return null;
+
+  if (partes.length === 2) {
+    const [minutos, segundos] = partes;
+    if (segundos >= 60) return null;
+    return minutos * 60 + segundos;
+  }
+
+  if (partes.length === 3) {
+    const [horas, minutos, segundos] = partes;
+    if (minutos >= 60 || segundos >= 60) return null;
+    return horas * 3600 + minutos * 60 + segundos;
+  }
+
+  return null;
+}
+
 export function useCronometro(citaId) {
   const [segundos, setSegundos] = useState(0);
   const [activo, setActivo] = useState(false);
@@ -120,6 +146,33 @@ export function useCronometro(citaId) {
     guardarEstadoPersistido(null);
   }, [detenerIntervalo]);
 
+  const establecerSegundos = useCallback(
+    (nuevoTotal) => {
+      const valor = Math.max(0, Math.floor(Number(nuevoTotal) || 0));
+      setSegundos(valor);
+
+      if (activo) {
+        inicioRef.current = Date.now() - valor * 1000;
+        guardarEstadoPersistido({ citaId, inicioMs: inicioRef.current, activo: true });
+        return;
+      }
+
+      inicioRef.current = valor > 0 ? Date.now() - valor * 1000 : null;
+      if (valor === 0) {
+        guardarEstadoPersistido(null);
+        return;
+      }
+
+      guardarEstadoPersistido({
+        citaId,
+        inicioMs: inicioRef.current,
+        activo: false,
+        segundosPausados: valor,
+      });
+    },
+    [activo, citaId]
+  );
+
   const minutosRedondeados = Math.max(1, Math.ceil(segundos / 60));
 
   return {
@@ -131,6 +184,7 @@ export function useCronometro(citaId) {
     pausar,
     reanudar,
     reiniciar,
+    establecerSegundos,
     limpiarPersistencia: () => guardarEstadoPersistido(null),
   };
 }

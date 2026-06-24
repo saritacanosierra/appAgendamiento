@@ -1,22 +1,22 @@
-import { peticionAdmin } from '../../../compartido/utilidades/apiCliente';
+import { peticionPlataforma } from '../../../compartido/utilidades/apiCliente';
 
 export async function obtenerResumenPlataforma() {
-  const respuesta = await peticionAdmin('/plataforma/resumen');
+  const respuesta = await peticionPlataforma('/plataforma/resumen');
   return respuesta.datos;
 }
 
 export async function listarMarcasPlataforma() {
-  const respuesta = await peticionAdmin('/plataforma/marcas');
+  const respuesta = await peticionPlataforma('/plataforma/marcas');
   return respuesta.datos.marcas;
 }
 
 export async function obtenerMarcaPlataforma(id) {
-  const respuesta = await peticionAdmin(`/plataforma/marcas/${id}`);
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}`);
   return respuesta.datos.marca;
 }
 
 export async function crearMarcaPlataforma(datos) {
-  const respuesta = await peticionAdmin('/plataforma/marcas', {
+  const respuesta = await peticionPlataforma('/plataforma/marcas', {
     method: 'POST',
     body: JSON.stringify(datos),
   });
@@ -24,7 +24,7 @@ export async function crearMarcaPlataforma(datos) {
 }
 
 export async function actualizarMarcaPlataforma(id, datos) {
-  const respuesta = await peticionAdmin(`/plataforma/marcas/${id}`, {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}`, {
     method: 'PUT',
     body: JSON.stringify(datos),
   });
@@ -32,7 +32,7 @@ export async function actualizarMarcaPlataforma(id, datos) {
 }
 
 export async function impersonarMarcaPlataforma(id) {
-  const respuesta = await peticionAdmin(`/plataforma/marcas/${id}/impersonar`, {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}/impersonar`, {
     method: 'POST',
   });
   return respuesta.datos;
@@ -43,12 +43,12 @@ export async function obtenerReportePlataforma(desde, hasta) {
   if (desde) params.set('desde', desde);
   if (hasta) params.set('hasta', hasta);
   const query = params.toString();
-  const respuesta = await peticionAdmin(`/plataforma/reportes${query ? `?${query}` : ''}`);
+  const respuesta = await peticionPlataforma(`/plataforma/reportes${query ? `?${query}` : ''}`);
   return respuesta.datos;
 }
 
 export async function resetearContrasenaMarcaPlataforma(id, nuevaContrasena) {
-  const respuesta = await peticionAdmin(`/plataforma/marcas/${id}/reset-contrasena`, {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}/reset-contrasena`, {
     method: 'PUT',
     body: JSON.stringify({ nueva_contrasena: nuevaContrasena }),
   });

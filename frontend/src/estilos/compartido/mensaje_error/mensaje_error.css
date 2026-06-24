@@ -25,3 +25,19 @@
   color: var(--color-error);
   cursor: pointer;
 }
+
+.mensaje-error--suave {
+  background: color-mix(in srgb, var(--color-principal) 12%, #fff);
+  color: var(--color-texto);
+  border: 1px solid color-mix(in srgb, var(--color-principal) 28%, transparent);
+}
+
+.mensaje-error--suave h2 {
+  color: var(--color-principal);
+  font-size: var(--tamano-texto-base);
+  font-weight: 700;
+}
+
+.mensaje-error--suave p {
+  color: var(--color-texto-muted);
+}

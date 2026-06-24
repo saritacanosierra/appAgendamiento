@@ -5,10 +5,15 @@ import { login, logout, me, rotarToken } from '../controladores/autenticacionCon
 import {
   listarPublicos as listarServiciosPublicos,
   listarAdmin as listarServiciosAdmin,
+  listarAdicionalesAdmin as listarServiciosAdicionalesAdmin,
   crearAdmin as crearServicioAdmin,
   actualizarAdmin as actualizarServicioAdmin,
   eliminarAdmin as eliminarServicioAdmin,
 } from '../controladores/servicioControlador.js';
+import {
+  agregarFavoritoCliente,
+  quitarFavoritoCliente,
+} from '../controladores/clientePerfilControlador.js';
 import {
   obtenerDisponibilidad,
   crearReserva,
@@ -25,6 +30,8 @@ import {
   eliminarCitaAdmin,
   listarClientes,
   crearCliente,
+  actualizarCliente,
+  desactivarCliente,
 } from '../controladores/adminCitaControlador.js';
 import {
   listarPublicos as listarBlogPublicos,
@@ -38,6 +45,11 @@ import {
   listarAdmin as listarGaleriaAdmin,
   crearAdmin as crearGaleriaAdmin,
   actualizarAdmin as actualizarGaleriaAdmin,
+  listarCatalogoPublicos as listarGaleriaCatalogoPublicos,
+  listarCatalogoAdmin as listarGaleriaCatalogoAdmin,
+  crearCatalogoAdmin as crearGaleriaCatalogoAdmin,
+  actualizarCatalogoAdmin as actualizarGaleriaCatalogoAdmin,
+  eliminarCatalogoAdmin as eliminarGaleriaCatalogoAdmin,
 } from '../controladores/galeriaControlador.js';
 import {
   listarPublicos as listarCarruselPublicos,
@@ -63,6 +75,10 @@ import {
   probarGoogle,
   callbackGoogle,
 } from '../controladores/googleCalendarControlador.js';
+import {
+  obtenerEstadoWhatsappMarca,
+  probarWhatsappMarca,
+} from '../controladores/whatsappControlador.js';
 import { obtenerReporte } from '../controladores/reporteControlador.js';
 import {
   listarCitasAtencion,
@@ -84,9 +100,11 @@ import {
   resetearContrasenaMarcaPlataforma,
 } from '../controladores/plataformaControlador.js';
 import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.js';
-import { superadminMiddleware, soloMarcaAdminMiddleware } from '../middlewares/plataformaMiddleware.js';
+import { superadminMiddleware, soloMarcaAdminMiddleware, plataformaDisponibleMiddleware } from '../middlewares/plataformaMiddleware.js';
+import { aislamientoMarcaMiddleware } from '../middlewares/aislamientoMarcaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
 import { limitarLogin, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
+import { capturarAsync } from '../middlewares/manejoErrores.js';
 
 const router = Router();
 
@@ -99,24 +117,27 @@ router.get('/marcas/:marca_id/disponibilidad', obtenerDisponibilidad);
 router.get('/marcas/:marca_id/blog', listarBlogPublicos);
 router.get('/marcas/:marca_id/blog/slug/:slug', obtenerBlogPublico);
 router.get('/marcas/:marca_id/galeria', listarGaleriaPublicos);
+router.get('/marcas/:marca_id/galeria/catalogo', listarGaleriaCatalogoPublicos);
 router.get('/marcas/:marca_id/carrusel-inicio', listarCarruselPublicos);
 router.post('/reservas', limitarReservas, crearReserva);
-router.post('/reservas/consultar', limitarConsultasReservas, consultarCitas);
-router.get('/reservas/confirmacion/:codigo', obtenerConfirmacion);
-router.post('/reservas/:codigo/cancelar', limitarConsultasReservas, cancelarReservaPublica);
-router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, solicitarReagendamiento);
+router.post('/reservas/consultar', limitarConsultasReservas, capturarAsync(consultarCitas));
+router.post('/reservas/favoritos', limitarConsultasReservas, capturarAsync(agregarFavoritoCliente));
+router.delete('/reservas/favoritos', limitarConsultasReservas, capturarAsync(quitarFavoritoCliente));
+router.get('/reservas/confirmacion/:codigo', capturarAsync(obtenerConfirmacion));
+router.post('/reservas/:codigo/cancelar', limitarConsultasReservas, capturarAsync(cancelarReservaPublica));
+router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, capturarAsync(solicitarReagendamiento));
 
 // OAuth callback (publico)
 router.get('/integraciones/google/callback', callbackGoogle);
 
 // Auth
-router.post('/auth/login', limitarLogin, login);
-router.post('/auth/logout', autenticacionMiddleware, logout);
-router.post('/auth/rotar', autenticacionMiddleware, rotarToken);
-router.get('/auth/me', autenticacionMiddleware, me);
+router.post('/auth/login', limitarLogin, capturarAsync(login));
+router.post('/auth/logout', autenticacionMiddleware, capturarAsync(logout));
+router.post('/auth/rotar', autenticacionMiddleware, capturarAsync(rotarToken));
+router.get('/auth/me', autenticacionMiddleware, capturarAsync(me));
 
 // Admin protegido (solo admin de marca)
-router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware);
+router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware, aislamientoMarcaMiddleware);
 
 router.get('/admin/agenda', obtenerAgenda);
 router.get('/admin/atencion/citas', listarCitasAtencion);
@@ -130,7 +151,10 @@ router.put('/admin/solicitudes-reagendamiento/:id/aprobar', aprobarSolicitudReag
 router.put('/admin/solicitudes-reagendamiento/:id/rechazar', rechazarSolicitudReagendamiento);
 router.get('/admin/clientes', listarClientes);
 router.post('/admin/clientes', crearCliente);
+router.put('/admin/clientes/:id', actualizarCliente);
+router.delete('/admin/clientes/:id', desactivarCliente);
 router.get('/admin/servicios', listarServiciosAdmin);
+router.get('/admin/servicios/adicionales', listarServiciosAdicionalesAdmin);
 router.post('/admin/servicios', crearServicioAdmin);
 router.put('/admin/servicios/:id', actualizarServicioAdmin);
 router.delete('/admin/servicios/:id', eliminarServicioAdmin);
@@ -140,6 +164,10 @@ router.put('/admin/blog/:id', actualizarBlogAdmin);
 router.get('/admin/galeria', listarGaleriaAdmin);
 router.post('/admin/galeria', crearGaleriaAdmin);
 router.put('/admin/galeria/:id', actualizarGaleriaAdmin);
+router.get('/admin/galeria/catalogo', listarGaleriaCatalogoAdmin);
+router.post('/admin/galeria/catalogo', crearGaleriaCatalogoAdmin);
+router.put('/admin/galeria/catalogo/:id', actualizarGaleriaCatalogoAdmin);
+router.delete('/admin/galeria/catalogo/:id', eliminarGaleriaCatalogoAdmin);
 router.get('/admin/carrusel-inicio', listarCarruselAdmin);
 router.post('/admin/carrusel-inicio', crearCarruselAdmin);
 router.put('/admin/carrusel-inicio/:id', actualizarCarruselAdmin);
@@ -154,14 +182,16 @@ router.get('/admin/integraciones/google', obtenerEstadoGoogle);
 router.post('/admin/integraciones/google/autorizar', iniciarAutorizacionGoogle);
 router.post('/admin/integraciones/google/probar', probarGoogle);
 router.delete('/admin/integraciones/google', desconectarGoogle);
+router.get('/admin/integraciones/whatsapp', capturarAsync(obtenerEstadoWhatsappMarca));
+router.post('/admin/integraciones/whatsapp/probar', capturarAsync(probarWhatsappMarca));
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);
 router.post('/admin/subidas/carrusel', subidaImagenMiddleware('carrusel'), subirArchivo);
 router.post('/admin/subidas/servicios', subidaImagenMiddleware('servicios'), subirArchivo);
 
-// Plataforma (superadmin)
-router.use('/plataforma', autenticacionMiddleware, superadminMiddleware);
+// Plataforma (superadmin) — deshabilitable en despliegues solo-marca
+router.use('/plataforma', plataformaDisponibleMiddleware, autenticacionMiddleware, superadminMiddleware);
 router.get('/plataforma/resumen', obtenerResumenPlataforma);
 router.get('/plataforma/reportes', obtenerReportePlataforma);
 router.get('/plataforma/marcas', listarMarcasPlataforma);

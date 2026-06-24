@@ -99,6 +99,32 @@
   overflow: hidden;
 }
 
+.galeria-publica__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.galeria-publica__etiqueta {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.galeria-publica__etiqueta--cat {
+  background: color-mix(in srgb, var(--color-acento-superficie) 14%, transparent);
+  color: var(--color-acento-superficie);
+}
+
+.galeria-publica__etiqueta--temp {
+  background: color-mix(in srgb, var(--color-principal) 18%, transparent);
+  color: var(--color-principal);
+}
+
 .galeria-publica__colores {
   display: flex;
   flex-wrap: wrap;

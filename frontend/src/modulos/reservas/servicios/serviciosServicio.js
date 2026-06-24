@@ -1,7 +1,13 @@
 import { peticionAdmin } from '../../../compartido/utilidades/apiCliente';
 
-export async function obtenerServiciosAdmin() {
-  const respuesta = await peticionAdmin('/admin/servicios');
+export async function obtenerServiciosAdmin(tipo) {
+  const params = tipo ? `?tipo=${encodeURIComponent(tipo)}` : '';
+  const respuesta = await peticionAdmin(`/admin/servicios${params}`);
+  return respuesta.datos;
+}
+
+export async function obtenerServiciosAdicionalesActivos() {
+  const respuesta = await peticionAdmin('/admin/servicios/adicionales');
   return respuesta.datos;
 }
 

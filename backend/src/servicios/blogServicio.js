@@ -73,7 +73,7 @@ export class BlogServicio {
   }
 
   async parsearDatos(marcaId, datos, existente = null) {
-    const titulo = texto(datos.titulo ?? existente?.titulo);
+    const titulo = texto(datos.titulo ?? existente?.titulo, { capitalizar: 'inicio' });
     const contenido = datos.contenido ?? existente?.contenido ?? '';
     const extracto = datos.extracto !== undefined
       ? texto(datos.extracto) || null

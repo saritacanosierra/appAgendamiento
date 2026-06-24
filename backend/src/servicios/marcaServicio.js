@@ -43,6 +43,7 @@ export function mapearServicioPublico(fila) {
     imagenRuta: fila.imagen_ruta ?? null,
     duracionMinutos: fila.duracion_minutos,
     precio: Number(fila.precio),
+    tipo: fila.tipo ?? 'marca',
     ordenVisualizacion: fila.orden_visualizacion,
   };
 }
@@ -64,9 +65,14 @@ export class ServicioServicio {
     return filas.map(mapearServicioPublico);
   }
 
-  async listarAdmin(marcaId) {
-    const filas = await this.servicioRepo.listarPorMarca(marcaId);
+  async listarAdmin(marcaId, opciones = {}) {
+    const filas = await this.servicioRepo.listarPorMarca(marcaId, opciones);
     return filas.map(mapearServicioAdmin);
+  }
+
+  async listarAdicionalesActivos(marcaId) {
+    const filas = await this.servicioRepo.listarAdicionalesActivosPorMarca(marcaId);
+    return filas.map(mapearServicioPublico);
   }
 
   async crearAdmin(marcaId, datos) {
@@ -108,10 +114,12 @@ export class ServicioServicio {
   }
 
   parsearDatosServicio(datos, existente = null) {
-    const nombre = texto(datos.nombre ?? existente?.nombre);
+    const nombre = texto(datos.nombre ?? existente?.nombre, { capitalizar: 'palabras' });
     const descripcion = datos.descripcion !== undefined
       ? texto(datos.descripcion) || null
       : existente?.descripcion ?? null;
+    const tipoRaw = datos.tipo ?? existente?.tipo ?? 'marca';
+    const tipo = tipoRaw === 'adicional' ? 'adicional' : 'marca';
     const duracionMinutos = datos.duracion_minutos ?? datos.duracionMinutos ?? existente?.duracion_minutos;
     const duracion = entero(duracionMinutos);
     const precioRaw = datos.precio ?? existente?.precio ?? 0;
@@ -129,6 +137,7 @@ export class ServicioServicio {
       {
         nombre: (v) => requerido(v, 'nombre'),
         duracion_minutos: (v) => {
+          if (tipo === 'adicional') return null;
           if (!v || v < 5) return 'La duracion debe ser al menos 5 minutos.';
           if (v > 480) return 'La duracion no puede superar 480 minutos.';
           return null;
@@ -146,9 +155,10 @@ export class ServicioServicio {
         nombre,
         descripcion,
         imagenRuta,
-        duracionMinutos: duracion,
+        duracionMinutos: tipo === 'adicional' ? (duracion ?? 0) : duracion,
         precio,
         activo,
+        tipo,
         ordenVisualizacion: ordenVisualizacion ?? 0,
       },
     };

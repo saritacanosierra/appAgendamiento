@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   BotonPrincipal,
   CampoFormulario,
+  InputTexto,
   MensajeError,
   SelectorFecha,
 } from '../../../compartido/componentes';
@@ -147,8 +148,9 @@ export default function FormularioCitaAdmin({ fechaInicial, onCreada, onCancelar
         ) : (
           <>
             <CampoFormulario etiqueta="Nombre" id="cita-nombre" requerido>
-              <input
+              <InputTexto
                 id="cita-nombre"
+                capitalizar="palabras"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 required

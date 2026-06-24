@@ -62,10 +62,10 @@ export class CarruselServicio {
   }
 
   parsearDatos(datos, existente = null) {
-    const titulo = texto(datos.titulo ?? existente?.titulo);
+    const titulo = texto(datos.titulo ?? existente?.titulo, { capitalizar: 'inicio' });
     const subtitulo =
       datos.subtitulo !== undefined
-        ? texto(datos.subtitulo) || null
+        ? texto(datos.subtitulo, { capitalizar: 'inicio' }) || null
         : existente?.subtitulo ?? null;
     const imagenRuta = texto(datos.imagen_ruta ?? datos.imagenRuta ?? existente?.imagen_ruta);
     const enlaceUrl =

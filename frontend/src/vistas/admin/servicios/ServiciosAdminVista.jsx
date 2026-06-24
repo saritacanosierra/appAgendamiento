@@ -4,9 +4,11 @@ import {
   CampoFormulario,
   Cargando,
   ImagenAmpliable,
+  InputTexto,
   MensajeError,
   ModalConfirmacion,
   TarjetaServicio,
+  TextareaTexto,
   IconoApp,
 } from '../../../compartido/componentes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
@@ -25,8 +27,15 @@ const FORM_VACIO = {
   duracionMinutos: '60',
   precio: '',
   activo: true,
+  tipo: 'marca',
   ordenVisualizacion: '0',
 };
+
+const FILTROS_TIPO = [
+  { id: 'todos', etiqueta: 'Todos' },
+  { id: 'marca', etiqueta: 'Reservas' },
+  { id: 'adicional', etiqueta: 'Adicionales' },
+];
 
 export default function ServiciosAdminVista() {
   const [servicios, setServicios] = useState([]);
@@ -39,6 +48,7 @@ export default function ServiciosAdminVista() {
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [servicioAEliminar, setServicioAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const [filtroTipo, setFiltroTipo] = useState('todos');
 
   async function cargar() {
     setCargando(true);
@@ -56,9 +66,13 @@ export default function ServiciosAdminVista() {
     cargar();
   }, []);
 
-  function abrirCrear() {
+  function abrirCrear(tipo = 'marca') {
     setEditandoId(null);
-    setForm(FORM_VACIO);
+    setForm({
+      ...FORM_VACIO,
+      tipo,
+      duracionMinutos: tipo === 'adicional' ? '0' : '60',
+    });
     setMostrarForm(true);
   }
 
@@ -71,6 +85,7 @@ export default function ServiciosAdminVista() {
       duracionMinutos: String(servicio.duracionMinutos),
       precio: String(servicio.precio),
       activo: servicio.activo,
+      tipo: servicio.tipo ?? 'marca',
       ordenVisualizacion: String(servicio.ordenVisualizacion ?? 0),
     });
     setMostrarForm(true);
@@ -111,9 +126,10 @@ export default function ServiciosAdminVista() {
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim() || null,
       imagen_ruta: form.imagenRuta.trim() || null,
-      duracion_minutos: Number(form.duracionMinutos),
+      duracion_minutos: form.tipo === 'adicional' ? 0 : Number(form.duracionMinutos),
       precio: Number(form.precio),
       activo: form.activo,
+      tipo: form.tipo,
       orden_visualizacion: Number(form.ordenVisualizacion) || 0,
     };
 
@@ -152,6 +168,13 @@ export default function ServiciosAdminVista() {
     }
   }
 
+  const serviciosFiltrados =
+    filtroTipo === 'todos'
+      ? servicios
+      : servicios.filter((s) => (s.tipo ?? 'marca') === filtroTipo);
+
+  const esAdicional = form.tipo === 'adicional';
+
   return (
     <div className="servicios-admin">
       <ModalConfirmacion
@@ -171,18 +194,55 @@ export default function ServiciosAdminVista() {
       <header className="servicios-admin__cabecera">
         <div>
           <h1>Servicios de tu marca</h1>
-          <p>Solo ves servicios asociados a tu sesion — aislamiento multi-marca activo.</p>
+          <p>Servicios de reserva (agenda pública) y adicionales (cargos rápidos en Atención). Solo de tu marca.</p>
         </div>
-        <BotonPrincipal onClick={mostrarForm ? cerrarForm : abrirCrear}>
-          {mostrarForm ? 'Cerrar' : '+ Nuevo servicio'}
-        </BotonPrincipal>
+        <div className="servicios-admin__cabecera-acciones">
+          <BotonPrincipal variante="secundario" onClick={() => abrirCrear('adicional')}>
+            + Adicional
+          </BotonPrincipal>
+          <BotonPrincipal onClick={mostrarForm ? cerrarForm : () => abrirCrear('marca')}>
+            {mostrarForm ? 'Cerrar' : '+ Servicio reserva'}
+          </BotonPrincipal>
+        </div>
       </header>
+
+      <div className="servicios-admin__filtros" role="tablist" aria-label="Filtrar por tipo">
+        {FILTROS_TIPO.map((filtro) => (
+          <button
+            key={filtro.id}
+            type="button"
+            role="tab"
+            aria-selected={filtroTipo === filtro.id}
+            className={`servicios-admin__filtro${filtroTipo === filtro.id ? ' servicios-admin__filtro--activo' : ''}`}
+            onClick={() => setFiltroTipo(filtro.id)}
+          >
+            {filtro.etiqueta}
+          </button>
+        ))}
+      </div>
 
       {mostrarForm && (
         <form className="servicios-admin__formulario" onSubmit={manejarEnviar}>
-          <h2>{editandoId ? 'Editar servicio' : 'Nuevo servicio'}</h2>
+          <h2>{editandoId ? 'Editar servicio' : esAdicional ? 'Nuevo adicional' : 'Nuevo servicio de reserva'}</h2>
+          <CampoFormulario etiqueta="Tipo" id="sv-tipo" requerido>
+            <select
+              id="sv-tipo"
+              value={form.tipo}
+              onChange={(e) => {
+                const tipo = e.target.value;
+                setForm((prev) => ({
+                  ...prev,
+                  tipo,
+                  duracionMinutos: tipo === 'adicional' ? '0' : prev.duracionMinutos === '0' ? '60' : prev.duracionMinutos,
+                }));
+              }}
+            >
+              <option value="marca">Servicio de reserva (marca)</option>
+              <option value="adicional">Servicio adicional (Atención)</option>
+            </select>
+          </CampoFormulario>
           <CampoFormulario etiqueta="Nombre" id="sv-nombre" requerido>
-            <input
+            <InputTexto
               id="sv-nombre"
               value={form.nombre}
               onChange={(e) => actualizarCampo('nombre', e.target.value)}
@@ -190,7 +250,7 @@ export default function ServiciosAdminVista() {
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Descripcion" id="sv-desc">
-            <textarea
+            <TextareaTexto
               id="sv-desc"
               value={form.descripcion}
               onChange={(e) => actualizarCampo('descripcion', e.target.value)}
@@ -208,17 +268,19 @@ export default function ServiciosAdminVista() {
             )}
           </CampoFormulario>
           <div className="servicios-admin__fila">
-            <CampoFormulario etiqueta="Duracion (min)" id="sv-duracion" requerido>
-              <input
-                id="sv-duracion"
-                type="number"
-                min="5"
-                max="480"
-                value={form.duracionMinutos}
-                onChange={(e) => actualizarCampo('duracionMinutos', e.target.value)}
-                required
-              />
-            </CampoFormulario>
+            {!esAdicional && (
+              <CampoFormulario etiqueta="Duracion (min)" id="sv-duracion" requerido>
+                <input
+                  id="sv-duracion"
+                  type="number"
+                  min="5"
+                  max="480"
+                  value={form.duracionMinutos}
+                  onChange={(e) => actualizarCampo('duracionMinutos', e.target.value)}
+                  required
+                />
+              </CampoFormulario>
+            )}
             <CampoFormulario etiqueta="Precio" id="sv-precio" requerido>
               <input
                 id="sv-precio"
@@ -248,7 +310,9 @@ export default function ServiciosAdminVista() {
                 checked={form.activo}
                 onChange={(e) => actualizarCampo('activo', e.target.checked)}
               />
-              Visible en reservas publicas
+              {esAdicional
+                ? 'Disponible como botón rápido en Atención'
+                : 'Visible en reservas publicas'}
             </label>
           </CampoFormulario>
           <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>
@@ -262,16 +326,29 @@ export default function ServiciosAdminVista() {
 
       {!cargando && (
         <>
-          {servicios.length === 0 ? (
-            <p className="servicios-admin__vacio">No hay servicios registrados.</p>
+          {serviciosFiltrados.length === 0 ? (
+            <p className="servicios-admin__vacio">
+              {filtroTipo === 'adicional'
+                ? 'No hay servicios adicionales. Crea uno con + Adicional.'
+                : 'No hay servicios registrados.'}
+            </p>
           ) : (
             <div className="servicios-admin__lista">
-              {servicios.map((servicio) => (
+              {serviciosFiltrados.map((servicio) => (
                 <TarjetaServicio
                   key={servicio.id}
                   servicio={servicio}
                   acciones={
                     <>
+                      {(servicio.tipo ?? 'marca') === 'adicional' ? (
+                        <span className="servicios-admin__badge servicios-admin__badge--adicional">
+                          Adicional
+                        </span>
+                      ) : (
+                        <span className="servicios-admin__badge servicios-admin__badge--marca">
+                          Reserva
+                        </span>
+                      )}
                       {!servicio.activo && <span className="badge-fase">Inactivo</span>}
                       <div className="servicios-admin__acciones">
                         <button

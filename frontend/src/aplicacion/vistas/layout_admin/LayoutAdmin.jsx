@@ -1,19 +1,20 @@
 import { useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { ImagenAmpliable } from '../../../compartido/componentes';
 import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import MenuAdminSidebar, { MenuAdminMovil } from '../../../compartido/componentes/menu_admin/MenuAdmin';
 import CampanaNotificacionesAdmin from '../../../componentes/admin/campana_notificaciones/CampanaNotificacionesAdmin';
 import { RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
+import { PLATAFORMA_HABILITADA } from '../../../compartido/configuracion/entornoApp';
 import { obtenerImpersonacion, limpiarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
-import { useAuth } from '../../proveedores/ProveedorAuth';
+import { useAuthMarca } from '../../proveedores/ProveedorAuth';
 import '../../../estilos/layouts/layout_admin/layout_admin.css';
 
 export default function LayoutAdmin() {
-  const { usuario, marca, cerrarSesion } = useAuth();
+  const { usuario, marca, cerrarSesion } = useAuthMarca();
   const navigate = useNavigate();
   const slugPublico = marca?.slug;
-  const impersonando = obtenerImpersonacion();
+  const impersonando = PLATAFORMA_HABILITADA && obtenerImpersonacion();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   async function salirImpersonacion() {
@@ -53,9 +54,9 @@ export default function LayoutAdmin() {
               Ver app del cliente
             </a>
           )}
-          {!impersonando && (
+          {!impersonando && marca?.slug && (
             <p className="layout-admin__sidebar-nota">
-              ¿Otra empresa? <Link to={RUTAS_PLATAFORMA.login}>Ir a plataforma</Link>
+              Zona segura de <strong>{marca.nombreComercial}</strong>
             </p>
           )}
         </div>

@@ -1,40 +1,69 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { Cargando, EncabezadoMarca, GaleriaFiltrosAcordeon, ImagenAmpliable, MensajeError } from '../../../compartido/componentes';
-import { listarGaleriaPublica } from '../../../modulos/galeria/servicios/galeriaServicio';
+import {
+  listarCatalogoGaleriaPublica,
+  listarGaleriaPublica,
+} from '../../../modulos/galeria/servicios/galeriaServicio';
 import {
   categoriasUnicas,
+  etiquetaDesdeCatalogo,
   filtrarDisenosGaleria,
+  temporadasUnicas,
 } from '../../../modulos/galeria/utilidades/filtrarDisenosGaleria';
 import '../../../estilos/publico/galeria/galeria.css';
 
 export default function GaleriaPublicaVista() {
   const { marca, cargando: cargandoMarca, error: errorMarca } = useMarca();
   const [disenos, setDisenos] = useState([]);
+  const [catalogo, setCatalogo] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState('todas');
+  const [temporada, setTemporada] = useState('todas');
   const [tendencia, setTendencia] = useState('todas');
 
   useEffect(() => {
     if (!marca?.id) return;
 
     setCargando(true);
-    listarGaleriaPublica(marca.id)
-      .then(setDisenos)
+    Promise.all([
+      listarGaleriaPublica(marca.id),
+      listarCatalogoGaleriaPublica(marca.id),
+    ])
+      .then(([disenosData, catalogoData]) => {
+        setDisenos(Array.isArray(disenosData) ? disenosData : []);
+        setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setCargando(false));
   }, [marca?.id]);
 
-  const categorias = useMemo(() => categoriasUnicas(disenos), [disenos]);
-
-  const disenosFiltrados = useMemo(
-    () => filtrarDisenosGaleria(disenos, { busqueda, categoria, tendencia }),
-    [disenos, busqueda, categoria, tendencia]
+  const categorias = useMemo(
+    () => categoriasUnicas(disenos, catalogo),
+    [disenos, catalogo]
+  );
+  const temporadas = useMemo(
+    () => temporadasUnicas(disenos, catalogo),
+    [disenos, catalogo]
   );
 
-  const hayFiltros = Boolean(busqueda.trim()) || categoria !== 'todas' || tendencia !== 'todas';
+  const disenosFiltrados = useMemo(
+    () => filtrarDisenosGaleria(disenos, {
+      busqueda,
+      categoria,
+      temporada,
+      tendencia,
+      catalogo,
+    }),
+    [disenos, busqueda, categoria, temporada, tendencia, catalogo]
+  );
+
+  const hayFiltros = Boolean(busqueda.trim())
+    || categoria !== 'todas'
+    || temporada !== 'todas'
+    || tendencia !== 'todas';
 
   if (cargandoMarca) return <Cargando />;
   if (errorMarca) return <MensajeError mensaje={errorMarca} />;
@@ -48,12 +77,17 @@ export default function GaleriaPublicaVista() {
         onBusquedaChange={setBusqueda}
         categoria={categoria}
         onCategoriaChange={setCategoria}
+        temporada={temporada}
+        onTemporadaChange={setTemporada}
         tendencia={tendencia}
         onTendenciaChange={setTendencia}
         categorias={categorias}
+        temporadas={temporadas}
+        catalogo={catalogo}
         onLimpiar={() => {
           setBusqueda('');
           setCategoria('todas');
+          setTemporada('todas');
           setTendencia('todas');
         }}
       />
@@ -88,7 +122,18 @@ export default function GaleriaPublicaVista() {
               </div>
               <figcaption>
                 <strong>{diseno.titulo}</strong>
-                {diseno.categoria && <span>{diseno.categoria}</span>}
+                <div className="galeria-publica__meta">
+                  {diseno.categoria && (
+                    <span className="galeria-publica__etiqueta galeria-publica__etiqueta--cat">
+                      {etiquetaDesdeCatalogo(diseno.categoria, catalogo)}
+                    </span>
+                  )}
+                  {diseno.temporada && (
+                    <span className="galeria-publica__etiqueta galeria-publica__etiqueta--temp">
+                      {etiquetaDesdeCatalogo(diseno.temporada, catalogo)}
+                    </span>
+                  )}
+                </div>
                 {diseno.coloresRelacionados?.length > 0 && (
                   <div className="galeria-publica__colores">
                     {diseno.coloresRelacionados.map((color) => (

@@ -19,6 +19,7 @@ import { normalizarHora, sumarMinutosAHora, nombreDiaDesdeFecha, normalizarHorar
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 
 const ESTADOS_VALIDOS = ['pendiente', 'confirmada', 'cancelada', 'completada'];
+const CANCELADA_POR_VALIDOS = ['admin', 'cliente'];
 
 export class AdminCitaServicio {
   constructor(deps = {}) {
@@ -90,7 +91,7 @@ export class AdminCitaServicio {
     let idCliente = clienteId;
 
     if (!idCliente) {
-      const nombre = texto(datos.nombre);
+      const nombre = texto(datos.nombre, { capitalizar: 'palabras' });
       const tel = texto(datos.telefono).replace(/\D+/g, '');
       const correoCliente = texto(datos.correo) || null;
 
@@ -217,9 +218,21 @@ export class AdminCitaServicio {
     const notasInternas = datos.notas_internas ?? datos.notasInternas !== undefined
       ? texto(datos.notas_internas ?? datos.notasInternas)
       : citaActual.notas_internas;
+    const canceladaPorSolicitada = texto(datos.cancelada_por ?? datos.canceladaPor) || null;
 
     if (estado && !ESTADOS_VALIDOS.includes(estado)) {
       return { error: 'Estado invalido.', codigoHttp: 422 };
+    }
+
+    if (canceladaPorSolicitada && !CANCELADA_POR_VALIDOS.includes(canceladaPorSolicitada)) {
+      return { error: 'Origen de cancelacion invalido.', codigoHttp: 422 };
+    }
+
+    let canceladaPor;
+    if (estado === 'cancelada' && citaActual.estado !== 'cancelada') {
+      canceladaPor = canceladaPorSolicitada || 'admin';
+    } else if (estado !== 'cancelada') {
+      canceladaPor = null;
     }
 
     const servicio = await this.servicioRepo.buscarActivoPorId(marcaId, citaActual.servicio_id);
@@ -264,6 +277,7 @@ export class AdminCitaServicio {
         horaFin,
         estado,
         notasInternas,
+        ...(canceladaPor !== undefined ? { canceladaPor } : {}),
       });
 
       await conexion.commit();
@@ -280,7 +294,7 @@ export class AdminCitaServicio {
 
   async cancelarCita(marcaId, citaId) {
     await this.solicitudRepo.rechazarPendientesDeCita(null, marcaId, citaId);
-    return this.actualizarCita(marcaId, citaId, { estado: 'cancelada' });
+    return this.actualizarCita(marcaId, citaId, { estado: 'cancelada', canceladaPor: 'admin' });
   }
 }
 
@@ -302,7 +316,7 @@ export class AdminClienteServicio {
   }
 
   async crear(marcaId, datos) {
-    const nombre = texto(datos.nombre);
+    const nombre = texto(datos.nombre, { capitalizar: 'palabras' });
     const tel = texto(datos.telefono).replace(/\D+/g, '');
     const correo = texto(datos.correo) || null;
     const notas = texto(datos.notas) || null;
@@ -335,5 +349,58 @@ export class AdminClienteServicio {
 
     const cliente = mapearClienteAdmin(await this.clienteRepo.buscarPorId(marcaId, id));
     return { cliente };
+  }
+
+  async actualizar(marcaId, clienteId, datos) {
+    const existente = await this.clienteRepo.buscarPorId(marcaId, clienteId);
+    if (!existente) {
+      return { error: 'Cliente no encontrado.', codigoHttp: 404 };
+    }
+
+    const nombre = texto(datos.nombre, { capitalizar: 'palabras' });
+    const tel = texto(datos.telefono).replace(/\D+/g, '');
+    const correo = texto(datos.correo) || null;
+    const notas = texto(datos.notas) || null;
+
+    const errores = validar(
+      { nombre, telefono: tel, correo },
+      {
+        nombre: (v) => requerido(v, 'nombre'),
+        telefono: (v) => requerido(v, 'telefono') ?? telefono(v),
+        correo: (v) => email(v),
+      }
+    );
+
+    if (Object.keys(errores).length > 0) {
+      return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
+    }
+
+    const otroConTelefono = await this.clienteRepo.buscarPorTelefono(marcaId, tel);
+    if (otroConTelefono && Number(otroConTelefono.id) !== Number(clienteId)) {
+      return { error: 'Ya existe otro cliente con ese telefono en esta marca.', codigoHttp: 409 };
+    }
+
+    await this.clienteRepo.actualizarAdmin(marcaId, clienteId, {
+      nombre,
+      telefono: tel,
+      correo,
+      notas,
+    });
+
+    const cliente = mapearClienteAdmin(await this.clienteRepo.buscarPorId(marcaId, clienteId));
+    return { cliente };
+  }
+
+  async desactivar(marcaId, clienteId) {
+    const existente = await this.clienteRepo.buscarPorId(marcaId, clienteId);
+    if (!existente) {
+      return { error: 'Cliente no encontrado.', codigoHttp: 404 };
+    }
+
+    const citasRegistradas = await this.clienteRepo.contarCitas(marcaId, clienteId);
+    await this.clienteRepo.desactivar(marcaId, clienteId);
+
+    const cliente = mapearClienteAdmin({ ...existente, activo: 0 });
+    return { cliente, citasRegistradas };
   }
 }

@@ -4,6 +4,7 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  InputTexto,
   MensajeError,
 } from '../../../compartido/componentes';
 import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
@@ -118,16 +119,18 @@ export default function EditarMarcaPlataformaVista() {
 
       <form className="editar-marca-plataforma__formulario" onSubmit={guardar}>
         <CampoFormulario etiqueta="Nombre comercial" id="em-nombre" requerido>
-          <input
+          <InputTexto
             id="em-nombre"
+            capitalizar="palabras"
             value={form.nombre_comercial}
             onChange={(e) => setForm({ ...form, nombre_comercial: e.target.value })}
             required
           />
         </CampoFormulario>
         <CampoFormulario etiqueta="Slug URL" id="em-slug" requerido>
-          <input
+          <InputTexto
             id="em-slug"
+            capitalizar={false}
             value={form.slug}
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
             required

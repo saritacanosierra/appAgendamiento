@@ -4,17 +4,19 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  InputTexto,
   MensajeError,
 } from '../../../compartido/componentes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
-import { guardarToken, marcarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
+import { guardarTokenMarca, marcarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
 import {
   actualizarMarcaPlataforma,
   crearMarcaPlataforma,
   impersonarMarcaPlataforma,
   listarMarcasPlataforma,
 } from '../../../modulos/plataforma/servicios/plataformaServicio';
+import EnlacesEntregaMarca from '../../../componentes/plataforma/enlaces_entrega_marca/EnlacesEntregaMarca';
 import '../../../estilos/plataforma/marcas/marcas.css';
 
 const formularioVacio = {
@@ -39,7 +41,7 @@ function EstadoBadge({ activa, planHabilitado }) {
 
 export default function MarcasPlataformaVista() {
   const navigate = useNavigate();
-  const { recargarSesion } = useAuth();
+  const { recargarSesionMarca } = useAuth();
   const [marcas, setMarcas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -89,9 +91,9 @@ export default function MarcasPlataformaVista() {
     setError(null);
     try {
       const datos = await impersonarMarcaPlataforma(marca.id);
-      guardarToken(datos.token);
+      guardarTokenMarca(datos.token);
       marcarImpersonacion(datos.marcaNombre ?? marca.nombreComercial);
-      await recargarSesion();
+      await recargarSesionMarca();
       navigate(RUTAS_ADMIN.panel);
     } catch (err) {
       setError(err.message);
@@ -155,8 +157,9 @@ export default function MarcasPlataformaVista() {
             Ejemplo: crea &quot;DaniSpa&quot; y luego &quot;AlejaNails&quot; como marcas separadas.
           </p>
           <CampoFormulario etiqueta="Nombre comercial" id="mp-nombre" requerido>
-            <input
+            <InputTexto
               id="mp-nombre"
+              capitalizar="palabras"
               value={form.nombre_comercial}
               placeholder="DaniSpa"
               onChange={(e) => setForm({ ...form, nombre_comercial: e.target.value })}
@@ -164,16 +167,18 @@ export default function MarcasPlataformaVista() {
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Slug URL (opcional)" id="mp-slug">
-            <input
+            <InputTexto
               id="mp-slug"
+              capitalizar={false}
               value={form.slug}
               placeholder="danispa"
               onChange={(e) => setForm({ ...form, slug: e.target.value })}
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Admin — nombre" id="mp-admin-nombre" requerido>
-            <input
+            <InputTexto
               id="mp-admin-nombre"
+              capitalizar="palabras"
               value={form.admin_nombre}
               onChange={(e) => setForm({ ...form, admin_nombre: e.target.value })}
               required
@@ -243,7 +248,7 @@ export default function MarcasPlataformaVista() {
               <thead>
                 <tr>
                   <th>Empresa</th>
-                  <th>Sitio publico</th>
+                  <th>Enlaces para el cliente</th>
                   <th>Admin</th>
                   <th>Contacto</th>
                   <th>Actividad</th>
@@ -258,9 +263,7 @@ export default function MarcasPlataformaVista() {
                       <strong className="marcas-plataforma__nombre">{marca.nombreComercial}</strong>
                     </td>
                     <td>
-                      <Link to={`/m/${marca.slug}`} target="_blank" rel="noreferrer">
-                        /m/{marca.slug}
-                      </Link>
+                      <EnlacesEntregaMarca marca={marca} />
                     </td>
                     <td>
                       {marca.adminNombre && <span className="marcas-plataforma__admin-nombre">{marca.adminNombre}</span>}

@@ -2,11 +2,11 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import MenuPlataforma from '../../../compartido/componentes/menu_plataforma/MenuPlataforma';
 import { BotonPrincipal } from '../../../compartido/componentes';
 import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
-import { useAuth } from '../../proveedores/ProveedorAuth';
+import { useAuthPlataforma } from '../../proveedores/ProveedorAuth';
 import '../../../estilos/plataforma/layout/layout_plataforma.css';
 
 export default function LayoutPlataforma() {
-  const { usuario, cerrarSesion } = useAuth();
+  const { usuario, cerrarSesion } = useAuthPlataforma();
   const navigate = useNavigate();
 
   async function salir() {

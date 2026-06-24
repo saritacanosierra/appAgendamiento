@@ -30,9 +30,11 @@
 
 .agenda-vista__tabs button {
   padding: 0.5rem 1rem;
-  border: 1px solid var(--color-borde);
+  border: 1px solid var(--color-borde-superficie);
   border-radius: 999px;
   background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -137,7 +139,7 @@
 
 .agenda-vista__solicitud p {
   margin: var(--espacio-xs) 0 0;
-  color: #555;
+  color: var(--color-texto-muted-superficie);
 }
 
 .agenda-vista__solicitud-codigo {

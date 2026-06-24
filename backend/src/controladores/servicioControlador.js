@@ -23,8 +23,14 @@ export async function listarPublicos(req, res) {
 }
 
 export async function listarAdmin(req, res) {
-  const servicios = await servicioServicio.listarAdmin(req.marcaId);
+  const tipo = req.query.tipo === 'adicional' || req.query.tipo === 'marca' ? req.query.tipo : undefined;
+  const servicios = await servicioServicio.listarAdmin(req.marcaId, { tipo });
   return respuestaExito(res, servicios, 'Servicios de la marca');
+}
+
+export async function listarAdicionalesAdmin(req, res) {
+  const servicios = await servicioServicio.listarAdicionalesActivos(req.marcaId);
+  return respuestaExito(res, servicios, 'Servicios adicionales activos');
 }
 
 export async function crearAdmin(req, res) {

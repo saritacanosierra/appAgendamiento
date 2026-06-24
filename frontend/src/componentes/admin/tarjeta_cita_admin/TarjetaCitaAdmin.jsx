@@ -13,7 +13,7 @@ export default function TarjetaCitaAdmin({ cita, onConfirmar, onCancelar, onAten
         <h3>{cita.cliente.nombre}</h3>
         <p>{cita.servicio.nombre} · {formatearPrecio(cita.servicio.precio)}</p>
         <p className="tarjeta-cita-admin__tel">{cita.cliente.telefono}</p>
-        <EstadoCita estado={cita.estado} />
+        <EstadoCita estado={cita.estado} canceladaPor={cita.canceladaPor} />
         {cita.notasInternas && (
           <p className="tarjeta-cita-admin__notas">{cita.notasInternas}</p>
         )}

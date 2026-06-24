@@ -2,12 +2,22 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const esProduccion = (process.env.NODE_ENV ?? 'desarrollo') === 'produccion';
+const envPlataforma = process.env.PLATAFORMA_HABILITADA;
+
+function resolverPlataformaHabilitada() {
+  if (envPlataforma === 'true' || envPlataforma === '1') return true;
+  if (envPlataforma === 'false' || envPlataforma === '0') return false;
+  return !esProduccion;
+}
+
 export const entorno = {
   nodeEnv: process.env.NODE_ENV ?? 'desarrollo',
-  depuracion: (process.env.NODE_ENV ?? 'desarrollo') !== 'produccion',
+  depuracion: !esProduccion,
   puerto: Number(process.env.PUERTO ?? 3000),
   zonaHoraria: process.env.ZONA_HORARIA ?? 'America/Mexico_City',
   claveSecretaSesion: process.env.CLAVE_SECRETA_SESION ?? 'cambiar-clave',
+  plataformaHabilitada: resolverPlataformaHabilitada(),
 };
 
 export const baseDatos = {

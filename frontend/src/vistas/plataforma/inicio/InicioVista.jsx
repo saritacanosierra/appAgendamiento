@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { obtenerEstadoApi } from '../../../compartido/utilidades/apiCliente';
 import { BotonPrincipal, Cargando, MensajeError } from '../../../compartido/componentes';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
+import { PLATAFORMA_HABILITADA } from '../../../compartido/configuracion/entornoApp';
 import '../../../estilos/plataforma/inicio/inicio.css';
 
 export default function InicioVista() {
@@ -20,61 +21,54 @@ export default function InicioVista() {
   return (
     <div className="inicio-plataforma contenedor-app">
       <header className="inicio-plataforma__hero">
-        <h1>Spa Unas</h1>
-        <p>Plataforma SaaS multi-marca. Cada empresa opera como su propia app con reservas, galeria y blog.</p>
+        <h1>Agendar Citas</h1>
+        <p>Reserva en línea, gestión de agenda y presencia digital para tu negocio.</p>
       </header>
 
       {cargando && <Cargando mensaje="Verificando conexion con la API..." />}
       {error && <MensajeError mensaje={error} onReintentar={() => window.location.reload()} />}
 
       <section className="inicio-plataforma__accesos">
-        <article className="inicio-plataforma__tarjeta inicio-plataforma__tarjeta--plataforma">
-          <span className="inicio-plataforma__etiqueta inicio-plataforma__etiqueta--plataforma">
-            Control total
-          </span>
-          <h2>Administrador de plataforma</h2>
-          <p className="inicio-plataforma__url">{RUTAS_PLATAFORMA.login}</p>
-          <p>
-            Crea DaniSpa, AlejaNails y todas las marcas. Activa planes y supervisa el SaaS.
-          </p>
-          <ul className="inicio-plataforma__lista">
-            <li>+ Agregar marcas</li>
-            <li>Gestionar empresas</li>
-            <li>Reportes globales</li>
-          </ul>
-          <BotonPrincipal to={RUTAS_PLATAFORMA.login} anchoCompleto>
-            Entrar como superadmin
-          </BotonPrincipal>
-          <span className="inicio-plataforma__hint">Demo: platform@spa-unas.test</span>
-        </article>
-
         <article className="inicio-plataforma__tarjeta inicio-plataforma__tarjeta--marca">
           <span className="inicio-plataforma__etiqueta inicio-plataforma__etiqueta--marca">
-            Una empresa
+            Administradores
           </span>
-          <h2>Admin de una marca</h2>
+          <h2>Panel de tu negocio</h2>
           <p className="inicio-plataforma__url">{RUTAS_ADMIN.login}</p>
           <p>
-            Solo tu spa: perfil, colores, agenda, galeria, blog y Google Calendar propios.
+            Accede solo si tienes cuenta de administrador: agenda, clientes, servicios y configuración de tu marca.
           </p>
           <ul className="inicio-plataforma__lista">
-            <li>Mi marca y colores</li>
-            <li>Agenda y clientes</li>
-            <li>Galeria y blog</li>
+            <li>Agenda y atención</li>
+            <li>Clientes y servicios</li>
+            <li>Galería y blog</li>
           </ul>
-          <BotonPrincipal to={RUTAS_ADMIN.login} variante="secundario" anchoCompleto>
-            Entrar al panel de mi marca
+          <BotonPrincipal to={RUTAS_ADMIN.login} anchoCompleto>
+            Entrar al panel
           </BotonPrincipal>
-          <span className="inicio-plataforma__hint">Demo: admin@lunanails.test</span>
         </article>
+
+        {PLATAFORMA_HABILITADA && (
+          <article className="inicio-plataforma__tarjeta inicio-plataforma__tarjeta--plataforma">
+            <span className="inicio-plataforma__etiqueta inicio-plataforma__etiqueta--plataforma">
+              Uso interno
+            </span>
+            <h2>Operaciones del sistema</h2>
+            <p className="inicio-plataforma__url">{RUTAS_PLATAFORMA.login}</p>
+            <p>Solo personal autorizado del operador SaaS.</p>
+            <BotonPrincipal to={RUTAS_PLATAFORMA.login} variante="secundario" anchoCompleto>
+              Acceso interno
+            </BotonPrincipal>
+          </article>
+        )}
       </section>
 
       <section className="inicio-plataforma__demo">
-        <h3>Demo publica</h3>
+        <h3>Demo pública</h3>
         <Link to={RUTAS_PUBLICAS.inicioMarca('luna-nails')}>Ver sitio de Luna Nails →</Link>
       </section>
 
-      {estadoApi?.exito && (
+      {estadoApi?.exito && import.meta.env.DEV && (
         <section className="inicio-plataforma__estado">
           <h2>Estado del sistema</h2>
           <ul>
