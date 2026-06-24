@@ -23,3 +23,8 @@ Thumbs.db
 
 # Base de datos respaldos locales
 base_de_datos/respaldos/*.sql
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/

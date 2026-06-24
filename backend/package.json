@@ -10,6 +10,7 @@
     "start": "node src/index.js",
     "test": "node scripts/run-tests.js",
     "test:integracion": "node scripts/run-tests-integracion.js",
+    "lint": "oxlint src scripts",
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
     "semilla:superadmin": "node scripts/semilla-superadmin.js",
     "migrar:plataforma": "node scripts/migrar-plataforma.js",
@@ -38,13 +39,16 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "helmet": "^8.2.0",
     "multer": "^2.2.0",
     "mysql2": "^3.12.0",
     "nodemailer": "^6.10.1",
     "pino": "^10.3.1",
+    "redis": "^6.0.1",
     "sharp": "^0.33.5"
   },
   "devDependencies": {
+    "oxlint": "^1.71.0",
     "supertest": "^7.2.2"
   }
 }

@@ -211,6 +211,7 @@ cd backend && npm run migrar:all
 ```bash
 npm test                              # unitarios + HTTP (sin MySQL)
 cd backend && npm run test:integracion   # con BD demo (login + aislamiento)
+npm run test:e2e                      # Playwright (requiere BD demo + servidores; en CI automatico)
 ```
 
 Plataforma superadmin (solo primera vez):

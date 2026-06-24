@@ -1,46 +1,30 @@
 import { respuestaError } from '../utilidades/respuestaJson.js';
-
-const registros = new Map();
-
-function limpiarExpirados(ventanaMs) {
-  const ahora = Date.now();
-  for (const [clave, datos] of registros.entries()) {
-    if (ahora - datos.inicio > ventanaMs) {
-      registros.delete(clave);
-    }
-  }
-}
+import { incrementarContadorTasa } from '../utilidades/contadorLimitadorTasa.js';
 
 function obtenerIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'desconocida';
 }
 
 /**
- * Limitador en memoria por IP. Adecuado para desarrollo y una instancia.
+ * Limitador por IP. Memoria en una instancia; Redis si REDIS_URL esta definido.
  */
 export function limitarTasa({ ventanaMs = 60_000, max = 60, mensaje = 'Demasiadas solicitudes. Intenta mas tarde.' } = {}) {
-  return (req, res, next) => {
-    limpiarExpirados(ventanaMs);
+  return async (req, res, next) => {
+    try {
+      const clave = `rl:${req.path}:${obtenerIp(req)}`;
+      const conteo = await incrementarContadorTasa(clave, ventanaMs);
 
-    const clave = `${req.path}:${obtenerIp(req)}`;
-    const ahora = Date.now();
-    let datos = registros.get(clave);
+      res.setHeader('X-RateLimit-Limit', String(max));
+      res.setHeader('X-RateLimit-Remaining', String(Math.max(0, max - conteo)));
 
-    if (!datos || ahora - datos.inicio > ventanaMs) {
-      datos = { inicio: ahora, conteo: 0 };
-      registros.set(clave, datos);
+      if (conteo > max) {
+        return respuestaError(res, mensaje, 429);
+      }
+
+      next();
+    } catch (err) {
+      next(err);
     }
-
-    datos.conteo += 1;
-
-    res.setHeader('X-RateLimit-Limit', String(max));
-    res.setHeader('X-RateLimit-Remaining', String(Math.max(0, max - datos.conteo)));
-
-    if (datos.conteo > max) {
-      return respuestaError(res, mensaje, 429);
-    }
-
-    next();
   };
 }
 

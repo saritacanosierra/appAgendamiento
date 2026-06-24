@@ -2,9 +2,11 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import helmet from 'helmet';
 import { corsOrigenes, entorno } from './configuracion/entorno.js';
 import rutasApi from './rutas/api.js';
 import { manejoErrores, rutaNoEncontrada } from './middlewares/manejoErrores.js';
+import { idPeticionMiddleware } from './middlewares/idPeticionMiddleware.js';
 import { directorioSubidas } from './middlewares/subidaArchivos.js';
 import { registrarPeticiones } from './utilidades/logger.js';
 
@@ -17,6 +19,13 @@ export function crearApp() {
     app.set('trust proxy', 1);
   }
 
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }));
+
+  app.use(idPeticionMiddleware);
+
   app.use(cors({
     origin: (origen, callback) => {
       if (!origen || corsOrigenes.includes(origen)) {
@@ -27,8 +36,8 @@ export function crearApp() {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['X-Nuevo-Token', 'X-Token-Expira'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-Id'],
+    exposedHeaders: ['X-Nuevo-Token', 'X-Token-Expira', 'X-Request-Id'],
   }));
 
   app.use(express.json({ limit: '2mb' }));

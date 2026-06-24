@@ -3,7 +3,8 @@ import { respuestaError } from '../utilidades/respuestaJson.js';
 import { logger } from '../utilidades/logger.js';
 
 export function manejoErrores(err, req, res, next) {
-  logger.error({
+  const log = req.log ?? logger;
+  log.error({
     err,
     metodo: req.method,
     ruta: req.originalUrl,

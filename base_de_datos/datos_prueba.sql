@@ -1,7 +1,7 @@
 -- Datos de prueba para desarrollo local
 -- Ejecutar despues de esquema_inicial.sql
 
-USE app_citas;
+USE spa_unas;
 
 INSERT INTO marcas (
   nombre_comercial, slug, color_principal, color_secundario,

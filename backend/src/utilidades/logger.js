@@ -19,6 +19,7 @@ export function registrarPeticiones(req, res, next) {
 
   res.on('finish', () => {
     const registro = {
+      requestId: req.idPeticion,
       metodo: req.method,
       ruta: req.originalUrl,
       estado: res.statusCode,
