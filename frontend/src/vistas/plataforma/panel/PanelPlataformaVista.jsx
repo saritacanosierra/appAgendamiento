@@ -62,6 +62,14 @@ export default function PanelPlataformaVista() {
           <strong>{resumen.marcasConPlan}</strong>
         </article>
         <article className="panel-plataforma__metrica">
+          <span>Vencen pronto</span>
+          <strong>{resumen.marcasPorVencer ?? 0}</strong>
+        </article>
+        <article className="panel-plataforma__metrica">
+          <span>Vencidas</span>
+          <strong>{resumen.marcasVencidas ?? 0}</strong>
+        </article>
+        <article className="panel-plataforma__metrica">
           <span>Citas totales</span>
           <strong>{resumen.totalCitas}</strong>
         </article>

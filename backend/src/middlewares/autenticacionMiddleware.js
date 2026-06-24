@@ -1,6 +1,7 @@
 import { authServicio, extraerToken } from '../controladores/autenticacionControlador.js';
 import { MarcaRepositorio, UsuarioRepositorio } from '../repositorios/index.js';
 import { mapearMarcaPublica } from '../servicios/marcaServicio.js';
+import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { respuestaError } from '../utilidades/respuestaJson.js';
 import { entorno } from '../configuracion/entorno.js';
 
@@ -72,7 +73,15 @@ export async function autenticacionMiddleware(req, res, next) {
     };
     req.marcaId = usuarioDb.marca_id;
 
-    const marcaFila = await marcaRepo.buscarPorId(usuarioDb.marca_id);
+    const marcaFila = await marcaRepo.buscarPorIdCompleto(usuarioDb.marca_id);
+    const operativa = verificarMarcaOperativa(marcaFila);
+    if (!operativa.ok) {
+      const esLogout = req.originalUrl?.includes('/auth/logout');
+      if (!esLogout) {
+        return respuestaError(res, operativa.error, operativa.codigoHttp);
+      }
+    }
+
     req.marca = mapearMarcaPublica(marcaFila);
     req.token = token;
 

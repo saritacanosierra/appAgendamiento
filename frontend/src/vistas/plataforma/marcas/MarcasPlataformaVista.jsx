@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  IconoApp,
   InputTexto,
   MensajeError,
 } from '../../../compartido/componentes';
@@ -15,8 +16,9 @@ import {
   crearMarcaPlataforma,
   impersonarMarcaPlataforma,
   listarMarcasPlataforma,
+  obtenerMarcaPlataforma,
 } from '../../../modulos/plataforma/servicios/plataformaServicio';
-import EnlacesEntregaMarca from '../../../componentes/plataforma/enlaces_entrega_marca/EnlacesEntregaMarca';
+import ModalDetalleMarcaPlataforma from '../../../componentes/plataforma/modal_detalle_marca/ModalDetalleMarcaPlataforma';
 import '../../../estilos/plataforma/marcas/marcas.css';
 
 const formularioVacio = {
@@ -26,12 +28,19 @@ const formularioVacio = {
   admin_correo: '',
   admin_contrasena: '',
   plan_habilitado: true,
+  plan_tipo: 'mensual',
   activa: true,
 };
 
-function EstadoBadge({ activa, planHabilitado }) {
+function EstadoBadgeCompacto({ activa, planHabilitado, suscripcion }) {
   if (!activa) {
     return <span className="marcas-plataforma__badge marcas-plataforma__badge--suspendida">Suspendida</span>;
+  }
+  if (suscripcion?.vencido) {
+    return <span className="marcas-plataforma__badge marcas-plataforma__badge--vencida">Vencida</span>;
+  }
+  if (suscripcion?.porVencer) {
+    return <span className="marcas-plataforma__badge marcas-plataforma__badge--por-vencer">Por vencer</span>;
   }
   if (!planHabilitado) {
     return <span className="marcas-plataforma__badge marcas-plataforma__badge--plan">Sin plan</span>;
@@ -51,6 +60,21 @@ export default function MarcasPlataformaVista() {
   const [enviando, setEnviando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [entrandoPanel, setEntrandoPanel] = useState(null);
+  const [marcaDetalle, setMarcaDetalle] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  async function abrirDetalleMarca(marca) {
+    setMarcaDetalle(marca);
+    setCargandoDetalle(true);
+    try {
+      const fresca = await obtenerMarcaPlataforma(marca.id);
+      setMarcaDetalle(fresca);
+    } catch {
+      setMarcaDetalle(marca);
+    } finally {
+      setCargandoDetalle(false);
+    }
+  }
 
   async function cargar() {
     setCargando(true);
@@ -115,6 +139,10 @@ export default function MarcasPlataformaVista() {
         plan_habilitado: campo === 'plan' ? !marca.planHabilitado : marca.planHabilitado,
       });
       await cargar();
+      if (marcaDetalle?.id === marca.id) {
+        const actualizadas = await listarMarcasPlataforma();
+        setMarcaDetalle(actualizadas.find((m) => m.id === marca.id) ?? null);
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -138,8 +166,8 @@ export default function MarcasPlataformaVista() {
         <div>
           <h2>Mis marcas</h2>
           <p>
-            Lista de todas las empresas que gestionas. Cada una es independiente:
-            DaniSpa, AlejaNails, etc. tienen su propia info, clientes, galeria y calendario.
+            Lista de todas las empresas que gestionas. Toca el icono de cada marca para ver plan,
+            enlaces, admin y acciones.
           </p>
         </div>
         <BotonPrincipal onClick={() => setMostrarForm(!mostrarForm)}>
@@ -218,7 +246,7 @@ export default function MarcasPlataformaVista() {
         </form>
       )}
 
-      <section className="marcas-plataforma__tabla-seccion">
+      <section className="marcas-plataforma__lista-seccion">
         <div className="marcas-plataforma__tabla-cabecera">
           <p className="marcas-plataforma__conteo">
             <strong>{marcas.length}</strong> {marcas.length === 1 ? 'marca' : 'marcas'} registradas
@@ -243,79 +271,41 @@ export default function MarcasPlataformaVista() {
         ) : marcasFiltradas.length === 0 ? (
           <p className="marcas-plataforma__sin-resultados">No hay marcas que coincidan con &quot;{busqueda}&quot;.</p>
         ) : (
-          <div className="marcas-plataforma__tabla-wrap">
-            <table className="marcas-plataforma__tabla">
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th>Enlaces para el cliente</th>
-                  <th>Admin</th>
-                  <th>Contacto</th>
-                  <th>Actividad</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {marcasFiltradas.map((marca) => (
-                  <tr key={marca.id}>
-                    <td>
-                      <strong className="marcas-plataforma__nombre">{marca.nombreComercial}</strong>
-                    </td>
-                    <td>
-                      <EnlacesEntregaMarca marca={marca} />
-                    </td>
-                    <td>
-                      {marca.adminNombre && <span className="marcas-plataforma__admin-nombre">{marca.adminNombre}</span>}
-                      {marca.adminCorreo && (
-                        <span className="marcas-plataforma__admin-correo">{marca.adminCorreo}</span>
-                      )}
-                    </td>
-                    <td className="marcas-plataforma__contacto">
-                      {marca.telefono || marca.whatsapp || marca.direccion ? (
-                        <>
-                          {marca.telefono && <span>{marca.telefono}</span>}
-                          {marca.whatsapp && <span>WA: {marca.whatsapp}</span>}
-                          {marca.direccion && <span>{marca.direccion}</span>}
-                        </>
-                      ) : (
-                        <span className="marcas-plataforma__sin-dato">Sin datos</span>
-                      )}
-                    </td>
-                    <td>
-                      {marca.totalCitas} citas
-                      <br />
-                      {marca.totalUsuarios} usuarios
-                    </td>
-                    <td>
-                      <EstadoBadge activa={marca.activa} planHabilitado={marca.planHabilitado} />
-                    </td>
-                    <td>
-                      <div className="marcas-plataforma__acciones-tabla">
-                        <button
-                          type="button"
-                          className="marcas-plataforma__panel"
-                          onClick={() => entrarPanelMarca(marca)}
-                          disabled={entrandoPanel === marca.id}
-                        >
-                          {entrandoPanel === marca.id ? 'Entrando...' : 'Entrar al panel'}
-                        </button>
-                        <Link to={RUTAS_PLATAFORMA.editarMarca(marca.id)}>Editar</Link>
-                        <button type="button" onClick={() => toggleCampo(marca, 'activa')}>
-                          {marca.activa ? 'Suspender' : 'Activar'}
-                        </button>
-                        <button type="button" onClick={() => toggleCampo(marca, 'plan')}>
-                          {marca.planHabilitado ? 'Quitar plan' : 'Habilitar plan'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ul className="marcas-plataforma__lista">
+            {marcasFiltradas.map((marca) => (
+              <li key={marca.id} className="marcas-plataforma__item">
+                <div className="marcas-plataforma__item-info">
+                  <strong className="marcas-plataforma__nombre">{marca.nombreComercial}</strong>
+                  <EstadoBadgeCompacto
+                    activa={marca.activa}
+                    planHabilitado={marca.planHabilitado}
+                    suscripcion={marca.suscripcion}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="marcas-plataforma__ver-detalle"
+                  onClick={() => abrirDetalleMarca(marca)}
+                  aria-label={`Ver detalle de ${marca.nombreComercial}`}
+                >
+                  <IconoApp nombre="ojo" tamano="md" />
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
+
+      <ModalDetalleMarcaPlataforma
+        marca={marcaDetalle}
+        abierto={Boolean(marcaDetalle)}
+        cargando={cargandoDetalle}
+        onCerrar={() => setMarcaDetalle(null)}
+        entrandoPanel={entrandoPanel}
+        onEntrarPanel={entrarPanelMarca}
+        onToggleActiva={(marca) => toggleCampo(marca, 'activa')}
+        onTogglePlan={(marca) => toggleCampo(marca, 'plan')}
+      />
     </div>
   );
 }

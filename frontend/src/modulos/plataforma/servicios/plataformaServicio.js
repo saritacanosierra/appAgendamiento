@@ -54,3 +54,24 @@ export async function resetearContrasenaMarcaPlataforma(id, nuevaContrasena) {
   });
   return respuesta.datos;
 }
+
+export async function activarSuscripcionMarcaPlataforma(id, datos) {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}/suscripcion/activar`, {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
+export async function renovarSuscripcionMarcaPlataforma(id, datos) {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}/suscripcion/renovar`, {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
+export async function listarHistorialSuscripcionMarcaPlataforma(id) {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}/suscripcion/historial`);
+  return respuesta.datos.historial;
+}

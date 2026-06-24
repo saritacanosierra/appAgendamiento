@@ -104,6 +104,9 @@ import {
   impersonarMarcaPlataforma,
   obtenerReportePlataforma,
   resetearContrasenaMarcaPlataforma,
+  activarSuscripcionMarcaPlataforma,
+  renovarSuscripcionMarcaPlataforma,
+  listarHistorialSuscripcionMarcaPlataforma,
 } from '../controladores/plataformaControlador.js';
 import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.js';
 import { superadminMiddleware, soloMarcaAdminMiddleware, plataformaDisponibleMiddleware } from '../middlewares/plataformaMiddleware.js';
@@ -210,5 +213,8 @@ router.post('/plataforma/marcas', crearMarcaPlataforma);
 router.put('/plataforma/marcas/:id', actualizarMarcaPlataforma);
 router.post('/plataforma/marcas/:id/impersonar', impersonarMarcaPlataforma);
 router.put('/plataforma/marcas/:id/reset-contrasena', resetearContrasenaMarcaPlataforma);
+router.post('/plataforma/marcas/:id/suscripcion/activar', activarSuscripcionMarcaPlataforma);
+router.post('/plataforma/marcas/:id/suscripcion/renovar', renovarSuscripcionMarcaPlataforma);
+router.get('/plataforma/marcas/:id/suscripcion/historial', listarHistorialSuscripcionMarcaPlataforma);
 
 export default router;

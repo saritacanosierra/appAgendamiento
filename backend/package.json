@@ -18,6 +18,7 @@
     "migrar:servicios-tipo": "node scripts/migrar-servicios-tipo.js",
     "migrar:cliente-favoritos": "node scripts/migrar-cliente-favoritos.js",
     "migrar:cita-disenos-galeria": "node scripts/migrar-cita-disenos-galeria.js",
+    "migrar:suscripcion-marca": "node scripts/migrar-suscripcion-marca.js",
     "migrar:whatsapp-recordatorio": "node scripts/migrar-whatsapp-recordatorio.js",
     "migrar:citas-cancelada-por": "node scripts/migrar-citas-cancelada-por.js",
     "recordatorios:whatsapp": "node scripts/enviar-recordatorios-whatsapp.js",

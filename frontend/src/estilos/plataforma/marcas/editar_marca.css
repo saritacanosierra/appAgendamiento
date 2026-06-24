@@ -74,3 +74,52 @@
   flex-direction: column;
   gap: var(--espacio-md);
 }
+
+.editar-marca-plataforma__suscripcion {
+  max-width: 640px;
+  margin-bottom: var(--espacio-xl);
+  padding: var(--espacio-lg);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: var(--color-superficie);
+}
+
+.editar-marca-plataforma__suscripcion h3,
+.editar-marca-plataforma__suscripcion h4 {
+  margin: 0 0 var(--espacio-sm);
+}
+
+.editar-marca-plataforma__suscripcion-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--espacio-md);
+  margin: var(--espacio-md) 0;
+}
+
+.editar-marca-plataforma__suscripcion-resumen dt {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted-superficie);
+}
+
+.editar-marca-plataforma__suscripcion-resumen dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.editar-marca-plataforma__vencido {
+  color: #c62828;
+}
+
+.editar-marca-plataforma__suscripcion-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  margin-top: var(--espacio-md);
+}
+
+.editar-marca-plataforma__historial ul {
+  margin: var(--espacio-sm) 0 0;
+  padding-left: 1.2rem;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}

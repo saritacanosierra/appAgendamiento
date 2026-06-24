@@ -2,8 +2,12 @@ import bcrypt from 'bcrypt';
 import {
   MarcaPlataformaRepositorio,
 } from '../repositorios/plataformaRepositorio.js';
+import { SuscripcionMarcaRepositorio } from '../repositorios/suscripcionMarcaRepositorio.js';
 import { UsuarioRepositorio } from '../repositorios/index.js';
+import { suscripcionMarcaServicio } from './suscripcionMarcaServicio.js';
 import { generarSlug, slugUnico } from '../utilidades/slug.js';
+import { mapearEstadoSuscripcion } from '../utilidades/suscripcionMarca.js';
+import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { requerido, email, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 
@@ -23,24 +27,33 @@ function mapearMarcaPlataforma(fila) {
     totalUsuarios: Number(fila.total_usuarios ?? 0),
     totalCitas: Number(fila.total_citas ?? 0),
     createdAt: fila.created_at,
+    suscripcion: mapearEstadoSuscripcion(fila),
   };
 }
 
 export class PlataformaServicio {
   constructor(
     marcaRepo = new MarcaPlataformaRepositorio(),
-    usuarioRepo = new UsuarioRepositorio()
+    usuarioRepo = new UsuarioRepositorio(),
+    suscripcionRepo = new SuscripcionMarcaRepositorio()
   ) {
     this.marcaRepo = marcaRepo;
     this.usuarioRepo = usuarioRepo;
+    this.suscripcionRepo = suscripcionRepo;
   }
 
   async obtenerResumen() {
     const filas = await this.marcaRepo.obtenerResumen();
+    const [marcasPorVencer, marcasVencidas] = await Promise.all([
+      this.suscripcionRepo.contarPorVencer(7),
+      this.suscripcionRepo.contarVencidas(),
+    ]);
     return {
       totalMarcas: Number(filas.total_marcas ?? 0),
       marcasActivas: Number(filas.marcas_activas ?? 0),
       marcasConPlan: Number(filas.marcas_con_plan ?? 0),
+      marcasPorVencer,
+      marcasVencidas,
       totalCitas: Number(filas.total_citas ?? 0),
       totalUsuariosMarca: Number(filas.total_usuarios_marca ?? 0),
       marcasConGoogle: Number(filas.marcas_con_google ?? 0),
@@ -107,6 +120,13 @@ export class PlataformaServicio {
       rol: 'admin',
     });
 
+    if (planHabilitado) {
+      await suscripcionMarcaServicio.activarPlan(marcaId, {
+        plan_tipo: datosEntrada.plan_tipo ?? datosEntrada.planTipo ?? 'mensual',
+        monto: datosEntrada.plan_monto ?? datosEntrada.planMonto ?? null,
+      });
+    }
+
     const fila = await this.marcaRepo.buscarPorId(marcaId);
     return {
       marca: mapearMarcaPlataforma({ ...fila, total_usuarios: 1, total_citas: 0 }),
@@ -146,6 +166,11 @@ export class PlataformaServicio {
     const existente = await this.marcaRepo.buscarPorId(marcaId);
     if (!existente) {
       return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    }
+
+    const operativa = verificarMarcaOperativa(existente);
+    if (!operativa.ok) {
+      return { error: operativa.error, codigoHttp: operativa.codigoHttp };
     }
 
     const admin = await this.usuarioRepo.buscarAdminPrincipalPorMarca(marcaId);

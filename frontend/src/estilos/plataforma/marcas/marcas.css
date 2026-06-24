@@ -40,6 +40,66 @@
   font-size: var(--tamano-texto-sm);
 }
 
+.marcas-plataforma__lista-seccion {
+  background: var(--color-superficie);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: var(--espacio-lg);
+}
+
+.marcas-plataforma__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+}
+
+.marcas-plataforma__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-md);
+  padding: var(--espacio-md);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.marcas-plataforma__item:hover {
+  border-color: color-mix(in srgb, var(--color-acento) 35%, #eee);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+}
+
+.marcas-plataforma__item-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espacio-xs);
+  min-width: 0;
+}
+
+.marcas-plataforma__ver-detalle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fafafa;
+  color: var(--color-acento);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.marcas-plataforma__ver-detalle:hover {
+  background: color-mix(in srgb, var(--color-acento) 10%, #fff);
+  border-color: var(--color-acento);
+}
+
 .marcas-plataforma__tabla-seccion {
   background: var(--color-superficie);
   border: 1px solid #eee;
@@ -100,6 +160,7 @@
 .marcas-plataforma__nombre {
   display: block;
   font-size: var(--tamano-texto-base);
+  word-break: break-word;
 }
 
 .marcas-plataforma__admin-nombre {
@@ -143,6 +204,23 @@
 .marcas-plataforma__badge--plan {
   background: #fff3e0;
   color: #ef6c00;
+}
+
+.marcas-plataforma__badge--por-vencer {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.marcas-plataforma__badge--vencida {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.marcas-plataforma__plan-dias {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-texto-muted-superficie);
+  font-size: 0.85em;
 }
 
 .marcas-plataforma__acciones-tabla {

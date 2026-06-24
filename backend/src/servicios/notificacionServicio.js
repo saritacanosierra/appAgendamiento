@@ -90,6 +90,28 @@ export class NotificacionServicio {
     });
   }
 
+  async registrarPlanPorVencer({ marcaId, diasRestantes, venceEn }) {
+    return this.registrar({
+      marcaId,
+      tipo: 'plan_por_vencer',
+      titulo: `Tu plan vence en ${diasRestantes} ${diasRestantes === 1 ? 'dia' : 'dias'}`,
+      mensaje: `Renueva antes del ${venceEn} para seguir operando sin interrupciones.`,
+      referenciaTipo: 'suscripcion',
+      referenciaId: marcaId,
+    });
+  }
+
+  async registrarPlanVencido({ marcaId, venceEn }) {
+    return this.registrar({
+      marcaId,
+      tipo: 'plan_vencido',
+      titulo: 'Plan de suscripcion vencido',
+      mensaje: `Tu plan vencio el ${venceEn}. El panel y las reservas quedaron bloqueados hasta renovar.`,
+      referenciaTipo: 'suscripcion',
+      referenciaId: marcaId,
+    });
+  }
+
   async marcarLeida(marcaId, id) {
     const ok = await this.repo.marcarLeida(marcaId, id);
     if (!ok) return { error: 'Notificacion no encontrada.', codigoHttp: 404 };

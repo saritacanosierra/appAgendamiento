@@ -29,3 +29,37 @@
     padding-top: var(--espacio-lg);
   }
 }
+
+.marca-no-disponible {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-xl);
+  background: var(--color-fondo-app);
+}
+
+.marca-no-disponible__contenido {
+  max-width: 520px;
+  text-align: center;
+  padding: var(--espacio-xl);
+}
+
+.marca-no-disponible__contenido h1 {
+  margin: 0 0 var(--espacio-md);
+}
+
+.marca-no-disponible__contenido p {
+  margin: 0 0 var(--espacio-sm);
+  color: var(--color-texto-muted-superficie);
+}
+
+.marca-no-disponible__ayuda {
+  font-size: var(--tamano-texto-sm);
+}
+
+.marca-no-disponible--cargando {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  color: var(--color-texto-muted-superficie);
+}

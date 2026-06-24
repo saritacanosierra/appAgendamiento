@@ -1,4 +1,5 @@
 import { plataformaServicio } from '../servicios/plataformaServicio.js';
+import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.js';
 import { reporteServicio } from '../servicios/reporteServicio.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 
@@ -76,4 +77,44 @@ export async function resetearContrasenaMarcaPlataforma(req, res) {
   }
 
   return respuestaExito(res, resultado, 'Contrasena del admin actualizada');
+}
+
+export async function activarSuscripcionMarcaPlataforma(req, res) {
+  const marcaId = Number(req.params.id);
+  const resultado = await suscripcionMarcaServicio.activarPlan(marcaId, req.body);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  const detalle = await plataformaServicio.obtenerMarca(marcaId);
+
+  return respuestaExito(res, {
+    mensaje: resultado.mensaje,
+    marca: detalle.marca,
+    suscripcion: resultado.suscripcion,
+  }, resultado.mensaje);
+}
+
+export async function renovarSuscripcionMarcaPlataforma(req, res) {
+  const marcaId = Number(req.params.id);
+  const resultado = await suscripcionMarcaServicio.renovarPlan(marcaId, req.body);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  const detalle = await plataformaServicio.obtenerMarca(marcaId);
+
+  return respuestaExito(res, {
+    mensaje: resultado.mensaje,
+    marca: detalle.marca,
+    suscripcion: resultado.suscripcion,
+  }, resultado.mensaje);
+}
+
+export async function listarHistorialSuscripcionMarcaPlataforma(req, res) {
+  const marcaId = Number(req.params.id);
+  const historial = await suscripcionMarcaServicio.listarHistorial(marcaId);
+  return respuestaExito(res, { historial }, 'Historial de suscripcion');
 }

@@ -1,0 +1,226 @@
+.modal-marca {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--espacio-md);
+}
+
+.modal-marca__fondo {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.modal-marca__panel {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(92dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-superficie);
+  border-radius: 16px 16px 12px 12px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 18%);
+  overflow: hidden;
+}
+
+.modal-marca__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--espacio-md);
+  padding: var(--espacio-lg) var(--espacio-lg) var(--espacio-sm);
+  border-bottom: 1px solid #eee;
+}
+
+.modal-marca__cabecera h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.modal-marca__slug {
+  margin: 0.25rem 0 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__cerrar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: #f3f3f3;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.modal-marca__estado {
+  padding: 0 var(--espacio-lg) var(--espacio-sm);
+}
+
+.modal-marca__cargando {
+  margin: 0 0 var(--espacio-md);
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__cuenta-regresiva {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  margin-bottom: var(--espacio-md);
+  padding: var(--espacio-md);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-acento) 10%, #fff);
+  border: 1px solid color-mix(in srgb, var(--color-acento) 25%, #eee);
+}
+
+.modal-marca__cuenta-numero {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--color-acento);
+}
+
+.modal-marca__cuenta-etiqueta {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted-superficie);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.modal-marca__cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--espacio-lg) var(--espacio-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+}
+
+.modal-marca__seccion h3 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-texto-muted-superficie);
+}
+
+.modal-marca__grid {
+  margin: 0;
+  display: grid;
+  gap: var(--espacio-sm);
+}
+
+.modal-marca__fila {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--espacio-sm);
+  align-items: start;
+}
+
+.modal-marca__fila dt {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__fila dd {
+  margin: 0;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.modal-marca__vacio {
+  color: var(--color-texto-suave-superficie);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.modal-marca__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+}
+
+.modal-marca__badge--activa {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.modal-marca__badge--suspendida,
+.modal-marca__badge--vencida {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.modal-marca__badge--plan {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.modal-marca__badge--por-vencer {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.modal-marca__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  padding: var(--espacio-md) var(--espacio-lg) var(--espacio-lg);
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.modal-marca__link {
+  text-align: center;
+  color: var(--color-acento);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.modal-marca__acciones-secundarias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-sm);
+  justify-content: center;
+}
+
+.modal-marca__acciones-secundarias button {
+  border: none;
+  background: none;
+  color: var(--color-texto-muted-superficie);
+  font: inherit;
+  font-size: var(--tamano-texto-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.modal-marca .enlaces-entrega {
+  max-width: none;
+}
+
+@media (min-width: 640px) {
+  .modal-marca {
+    align-items: center;
+  }
+
+  .modal-marca__panel {
+    border-radius: 16px;
+  }
+
+  .modal-marca__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--espacio-sm) var(--espacio-lg);
+  }
+}

@@ -5,6 +5,20 @@ import { obtenerMarcaPorSlug } from '../../modulos/publico_marca/servicios/marca
 
 const ContextoMarca = createContext(null);
 
+function VistaMarcaNoDisponible({ mensaje }) {
+  return (
+    <div className="marca-no-disponible">
+      <div className="marca-no-disponible__contenido tarjeta-app">
+        <h1>Servicio no disponible</h1>
+        <p>{mensaje}</p>
+        <p className="marca-no-disponible__ayuda">
+          Si eres cliente, intenta mas tarde. Si administras este negocio, contacta al soporte de la plataforma.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function ProveedorMarca({ slug, children }) {
   const [marca, setMarca] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -50,6 +64,14 @@ export function ProveedorMarca({ slug, children }) {
     () => ({ marca, cargando, error, setMarca }),
     [marca, cargando, error]
   );
+
+  if (cargando) {
+    return <div className="marca-no-disponible marca-no-disponible--cargando">Cargando...</div>;
+  }
+
+  if (error || !marca) {
+    return <VistaMarcaNoDisponible mensaje={error ?? 'Marca no encontrada.'} />;
+  }
 
   return <ContextoMarca.Provider value={valor}>{children}</ContextoMarca.Provider>;
 }
