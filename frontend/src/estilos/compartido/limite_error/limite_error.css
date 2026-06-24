@@ -1,0 +1,12 @@
+.limite-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: var(--espacio-lg);
+}
+
+.limite-error .mensaje-error {
+  max-width: 28rem;
+  width: 100%;
+}

@@ -39,3 +39,14 @@ export const corsOrigenes = (process.env.CORS_ORIGENES ?? 'http://localhost:5173
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
+
+/** local = disco en backend/subidas; s3 = bucket S3 o R2 (API compatible). */
+export const almacenamientoImagenes = {
+  modo: (process.env.ALMACENAMIENTO_IMAGENES ?? 'local').toLowerCase(),
+  bucket: process.env.S3_BUCKET ?? '',
+  region: process.env.S3_REGION ?? 'auto',
+  endpoint: process.env.S3_ENDPOINT ?? '',
+  accessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
+  publicUrlBase: (process.env.S3_PUBLIC_URL_BASE ?? '').replace(/\/$/, ''),
+};

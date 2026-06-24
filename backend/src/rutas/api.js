@@ -113,9 +113,9 @@ import { superadminMiddleware, soloMarcaAdminMiddleware, plataformaDisponibleMid
 import { aislamientoMarcaMiddleware } from '../middlewares/aislamientoMarcaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
 import { limitarLogin, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
-import { capturarAsync } from '../middlewares/manejoErrores.js';
+import { parchearRouterAsync } from '../middlewares/manejoErrores.js';
 
-const router = Router();
+const router = parchearRouterAsync(Router());
 
 router.get('/estado', estado);
 
@@ -127,27 +127,27 @@ router.get('/marcas/:marca_id/blog', listarBlogPublicos);
 router.get('/marcas/:marca_id/blog/slug/:slug', obtenerBlogPublico);
 router.get('/marcas/:marca_id/galeria', listarGaleriaPublicos);
 router.get('/marcas/:marca_id/galeria/catalogo', listarGaleriaCatalogoPublicos);
-router.post('/marcas/:marca_id/galeria/sesion', limitarConsultasReservas, capturarAsync(iniciarSesionGaleria));
-router.get('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(listarSeleccionesGaleria));
-router.post('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(agregarSeleccionGaleria));
-router.delete('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, capturarAsync(quitarSeleccionGaleria));
+router.post('/marcas/:marca_id/galeria/sesion', limitarConsultasReservas, iniciarSesionGaleria);
+router.get('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, listarSeleccionesGaleria);
+router.post('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, agregarSeleccionGaleria);
+router.delete('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas, quitarSeleccionGaleria);
 router.get('/marcas/:marca_id/carrusel-inicio', listarCarruselPublicos);
 router.post('/reservas', limitarReservas, crearReserva);
-router.post('/reservas/consultar', limitarConsultasReservas, capturarAsync(consultarCitas));
-router.post('/reservas/favoritos', limitarConsultasReservas, capturarAsync(agregarFavoritoCliente));
-router.delete('/reservas/favoritos', limitarConsultasReservas, capturarAsync(quitarFavoritoCliente));
-router.get('/reservas/confirmacion/:codigo', capturarAsync(obtenerConfirmacion));
-router.post('/reservas/:codigo/cancelar', limitarConsultasReservas, capturarAsync(cancelarReservaPublica));
-router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, capturarAsync(solicitarReagendamiento));
+router.post('/reservas/consultar', limitarConsultasReservas, consultarCitas);
+router.post('/reservas/favoritos', limitarConsultasReservas, agregarFavoritoCliente);
+router.delete('/reservas/favoritos', limitarConsultasReservas, quitarFavoritoCliente);
+router.get('/reservas/confirmacion/:codigo', obtenerConfirmacion);
+router.post('/reservas/:codigo/cancelar', limitarConsultasReservas, cancelarReservaPublica);
+router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, solicitarReagendamiento);
 
 // OAuth callback (publico)
 router.get('/integraciones/google/callback', callbackGoogle);
 
 // Auth
-router.post('/auth/login', limitarLogin, capturarAsync(login));
-router.post('/auth/logout', autenticacionMiddleware, capturarAsync(logout));
-router.post('/auth/rotar', autenticacionMiddleware, capturarAsync(rotarToken));
-router.get('/auth/me', autenticacionMiddleware, capturarAsync(me));
+router.post('/auth/login', limitarLogin, login);
+router.post('/auth/logout', autenticacionMiddleware, logout);
+router.post('/auth/rotar', autenticacionMiddleware, rotarToken);
+router.get('/auth/me', autenticacionMiddleware, me);
 
 // Admin protegido (solo admin de marca)
 router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware, aislamientoMarcaMiddleware);
@@ -195,8 +195,8 @@ router.get('/admin/integraciones/google', obtenerEstadoGoogle);
 router.post('/admin/integraciones/google/autorizar', iniciarAutorizacionGoogle);
 router.post('/admin/integraciones/google/probar', probarGoogle);
 router.delete('/admin/integraciones/google', desconectarGoogle);
-router.get('/admin/integraciones/whatsapp', capturarAsync(obtenerEstadoWhatsappMarca));
-router.post('/admin/integraciones/whatsapp/probar', capturarAsync(probarWhatsappMarca));
+router.get('/admin/integraciones/whatsapp', obtenerEstadoWhatsappMarca);
+router.post('/admin/integraciones/whatsapp/probar', probarWhatsappMarca);
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);

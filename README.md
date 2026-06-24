@@ -192,16 +192,50 @@ Si importaste `datos_prueba.sql` antes de configurar contraseñas del admin:
 cd backend && npm run semilla:admin
 ```
 
-Migraciones extra (solo si aplican):
+Migraciones (instalacion existente o tras actualizar codigo):
 
 ```bash
-cd backend && npm run migrar:plataforma && npm run semilla:superadmin
-cd backend && npm run migrar:galeria-tendencia
-cd backend && npm run migrar:galeria-temporada
-cd backend && npm run migrar:galeria-catalogo
-cd backend && npm run migrar:servicios-imagen
-cd backend && npm run migrar:servicios-tipo
+npm run migrar:all
 ```
+
+Ese comando aplica las migraciones 001–013 en orden y registra lo ejecutado en la tabla `schema_migraciones`. Es idempotente: las ya aplicadas se omiten.
+
+Instalacion **nueva** (recomendado): importa `base_de_datos/esquema_inicial.sql` (ya incluye el esquema completo) y luego, si quieres registrar migraciones:
+
+```bash
+cd backend && npm run migrar:all
+```
+
+## Tests
+
+```bash
+npm test                              # unitarios + HTTP (sin MySQL)
+cd backend && npm run test:integracion   # con BD demo (login + aislamiento)
+```
+
+Plataforma superadmin (solo primera vez):
+
+```bash
+cd backend && npm run semilla:superadmin
+```
+
+Migraciones individuales (legacy; preferir `migrar:all`):
+
+```bash
+cd backend && npm run migrar:plataforma
+cd backend && npm run migrar:suscripcion-marca
+# etc. — ver backend/package.json
+```
+
+## Produccion (VPS)
+
+Runbook completo: [`documentacion/despliegue_produccion_vps.md`](documentacion/despliegue_produccion_vps.md)
+
+- **Cron:** recordatorios WhatsApp y suscripciones via cron del sistema (no en Vercel).
+- **Imagenes:** disco local (`ALMACENAMIENTO_IMAGENES=local`) o S3/R2 (`=s3` + variables `S3_*` en `.env.example`).
+- **Logs:** JSON estructurado (Pino) en stdout; nivel con `LOG_NIVEL`.
+
+Checklist piloto (alta de marca real): [`documentacion/checklist_piloto_marca.md`](documentacion/checklist_piloto_marca.md).
 
 ### Correr por separado (dos terminales)
 
@@ -235,8 +269,14 @@ appAgendamiento/
 ├── frontend/          # React + Vite
 ├── backend/           # Node.js + Express + MySQL
 ├── base_de_datos/     # Esquema SQL y migraciones
-└── documentacion/     # Arquitectura, endpoints, instalacion
+└── documentacion/     # Arquitectura, endpoints, instalacion, despliegue
 ```
+
+Guías de produccion:
+
+- `documentacion/despliegue_produccion_vps.md` — runbook VPS
+- `documentacion/checklist_secrets_produccion.md` — secrets antes de lanzar
+- `documentacion/evaluacion_calidad_mercado.md` — auditoria de readiness
 
 ## Requisitos
 
@@ -267,24 +307,23 @@ El proxy de Vite redirige `/api/*` al backend en el puerto **3001**.
 | Rol | Correo | Contrasena | Panel |
 |-----|--------|------------|-------|
 | Admin marca (Luna Nails) | admin@lunanails.test | Admin123! | `/admin/panel/` |
-| Superadmin plataforma (solo operador SaaS) | saritacanosierra@gmail.com | Ver nota abajo | `/plataforma/` |
+| Superadmin plataforma | Ver `.env` (`SUPERADMIN_CORREO`) | Ver `.env` | `/plataforma/` |
 
-Crear o actualizar superadmin (tras migracion plataforma):
+Crear o actualizar superadmin:
 
 ```bash
-cd backend && npm run migrar:plataforma && npm run semilla:superadmin
+npm run migrar:all
+cd backend && npm run semilla:superadmin
 ```
 
-**Cuenta unica de plataforma:** `saritacanosierra@gmail.com` — solo para ti como operador del SaaS. Los admins de marca usan otro correo y entran solo en `/admin/`.
-
-Por defecto la semilla usa contrasena `123456789` en desarrollo. En produccion define antes en `backend/.env`:
+Define credenciales en `backend/.env` **antes** de la semilla:
 
 ```env
-SUPERADMIN_CORREO=saritacanosierra@gmail.com
-SUPERADMIN_CONTRASENA=tu-contrasena-segura
+SUPERADMIN_CORREO=operador@tuempresa.com
+SUPERADMIN_CONTRASENA=contrasena-segura-min-16-chars
 ```
 
-Luego ejecuta `npm run semilla:superadmin` para aplicarla.
+En desarrollo, si no defines `SUPERADMIN_CONTRASENA`, la semilla usa una contrasena temporal local (cambiar antes de produccion). Ver `documentacion/checklist_secrets_produccion.md`.
 
 ## Panel plataforma (superadmin — uso interno)
 

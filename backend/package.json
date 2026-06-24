@@ -8,9 +8,12 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
+    "test": "node scripts/run-tests.js",
+    "test:integracion": "node scripts/run-tests-integracion.js",
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
     "semilla:superadmin": "node scripts/semilla-superadmin.js",
     "migrar:plataforma": "node scripts/migrar-plataforma.js",
+    "migrar:all": "node scripts/migrar-all.js",
     "migrar:galeria-tendencia": "node scripts/migrar-galeria-tendencia.js",
     "migrar:galeria-temporada": "node scripts/migrar-galeria-temporada.js",
     "migrar:galeria-catalogo": "node scripts/migrar-galeria-catalogo.js",
@@ -30,6 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1075.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -37,6 +41,10 @@
     "multer": "^2.2.0",
     "mysql2": "^3.12.0",
     "nodemailer": "^6.10.1",
+    "pino": "^10.3.1",
     "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2"
   }
 }

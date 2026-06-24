@@ -9,7 +9,7 @@ CREATE DATABASE IF NOT EXISTS spa_unas
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE app_citas;
+USE spa_unas;
 
 -- ---------------------------------------------------------------------------
 -- Marcas (tenants)
@@ -27,10 +27,21 @@ CREATE TABLE IF NOT EXISTS marcas (
   direccion VARCHAR(255) NULL,
   horarios_json JSON NULL COMMENT 'Horarios de atencion por dia',
   activa TINYINT(1) NOT NULL DEFAULT 1,
+  plan_habilitado TINYINT(1) NOT NULL DEFAULT 1,
+  plan_tipo ENUM('mensual', 'trimestral', 'semestral', 'anual') NULL,
+  plan_inicio_en DATE NULL,
+  plan_vence_en DATE NULL,
+  plan_monto DECIMAL(10,2) NULL,
+  plan_ultima_facturacion_en DATE NULL,
+  plan_aviso_7_en DATE NULL,
+  plan_aviso_3_en DATE NULL,
+  plan_aviso_1_en DATE NULL,
+  plan_aviso_vencido_en DATE NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_marcas_slug (slug),
-  KEY idx_marcas_activa (activa)
+  KEY idx_marcas_activa (activa),
+  KEY idx_marcas_plan_vence (plan_vence_en)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
@@ -54,11 +65,11 @@ CREATE TABLE IF NOT EXISTS configuraciones_marca (
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usuarios (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  marca_id INT UNSIGNED NOT NULL,
+  marca_id INT UNSIGNED NULL,
   nombre VARCHAR(120) NOT NULL,
   correo VARCHAR(150) NOT NULL,
   contrasena_hash VARCHAR(255) NOT NULL,
-  rol ENUM('admin', 'staff') NOT NULL DEFAULT 'admin',
+  rol ENUM('superadmin', 'admin', 'staff') NOT NULL DEFAULT 'admin',
   activo TINYINT(1) NOT NULL DEFAULT 1,
   ultimo_acceso_at TIMESTAMP NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -126,8 +137,16 @@ CREATE TABLE IF NOT EXISTS citas (
   estado ENUM('pendiente', 'confirmada', 'cancelada', 'completada') NOT NULL DEFAULT 'pendiente',
   cancelada_por ENUM('admin', 'cliente') NULL DEFAULT NULL,
   notas_internas TEXT NULL,
+  precio_base DECIMAL(10, 2) NULL,
+  precio_adicional DECIMAL(10, 2) NOT NULL DEFAULT 0,
+  precio_final DECIMAL(10, 2) NULL,
+  duracion_real_minutos INT UNSIGNED NULL,
+  extras_json JSON NULL,
+  confirmada_prestacion TINYINT(1) NOT NULL DEFAULT 0,
+  cerrada_at TIMESTAMP NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  whatsapp_recordatorio_enviado_at TIMESTAMP NULL DEFAULT NULL,
   UNIQUE KEY uq_citas_codigo (codigo_confirmacion),
   KEY idx_citas_marca_id (marca_id),
   KEY idx_citas_fecha (marca_id, fecha),
@@ -223,7 +242,7 @@ CREATE TABLE IF NOT EXISTS notificaciones (
 CREATE TABLE IF NOT EXISTS tokens_sesion (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT UNSIGNED NOT NULL,
-  marca_id INT UNSIGNED NOT NULL,
+  marca_id INT UNSIGNED NULL,
   token_hash CHAR(64) NOT NULL,
   expira_en DATETIME NOT NULL,
   revocado TINYINT(1) NOT NULL DEFAULT 0,
@@ -235,6 +254,116 @@ CREATE TABLE IF NOT EXISTS tokens_sesion (
   KEY idx_tokens_expira (expira_en),
   CONSTRAINT fk_tokens_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
   CONSTRAINT fk_tokens_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Configuracion global plataforma (Google OAuth app, etc.)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS configuracion_plataforma (
+  clave VARCHAR(80) NOT NULL PRIMARY KEY,
+  valor TEXT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Solicitudes de reagendamiento
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS solicitudes_reagendamiento (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  marca_id INT UNSIGNED NOT NULL,
+  cita_id INT UNSIGNED NOT NULL,
+  fecha_actual DATE NOT NULL,
+  hora_actual TIME NOT NULL,
+  fecha_solicitada DATE NOT NULL,
+  hora_inicio_solicitada TIME NOT NULL,
+  hora_fin_solicitada TIME NOT NULL,
+  motivo TEXT NULL,
+  estado ENUM('pendiente', 'aprobada', 'rechazada') NOT NULL DEFAULT 'pendiente',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_solicitudes_marca_estado (marca_id, estado),
+  KEY idx_solicitudes_cita (cita_id),
+  CONSTRAINT fk_solicitudes_marca FOREIGN KEY (marca_id) REFERENCES marcas (id) ON DELETE CASCADE,
+  CONSTRAINT fk_solicitudes_cita FOREIGN KEY (cita_id) REFERENCES citas (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Carrusel del inicio (app clientes)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS carrusel_inicio (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  marca_id INT UNSIGNED NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  subtitulo VARCHAR(300) NULL,
+  imagen_ruta VARCHAR(500) NOT NULL,
+  enlace_url VARCHAR(500) NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+  orden_visualizacion INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_carrusel_marca (marca_id, activo, orden_visualizacion),
+  CONSTRAINT fk_carrusel_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Favoritos de clientes
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS cliente_favoritos (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  marca_id INT UNSIGNED NOT NULL,
+  cliente_id INT UNSIGNED NOT NULL,
+  tipo ENUM('servicio', 'diseno_galeria') NOT NULL,
+  referencia_id INT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_cliente_favorito (cliente_id, tipo, referencia_id),
+  KEY idx_favoritos_marca_cliente (marca_id, cliente_id),
+  CONSTRAINT fk_favoritos_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE,
+  CONSTRAINT fk_favoritos_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Disenos de galeria elegidos por cita
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS cita_disenos_galeria (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  marca_id INT UNSIGNED NOT NULL,
+  cita_id INT UNSIGNED NOT NULL,
+  diseno_id INT UNSIGNED NOT NULL,
+  telefono VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_cita_diseno (cita_id, diseno_id),
+  KEY idx_cita_disenos_marca_cita (marca_id, cita_id),
+  KEY idx_cita_disenos_telefono (marca_id, telefono),
+  CONSTRAINT fk_cita_disenos_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cita_disenos_cita FOREIGN KEY (cita_id) REFERENCES citas(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cita_disenos_diseno FOREIGN KEY (diseno_id) REFERENCES disenos_galeria(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Historial de suscripciones por marca
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS historial_suscripciones_marca (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  marca_id INT UNSIGNED NOT NULL,
+  plan_tipo ENUM('mensual', 'trimestral', 'semestral', 'anual') NOT NULL,
+  monto DECIMAL(10,2) NULL,
+  inicio_en DATE NOT NULL,
+  vence_en DATE NOT NULL,
+  accion ENUM('activacion', 'renovacion') NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_historial_suscripcion_marca (marca_id, created_at),
+  CONSTRAINT fk_historial_suscripcion_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Control de migraciones (npm run migrar:all)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS schema_migraciones (
+  id VARCHAR(80) NOT NULL PRIMARY KEY,
+  nombre VARCHAR(200) NOT NULL,
+  aplicada_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

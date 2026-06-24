@@ -89,7 +89,8 @@ export class ReservaServicio {
     const marcaId = entero(datosEntrada.marca_id ?? datosEntrada.marcaId);
     const servicioId = entero(datosEntrada.servicio_id ?? datosEntrada.servicioId);
     const fecha = texto(datosEntrada.fecha);
-    const horaInicio = normalizarHora(texto(datosEntrada.hora_inicio ?? datosEntrada.horaInicio));
+    const horaInicioRaw = texto(datosEntrada.hora_inicio ?? datosEntrada.horaInicio);
+    const horaInicio = horaInicioRaw ? normalizarHora(horaInicioRaw) : '';
     const nombre = texto(datosEntrada.nombre, { capitalizar: 'palabras' });
     const telefonoCliente = texto(datosEntrada.telefono).replace(/\D+/g, '');
     const correo = texto(datosEntrada.correo).trim().toLowerCase();

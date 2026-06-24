@@ -6,11 +6,16 @@ import { corsOrigenes, entorno } from './configuracion/entorno.js';
 import rutasApi from './rutas/api.js';
 import { manejoErrores, rutaNoEncontrada } from './middlewares/manejoErrores.js';
 import { directorioSubidas } from './middlewares/subidaArchivos.js';
+import { registrarPeticiones } from './utilidades/logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function crearApp() {
   const app = express();
+
+  if (entorno.nodeEnv === 'produccion') {
+    app.set('trust proxy', 1);
+  }
 
   app.use(cors({
     origin: (origen, callback) => {
@@ -30,6 +35,8 @@ export function crearApp() {
   app.use(express.urlencoded({ extended: true }));
 
   app.disable('x-powered-by');
+
+  app.use(registrarPeticiones);
 
   app.use('/subidas', express.static(directorioSubidas));
   app.use('/api', rutasApi);

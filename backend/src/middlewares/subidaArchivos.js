@@ -4,6 +4,7 @@ import fs from 'fs';
 import multer from 'multer';
 import { respuestaError } from '../utilidades/respuestaJson.js';
 import { optimizarImagenSubida } from '../utilidades/optimizarImagen.js';
+import { publicarImagenSubida } from '../servicios/almacenamientoArchivosServicio.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const directorioSubidas = path.resolve(__dirname, '../../subidas');
@@ -108,7 +109,12 @@ export function subidaImagenMiddleware(carpeta) {
         const resultado = await optimizarImagenSubida(req.file.path, req.file.mimetype);
         req.file.filename = resultado.nombreArchivo;
         req.file.path = resultado.ruta;
-        req.rutaSubida = `/subidas/${carpeta}/${req.file.filename}`;
+        req.rutaSubida = await publicarImagenSubida({
+          rutaLocal: resultado.ruta,
+          carpeta,
+          nombreArchivo: resultado.nombreArchivo,
+          contentType: req.file.mimetype,
+        });
         next();
       } catch (errorOpt) {
         return respuestaError(res, errorOpt.message || 'Error al procesar imagen.', 422);

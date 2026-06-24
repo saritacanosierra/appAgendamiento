@@ -6,6 +6,9 @@
     "dev": "npm run dev:backend & npm run dev:frontend",
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
+    "migrar:all": "npm run migrar:all --prefix backend",
+    "test": "npm run test --prefix backend",
+    "test:backend": "npm run test --prefix backend",
     "build": "npm run build --prefix frontend",
     "start:backend": "npm start --prefix backend",
     "preparar:git": "bash scripts/configurar-git-autor.sh"
