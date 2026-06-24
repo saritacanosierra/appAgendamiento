@@ -4,6 +4,9 @@ import { ImagenAmpliable } from '../../../compartido/componentes';
 import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import MenuAdminSidebar, { MenuAdminMovil } from '../../../compartido/componentes/menu_admin/MenuAdmin';
 import CampanaNotificacionesAdmin from '../../../componentes/admin/campana_notificaciones/CampanaNotificacionesAdmin';
+import BotonAccesoRapidoPwaAdmin from '../../../componentes/admin/instalar_app_admin/BotonAccesoRapidoPwaAdmin';
+import InstalarAppAdminBanner from '../../../componentes/admin/instalar_app_admin/InstalarAppAdminBanner';
+import { useInstalarPwaAdmin } from '../../../modulos/admin/hooks/useInstalarPwaAdmin';
 import { RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { PLATAFORMA_HABILITADA } from '../../../compartido/configuracion/entornoApp';
 import { obtenerImpersonacion, limpiarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
@@ -16,6 +19,7 @@ export default function LayoutAdmin() {
   const slugPublico = marca?.slug;
   const impersonando = PLATAFORMA_HABILITADA && obtenerImpersonacion();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  const pwaAdmin = useInstalarPwaAdmin();
 
   async function salirImpersonacion() {
     await cerrarSesion();
@@ -79,10 +83,12 @@ export default function LayoutAdmin() {
                 aria-label="Ver app del cliente en nueva pestaña"
               >
                 <IconoApp nombre="externo" />
-                <span>Vista cliente</span>
               </a>
             )}
-            <CampanaNotificacionesAdmin />
+            <div className="layout-admin__topbar-iconos">
+              <BotonAccesoRapidoPwaAdmin {...pwaAdmin} />
+              <CampanaNotificacionesAdmin />
+            </div>
             <button type="button" className="layout-admin__topbar-salir" onClick={cerrarSesion}>
               Salir
             </button>
@@ -101,6 +107,7 @@ export default function LayoutAdmin() {
         )}
 
         <main className="layout-admin__contenido">
+          <InstalarAppAdminBanner {...pwaAdmin} mostrarBanner={pwaAdmin.mostrar} />
           <Outlet />
         </main>
       </div>

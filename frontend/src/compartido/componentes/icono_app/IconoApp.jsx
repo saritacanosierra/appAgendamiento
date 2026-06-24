@@ -127,6 +127,12 @@ const ICONOS = {
       <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   ),
+  actualizar: (p) => (
+    <svg {...propsSvg} {...p}>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </svg>
+  ),
   externo: (p) => (
     <svg {...propsSvg} {...p}>
       <path d="M14 3h7v7M10 14 21 3M21 14v7H3V3h7" />
@@ -188,6 +194,14 @@ const ICONOS = {
     <svg {...propsSvg} {...p}>
       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
       <circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  instalar: (p) => (
+    <svg {...propsSvg} {...p}>
+      <rect x="7" y="2.5" width="10" height="17" rx="2" />
+      <path d="M10 16.5h4" />
+      <path d="M12 8.5v4" />
+      <path d="M10 10.5h4" />
     </svg>
   ),
 };

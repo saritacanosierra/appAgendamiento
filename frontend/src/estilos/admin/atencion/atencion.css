@@ -175,9 +175,22 @@
   height: 44px;
   display: grid;
   place-items: center;
-  border-radius: var(--radio-borde-sm);
-  background: color-mix(in srgb, var(--color-secundario) 45%, var(--color-superficie));
-  font-size: 1.25rem;
+  border-radius: 16px;
+}
+
+.atencion-vista__tarjeta--pendiente .atencion-vista__tarjeta-icono {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.atencion-vista__tarjeta--atendidas .atencion-vista__tarjeta-icono {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.atencion-vista__tarjeta--ingreso .atencion-vista__tarjeta-icono {
+  background: color-mix(in srgb, var(--color-principal) 14%, var(--color-superficie));
+  color: var(--color-acento-superficie);
 }
 
 .atencion-vista__tarjeta-texto {
@@ -401,10 +414,11 @@
 }
 
 .atencion-vista__vacio-icono {
-  display: block;
-  font-size: 2rem;
-  margin-bottom: var(--espacio-sm);
-  opacity: 0.7;
+  display: grid;
+  place-items: center;
+  margin: 0 auto var(--espacio-sm);
+  color: var(--color-texto-muted);
+  opacity: 0.75;
 }
 
 .atencion-vista__vacio p {

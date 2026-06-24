@@ -42,6 +42,36 @@ La app tiene **tres zonas** con prefijos fijos. Todas las rutas del front llevan
 - `/admin/panel/` — inicio del panel
 - `/admin/agenda/`, `/admin/servicios/`, `/admin/galeria/`, `/admin/configuracion-marca/`, etc.
 
+#### Acceso rapido en celular (PWA admin)
+
+El panel admin se puede **instalar como acceso directo** en la pantalla de inicio del celular (icono que abre como app, sin barra del navegador).
+
+| Elemento | Ubicacion |
+|----------|-----------|
+| Icono fijo (celular con flecha) | Barra superior del panel admin, junto a notificaciones — siempre visible |
+| Banner automatico | Solo en movil, la primera vez que el navegador permite instalar |
+| Manifest | `frontend/public/manifest.webmanifest` (`start_url: /admin/panel`, `scope: /admin`) |
+| Icono PWA | `frontend/public/pwa/admin-icon.svg` |
+
+**Como instalar:**
+
+**iPhone (Safari):**
+1. Abre el panel en Safari.
+2. Toca **Compartir** (abajo, centro).
+3. Elige **Agregar a pantalla de inicio**.
+4. Toca **Agregar**.
+5. Abre el icono **Panel Admin** desde tu inicio.
+
+**Android (Chrome):**
+1. Abre el panel en Chrome.
+2. Toca el icono de acceso rapido en la barra superior.
+3. Si aparece **Instalar icono**, confirmalo; si no, usa el menu (tres puntos) → **Instalar app** o **Agregar a pantalla de inicio**.
+4. Abre el icono **Panel Admin** desde tu inicio.
+
+Requisitos: HTTPS en produccion (Vercel). En `localhost` el prompt nativo de Chrome puede no aparecer; el icono del topbar sigue mostrando las instrucciones.
+
+Si no hay sesion, `/admin/panel/` redirige al login de la marca como siempre.
+
 ### Plataforma
 
 - `/plataforma/` — login superadmin

@@ -1,0 +1,199 @@
+.instalar-app-admin__boton-topbar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-borde);
+  border-radius: 50%;
+  background: var(--color-superficie);
+  color: var(--color-texto-nav);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s, color 0.15s;
+}
+
+.instalar-app-admin__boton-topbar .icono-app--md svg {
+  width: 18px;
+  height: 18px;
+}
+
+.instalar-app-admin__boton-topbar:hover {
+  box-shadow: var(--sombra-suave);
+  border-color: color-mix(in srgb, var(--color-principal) 40%, var(--color-borde));
+  color: var(--color-principal);
+}
+
+.instalar-app-admin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-md);
+  margin-bottom: var(--espacio-lg);
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid color-mix(in srgb, var(--color-principal) 35%, #ddd);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-principal) 8%, #fff) 0%,
+    color-mix(in srgb, var(--color-principal) 4%, #fafafa) 100%
+  );
+}
+
+.instalar-app-admin--modal {
+  margin-bottom: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.instalar-app-admin--modal .instalar-app-admin__icono {
+  align-self: flex-start;
+}
+
+.instalar-app-admin__icono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-principal) 15%, #fff);
+  color: var(--color-principal);
+  flex-shrink: 0;
+}
+
+.instalar-app-admin__texto {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.instalar-app-admin__texto strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.instalar-app-admin__texto p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.45;
+}
+
+.instalar-app-admin__intro {
+  margin-top: 0.35rem;
+}
+
+.instalar-app-admin__pasos {
+  margin: 0.65rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}
+
+.instalar-app-admin__pasos li {
+  margin-bottom: 0.45rem;
+  padding-left: 0.15rem;
+}
+
+.instalar-app-admin__pasos li:last-child {
+  margin-bottom: 0;
+}
+
+.instalar-app-admin__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-sm);
+}
+
+.instalar-app-admin__cerrar {
+  border: none;
+  background: none;
+  color: var(--color-texto-muted-superficie);
+  font: inherit;
+  font-size: var(--tamano-texto-sm);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.instalar-app-admin__nota {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.instalar-app-admin--modal .instalar-app-admin__acciones {
+  width: 100%;
+  margin-top: var(--espacio-md);
+}
+
+.instalar-app-admin__modal {
+  position: fixed;
+  inset: 0;
+  z-index: 480;
+  display: grid;
+  place-items: center;
+  padding: var(--espacio-md);
+}
+
+.instalar-app-admin__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.instalar-app-admin__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 460px);
+  max-height: min(90dvh, 560px);
+  overflow: auto;
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-media);
+}
+
+.instalar-app-admin__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-md);
+  padding: var(--espacio-md) var(--espacio-lg);
+  border-bottom: 1px solid var(--color-borde-superficie);
+}
+
+.instalar-app-admin__cabecera h2 {
+  margin: 0;
+  font-size: var(--tamano-texto-lg);
+}
+
+.instalar-app-admin__cerrar-modal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-texto-muted-superficie);
+  cursor: pointer;
+}
+
+.instalar-app-admin__panel .instalar-app-admin--modal {
+  padding: var(--espacio-lg);
+}
+
+@media (min-width: 769px) {
+  .layout-admin__contenido > .instalar-app-admin {
+    display: none;
+  }
+}

@@ -162,35 +162,64 @@
   color: var(--color-texto-nav-muted);
 }
 
+.layout-admin__topbar-info {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
 .layout-admin__topbar-info strong {
   display: block;
   font-size: var(--tamano-texto-lg);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--color-texto-nav);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .layout-admin__topbar-acciones {
   display: flex;
   align-items: center;
-  gap: var(--espacio-sm);
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.layout-admin__topbar-iconos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.layout-admin__topbar-iconos .campana-notificaciones,
+.layout-admin__topbar-iconos .instalar-app-admin__boton-topbar {
+  width: 40px;
+  height: 40px;
 }
 
 .layout-admin__topbar-app {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radio-pill);
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border-radius: 50%;
   background: color-mix(in srgb, var(--color-principal) 12%, var(--color-superficie));
-  border: 1.5px solid color-mix(in srgb, var(--color-principal) 35%, var(--color-borde-superficie));
-  font-size: 0.72rem;
-  font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--color-principal) 35%, var(--color-borde-superficie));
   color: var(--color-acento-nav);
   text-decoration: none;
   box-shadow: var(--sombra-suave);
   transition: border-color 0.15s, background 0.15s, transform 0.15s;
-  white-space: nowrap;
+}
+
+.layout-admin__topbar-app .icono-app--md svg {
+  width: 18px;
+  height: 18px;
 }
 
 .layout-admin__topbar-app:hover {
@@ -200,8 +229,24 @@
   transform: translateY(-1px);
 }
 
-.layout-admin__topbar-app span {
-  display: inline;
+@media (max-width: 640px) {
+  .layout-admin__topbar {
+    padding-inline: var(--espacio-md);
+    gap: var(--espacio-sm);
+  }
+
+  .layout-admin__topbar-etiqueta {
+    font-size: 0.65rem;
+  }
+
+  .layout-admin__topbar-info strong {
+    font-size: 0.95rem;
+  }
+
+  .layout-admin__topbar-salir {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+  }
 }
 
 @media (min-width: 960px) {

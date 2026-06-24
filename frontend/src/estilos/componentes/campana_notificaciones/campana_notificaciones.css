@@ -3,8 +3,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--color-borde);
   border-radius: 50%;
   background: var(--color-superficie);
@@ -12,6 +13,11 @@
   cursor: pointer;
   font-size: 1.25rem;
   transition: box-shadow 0.15s ease, border-color 0.15s;
+}
+
+.campana-notificaciones .icono-app--md svg {
+  width: 18px;
+  height: 18px;
 }
 
 .campana-notificaciones:hover {

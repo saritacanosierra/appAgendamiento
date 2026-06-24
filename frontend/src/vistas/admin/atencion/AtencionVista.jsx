@@ -643,7 +643,7 @@ export default function AtencionVista() {
               {cargando ? 'Actualizando…' : 'Actualizar'}
             </span>
             <span className="atencion-vista__btn-actualizar-icono" aria-hidden="true">
-              ↻
+              <IconoApp nombre="actualizar" tamano="sm" />
             </span>
           </BotonPrincipal>
         </div>
@@ -653,22 +653,28 @@ export default function AtencionVista() {
 
       {datos && (
         <section className="atencion-vista__resumen" aria-label="Resumen del día">
-          <div className="atencion-vista__tarjeta">
-            <span className="atencion-vista__tarjeta-icono" aria-hidden="true">⏳</span>
+          <div className="atencion-vista__tarjeta atencion-vista__tarjeta--pendiente">
+            <div className="atencion-vista__tarjeta-icono" aria-hidden="true">
+              <IconoApp nombre="atencion" />
+            </div>
             <div className="atencion-vista__tarjeta-texto">
               <span>Pendientes</span>
               <strong>{datos.resumen.pendientes}</strong>
             </div>
           </div>
-          <div className="atencion-vista__tarjeta">
-            <span className="atencion-vista__tarjeta-icono" aria-hidden="true">✓</span>
+          <div className="atencion-vista__tarjeta atencion-vista__tarjeta--atendidas">
+            <div className="atencion-vista__tarjeta-icono" aria-hidden="true">
+              <IconoApp nombre="confirmada" />
+            </div>
             <div className="atencion-vista__tarjeta-texto">
               <span>Atendidas</span>
               <strong>{datos.resumen.atendidas}</strong>
             </div>
           </div>
           <div className="atencion-vista__tarjeta atencion-vista__tarjeta--ingreso">
-            <span className="atencion-vista__tarjeta-icono" aria-hidden="true">$</span>
+            <div className="atencion-vista__tarjeta-icono" aria-hidden="true">
+              <IconoApp nombre="reportes" />
+            </div>
             <div className="atencion-vista__tarjeta-texto">
               <span>Ingreso confirmado</span>
               <strong>{formatearPrecio(datos.resumen.ingresoAtendido)}</strong>
@@ -732,7 +738,9 @@ export default function AtencionVista() {
 
             {datos?.pendientes?.length === 0 ? (
               <div className="atencion-vista__vacio">
-                <span className="atencion-vista__vacio-icono" aria-hidden="true">📋</span>
+                <span className="atencion-vista__vacio-icono" aria-hidden="true">
+                  <IconoApp nombre="citas" tamano="lg" />
+                </span>
                 <p>No hay citas pendientes para esta fecha.</p>
               </div>
             ) : (
