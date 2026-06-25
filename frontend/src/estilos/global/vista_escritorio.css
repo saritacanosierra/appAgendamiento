@@ -1,0 +1,113 @@
+/**
+ * En pantallas anchas, la app se muestra en un marco centrado (tipo tablet/móvil)
+ * para conservar las proporciones del diseño mobile-first.
+ */
+
+:root {
+  --ancho-marco-escritorio: 480px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --ancho-marco-escritorio: 768px;
+    /* No expandir el contenido público más allá del marco */
+    --ancho-maximo-contenedor: 768px;
+  }
+
+  body {
+    background: color-mix(in srgb, var(--color-fondo-app) 72%, #9ca3af);
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ——— Marco común ——— */
+  .layout-admin,
+  .layout-publico,
+  .layout-plataforma,
+  .login-vista {
+    width: 100%;
+    max-width: var(--ancho-marco-escritorio);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-texto) 8%, transparent),
+      0 12px 48px rgba(15, 15, 18, 0.14);
+  }
+
+  .layout-admin,
+  .layout-publico,
+  .layout-plataforma {
+    min-height: 100dvh;
+  }
+
+  .contenedor-app,
+  .contenedor-admin {
+    width: min(100% - var(--espacio-lg), var(--ancho-marco-escritorio));
+    max-width: var(--ancho-marco-escritorio);
+  }
+
+  /* ——— Admin: experiencia móvil dentro del marco ——— */
+  .layout-admin {
+    flex-direction: column;
+  }
+
+  .layout-admin__sidebar {
+    display: none !important;
+  }
+
+  .layout-admin__main {
+    padding-bottom: calc(var(--altura-nav-admin-movil) + var(--espacio-md));
+  }
+
+  .layout-admin__topbar-app {
+    display: inline-flex !important;
+  }
+
+  .menu-admin--movil {
+    display: flex !important;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(100%, var(--ancho-marco-escritorio));
+    max-width: var(--ancho-marco-escritorio);
+    border-radius: var(--radio-borde-lg) var(--radio-borde-lg) 0 0;
+    border-left: 1px solid var(--color-borde-superficie);
+    border-right: 1px solid var(--color-borde-superficie);
+  }
+
+  .menu-admin__drawer {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(100%, var(--ancho-marco-escritorio));
+    max-width: var(--ancho-marco-escritorio);
+  }
+
+  /* ——— Menú público alineado al marco ——— */
+  .menu-movil-publico {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(calc(100% - var(--espacio-lg) * 2), var(--ancho-marco-escritorio));
+    max-width: var(--ancho-marco-escritorio);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 820px) {
+  :root {
+    --ancho-marco-escritorio: 100%;
+  }
+
+  .layout-admin,
+  .layout-publico,
+  .layout-plataforma,
+  .login-vista {
+    box-shadow: none;
+  }
+
+  body {
+    background: var(--color-fondo-app);
+  }
+}

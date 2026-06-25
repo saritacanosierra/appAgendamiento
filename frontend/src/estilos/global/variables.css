@@ -50,6 +50,7 @@
   /* Layout móvil */
   --altura-menu-movil: 72px;
   --ancho-maximo-contenedor: 480px;
+  --ancho-marco-escritorio: 480px;
 
   /* Tipografía */
   --fuente-base: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;

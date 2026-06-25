@@ -55,7 +55,8 @@ textarea {
 }
 
 .contenedor-admin {
-  width: min(100% - var(--espacio-lg), 960px);
+  width: min(100% - var(--espacio-lg), var(--ancho-marco-escritorio, 768px));
+  max-width: var(--ancho-marco-escritorio, 768px);
   margin-inline: auto;
   padding: var(--espacio-md);
 }

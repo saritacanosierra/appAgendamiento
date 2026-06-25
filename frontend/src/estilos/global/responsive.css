@@ -19,29 +19,11 @@
 
   .contenedor-admin {
     padding: var(--espacio-lg);
+    max-width: 768px;
   }
 }
 
-@media (min-width: 1024px) {
-  :root {
-    --ancho-maximo-contenedor: 920px;
-    --altura-menu-movil: 68px;
-  }
-
-  .contenedor-admin {
-    max-width: 1040px;
-  }
-}
-
-@media (min-width: 1280px) {
-  :root {
-    --ancho-maximo-contenedor: 1080px;
-  }
-
-  .contenedor-admin {
-    max-width: 1200px;
-  }
-}
+/* Ancho máximo del marco: ver vista_escritorio.css (768px en escritorio) */
 
 @media (prefers-reduced-motion: reduce) {
   *,
