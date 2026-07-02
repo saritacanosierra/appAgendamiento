@@ -31,6 +31,15 @@ git push origin main
 - Abre `https://agenda.tudominio.com/`
 - Los assets deben cargar como `/assets/...` (sin prefijo `/agenda/`).
 - Rutas como `/admin/` deben funcionar (`.htaccess` incluido).
+- Superadmin: `https://agenda.tudominio.com/plataforma/` (requiere `VITE_PLATAFORMA_HABILITADA=true` en build y `PLATAFORMA_HABILITADA=true` en Render).
+
+## 5. Variables en Render (backend)
+
+```env
+PLATAFORMA_HABILITADA=true
+CORS_ORIGENES=https://agenda.nuncajamasropa.com
+FRONTEND_URL=https://agenda.nuncajamasropa.com
+```
 
 ## Nota: subcarpeta `/agenda/` en dominio principal
 
