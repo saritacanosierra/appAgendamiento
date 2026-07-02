@@ -1,21 +1,31 @@
 # Evaluación de calidad — appAgendamiento
 
-**Fecha:** 24 de junio de 2026 (re-evaluación post-hardening)  
-**Commit de referencia:** `9e247c1` — hardening producción (tests, migraciones, logging, S3, piloto)  
-**Alcance:** profesionalismo, buenas prácticas, código limpio y readiness para mercado  
+**Fecha:** 24 de junio de 2026 (evaluación integral post-hardening + Semana 4 + UI escritorio)  
+**Commit de referencia:** `b576863` — Semana 4 (E2E, CI MySQL, helmet, Redis) + marco tablet en escritorio  
+**Alcance:** profesionalismo, buenas prácticas, código limpio, anti-spaghetti y readiness para despliegue  
 **Proyecto:** `appAgendamiento` — SaaS multi-marca (React + Node + MySQL)
 
 ---
 
 ## Resumen ejecutivo
 
-| Dimensión | Nota anterior | Nota actual | Δ |
-|-----------|---------------|-------------|---|
-| **Producto funcional** | 7.8 | **7.8** | — |
-| **Readiness comercial** | 6.3 | **7.9** | +1.6 |
-| **Veredicto global** | Listo con reservas | **Listo para piloto** | ↑ |
+| Dimensión | Nota (1–10) | Escala 0–100 |
+|-----------|-------------|--------------|
+| **Producto funcional** | **7.8** | 78 |
+| **Calidad de código (sin spaghetti)** | **8.0** | 80 |
+| **Profesionalismo visual / UX** | **8.7** | 87 |
+| **Buenas prácticas de ingeniería** | **7.8** | 78 |
+| **Listo para desplegar (VPS piloto)** | **8.5** | 85 |
+| **Listo para escala comercial masiva** | **6.5** | 65 |
 
-La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalidad y experiencia de usuario. Tras las Semanas 1–3 de hardening, la brecha principal ya no es “falta de base técnica”, sino **validación en campo** (piloto real) y **escala** (observabilidad avanzada, E2E, multi-instancia).
+### **Promedio ponderado actual: ~8.1 / 10 (81 %)**
+
+| Evolución | Antes (inicio hardening) | Ahora |
+|-----------|--------------------------|-------|
+| Readiness comercial | 6.3 | **8.1** |
+| Veredicto | Listo con reservas | **Listo para piloto comercial en VPS** |
+
+**En una frase:** producto **profesional y desplegable para piloto**, con arquitectura sana. El camino al 100 % pasa más por **operar en producción con clientes reales** y **profundizar tests/observabilidad** que por reescribir la app.
 
 ---
 
@@ -24,9 +34,10 @@ La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalida
 ### Sí — para:
 
 - **Piloto comercial** con 1–2 marcas reales en VPS (Node + MySQL + cron).
+- **Despliegue en producción** siguiendo [`despliegue_produccion_vps.md`](despliegue_produccion_vps.md) y [`checklist_secrets_produccion.md`](checklist_secrets_produccion.md).
 - Operación con soporte directo del operador SaaS.
 - Entrega **solo-marca** (`PLATAFORMA_HABILITADA=false`).
-- Demo interna y onboarding guiado con [`checklist_piloto_marca.md`](checklist_piloto_marca.md).
+- Onboarding guiado con [`checklist_piloto_marca.md`](checklist_piloto_marca.md).
 
 ### Sí, con reservas — para:
 
@@ -35,29 +46,51 @@ La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalida
 
 ### No, todavía — para:
 
-- Lanzamiento comercial **masivo** sin E2E ni cobertura de tests amplia.
+- Declarar **100 % calidad + mercado** sin piloto real ni monitorización en prod.
+- Lanzamiento comercial **masivo** sin cobertura de tests amplia.
 - Despliegue “one-click” en **Vercel serverless** (cron, subidas y jobs siguen siendo limitaciones estructurales).
 - Onboarding **100 % autogestionado** sin intervención del operador.
-- Escalar a **muchas instancias** sin Redis (rate limit en memoria) ni APM.
+- Escalar a **muchas instancias** sin `REDIS_URL` ni APM.
+
+---
+
+## ¿Es spaghetti?
+
+**No en la arquitectura general.** La base está bien diseñada:
+
+- Backend en capas: rutas → controladores → servicios → repositorios.
+- SQL solo en repositorios con prepared statements.
+- Frontend modular: vistas / estilos / servicios por dominio.
+- CSS fuera de JSX; convenciones documentadas en `.cursor/rules/`.
+- Multi-marca con middleware dedicado y tests de aislamiento.
+
+**Puntos de concentración** (deuda local, no spaghetti global):
+
+| Archivo | Líneas aprox. | Riesgo |
+|---------|---------------|--------|
+| `AtencionVista.jsx` | ~379 (+ componentes) | Refactorizada en jun 2026 |
+| `ConsultarCitaVista.jsx` | ~615 | Similar |
+| `ConfiguracionMarcaVista.jsx` | ~627 | Formulario monolítico |
+| `ReservarVista.jsx` | ~435 | Aceptable; mejorable con hooks |
+
+**Conclusión:** son **“vistas gordas”**, no spaghetti de toda la app. Se corrige extrayendo hooks y subcomponentes, no reescribiendo el proyecto.
 
 ---
 
 ## Puntuación por área
 
-| # | Área | Antes | Ahora | Comentario |
-|---|------|-------|-------|------------|
-| 1 | Estructura frontend / backend / BD | 8.5 | **8.5** | Capas claras; convenciones documentadas y respetadas |
-| 2 | Seguridad | 7.0 | **7.8** | `helmet`, request ID, Redis opcional para rate limit |
-| 3 | Tests automatizados | 1.5 | **6.5** | 15 unit/HTTP + 4 integración + 5 E2E + CI |
-| 4 | Errores y logging | 6.0 | **8.0** | Pino JSON, middleware HTTP, `LimiteError` React |
-| 5 | Configuración y despliegue | 5.0 | **7.5** | Runbook VPS, S3/R2 opcional, CI; Vercel parcial |
-| 6 | Documentación | 7.5 | **8.5** | Runbook, checklists secrets/piloto, README actualizado |
-| 7 | Consistencia UI / código | 8.5 | **8.5** | CSS separado, PWA, iconografía unificada |
-| 8 | Deuda técnica | 6.0 | **7.5** | Migraciones unificadas, async global, menos fragilidad |
-| 9 | Migraciones BD | 5.5 | **8.0** | `esquema_inicial.sql` consolidado + `migrar:all` |
-| 10 | Scripts npm | 7.0 | **8.0** | `test`, `migrar:all` en raíz; CI en GitHub Actions |
-
-**Promedio ponderado (readiness):** ~**7.6 / 10**
+| # | Área | Nota | Comentario |
+|---|------|------|------------|
+| 1 | Estructura frontend / backend / BD | **8.5** | Capas claras; convenciones documentadas |
+| 2 | Seguridad | **7.8** | helmet, request ID, Redis opcional, aislamiento multi-marca |
+| 3 | Tests automatizados | **6.5** | 15 unit/HTTP + 4 integración + 5 E2E; bajo volumen |
+| 4 | Errores y logging | **8.0** | Pino JSON, middleware HTTP, `LimiteError` React |
+| 5 | Configuración y despliegue | **8.0** | Runbook VPS, S3/R2, CI 2 jobs; Vercel parcial |
+| 6 | Documentación | **8.5** | Runbook, checklists, README, guías integraciones |
+| 7 | Consistencia UI / UX | **8.7** | PWA, iconos unificados, marco tablet en escritorio |
+| 8 | Deuda técnica | **7.5** | Sin TS; vistas largas; scripts legacy |
+| 9 | Migraciones BD | **8.0** | `esquema_inicial.sql` + `migrar:all` |
+| 10 | Scripts npm | **8.0** | test, migrar:all, lint backend, E2E en raíz |
 
 ---
 
@@ -66,17 +99,15 @@ La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalida
 ### Fortalezas
 
 - **Backend en capas** respetadas: rutas → controladores → servicios → repositorios.
-- **SQL solo en repositorios** con prepared statements.
-- **Frontend modular**: vistas, estilos y servicios por dominio.
+- **SQL solo en repositorios** con prepared statements (`pool.execute`).
+- **Frontend modular**: vistas en `frontend/src/vistas/`, estilos en `frontend/src/estilos/`, API en `frontend/src/modulos/*/servicios/`.
 - **~86 endpoints** bien repartidos (público, admin, plataforma).
-- Documentación de arquitectura y reglas Cursor en `.cursor/rules/`.
+- Documentación de arquitectura en `documentacion/arquitectura.md` y reglas en `.cursor/rules/`.
 
 ### Debilidades
 
 - JavaScript sin TypeScript — más riesgo de regresiones pese a los tests mínimos.
-- `base_de_datos/citas.sql` sigue siendo dump local de phpMyAdmin (no versionado; fuera del flujo oficial).
-
-**Archivos clave:** `backend/src/rutas/api.js`, `documentacion/arquitectura.md`
+- `base_de_datos/citas.sql` es dump local de phpMyAdmin (no versionado; fuera del flujo oficial).
 
 ---
 
@@ -85,25 +116,21 @@ La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalida
 ### Fortalezas
 
 - Tokens aleatorios + hash en BD; bcrypt para contraseñas.
-- **Aislamiento multi-marca** (`aislamientoMarcaMiddleware.js`) con tests dedicados.
+- **Aislamiento multi-marca** con middleware y tests dedicados.
 - Guards frontend (`RutaProtegidaAdmin`, `RutaProtegidaPlataforma`).
-- Rate limiting en login, reservas y consultas públicas.
-- Subidas controladas (MIME, tamaño, Sharp/WebP, whitelist).
-- **`trust proxy`** en producción.
-- **`capturarAsync`** global en el router API.
-- **`/api/estado`** en producción solo devuelve `operativa` (sin detalles de BD).
-- Checklist de secrets: [`checklist_secrets_produccion.md`](checklist_secrets_produccion.md).
+- Rate limiting en login, reservas y consultas públicas (+ **Redis** opcional vía `REDIS_URL`).
+- Subidas controladas (MIME, tamaño, Sharp/WebP, whitelist); S3/R2 opcional.
+- **`helmet`**, **`trust proxy`**, **`capturarAsync`** global.
+- **`/api/estado`** endurecido en producción.
+- **`X-Request-Id`** en logs.
 
 ### Debilidades / riesgos pendientes
 
-- Rate limit **en memoria** por defecto — usar `REDIS_URL` para multi-instancia.
-- Sin **`helmet` CSP** estricta (API JSON; helmet activo sin CSP).
+- Rate limit **en memoria** por defecto — configurar `REDIS_URL` en multi-instancia.
+- Sin CSP estricta en frontend.
 - Tokens en **localStorage** (riesgo XSS si hubiera inyección).
-- README aún documenta credenciales demo (aceptable en dev; vigilar en forks públicos).
+- README documenta credenciales demo (aceptable en dev).
 - Auditoría limitada (login y reservas públicas).
-- Tests de integración requieren MySQL (`TEST_INTEGRACION=1`) — no corren en CI por defecto.
-
-**Archivos clave:** `backend/src/middlewares/`, `backend/tests/unit/aislamientoMarca.test.js`
 
 ---
 
@@ -115,17 +142,15 @@ La app sigue **por encima del promedio de un MVP** en arquitectura, funcionalida
 |------|----------|---------|
 | Unitarios | 10 | Auth, reservas, aislamiento, almacenamiento |
 | HTTP (supertest) | 4 | Login 422, reservas 422, `/api/estado` |
-| Integración | 4 | Login + aislamiento (MySQL; corre en CI) |
+| Integración | 4 | Login + aislamiento (MySQL en CI) |
 | E2E | 5 | Playwright: login admin, marca pública, API |
 | CI | 2 jobs | Unit/lint/build + integración/E2E con MySQL |
 
-**Comandos:** `npm test` (15 tests, sin MySQL) · `npm run test:integracion` (requiere BD demo + `semilla:admin`) · `npm run test:e2e` (servidores + BD).
+**Comandos:** `npm test` · `npm run test:integracion` · `npm run test:e2e`
 
-### Evaluación
+### Evaluación (~6.5/10)
 
-Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2E básico (~**6.5/10**). Faltan tests de servicios admin, WhatsApp, suscripciones y E2E del flujo reserva completo.
-
-**Prioridad post-piloto:** E2E reserva end-to-end y ampliar cobertura de integración.
+Flujos **críticos** cubiertos; falta volumen: servicios admin, WhatsApp, suscripciones y **E2E reserva completa** (4 pasos hasta confirmación).
 
 ---
 
@@ -134,42 +159,40 @@ Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2
 ### Fortalezas
 
 - Respuestas JSON uniformes `{ exito, mensaje, datos }`.
-- Middleware global de errores con **Pino** (JSON estructurado, redacción de tokens).
+- **Pino** (JSON estructurado, redacción de tokens).
 - Middleware HTTP que registra 4xx/5xx en producción.
-- **`LimiteError`** — Error Boundary React en `App.jsx`.
-- **`capturarAsync`** en todas las rutas del router.
+- **`LimiteError`** — Error Boundary React.
 - Cliente HTTP centralizado en frontend.
 
 ### Debilidades
 
-- Sin **correlación de request ID** entre front y back — parcial: header `X-Request-Id` en API.
+- Request ID solo en API (front no lo propaga aún).
 - Sin agregador de logs (Datadog, Loki, etc.) — solo stdout.
-- Algunos `console.error` residuales en frontend (dev).
-
-**Archivos clave:** `backend/src/utilidades/logger.js`, `frontend/src/compartido/componentes/limite_error/LimiteError.jsx`
+- Alertas 5xx no implementadas (solo documentadas en runbook).
 
 ---
 
 ## 5. Despliegue y producción
 
-### Fortalezas
+### Listo para desplegar (VPS piloto) — checklist mínimo
 
-- **Runbook VPS completo:** [`despliegue_produccion_vps.md`](despliegue_produccion_vps.md) (systemd, Nginx, cron, logging, S3).
-- **`npm run migrar:all`** idempotente con tabla `schema_migraciones`.
-- **Almacenamiento S3/R2 opcional** (`ALMACENAMIENTO_IMAGENES=s3`).
-- **CI GitHub Actions** en push/PR a `main`.
-- `vercel.json` + detección serverless en backend.
-- `.env.example` actualizado (S3, `LOG_NIVEL`).
+1. VPS con Node 18+, MySQL, Nginx, HTTPS (Let's Encrypt).
+2. `npm run migrar:all` + secrets reales ([`checklist_secrets_produccion.md`](checklist_secrets_produccion.md)).
+3. Cron para WhatsApp y suscripciones (runbook §3).
+4. Backups MySQL programados.
+5. `ALMACENAMIENTO_IMAGENES=s3` recomendado si hay varias marcas o varios nodos.
 
-### Limitaciones estructurales en Vercel
+### Fortalezas técnicas
 
-| Problema | Estado |
-|----------|--------|
-| Jobs programados (WhatsApp, suscripciones) | Documentado: usar **cron externo** en VPS |
-| Subidas filesystem | Mitigado con **S3/R2**; local sigue sin persistir en serverless |
-| CI | **Resuelto** — `.github/workflows/ci.yml` |
+- Runbook VPS completo: systemd, Nginx, cron, logging, S3.
+- **`npm run migrar:all`** idempotente con `schema_migraciones`.
+- CI GitHub Actions (2 jobs).
+- `.env.example` actualizado.
 
-**Recomendación de hosting:** VPS para piloto y primeros clientes de pago. Vercel viable solo para preview/demo con limitaciones conocidas.
+### No recomendado
+
+- **Vercel** como prod principal (cron, subidas, jobs).
+- Lanzamiento masivo sin piloto.
 
 ---
 
@@ -177,15 +200,14 @@ Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2
 
 ### Fortalezas
 
-- README excepcional: rutas, seguridad, PWA, tests, producción VPS.
+- README: rutas, seguridad, PWA, tests, producción VPS.
 - Runbook, checklist secrets, checklist piloto.
 - Guías: WhatsApp, Google Calendar, modelo multi-marca, endpoints.
-- Esta evaluación y plan de hardening con estado actualizado.
 
 ### Debilidades
 
-- `documentacion/endpoints.md` puede quedar desfasado si se añaden rutas sin actualizarlo.
-- Sin guía de contribución / PR para colaboradores externos.
+- `documentacion/endpoints.md` puede desfasarse.
+- Sin guía de contribución / PR.
 
 ---
 
@@ -195,14 +217,14 @@ Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2
 
 - **CSS fuera de JSX** — convención respetada.
 - Variables de marca vía CSS (`var(--color-principal)`).
-- Lazy loading de vistas, iconografía unificada (`IconoApp`).
-- PWA admin implementada y documentada.
-- Convención snake_case en carpetas, dominio en español.
+- Lazy loading, iconografía unificada (`IconoApp`).
+- PWA admin documentada e implementada.
+- **Marco tablet en escritorio** (`vista_escritorio.css`) — proporciones móviles en PC.
 
 ### Debilidades
 
-- Solo **oxlint** en frontend y backend; warnings pendientes en scripts legacy.
-- Vistas largas (`AtencionVista.jsx` ~800+ líneas).
+- oxlint con warnings en scripts legacy.
+- Vistas largas (ver sección anti-spaghetti).
 - Sin TypeScript.
 
 ---
@@ -211,60 +233,86 @@ Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2
 
 ### Fortalezas
 
-- **`esquema_inicial.sql` consolidado** (`USE spa_unas`, suscripciones, superadmin, WhatsApp, etc.).
-- **14 migraciones** numeradas + `npm run migrar:all`.
-- Tabla **`schema_migraciones`** para control de versiones.
-- Scripts idempotentes; transacciones en flujos críticos.
+- `esquema_inicial.sql` consolidado (`USE spa_unas`).
+- 14 migraciones + `npm run migrar:all`.
+- Tabla `schema_migraciones`.
 
 ### Debilidades
 
-- Duplicación residual entre `.sql` en carpeta migraciones y lógica en scripts JS legacy.
-- Instalaciones muy antiguas pueden requerir revisión manual si saltaron migraciones intermedias.
+- Duplicación residual entre `.sql` y scripts JS legacy.
+- Instalaciones antiguas pueden requerir revisión manual.
 
 ---
 
-## 9. Scripts npm
+## Qué falta para acercarse al 100 %
 
-| Paquete | Disponible | Falta |
-|---------|------------|-------|
-| Raíz | `dev`, `build`, `migrar:all`, `test` | `lint` unificado |
-| Backend | 20+ scripts, `test`, `test:integracion`, `migrar:all` | `lint` |
-| Frontend | `dev`, `build`, `lint`, `preview` | `test`, `typecheck` |
+El **100 %** no es “cero bugs”; es **producto maduro + operación probada en mercado**.
 
-**Nota:** `npm run dev` en raíz usa `&` (Unix); en Windows CMD puede fallar (funciona en Git Bash).
+### Bloque A — Evidencia real (+8 pts hacia 100)
+
+| Item | Impacto | Estado |
+|------|---------|--------|
+| Piloto 1–2 marcas reales | Alto | Pendiente |
+| Feedback documentado | Alto | Plantilla [`plantilla_feedback_piloto.md`](plantilla_feedback_piloto.md) |
+| Primera marca de pago | Alto | Pendiente |
+
+### Bloque B — Tests y CI (+6 pts)
+
+| Item | Hoy | Para ~100 % |
+|------|-----|-------------|
+| Cobertura unitaria | ~10 % estimado (34 tests) | 40–60 % en servicios críticos |
+| E2E reserva completa | ✅ [`e2e/reserva-completa.spec.js`](../e2e/reserva-completa.spec.js) | Mantener verde en CI |
+| Tests suscripción / marca operativa | ✅ `suscripcionMarca`, `verificarMarcaOperativa` | — |
+| Tests WhatsApp / recordatorios | ✅ `whatsappServicio`, `recordatorioWhatsappServicio` (mocks) | Más escenarios de error API |
+| CI estable en GitHub | Configurado | Verificar verde continuo |
+
+### Bloque C — Seguridad producción (+5 pts)
+
+| Item | Estado |
+|------|--------|
+| `REDIS_URL` en prod multi-instancia | Opcional |
+| CSP / headers frontend | Parcial |
+| Tokens httpOnly vs localStorage | Pendiente |
+| Secrets sin defaults en prod | Checklist existe |
+| Auditoría ampliada (admin, uploads) | Limitada |
+
+### Bloque D — Operación (+5 pts)
+
+| Item | Estado |
+|------|--------|
+| Alertas (`/api/estado`, 5xx) | ✅ [`operacion_produccion.md`](operacion_produccion.md) + `npm run verificar:salud` |
+| Agregador de logs | No (fase escala) |
+| Backups automatizados probados | Documentado en operacion_produccion |
+| Plan rollback / restore BD | ✅ Documentado en operacion_produccion |
+
+### Bloque E — Calidad de código (+4 pts)
+
+| Item | Estado |
+|------|--------|
+| TypeScript gradual o OpenAPI | No |
+| Partir vistas >400 líneas | ✅ `AtencionVista` (~380 líneas + componentes) | `ConsultarCitaVista`, `ConfiguracionMarcaVista` |
+| Lint sin warnings en CI | Backend ✅ · Frontend warnings legacy (Fast refresh) |
+| `npm run lint` unificado en raíz | ✅ |
+| Correlación request ID front ↔ logs | ✅ `X-Request-Id` en `apiCliente.js` |
+
+### Bloque F — Producto / escala (+4 pts)
+
+| Item | Estado |
+|------|--------|
+| Onboarding autogestionado marcas | Manual (superadmin) |
+| Dominios custom por marca | No |
+| Vercel prod viable | No (por diseño) |
 
 ---
 
-## Bloqueadores vs mejoras
+## Roadmap realista hacia ~90–100 %
 
-### Resueltos en hardening (Semanas 1–3)
-
-| # | Item | Estado |
-|---|------|--------|
-| 1 | Cero tests | ✅ 15 tests + CI |
-| 2 | Esquema inicial desactualizado | ✅ Consolidado |
-| 3 | Migraciones manuales | ✅ `migrar:all` |
-| 4 | Sin CI/CD | ✅ GitHub Actions |
-| 5 | Sin runbook producción | ✅ VPS documentado |
-| 6 | Rutas async sin wrapper | ✅ `parchearRouterAsync` |
-| 7 | Logging básico | ✅ Pino |
-| 8 | Sin Error Boundaries | ✅ `LimiteError` |
-| 9 | Subidas solo locales | ✅ S3/R2 opcional |
-| 10 | `/api/estado` verbose | ✅ Endurecido en prod |
-
-### Pendientes antes de escala comercial
-
-1. **Piloto real** con 1–2 marcas y feedback documentado.
-2. **Cobertura E2E** del flujo reserva completo (4 pasos hasta confirmación).
-3. **Observabilidad** — alertas sobre `/api/estado` y errores 5xx (runbook menciona; falta implementación).
-4. **Vercel** — no recomendado como prod principal sin S3 + cron externo + BD gestionada.
-
-### Mejoras deseables (post-piloto)
-
-- TypeScript gradual en backend o contratos OpenAPI.
-- Linter en backend (oxlint/eslint).
-- Reducir PII en README público.
-- Backend linter en CI.
+| Fase | Acciones | Resultado estimado |
+|------|----------|-------------------|
+| **1. Ahora (1–2 semanas)** | Piloto real + VPS + UptimeRobot en `/api/estado` | **~85 %** desplegable con confianza |
+| **2. Post-piloto (1 mes)** | Feedback piloto + partir `ConsultarCitaVista` | **~88 %** |
+| **3. Escala (2–3 meses)** | Redis, S3 prod, más tests, TS en backend crítico, alertas | **~92 %** |
+| **4. Comercial maduro** | 10+ marcas estables, SLA, observabilidad, onboarding semi-auto | **95–100 %** |
 
 ---
 
@@ -284,39 +332,53 @@ Los flujos **críticos** tienen cobertura unitaria, HTTP, integración (CI) y E2
 - [x] `capturarAsync` global
 - [x] Cron externo documentado
 
-### Semana 3 — Producción ✅ (técnico)
+### Semana 3 — Producción ✅
 
 - [x] S3/R2 opcional
 - [x] Logging Pino + middleware HTTP
 - [x] `/api/estado` endurecido
 - [x] Error Boundary React
-- [ ] **Piloto con 1–2 marcas** — [`checklist_piloto_marca.md`](checklist_piloto_marca.md)
+- [ ] Piloto con 1–2 marcas — [`checklist_piloto_marca.md`](checklist_piloto_marca.md)
 
-### Semana 4 — Post-piloto
+### Semana 4 — Post-piloto técnico ✅
 
+- [x] Tests E2E (Playwright)
+- [x] MySQL en CI + integración/E2E
+- [x] `helmet` + rate limit Redis opcional
+- [x] Request ID en logs
+- [x] Lint backend en CI
+- [x] Marco tablet en escritorio (`vista_escritorio.css`)
 - [ ] Ejecutar piloto y registrar feedback
-- [x] Tests E2E (login admin, marca pública, API estado) — Playwright
-- [x] MySQL en CI para `test:integracion` + E2E
-- [x] `helmet` + rate limit Redis opcional (`REDIS_URL`)
-- [x] Request ID (`X-Request-Id`) en logs
-- [x] Lint backend (`oxlint`)
-- [ ] Primera marca de pago con contrato piloto
+
+### Hacia 100 % — sesión jun 2026 (parcial) 🔄
+
+- [x] E2E reserva completa (4 pasos → confirmación)
+- [x] Tests unitarios `suscripcionMarca` + `verificarMarcaOperativa` (25 tests total)
+- [x] `operacion_produccion.md` + script `verificar-salud-produccion.js`
+- [x] Plantilla feedback piloto
+- [x] `npm run lint` y `npm run verificar:salud` en raíz
+- [x] `X-Request-Id` en peticiones frontend
+- [x] Partir `AtencionVista` en componentes reutilizables
+- [x] Tests WhatsApp + recordatorio con mocks (34 tests backend)
+- [ ] Piloto real + primera marca de pago
+- [ ] Partir `ConsultarCitaVista` y `ConfiguracionMarcaVista`
+- [ ] Cobertura tests 40–60 % en servicios críticos
 
 ---
 
 ## Conclusión
 
-**appAgendamiento** es un producto **profesional en diseño y funcionalidad**, con arquitectura consciente para SaaS multi-marca. Tras el hardening de junio 2026, el proyecto **cumple el estándar mínimo de ingeniería para un piloto comercial remunerado** en VPS.
-
-La diferencia respecto a la evaluación anterior es clara: ya no faltan piezas **fundamentales** (tests, migraciones, logging, runbook, CI). Lo que falta es **evidencia de mercado** (piloto) y **profundidad** (E2E, cobertura, observabilidad avanzada) para un lanzamiento amplio.
+**appAgendamiento** es un producto **profesional en diseño y funcionalidad**, con arquitectura consciente para SaaS multi-marca y **sin spaghetti estructural**. Tras el hardening de junio 2026 (~**81 %**), el proyecto **cumple el estándar para un piloto comercial remunerado en VPS**.
 
 | Pregunta | Respuesta |
 |----------|-----------|
-| ¿Código limpio y ordenado? | **Sí**, por encima del promedio |
-| ¿Buenas prácticas? | **Sí en lo esencial** — arquitectura, tests mínimos, prod documentado |
-| ¿Profesionalismo visual? | **Sí** — UI consistente, PWA, iconografía unificada |
-| ¿Salir al mercado ya? | **Piloto sí (VPS)** · **Lanzamiento masivo no** · **Vercel prod no recomendado** |
+| ¿Código limpio y sin spaghetti general? | **Sí** — arquitectura clara; algunas vistas muy largas |
+| ¿Buenas prácticas? | **Sí en lo esencial** — faltan TS, cobertura tests, observabilidad |
+| ¿Profesionalismo visual? | **Sí** — muy por encima del promedio MVP |
+| ¿Desplegar ya (VPS piloto)? | **Sí** |
+| ¿100 % calidad + mercado? | **No** — falta piloto, profundidad tests y operación en prod |
+| ¿Vercel prod? | **No recomendado** |
 
 ---
 
-*Evaluación interna. Próxima revisión recomendada: tras completar el piloto con 1–2 marcas reales.*
+*Evaluación interna. Próxima revisión: tras completar el piloto con 1–2 marcas reales.*

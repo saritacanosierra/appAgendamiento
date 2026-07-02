@@ -2,7 +2,7 @@ import { entorno } from '../configuracion/entorno.js';
 import { respuestaError } from '../utilidades/respuestaJson.js';
 import { logger } from '../utilidades/logger.js';
 
-export function manejoErrores(err, req, res, next) {
+export function manejoErrores(err, req, res, _next) {
   const log = req.log ?? logger;
   log.error({
     err,

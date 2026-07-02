@@ -76,7 +76,6 @@ export function calcularHorariosDisponibles({
 
   for (let min = inicio; min <= ultimoInicio; min += intervaloMinutos) {
     const horaInicio = minutosAHora(min);
-    const horaFin = minutosAHora(min + duracionMinutos);
 
     const solapaCita = citasOcupadas.some(
       (cita) =>

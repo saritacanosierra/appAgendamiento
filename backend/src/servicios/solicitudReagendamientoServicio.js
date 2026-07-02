@@ -3,7 +3,7 @@ import {
   ReservaRepositorio,
   SolicitudReagendamientoRepositorio,
 } from '../repositorios/index.js';
-import { normalizarHora, sumarMinutosAHora } from '../utilidades/horarios.js';
+import { normalizarHora } from '../utilidades/horarios.js';
 
 function formatearFecha(valor) {
   if (valor instanceof Date) return valor.toISOString().slice(0, 10);

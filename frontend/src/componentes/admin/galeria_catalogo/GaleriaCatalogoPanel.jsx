@@ -8,7 +8,7 @@ import {
 import { catalogoActivoPorTipo } from '../../../modulos/galeria/constantes/galeriaCatalogo';
 import '../../../estilos/admin/galeria/galeria_catalogo.css';
 
-function ListaCatalogo({ titulo, tipo, items, onCambio, error, setError }) {
+function ListaCatalogo({ titulo, tipo, items, onCambio, error: _error, setError }) {
   const [nuevaEtiqueta, setNuevaEtiqueta] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [editandoId, setEditandoId] = useState(null);

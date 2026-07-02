@@ -11,7 +11,10 @@
     "test:backend": "npm run test --prefix backend",
     "test:integracion": "npm run test:integracion --prefix backend",
     "test:e2e": "playwright test --config e2e/playwright.config.js",
+    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend",
+    "verificar:salud": "npm run verificar:salud --prefix backend",
     "build": "npm run build --prefix frontend",
+    "build:imagina": "npm run build:imagina --prefix frontend",
     "start:backend": "npm start --prefix backend",
     "preparar:git": "bash scripts/configurar-git-autor.sh"
   },

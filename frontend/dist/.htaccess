@@ -1,0 +1,9 @@
+# SPA React — subcarpeta public_html/agenda (Apache / cPanel)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /agenda/
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /agenda/index.html [L]
+</IfModule>

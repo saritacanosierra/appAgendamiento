@@ -11,6 +11,7 @@
     "test": "node scripts/run-tests.js",
     "test:integracion": "node scripts/run-tests-integracion.js",
     "lint": "oxlint src scripts",
+    "verificar:salud": "node scripts/verificar-salud-produccion.js",
     "semilla:admin": "node scripts/actualizar-admin-demo.js",
     "semilla:superadmin": "node scripts/semilla-superadmin.js",
     "migrar:plataforma": "node scripts/migrar-plataforma.js",

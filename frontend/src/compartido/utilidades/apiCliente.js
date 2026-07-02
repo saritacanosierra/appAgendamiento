@@ -22,6 +22,20 @@ function notificarConflictoSesionPlataforma() {
   );
 }
 
+function crearRequestId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `web-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+}
+
+function cabecerasRequestId(extra = {}) {
+  return {
+    'X-Request-Id': crearRequestId(),
+    ...extra,
+  };
+}
+
 function aplicarTokenRotado(respuesta, contexto = 'marca') {
   const nuevoToken = respuesta.headers.get('X-Nuevo-Token');
   if (!nuevoToken) return;
@@ -44,12 +58,12 @@ export async function peticionApi(ruta, opciones = {}) {
 
   const respuesta = await fetch(url, {
     credentials: 'include',
-    headers: {
+    headers: cabecerasRequestId({
       'Content-Type': 'application/json',
       Accept: 'application/json',
       ...(requiereAuth && token ? { Authorization: `Bearer ${token}` } : {}),
       ...opciones.headers,
-    },
+    }),
     ...opciones,
   });
 
@@ -97,10 +111,10 @@ export async function peticionAdminFormData(ruta, formData, method = 'POST') {
   const respuesta = await fetch(url, {
     method,
     credentials: 'include',
-    headers: {
+    headers: cabecerasRequestId({
       Accept: 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    }),
     body: formData,
   });
 

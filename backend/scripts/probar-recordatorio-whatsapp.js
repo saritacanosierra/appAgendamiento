@@ -92,7 +92,7 @@ async function main() {
   }
   const servicio = servicios[0];
 
-  const { fecha, horaInicio, inicio } = calcularFechaHoraCita(horasAntes);
+  const { fecha, horaInicio } = calcularFechaHoraCita(horasAntes);
   const horaFin = sumarMinutosAHora(horaInicio, servicio.duracion_minutos);
 
   let cliente = await clienteRepo.buscarPorTelefono(marca.id, telefono);

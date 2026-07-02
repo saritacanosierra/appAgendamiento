@@ -7,7 +7,7 @@ import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
 import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { MarcaRepositorio } from '../repositorios/index.js';
-import { requerido, telefono, email, validar } from '../utilidades/validador.js';
+import { requerido, telefono as validarTelefono, email, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 
 const TIPOS_FAVORITO = ['servicio', 'diseno_galeria'];
@@ -43,7 +43,7 @@ export class ClientePerfilServicio {
       { marca_id: marcaId, telefono: tel, correo: correoNorm },
       {
         marca_id: (v) => (v ? null : 'La marca es obligatoria.'),
-        telefono: (v) => requerido(v, 'telefono') ?? telefono(v),
+        telefono: (v) => requerido(v, 'telefono') ?? validarTelefono(v),
         correo: (v) => requerido(v, 'correo') ?? email(v),
       }
     );

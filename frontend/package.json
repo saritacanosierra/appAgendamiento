@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:imagina": "vite build --base /agenda/",
     "lint": "oxlint",
     "preview": "vite preview"
   },

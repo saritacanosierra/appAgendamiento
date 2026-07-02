@@ -2,7 +2,6 @@
  * Ejecuta migracion 001 plataforma superadmin.
  * Uso: npm run migrar:plataforma
  */
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';

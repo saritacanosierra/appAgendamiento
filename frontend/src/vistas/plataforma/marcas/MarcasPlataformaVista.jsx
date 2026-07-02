@@ -9,7 +9,7 @@ import {
   MensajeError,
 } from '../../../compartido/componentes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
-import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
+import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { guardarTokenMarca, marcarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
 import {
   actualizarMarcaPlataforma,
