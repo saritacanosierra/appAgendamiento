@@ -9,6 +9,7 @@ import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { MarcaRepositorio } from '../repositorios/index.js';
 import { requerido, telefono as validarTelefono, email, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 const TIPOS_FAVORITO = ['servicio', 'diseno_galeria'];
 
@@ -18,7 +19,7 @@ function mapearFavorito(fila) {
     tipo: fila.tipo,
     referenciaId: fila.referencia_id,
     titulo: fila.titulo ?? 'Elemento no disponible',
-    imagenRuta: fila.imagen_ruta ?? null,
+    imagenRuta: resolverRutaMedia(fila.imagen_ruta ?? null),
     precio: fila.precio != null ? Number(fila.precio) : null,
     activo: Boolean(fila.referencia_activa),
     createdAt: fila.created_at,

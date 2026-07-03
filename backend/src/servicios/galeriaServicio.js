@@ -2,6 +2,7 @@ import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
 import { GaleriaCatalogoServicio } from './galeriaCatalogoServicio.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 export function mapearDisenoPublico(fila) {
   if (!fila) return null;
@@ -9,7 +10,7 @@ export function mapearDisenoPublico(fila) {
     id: fila.id,
     marcaId: fila.marca_id,
     titulo: fila.titulo,
-    imagenRuta: fila.imagen_ruta,
+    imagenRuta: resolverRutaMedia(fila.imagen_ruta),
     categoria: fila.categoria,
     temporada: fila.temporada,
     coloresRelacionados: fila.colores_relacionados
@@ -78,7 +79,9 @@ export class GaleriaServicio {
 
   parsearDatos(datos, existente = null) {
     const titulo = texto(datos.titulo ?? existente?.titulo, { capitalizar: 'inicio' });
-    const imagenRuta = texto(datos.imagen_ruta ?? datos.imagenRuta ?? existente?.imagen_ruta);
+    const imagenRuta = normalizarRutaMediaAlmacenamiento(
+      texto(datos.imagen_ruta ?? datos.imagenRuta ?? existente?.imagen_ruta)
+    );
     const categoria = datos.categoria !== undefined
       ? texto(datos.categoria) || null
       : existente?.categoria ?? null;

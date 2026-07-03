@@ -1,10 +1,11 @@
 import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { resolverRutaMedia } from './resolverRutaMedia.js';
 
 function mapearDisenoGaleriaCita(fila) {
   return {
     id: Number(fila.diseno_id),
     titulo: fila.titulo,
-    imagenRuta: fila.imagen_ruta,
+    imagenRuta: resolverRutaMedia(fila.imagen_ruta),
     categoria: fila.categoria ?? null,
     temporada: fila.temporada ?? null,
     seleccionadoAt: fila.created_at ?? null,

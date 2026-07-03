@@ -1,6 +1,7 @@
 import { CarruselRepositorio } from '../repositorios/carruselRepositorio.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 export function mapearDiapositivaPublica(fila) {
   if (!fila) return null;
@@ -8,7 +9,7 @@ export function mapearDiapositivaPublica(fila) {
     id: fila.id,
     titulo: fila.titulo,
     subtitulo: fila.subtitulo,
-    imagenRuta: fila.imagen_ruta,
+    imagenRuta: resolverRutaMedia(fila.imagen_ruta),
     enlaceUrl: fila.enlace_url,
     ordenVisualizacion: fila.orden_visualizacion,
   };
@@ -67,7 +68,9 @@ export class CarruselServicio {
       datos.subtitulo !== undefined
         ? texto(datos.subtitulo, { capitalizar: 'inicio' }) || null
         : existente?.subtitulo ?? null;
-    const imagenRuta = texto(datos.imagen_ruta ?? datos.imagenRuta ?? existente?.imagen_ruta);
+    const imagenRuta = normalizarRutaMediaAlmacenamiento(
+      texto(datos.imagen_ruta ?? datos.imagenRuta ?? existente?.imagen_ruta)
+    );
     const enlaceUrl =
       datos.enlace_url !== undefined || datos.enlaceUrl !== undefined
         ? texto(datos.enlace_url ?? datos.enlaceUrl) || null

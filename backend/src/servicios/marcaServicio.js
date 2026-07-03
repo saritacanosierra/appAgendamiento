@@ -1,4 +1,6 @@
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
+import { normalizarRutaMediaAlmacenamiento } from '../utilidades/resolverRutaMedia.js';
+import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 
@@ -13,7 +15,7 @@ export function mapearMarcaPublica(fila) {
     colorSecundario: fila.color_secundario,
     colorFondo: fila.color_fondo ?? '#FFFFFF',
     colorTexto: fila.color_texto ?? '#1A1A1A',
-    logo: fila.logo_ruta,
+    logo: resolverRutaMedia(fila.logo_ruta),
     descripcion: fila.descripcion,
     telefono: fila.telefono,
     whatsapp: fila.whatsapp,
@@ -40,7 +42,7 @@ export function mapearServicioPublico(fila) {
     marcaId: fila.marca_id,
     nombre: fila.nombre,
     descripcion: fila.descripcion,
-    imagenRuta: fila.imagen_ruta ?? null,
+    imagenRuta: resolverRutaMedia(fila.imagen_ruta ?? null),
     duracionMinutos: fila.duracion_minutos,
     precio: Number(fila.precio),
     tipo: fila.tipo ?? 'marca',
@@ -129,7 +131,7 @@ export class ServicioServicio {
       datos.orden_visualizacion ?? datos.ordenVisualizacion ?? existente?.orden_visualizacion ?? 0
     );
     const imagenRuta = datos.imagen_ruta !== undefined || datos.imagenRuta !== undefined
-      ? texto(datos.imagen_ruta ?? datos.imagenRuta) || null
+      ? normalizarRutaMediaAlmacenamiento(texto(datos.imagen_ruta ?? datos.imagenRuta) || null)
       : existente?.imagen_ruta ?? null;
 
     const errores = validar(

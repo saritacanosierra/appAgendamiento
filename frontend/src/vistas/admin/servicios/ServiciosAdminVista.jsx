@@ -105,14 +105,19 @@ export default function ServiciosAdminVista() {
     const archivo = e.target.files?.[0];
     if (!archivo) return;
 
+    const vistaPreviaLocal = URL.createObjectURL(archivo);
+    setForm((prev) => ({ ...prev, imagenRuta: vistaPreviaLocal }));
+
     setSubiendoImagen(true);
     setError(null);
     try {
       const { ruta } = await subirImagenAdmin('servicios', archivo);
       setForm((prev) => ({ ...prev, imagenRuta: ruta }));
     } catch (err) {
+      setForm((prev) => ({ ...prev, imagenRuta: '' }));
       setError(err.message);
     } finally {
+      URL.revokeObjectURL(vistaPreviaLocal);
       setSubiendoImagen(false);
     }
   }

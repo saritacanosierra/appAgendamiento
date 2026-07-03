@@ -3,6 +3,7 @@ import path from 'path';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { almacenamientoImagenes } from '../configuracion/entorno.js';
 import { logger } from '../utilidades/logger.js';
+import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 let clienteS3;
 
@@ -64,7 +65,7 @@ export async function publicarImagenSubida({ rutaLocal, carpeta, nombreArchivo, 
   const rutaRelativa = `/subidas/${carpeta}/${nombreArchivo}`;
 
   if (!almacenamientoS3Habilitado()) {
-    return rutaRelativa;
+    return resolverRutaMedia(rutaRelativa);
   }
 
   const clave = `${carpeta}/${nombreArchivo}`;

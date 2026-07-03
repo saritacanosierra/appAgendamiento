@@ -5,6 +5,7 @@ import {
 } from './whatsappMarcaServicio.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 import { normalizarHorariosMarca } from '../utilidades/horarios.js';
+import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 
@@ -60,7 +61,7 @@ export function mapearConfiguracionAdmin(fila) {
     colorFondo: fila.color_fondo ?? '#FFFFFF',
     colorTexto: fila.color_texto ?? '#1A1A1A',
     tipografia: fila.tipografia ?? 'system-ui',
-    logo: fila.logo_ruta,
+    logo: resolverRutaMedia(fila.logo_ruta),
     descripcion: fila.descripcion,
     telefono: fila.telefono,
     whatsapp: fila.whatsapp,
@@ -91,7 +92,9 @@ export class ConfiguracionMarcaServicio {
     const colorFondo = texto(datos.color_fondo ?? datos.colorFondo ?? actual.color_fondo ?? '#FFFFFF');
     const colorTexto = texto(datos.color_texto ?? datos.colorTexto ?? actual.color_texto ?? '#1A1A1A');
     const tipografia = texto(datos.tipografia ?? actual.tipografia ?? 'system-ui') || 'system-ui';
-    const logoRuta = datos.logo ?? datos.logo_ruta ?? actual.logo_ruta ?? null;
+    const logoRuta = normalizarRutaMediaAlmacenamiento(
+      datos.logo ?? datos.logo_ruta ?? actual.logo_ruta ?? null
+    );
     const descripcion = datos.descripcion !== undefined
       ? texto(datos.descripcion) || null
       : actual.descripcion;

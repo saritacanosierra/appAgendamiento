@@ -2,6 +2,7 @@ import { BlogRepositorio } from '../repositorios/blogRepositorio.js';
 import { slugUnico } from '../utilidades/slug.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
+import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 const ESTADOS_VALIDOS = new Set(['borrador', 'publicado']);
 
@@ -12,7 +13,7 @@ export function mapearPublicacionPublica(fila) {
     marcaId: fila.marca_id,
     titulo: fila.titulo,
     slug: fila.slug,
-    imagenDestacada: fila.imagen_destacada,
+    imagenDestacada: resolverRutaMedia(fila.imagen_destacada),
     extracto: fila.extracto,
     categoria: fila.categoria,
     fechaPublicacion: fila.fecha_publicacion,
@@ -81,7 +82,9 @@ export class BlogServicio {
     const categoria = datos.categoria !== undefined
       ? texto(datos.categoria) || null
       : existente?.categoria ?? null;
-    const imagenDestacada = datos.imagen_destacada ?? datos.imagenDestacada ?? existente?.imagen_destacada ?? null;
+    const imagenDestacada = normalizarRutaMediaAlmacenamiento(
+      datos.imagen_destacada ?? datos.imagenDestacada ?? existente?.imagen_destacada ?? null
+    );
     const estado = texto(datos.estado ?? existente?.estado ?? 'borrador');
 
     const errores = validar(
