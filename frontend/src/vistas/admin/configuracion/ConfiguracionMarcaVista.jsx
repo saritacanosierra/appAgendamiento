@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import {
   BotonPrincipal,
@@ -39,6 +39,7 @@ const DIAS = [
 export default function ConfiguracionMarcaVista() {
   const { recargarSesion } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { hash } = useLocation();
   const [config, setConfig] = useState(null);
   const [googleEstado, setGoogleEstado] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -93,6 +94,12 @@ export default function ConfiguracionMarcaVista() {
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (cargando || !config || hash !== '#google-calendar') return;
+    const seccion = document.getElementById('google-calendar');
+    seccion?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [cargando, config, hash]);
 
   function actualizarCampo(campo, valor) {
     setConfig((prev) => {
@@ -522,6 +529,78 @@ export default function ConfiguracionMarcaVista() {
           </div>
         </section>
 
+        <section id="google-calendar" className="configuracion-marca__seccion configuracion-marca__seccion--destacada">
+          <h2>Google Calendar</h2>
+          <p className="configuracion-marca__hint">
+            No pegas un enlace manual: autorizas la cuenta de Google de tu empresa y las citas nuevas
+            se registran solas en ese calendario.
+          </p>
+          {!googleEstado?.disponible ? (
+            <div className="configuracion-marca__google-pendiente">
+              <p className="configuracion-marca__hint">
+                {googleEstado?.mensajePlataforma
+                  ?? 'Google Calendar aun no esta habilitado en el servidor de la API.'}
+              </p>
+              <ul className="configuracion-marca__google-lista">
+                <li>
+                  El operador del sistema debe configurar en el backend (Render):{' '}
+                  <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code> y{' '}
+                  <code>GOOGLE_REDIRECT_URI</code>.
+                </li>
+                <li>
+                  <code>GOOGLE_REDIRECT_URI</code> = URL del callback OAuth del API, por ejemplo{' '}
+                  <code>https://tu-api.onrender.com/api/integraciones/google/callback</code>
+                </li>
+                <li>
+                  <code>FRONTEND_URL</code> = URL donde cargas este admin (ej.{' '}
+                  <code>https://agenda.tudominio.com</code>)
+                </li>
+              </ul>
+              <p className="configuracion-marca__hint">
+                Cuando el servidor este listo, aqui aparecera el boton{' '}
+                <strong>Conectar Google Calendar</strong>.
+              </p>
+            </div>
+          ) : googleEstado.conectado ? (
+            <>
+              <p className="configuracion-marca__google-ok">
+                Conectado — las nuevas citas se sincronizan automaticamente.
+              </p>
+              {googleEstado.conectadoEn && (
+                <p className="configuracion-marca__hint">
+                  Desde {new Date(googleEstado.conectadoEn).toLocaleString('es-MX')}
+                </p>
+              )}
+              <div className="configuracion-marca__google-acciones">
+                <BotonPrincipal
+                  type="button"
+                  variante="secundario"
+                  onClick={probarGoogle}
+                  deshabilitado={probandoGoogle}
+                >
+                  {probandoGoogle ? 'Probando...' : 'Probar sincronizacion'}
+                </BotonPrincipal>
+                <BotonPrincipal variante="secundario" type="button" onClick={desconectarGoogle}>
+                  Desconectar
+                </BotonPrincipal>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="configuracion-marca__hint">
+                Pulsa el boton y autoriza con la cuenta de Google de tu negocio (Gmail o Workspace).
+              </p>
+              <BotonPrincipal
+                type="button"
+                onClick={conectarGoogle}
+                deshabilitado={conectandoGoogle}
+              >
+                {conectandoGoogle ? 'Redirigiendo...' : 'Conectar Google Calendar'}
+              </BotonPrincipal>
+            </>
+          )}
+        </section>
+
         <section className="configuracion-marca__seccion">
           <h2>WhatsApp Business (esta marca)</h2>
           <p className="configuracion-marca__hint">
@@ -608,60 +687,6 @@ export default function ConfiguracionMarcaVista() {
               {probandoWhatsapp ? 'Enviando...' : 'Probar WhatsApp'}
             </BotonPrincipal>
           </div>
-        </section>
-
-        <section className="configuracion-marca__seccion">
-          <h2>Google Calendar</h2>
-          {!googleEstado?.disponible ? (
-            <div className="configuracion-marca__google-pendiente">
-              <p className="configuracion-marca__hint">
-                {googleEstado?.mensajePlataforma
-                  ?? 'Google Calendar no esta habilitado en este servidor.'}
-              </p>
-              <p className="configuracion-marca__hint">
-                Cuando este disponible, conecta <strong>tu cuenta de Google</strong> aqui.
-                Cada empresa enlaza su propio calendario; los cambios no afectan a otras marcas.
-              </p>
-            </div>
-          ) : googleEstado.conectado ? (
-            <>
-              <p className="configuracion-marca__google-ok">
-                Conectado — las nuevas citas se sincronizan automaticamente.
-              </p>
-              {googleEstado.conectadoEn && (
-                <p className="configuracion-marca__hint">
-                  Desde {new Date(googleEstado.conectadoEn).toLocaleString('es-MX')}
-                </p>
-              )}
-              <div className="configuracion-marca__google-acciones">
-                <BotonPrincipal
-                  type="button"
-                  variante="secundario"
-                  onClick={probarGoogle}
-                  deshabilitado={probandoGoogle}
-                >
-                  {probandoGoogle ? 'Probando...' : 'Probar sincronizacion'}
-                </BotonPrincipal>
-                <BotonPrincipal variante="secundario" type="button" onClick={desconectarGoogle}>
-                  Desconectar
-                </BotonPrincipal>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="configuracion-marca__hint">
-                Conecta la cuenta de Google de tu empresa. Las citas nuevas se sincronizaran
-                con el calendario de esta marca unicamente.
-              </p>
-              <BotonPrincipal
-                type="button"
-                onClick={conectarGoogle}
-                deshabilitado={conectandoGoogle}
-              >
-                {conectandoGoogle ? 'Redirigiendo...' : 'Conectar Google Calendar'}
-              </BotonPrincipal>
-            </>
-          )}
         </section>
 
         <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>

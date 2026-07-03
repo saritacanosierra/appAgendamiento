@@ -41,6 +41,21 @@ CORS_ORIGENES=https://agenda.nuncajamasropa.com
 FRONTEND_URL=https://agenda.nuncajamasropa.com
 ```
 
+### Google Calendar (OAuth)
+
+En [Google Cloud Console](https://console.cloud.google.com/) crea credenciales OAuth y agrega en Render:
+
+```env
+GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=tu-client-secret
+GOOGLE_REDIRECT_URI=https://appagendamiento.onrender.com/api/integraciones/google/callback
+```
+
+URI autorizada en Google Cloud debe coincidir con `GOOGLE_REDIRECT_URI`.
+
+Tras el redeploy, cada marca conecta su calendario en **Admin → Mi marca → Google Calendar**  
+(o acceso directo: `/admin/configuracion-marca/#google-calendar`).
+
 ## Nota: subcarpeta `/agenda/` en dominio principal
 
 Si en el futuro sirves desde `https://tudominio.com/agenda/` (no subdominio), compila con:

@@ -20,6 +20,7 @@ const ACCESOS_RAPIDOS = [
   { to: RUTAS_ADMIN.reportes, etiqueta: 'Reportes', detalle: 'Ingresos del mes', icono: 'reportes' },
   { to: RUTAS_ADMIN.carruselInicio, etiqueta: 'Carrusel', detalle: 'Editar inicio', icono: 'carrusel' },
   { to: RUTAS_ADMIN.galeria, etiqueta: 'Galería', detalle: 'Subir diseños', icono: 'galeria' },
+  { to: RUTAS_ADMIN.configuracionGoogleCalendar, etiqueta: 'Google Calendar', detalle: 'Sincronizar citas', icono: 'agenda' },
   { to: RUTAS_ADMIN.configuracionMarca, etiqueta: 'Mi marca', detalle: 'Logo y colores', icono: 'config' },
 ];
 

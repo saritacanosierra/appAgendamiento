@@ -406,6 +406,14 @@
   gap: var(--espacio-sm);
 }
 
+.configuracion-marca__seccion--destacada {
+  scroll-margin-top: var(--espacio-lg);
+  border: 1px solid color-mix(in srgb, var(--color-acento) 35%, transparent);
+  border-radius: var(--radio-md);
+  padding: var(--espacio-md);
+  background: color-mix(in srgb, var(--color-acento) 6%, var(--color-fondo));
+}
+
 .configuracion-marca__google-lista {
   margin: 0;
   padding-left: var(--espacio-lg);

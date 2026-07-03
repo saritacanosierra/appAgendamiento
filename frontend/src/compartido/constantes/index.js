@@ -38,6 +38,7 @@ export const RUTAS_ADMIN = {
   galeria: conBarraFinal('/admin/galeria'),
   carruselInicio: conBarraFinal('/admin/carrusel-inicio'),
   configuracionMarca: conBarraFinal('/admin/configuracion-marca'),
+  configuracionGoogleCalendar: `${conBarraFinal('/admin/configuracion-marca')}#google-calendar`,
   atencionCita: (citaId, fecha) => {
     const params = new URLSearchParams();
     if (fecha) params.set('fecha', fecha);
