@@ -66,7 +66,7 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
           rel="noopener noreferrer"
           aria-label="Escribir por WhatsApp"
         >
-          <IconoApp nombre="whatsapp" tamano="sm" />
+          <IconoApp nombre="whatsapp" tamano="sm" className="encabezado-marca__whatsapp-icono" />
           <span>WhatsApp</span>
         </a>
       )}
