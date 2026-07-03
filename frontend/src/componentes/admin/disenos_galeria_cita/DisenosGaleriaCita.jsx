@@ -1,4 +1,5 @@
 import { ImagenAmpliable } from '../../../compartido/componentes';
+import { resolverUrlMedia } from '../../../compartido/utilidades/resolverUrlMedia';
 import '../../../estilos/componentes/disenos_galeria_cita/disenos_galeria_cita.css';
 
 export default function DisenosGaleriaCita({ disenos, variante = 'compacta', className = '' }) {
@@ -47,7 +48,7 @@ export default function DisenosGaleriaCita({ disenos, variante = 'compacta', cla
       <ul className="disenos-galeria-cita__miniaturas">
         {lista.map((diseno) => (
           <li key={diseno.id} className="disenos-galeria-cita__miniatura">
-            <img src={diseno.imagenRuta} alt={diseno.titulo} loading="lazy" />
+            <img src={resolverUrlMedia(diseno.imagenRuta)} alt={diseno.titulo} loading="lazy" />
           </li>
         ))}
       </ul>

@@ -33,6 +33,70 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
     .filter(Boolean)
     .join(' ');
 
+  const contacto = tieneContacto ? (
+    <div className="encabezado-marca__contacto-fila">
+      {telefonoLimpio && (
+        enlaceTelefono ? (
+          <a
+            className="encabezado-marca__contacto-chip"
+            href={enlaceTelefono}
+            aria-label={`Llamar al ${telefonoLimpio}`}
+          >
+            <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+            <span>{telefonoLimpio}</span>
+          </a>
+        ) : (
+          <span className="encabezado-marca__contacto-chip">
+            <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+            <span>{telefonoLimpio}</span>
+          </span>
+        )
+      )}
+      {direccionLimpia && (
+        <span className="encabezado-marca__contacto-chip" title={direccionLimpia}>
+          <IconoApp nombre="ubicacion" tamano="sm" className="encabezado-marca__contacto-icono" />
+          <span>{direccionLimpia}</span>
+        </span>
+      )}
+      {enlaceWhatsapp && (
+        <a
+          className="encabezado-marca__whatsapp"
+          href={enlaceWhatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Escribir por WhatsApp"
+        >
+          <IconoApp nombre="whatsapp" tamano="sm" />
+          <span>WhatsApp</span>
+        </a>
+      )}
+    </div>
+  ) : null;
+
+  if (compacto) {
+    return (
+      <header className={clases}>
+        <div className="encabezado-marca__fila-principal">
+          <div className={marcoClases}>
+            {marca.logo ? (
+              <ImagenAmpliable
+                className="encabezado-marca__logo"
+                src={marca.logo}
+                alt={marca.nombreComercial}
+              />
+            ) : (
+              <span className="encabezado-marca__logo-inicial">{inicialMarca(marca.nombreComercial)}</span>
+            )}
+          </div>
+          <div className="encabezado-marca__identidad">
+            <p className="encabezado-marca__nombre">{marca.nombreComercial}</p>
+          </div>
+        </div>
+        {contacto}
+      </header>
+    );
+  }
+
   return (
     <header className={clases}>
       <div className={marcoClases}>
@@ -48,46 +112,11 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
       </div>
       <div className="encabezado-marca__texto">
         <h1>{titulo ?? marca.nombreComercial}</h1>
-        {!compacto && !titulo && marca.descripcion && <p>{marca.descripcion}</p>}
+        {!titulo && marca.descripcion && <p>{marca.descripcion}</p>}
         {titulo && (
           <p className="encabezado-marca__subtitulo">{marca.nombreComercial}</p>
         )}
-
-        {tieneContacto && (
-          <div className="encabezado-marca__contacto-fila">
-            {telefonoLimpio && (
-              enlaceTelefono ? (
-                <a className="encabezado-marca__contacto-chip" href={enlaceTelefono}>
-                  <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
-                  <span>{telefonoLimpio}</span>
-                </a>
-              ) : (
-                <span className="encabezado-marca__contacto-chip">
-                  <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
-                  <span>{telefonoLimpio}</span>
-                </span>
-              )
-            )}
-            {direccionLimpia && (
-              <span className="encabezado-marca__contacto-chip">
-                <IconoApp nombre="ubicacion" tamano="sm" className="encabezado-marca__contacto-icono" />
-                <span>{direccionLimpia}</span>
-              </span>
-            )}
-            {enlaceWhatsapp && (
-              <a
-                className="encabezado-marca__whatsapp"
-                href={enlaceWhatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Escribir por WhatsApp"
-              >
-                <IconoApp nombre="whatsapp" tamano="sm" />
-                <span>WhatsApp</span>
-              </a>
-            )}
-          </div>
-        )}
+        {contacto}
       </div>
     </header>
   );

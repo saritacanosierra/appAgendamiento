@@ -253,8 +253,9 @@ export default function ReservarVista() {
         textoCerrar="Entendido"
       />
 
-      <EncabezadoMarca marca={marca} titulo="Agendar cita" compacto />
+      <EncabezadoMarca marca={marca} compacto />
 
+      <p className="reservar-vista__titulo">Agendar cita</p>
       <p className="paso-indicador reservar-vista__indicador">
         Paso {paso + 1} de {PASOS.length}
       </p>

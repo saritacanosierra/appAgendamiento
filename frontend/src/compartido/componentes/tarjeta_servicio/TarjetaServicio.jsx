@@ -1,4 +1,5 @@
 import { formatearPrecio } from '../../utilidades/temaMarca';
+import { resolverUrlMedia } from '../../utilidades/resolverUrlMedia';
 import IconoApp from '../icono_app/IconoApp';
 import '../../../estilos/compartido/tarjeta_servicio/tarjeta_servicio.css';
 
@@ -16,7 +17,7 @@ export default function TarjetaServicio({ servicio, onSeleccionar, acciones, cla
     <article className={clases}>
       <div className={`tarjeta-servicio__thumb${tieneImagen ? ' tarjeta-servicio__thumb--imagen' : ''}`}>
         {tieneImagen ? (
-          <img src={servicio.imagenRuta} alt="" loading="lazy" />
+          <img src={resolverUrlMedia(servicio.imagenRuta)} alt="" loading="lazy" />
         ) : (
           <IconoApp nombre="servicios" tamano="lg" aria-hidden="true" />
         )}

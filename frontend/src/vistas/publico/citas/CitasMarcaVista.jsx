@@ -12,10 +12,10 @@ export default function CitasMarcaVista() {
 
   return (
     <div className="citas-hub">
-      <EncabezadoMarca marca={marca} titulo="Citas" compacto />
+      <EncabezadoMarca marca={marca} compacto />
 
       <div className="citas-hub__intro">
-        <h2>¿Lista para tu próxima cita?</h2>
+        <h1>¿Lista para tu próxima cita?</h1>
         <p>Consulta horarios disponibles, explora servicios y agenda al instante.</p>
       </div>
 

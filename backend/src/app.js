@@ -47,7 +47,15 @@ export function crearApp() {
 
   app.use(registrarPeticiones);
 
-  app.use('/subidas', express.static(directorioSubidas));
+  app.use(
+    '/subidas',
+    (_req, res, next) => {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      next();
+    },
+    express.static(directorioSubidas),
+  );
   app.use('/api', rutasApi);
 
   app.use(rutaNoEncontrada);
