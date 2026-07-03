@@ -49,7 +49,7 @@ export class GoogleCalendarServicio {
       calendarioId: google?.calendario_id ?? 'primary',
       mensajePlataforma: disponible
         ? null
-        : 'Google Calendar no esta habilitado en el servidor. Contacta a soporte tecnico.',
+        : 'La sincronizacion con Google Calendar aun no esta activa para tu cuenta.',
     };
   }
 

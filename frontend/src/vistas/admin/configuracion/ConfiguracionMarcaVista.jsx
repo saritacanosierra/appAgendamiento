@@ -539,26 +539,11 @@ export default function ConfiguracionMarcaVista() {
             <div className="configuracion-marca__google-pendiente">
               <p className="configuracion-marca__hint">
                 {googleEstado?.mensajePlataforma
-                  ?? 'Google Calendar aun no esta habilitado en el servidor de la API.'}
+                  ?? 'La sincronizacion con Google Calendar aun no esta activa para tu cuenta.'}
               </p>
-              <ul className="configuracion-marca__google-lista">
-                <li>
-                  El operador del sistema debe configurar en el backend (Render):{' '}
-                  <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code> y{' '}
-                  <code>GOOGLE_REDIRECT_URI</code>.
-                </li>
-                <li>
-                  <code>GOOGLE_REDIRECT_URI</code> = URL del callback OAuth del API, por ejemplo{' '}
-                  <code>https://tu-api.onrender.com/api/integraciones/google/callback</code>
-                </li>
-                <li>
-                  <code>FRONTEND_URL</code> = URL donde cargas este admin (ej.{' '}
-                  <code>https://agenda.tudominio.com</code>)
-                </li>
-              </ul>
               <p className="configuracion-marca__hint">
-                Cuando el servidor este listo, aqui aparecera el boton{' '}
-                <strong>Conectar Google Calendar</strong>.
+                Cuando este disponible, pulsa <strong>Conectar Google Calendar</strong>, inicia sesion
+                con la cuenta de Google de tu negocio y cada cita nueva se guardara sola en ese calendario.
               </p>
             </div>
           ) : googleEstado.conectado ? (
