@@ -1,27 +1,48 @@
 .mi-cita {
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-lg);
-  padding-bottom: var(--espacio-xl);
+  gap: var(--espacio-sm);
+  padding-bottom: var(--espacio-lg);
 }
 
-.mi-cita__cabecera h1 {
-  font-size: var(--tamano-titulo-lg);
-  font-weight: 800;
+.mi-cita__titulo {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--color-texto);
-  margin-bottom: var(--espacio-xs);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 
-.mi-cita__cabecera p {
+.mi-cita__intro {
+  margin: 0;
   color: var(--color-texto-muted);
-  font-size: var(--tamano-texto-sm);
+  font-size: 0.8125rem;
+  line-height: 1.45;
 }
 
 .mi-cita__busqueda {
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-md);
-  padding: var(--espacio-lg);
+  gap: var(--espacio-xs);
+  padding: var(--espacio-sm) var(--espacio-md);
+}
+
+.mi-cita__busqueda .campo-formulario {
+  margin-bottom: 0;
+}
+
+.mi-cita__busqueda .campo-formulario input {
+  min-height: 44px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9375rem;
+}
+
+.mi-cita__busqueda .boton-principal {
+  min-height: 44px;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.9375rem;
+  margin-top: 0.15rem;
 }
 
 .mi-cita__resultados {

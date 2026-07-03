@@ -506,14 +506,12 @@ export default function ConsultarCitaVista() {
     <div className="mi-cita">
       <EncabezadoMarca marca={marca} compacto />
 
-      <header className="mi-cita__cabecera">
-        <h1>Mi cita</h1>
-        <p>
-          {resultado
-            ? 'Consulta tus citas, puntos y favoritos.'
-            : 'Busca tu reserva con tu telefono y el correo con el que te registraste al reservar.'}
-        </p>
-      </header>
+      <h1 className="mi-cita__titulo">Mi cita</h1>
+      <p className="mi-cita__intro">
+        {resultado
+          ? 'Consulta tus citas, puntos y favoritos.'
+          : 'Busca tu reserva con tu telefono y el correo con el que te registraste al reservar.'}
+      </p>
 
       {resultado && !mostrarBusqueda && (
         <button type="button" className="mi-cita__cambiar-datos" onClick={() => setMostrarBusqueda(true)}>

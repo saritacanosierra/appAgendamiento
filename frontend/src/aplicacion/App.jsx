@@ -1,5 +1,4 @@
 import { BrowserRouter } from 'react-router-dom';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ProveedorAuth } from './proveedores/ProveedorAuth';
 import { ProveedorVisorImagen } from './proveedores/ProveedorVisorImagen';
 import LimiteError from '../compartido/componentes/limite_error/LimiteError';
@@ -17,7 +16,6 @@ export default function App() {
           </ProveedorVisorImagen>
         </ProveedorAuth>
       </LimiteError>
-      <SpeedInsights />
     </BrowserRouter>
   );
 }

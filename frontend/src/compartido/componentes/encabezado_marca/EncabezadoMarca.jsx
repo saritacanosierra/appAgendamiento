@@ -48,7 +48,7 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
       </div>
       <div className="encabezado-marca__texto">
         <h1>{titulo ?? marca.nombreComercial}</h1>
-        {!titulo && marca.descripcion && <p>{marca.descripcion}</p>}
+        {!compacto && !titulo && marca.descripcion && <p>{marca.descripcion}</p>}
         {titulo && (
           <p className="encabezado-marca__subtitulo">{marca.nombreComercial}</p>
         )}
