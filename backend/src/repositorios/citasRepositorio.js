@@ -11,20 +11,30 @@ const SELECT_CITA_BASE = `
 `;
 
 export class ReservaRepositorio {
-  async listarOcupadasPorFecha(marcaId, fecha) {
-    const [filas] = await pool.execute(
-      `SELECT hora_inicio, hora_fin FROM citas
-       WHERE marca_id = ? AND fecha = ? AND estado != 'cancelada'`,
-      [marcaId, fecha]
-    );
+  async listarOcupadasPorFecha(marcaId, fecha, estilistaId = null) {
+    let sql = `SELECT hora_inicio, hora_fin FROM citas
+       WHERE marca_id = ? AND fecha = ? AND estado != 'cancelada'`;
+    const params = [marcaId, fecha];
+
+    if (estilistaId) {
+      sql += ' AND (estilista_id = ? OR estilista_id IS NULL)';
+      params.push(estilistaId);
+    }
+
+    const [filas] = await pool.execute(sql, params);
     return filas;
   }
 
-  async existeSolapamiento(conexion, marcaId, fecha, horaInicio, horaFin, excluirId = null) {
+  async existeSolapamiento(conexion, marcaId, fecha, horaInicio, horaFin, excluirId = null, estilistaId = null) {
     let sql = `SELECT id FROM citas
        WHERE marca_id = ? AND fecha = ? AND estado != 'cancelada'
          AND hora_inicio < ? AND hora_fin > ?`;
     const params = [marcaId, fecha, horaFin, horaInicio];
+
+    if (estilistaId) {
+      sql += ' AND (estilista_id = ? OR estilista_id IS NULL)';
+      params.push(estilistaId);
+    }
 
     if (excluirId) {
       sql += ' AND id != ?';
@@ -39,13 +49,14 @@ export class ReservaRepositorio {
   async crear(conexion, datos) {
     const [resultado] = await conexion.execute(
       `INSERT INTO citas (
-         marca_id, cliente_id, servicio_id, codigo_confirmacion,
+         marca_id, cliente_id, servicio_id, estilista_id, codigo_confirmacion,
          fecha, hora_inicio, hora_fin, estado, notas_internas
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.marcaId,
         datos.clienteId,
         datos.servicioId,
+        datos.estilistaId ?? null,
         datos.codigoConfirmacion,
         datos.fecha,
         datos.horaInicio,
@@ -62,11 +73,13 @@ export class ReservaRepositorio {
       `SELECT c.*,
               s.nombre AS servicio_nombre, s.duracion_minutos, s.precio,
               cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono, cl.correo AS cliente_correo,
-              m.nombre_comercial, m.slug AS marca_slug, m.direccion AS marca_direccion
+              m.nombre_comercial, m.slug AS marca_slug, m.direccion AS marca_direccion,
+              e.nombre AS estilista_nombre
        FROM citas c
        INNER JOIN servicios s ON s.id = c.servicio_id
        INNER JOIN clientes cl ON cl.id = c.cliente_id
        INNER JOIN marcas m ON m.id = c.marca_id
+       LEFT JOIN estilistas e ON e.id = c.estilista_id AND e.marca_id = c.marca_id
        WHERE c.codigo_confirmacion = ?
        LIMIT 1`,
       [codigo]
@@ -338,6 +351,14 @@ export class ClienteRepositorio {
       [marcaId, nombre, telefono, correo || null, notas || null]
     );
     return resultado.insertId;
+  }
+
+  async actualizarTelefono(marcaId, clienteId, telefono) {
+    const [resultado] = await pool.execute(
+      `UPDATE clientes SET telefono = ? WHERE id = ? AND marca_id = ? AND activo = 1`,
+      [telefono, clienteId, marcaId]
+    );
+    return resultado.affectedRows > 0;
   }
 
   async actualizarDatos(conexion, clienteId, { nombre, correo }) {

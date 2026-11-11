@@ -124,8 +124,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   padding: 0;
   border-radius: var(--radio-borde-sm);
   border: 1.5px solid color-mix(in srgb, var(--color-borde) 80%, transparent);

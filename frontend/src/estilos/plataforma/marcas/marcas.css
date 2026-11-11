@@ -41,10 +41,11 @@
 }
 
 .marcas-plataforma__lista-seccion {
-  background: var(--color-superficie);
-  border: 1px solid #eee;
+  background: #f7f9fb;
+  border: 1px solid #d5dde5;
   border-radius: 12px;
   padding: var(--espacio-lg);
+  color: #1c2430;
 }
 
 .marcas-plataforma__lista {
@@ -62,9 +63,10 @@
   justify-content: space-between;
   gap: var(--espacio-md);
   padding: var(--espacio-md);
-  border: 1px solid #eee;
+  border: 1px solid #d5dde5;
   border-radius: 12px;
   background: #fff;
+  color: #1c2430;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -84,13 +86,13 @@
 .marcas-plataforma__ver-detalle {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-  border: 1px solid #ddd;
+  border: 1px solid #d5dde5;
   border-radius: 12px;
-  background: #fafafa;
-  color: var(--color-acento);
+  background: #f7f9fb;
+  color: #1e3a4c;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -118,14 +120,18 @@
 
 .marcas-plataforma__conteo {
   margin: 0;
-  color: #555;
+  color: #5c6773;
 }
 
 .marcas-plataforma__busqueda {
-  min-width: 240px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
   padding: var(--espacio-sm) var(--espacio-md);
-  border: 1px solid #ddd;
+  border: 1px solid #c9d3dc;
   border-radius: 999px;
+  background: #fff;
+  color: #1c2430;
   font: inherit;
 }
 
@@ -160,6 +166,8 @@
 .marcas-plataforma__nombre {
   display: block;
   font-size: var(--tamano-texto-base);
+  font-weight: 700;
+  color: #1c2430;
   word-break: break-word;
 }
 
@@ -192,28 +200,28 @@
 }
 
 .marcas-plataforma__badge--activa {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: #e7f2ec;
+  color: #1f6b3a;
 }
 
 .marcas-plataforma__badge--suspendida {
-  background: #ffebee;
-  color: #c62828;
+  background: #f4e8e8;
+  color: #8f2d2d;
 }
 
 .marcas-plataforma__badge--plan {
-  background: #fff3e0;
-  color: #ef6c00;
+  background: #eef2f5;
+  color: #3d4c5c;
 }
 
 .marcas-plataforma__badge--por-vencer {
-  background: #fff8e1;
-  color: #f57f17;
+  background: #f8f1e4;
+  color: #8a5a12;
 }
 
 .marcas-plataforma__badge--vencida {
-  background: #ffebee;
-  color: #b71c1c;
+  background: #f4e8e8;
+  color: #8f2d2d;
 }
 
 .marcas-plataforma__plan-dias {

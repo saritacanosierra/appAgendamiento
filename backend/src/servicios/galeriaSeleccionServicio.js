@@ -4,6 +4,7 @@ import {
   ReservaRepositorio,
 } from '../repositorios/index.js';
 import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { SeleccionesGaleriaTelefonoRepositorio } from '../repositorios/seleccionesGaleriaTelefonoRepositorio.js';
 import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
 import {
   agregarFavoritoDisenoPorTelefono,
@@ -37,6 +38,7 @@ export class GaleriaSeleccionServicio {
     this.clienteRepo = deps.clienteRepo ?? new ClienteRepositorio();
     this.reservaRepo = deps.reservaRepo ?? new ReservaRepositorio();
     this.seleccionRepo = deps.seleccionRepo ?? new CitaDisenosGaleriaRepositorio();
+    this.seleccionTelefonoRepo = deps.seleccionTelefonoRepo ?? new SeleccionesGaleriaTelefonoRepositorio();
     this.galeriaRepo = deps.galeriaRepo ?? new GaleriaRepositorio();
   }
 
@@ -60,24 +62,6 @@ export class GaleriaSeleccionServicio {
     return { marca };
   }
 
-  async verificarCitaTelefono(marcaId, citaId, telefono) {
-    const cita = await this.reservaRepo.buscarPorId(marcaId, citaId);
-    if (!cita) {
-      return { error: 'Cita no encontrada.', codigoHttp: 404 };
-    }
-
-    if (!['pendiente', 'confirmada'].includes(cita.estado)) {
-      return { error: 'Esta cita ya no esta activa.', codigoHttp: 409 };
-    }
-
-    const telCita = String(cita.cliente_telefono ?? '').replace(/\D+/g, '');
-    if (telCita !== telefono) {
-      return { error: 'El telefono no coincide con la cita seleccionada.', codigoHttp: 403 };
-    }
-
-    return { cita };
-  }
-
   async iniciarSesion(marcaId, telefonoEntrada) {
     const telNorm = this.normalizarTelefono(telefonoEntrada);
     if (telNorm.error) return telNorm;
@@ -88,115 +72,101 @@ export class GaleriaSeleccionServicio {
     await this.reservaRepo.marcarPasadasComoCompletadas(marcaId);
 
     const cliente = await this.clienteRepo.buscarPorTelefono(marcaId, telNorm.telefono);
-    if (!cliente) {
-      return {
-        error: 'No encontramos reservas con ese telefono. Agenda una cita primero.',
-        codigoHttp: 404,
-      };
-    }
-
-    const filas = await this.reservaRepo.listarActivasPorTelefono(marcaId, telNorm.telefono);
+    const filas = cliente
+      ? await this.reservaRepo.listarActivasPorTelefono(marcaId, telNorm.telefono)
+      : [];
     const citasCliente = filas.filter(
-      (fila) => Number(fila.cliente_id) === Number(cliente.id)
+      (fila) => Number(fila.cliente_id) === Number(cliente?.id)
     );
-
-    if (citasCliente.length === 0) {
-      return {
-        error: 'No tienes citas activas. Reserva un servicio para elegir disenos.',
-        codigoHttp: 404,
-      };
-    }
 
     return {
       telefono: telNorm.telefono,
-      cliente: {
-        id: cliente.id,
-        nombre: cliente.nombre,
-      },
+      cliente: cliente
+        ? { id: cliente.id, nombre: cliente.nombre }
+        : null,
       citas: citasCliente.map(mapearCitaResumen),
     };
   }
 
-  async listarSelecciones(marcaId, citaId, telefonoEntrada) {
+  async listarSelecciones(marcaId, telefonoEntrada) {
     const telNorm = this.normalizarTelefono(telefonoEntrada);
     if (telNorm.error) return telNorm;
 
-    const citaOk = await this.verificarCitaTelefono(marcaId, citaId, telNorm.telefono);
-    if (citaOk.error) return citaOk;
+    const marcaOk = await this.verificarMarca(marcaId);
+    if (marcaOk.error) return marcaOk;
 
-    const disenoIds = await this.seleccionRepo.listarIdsPorCita(marcaId, citaId);
-    return { citaId, disenoIds };
+    const disenoIds = await this.seleccionTelefonoRepo.listarIds(marcaId, telNorm.telefono);
+    return { telefono: telNorm.telefono, disenoIds };
   }
 
-  async agregarSeleccion(marcaId, citaId, disenoIdEntrada, telefonoEntrada) {
+  async agregarSeleccion(marcaId, disenoIdEntrada, telefonoEntrada) {
     const telNorm = this.normalizarTelefono(telefonoEntrada);
     if (telNorm.error) return telNorm;
 
-    const citaIdNum = entero(citaId);
     const disenoId = entero(disenoIdEntrada);
-    if (!citaIdNum || !disenoId) {
-      return { error: 'Cita o diseno invalidos.', codigoHttp: 422 };
+    if (!disenoId) {
+      return { error: 'Diseno invalido.', codigoHttp: 422 };
     }
 
-    const citaOk = await this.verificarCitaTelefono(marcaId, citaIdNum, telNorm.telefono);
-    if (citaOk.error) return citaOk;
+    const marcaOk = await this.verificarMarca(marcaId);
+    if (marcaOk.error) return marcaOk;
 
     const diseno = await this.galeriaRepo.buscarPorId(marcaId, disenoId);
     if (!diseno || !diseno.activo) {
       return { error: 'Diseno no encontrado.', codigoHttp: 404 };
     }
 
-    const yaExiste = await this.seleccionRepo.existe(marcaId, citaIdNum, disenoId);
-    if (yaExiste) {
-      return { error: 'Este diseno ya esta en tu seleccion.', codigoHttp: 409 };
-    }
-
-    await this.seleccionRepo.agregar({
+    await this.seleccionTelefonoRepo.agregar({
       marcaId,
-      citaId: citaIdNum,
-      disenoId,
       telefono: telNorm.telefono,
+      disenoId,
     });
+    await this.seleccionTelefonoRepo.vincularDisenoACitasActivas(
+      marcaId,
+      telNorm.telefono,
+      disenoId
+    );
 
     await agregarFavoritoDisenoPorTelefono(marcaId, telNorm.telefono, disenoId, {
       clienteRepo: this.clienteRepo,
     });
 
-    const disenoIds = await this.seleccionRepo.listarIdsPorCita(marcaId, citaIdNum);
+    const disenoIds = await this.seleccionTelefonoRepo.listarIds(marcaId, telNorm.telefono);
     return {
-      mensaje: 'Diseno guardado para tu cita.',
-      citaId: citaIdNum,
+      mensaje: 'Diseno guardado en tu celular.',
+      telefono: telNorm.telefono,
       disenoIds,
     };
   }
 
-  async quitarSeleccion(marcaId, citaId, disenoIdEntrada, telefonoEntrada) {
+  async quitarSeleccion(marcaId, disenoIdEntrada, telefonoEntrada) {
     const telNorm = this.normalizarTelefono(telefonoEntrada);
     if (telNorm.error) return telNorm;
 
-    const citaIdNum = entero(citaId);
     const disenoId = entero(disenoIdEntrada);
-    if (!citaIdNum || !disenoId) {
-      return { error: 'Cita o diseno invalidos.', codigoHttp: 422 };
+    if (!disenoId) {
+      return { error: 'Diseno invalido.', codigoHttp: 422 };
     }
 
-    const citaOk = await this.verificarCitaTelefono(marcaId, citaIdNum, telNorm.telefono);
-    if (citaOk.error) return citaOk;
+    const marcaOk = await this.verificarMarca(marcaId);
+    if (marcaOk.error) return marcaOk;
 
-    const eliminado = await this.seleccionRepo.quitar(marcaId, citaIdNum, disenoId);
-    if (!eliminado) {
-      return { error: 'Este diseno no estaba en tu seleccion.', codigoHttp: 404 };
-    }
+    await this.seleccionTelefonoRepo.quitar(marcaId, telNorm.telefono, disenoId);
+    await this.seleccionTelefonoRepo.quitarDisenoDeCitasActivas(
+      marcaId,
+      telNorm.telefono,
+      disenoId
+    );
 
     await quitarFavoritoDisenoPorTelefono(marcaId, telNorm.telefono, disenoId, {
       clienteRepo: this.clienteRepo,
       seleccionRepo: this.seleccionRepo,
     });
 
-    const disenoIds = await this.seleccionRepo.listarIdsPorCita(marcaId, citaIdNum);
+    const disenoIds = await this.seleccionTelefonoRepo.listarIds(marcaId, telNorm.telefono);
     return {
-      mensaje: 'Diseno quitado de tu seleccion.',
-      citaId: citaIdNum,
+      mensaje: 'Diseno quitado de tu celular.',
+      telefono: telNorm.telefono,
       disenoIds,
     };
   }

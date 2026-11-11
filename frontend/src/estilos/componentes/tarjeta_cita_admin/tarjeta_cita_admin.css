@@ -90,7 +90,7 @@
 
 .tarjeta-cita-admin__acciones button {
   flex: 1;
-  min-height: 40px;
+  min-height: 48px;
   border: none;
   border-radius: var(--radio-borde);
   background: var(--color-principal);

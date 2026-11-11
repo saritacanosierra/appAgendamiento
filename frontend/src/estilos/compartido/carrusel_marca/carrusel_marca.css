@@ -80,6 +80,36 @@
   pointer-events: none;
 }
 
+.carrusel-marca--inicio .carrusel-marca__viewport {
+  width: 100%;
+  aspect-ratio: 2.2 / 1;
+  min-height: 0;
+  max-height: none;
+}
+
+.carrusel-marca__slide--inicio {
+  align-items: stretch;
+  background:
+    radial-gradient(circle at 100% 0%, #f7c2d8 0%, transparent 48%),
+    radial-gradient(circle at 0% 100%, #d9c6f0 0%, transparent 50%),
+    linear-gradient(160deg, #ffffff 0%, #fde8f2 46%, #efe4f8 100%);
+}
+
+.carrusel-marca__slide--inicio .carrusel-marca__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 100%;
+  padding: var(--espacio-xl) var(--espacio-lg);
+}
+
+.carrusel-marca__slide--inicio h2 {
+  font-size: clamp(1.75rem, 7vw, 2.35rem);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
 .carrusel-marca__slide--marca .carrusel-marca__overlay {
   background: linear-gradient(
     to top,
@@ -115,6 +145,21 @@
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.2;
+}
+
+.carrusel-marca__slide--inicio .carrusel-marca__texto {
+  color: #3c3568;
+}
+
+.carrusel-marca__slide--inicio .carrusel-marca__etiqueta {
+  background: #ffffff;
+  color: #3c3568;
+}
+
+.carrusel-marca__slide--inicio .carrusel-marca__texto h2 {
+  font-size: clamp(1.75rem, 7vw, 2.35rem);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
 }
 
 .carrusel-marca__texto p {

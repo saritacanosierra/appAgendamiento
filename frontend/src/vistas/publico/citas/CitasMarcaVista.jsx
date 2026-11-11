@@ -15,8 +15,8 @@ export default function CitasMarcaVista() {
       <EncabezadoMarca marca={marca} compacto />
 
       <div className="citas-hub__intro">
-        <h1>¿Lista para tu próxima cita?</h1>
-        <p>Consulta horarios disponibles, explora servicios y agenda al instante.</p>
+        <h1>¿Qué quieres agendar?</h1>
+        <p>Elige el servicio y luego la hora. Con tus datos queda lista la cita.</p>
       </div>
 
       <ContenidoHubCitas marca={marca} />

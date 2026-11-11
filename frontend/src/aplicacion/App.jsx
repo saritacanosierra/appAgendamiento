@@ -1,5 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import { ProveedorAuth } from './proveedores/ProveedorAuth';
+import { ProveedorAvisos } from './proveedores/ProveedorAvisos';
 import { ProveedorVisorImagen } from './proveedores/ProveedorVisorImagen';
 import LimiteError from '../compartido/componentes/limite_error/LimiteError';
 import RutasApp from './rutas/RutasApp';
@@ -11,9 +12,11 @@ export default function App() {
     <BrowserRouter basename={basenameRouter}>
       <LimiteError>
         <ProveedorAuth>
-          <ProveedorVisorImagen>
-            <RutasApp />
-          </ProveedorVisorImagen>
+          <ProveedorAvisos>
+            <ProveedorVisorImagen>
+              <RutasApp />
+            </ProveedorVisorImagen>
+          </ProveedorAvisos>
         </ProveedorAuth>
       </LimiteError>
     </BrowserRouter>

@@ -6,12 +6,14 @@ import MenuAdminSidebar, { MenuAdminMovil } from '../../../compartido/componente
 import CampanaNotificacionesAdmin from '../../../componentes/admin/campana_notificaciones/CampanaNotificacionesAdmin';
 import BotonAccesoRapidoPwaAdmin from '../../../componentes/admin/instalar_app_admin/BotonAccesoRapidoPwaAdmin';
 import InstalarAppAdminBanner from '../../../componentes/admin/instalar_app_admin/InstalarAppAdminBanner';
+import PagoPlanMarca from '../../../componentes/admin/pago_plan/PagoPlanMarca';
 import { useInstalarPwaAdmin } from '../../../modulos/admin/hooks/useInstalarPwaAdmin';
 import { RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { PLATAFORMA_HABILITADA } from '../../../compartido/configuracion/entornoApp';
 import { obtenerImpersonacion, limpiarImpersonacion } from '../../../compartido/utilidades/tokenSesion';
 import { useAuthMarca } from '../../proveedores/ProveedorAuth';
 import '../../../estilos/layouts/layout_admin/layout_admin.css';
+import '../../../estilos/admin/comun/toque.css';
 
 export default function LayoutAdmin() {
   const { usuario, marca, cerrarSesion } = useAuthMarca();
@@ -25,6 +27,23 @@ export default function LayoutAdmin() {
     await cerrarSesion();
     limpiarImpersonacion();
     navigate(RUTAS_PLATAFORMA.marcas);
+  }
+
+  if (marca?.plan?.vencido) {
+    return (
+      <div className="layout-admin">
+        <header className="layout-admin__topbar">
+          <div className="layout-admin__topbar-info">
+            <p className="layout-admin__topbar-etiqueta">Plan vencido</p>
+            <strong>{marca?.nombreComercial}</strong>
+          </div>
+          <button type="button" className="layout-admin__topbar-salir" onClick={cerrarSesion}>
+            Salir
+          </button>
+        </header>
+        <PagoPlanMarca />
+      </div>
+    );
   }
 
   return (

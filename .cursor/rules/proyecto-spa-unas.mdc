@@ -7,10 +7,11 @@ alwaysApply: true
 
 ## Prioridades
 
-1. Confidencialidad multi-marca (`marca_id`)
-2. Respetar arquitectura frontend/backend (ver reglas `arquitectura-frontend` y `arquitectura-backend`)
-3. Cambios mínimos; no mover archivos sin motivo
-4. Código y carpetas en español (sin tildes en nombres de carpeta)
+1. Confidencialidad multi-marca: tres roles separados (ver regla `roles-aislados`)
+2. Uso en celular: el responsive cabe en el marco, no en el monitor (ver regla `responsive-movil`)
+3. Respetar arquitectura frontend/backend (ver reglas `arquitectura-frontend` y `arquitectura-backend`)
+4. Cambios mínimos; no mover archivos sin motivo
+5. Código y carpetas en español (sin tildes en nombres de carpeta)
 
 ## Fases
 

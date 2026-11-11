@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--espacio-md);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .horarios-dia__cabecera h2 {
@@ -29,8 +31,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border: none;
   border-radius: 50%;
   background: var(--color-superficie);
@@ -47,6 +49,8 @@
 
 .horarios-dia__franja {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   gap: var(--espacio-xs);
   overflow-x: auto;
@@ -66,7 +70,8 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 52px;
+  min-width: 48px;
+  min-height: 48px;
   padding: var(--espacio-sm);
   border: 1.5px solid transparent;
   border-radius: var(--radio-borde);
@@ -93,6 +98,10 @@
   font-weight: 700;
 }
 
+.horarios-dia__dia:hover {
+  border-color: var(--color-principal);
+}
+
 .horarios-dia__dia--activo {
   border-color: var(--color-acento-superficie, var(--color-acento));
   background: color-mix(in srgb, var(--color-secundario) 35%, var(--color-superficie));
@@ -109,6 +118,7 @@
 }
 
 .horarios-dia__servicio-tab {
+  min-height: 48px;
   padding: 0.45rem 0.9rem;
   border: 1.5px solid var(--color-borde);
   border-radius: var(--radio-pill);
@@ -144,30 +154,13 @@
 
 .horarios-dia__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--espacio-sm);
-}
-
-@media (min-width: 400px) {
-  .horarios-dia__grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .horarios-dia__grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .horarios-dia__grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
+  min-width: 0;
 }
 
 .horarios-dia__hora {
-  min-height: 44px;
+  min-height: 48px;
   padding: 0.5rem;
   border: 1.5px solid var(--color-borde);
   border-radius: var(--radio-pill);
@@ -181,8 +174,9 @@
 
 .horarios-dia__hora:hover {
   border-color: var(--color-acento);
-  background: color-mix(in srgb, var(--color-secundario) 30%, var(--color-superficie));
+  background: color-mix(in srgb, var(--color-secundario) 40%, var(--color-superficie));
   color: var(--color-acento);
+  box-shadow: var(--sombra-suave);
 }
 
 .horarios-dia__hora:active {

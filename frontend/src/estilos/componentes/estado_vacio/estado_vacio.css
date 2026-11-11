@@ -1,0 +1,51 @@
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacio-sm);
+  margin-top: var(--espacio-lg);
+  padding: var(--espacio-xl) var(--espacio-md);
+  text-align: center;
+  border: 1.5px dashed var(--color-borde-superficie, var(--color-borde));
+  border-radius: var(--radio-borde);
+  background: var(--color-superficie);
+}
+
+.estado-vacio__dibujo {
+  width: 120px;
+  height: 88px;
+  fill: none;
+  stroke: var(--color-acento);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.estado-vacio__dibujo rect,
+.estado-vacio__dibujo circle {
+  fill: color-mix(in srgb, var(--color-secundario) 35%, transparent);
+}
+
+.estado-vacio h2 {
+  margin: 0;
+  font-size: var(--tamano-texto-lg);
+  color: var(--color-acento);
+}
+
+.estado-vacio p {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--color-texto-muted-superficie, var(--color-texto));
+}
+
+.estado-vacio__accion {
+  min-width: 48px;
+  min-height: 48px;
+  margin-top: var(--espacio-sm);
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--radio-pill);
+  background: var(--color-principal);
+  color: var(--color-texto-sobre-principal);
+  font-weight: 700;
+  cursor: pointer;
+}

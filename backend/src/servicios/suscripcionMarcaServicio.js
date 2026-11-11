@@ -6,6 +6,7 @@ import {
   calcularVencimiento,
   diasRestantesPlan,
   hoyISO,
+  sumarDiasISO,
   mapearEstadoSuscripcion,
   planEstaVencido,
   resolverDiasAvisoSuscripcion,
@@ -37,6 +38,33 @@ export class SuscripcionMarcaServicio {
       return { error: 'Tipo de plan invalido.', codigoHttp: 422 };
     }
     return { tipo };
+  }
+
+  async iniciarPrueba(marcaId, dias = 8) {
+    const marca = await this.marcaRepo.buscarPorId(marcaId);
+    if (!marca) return { error: 'Marca no encontrada.', codigoHttp: 404 };
+
+    const inicioEn = hoyISO();
+    const venceEn = sumarDiasISO(inicioEn, dias);
+    await this.suscripcionRepo.actualizarPlan(marcaId, {
+      planTipo: 'mensual',
+      inicioEn,
+      venceEn,
+      monto: null,
+      ultimaFacturacionEn: null,
+      planHabilitado: true,
+    });
+    await this.suscripcionRepo.registrarHistorial({
+      marcaId,
+      planTipo: 'mensual',
+      monto: null,
+      inicioEn,
+      venceEn,
+      accion: 'activacion',
+    });
+
+    const fila = await this.marcaRepo.buscarPorId(marcaId);
+    return { suscripcion: mapearEstadoSuscripcion(fila), venceEn };
   }
 
   async activarPlan(marcaId, datosEntrada = {}) {

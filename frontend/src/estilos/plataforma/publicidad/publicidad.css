@@ -1,0 +1,131 @@
+.publicidad-plataforma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.publicidad-plataforma__cabecera h1 {
+  margin: 0 0 var(--espacio-sm);
+}
+
+.publicidad-plataforma__cabecera p,
+.publicidad-plataforma__item p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie, #5c5278);
+}
+
+.publicidad-plataforma__ok {
+  margin: 0;
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.publicidad-plataforma__formulario,
+.publicidad-plataforma__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  min-width: 0;
+}
+
+.publicidad-plataforma__formulario {
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie, #fff);
+}
+
+.publicidad-plataforma__formulario input:not([type='checkbox']):not([type='radio']),
+.publicidad-plataforma__formulario textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+}
+
+.publicidad-plataforma__tipos input,
+.publicidad-plataforma__posts input,
+.publicidad-plataforma__check input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  flex: 0 0 auto;
+}
+
+.publicidad-plataforma__tipos,
+.publicidad-plataforma__posts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  min-width: 0;
+  margin: 0;
+  padding: var(--espacio-md);
+  border: 1px solid var(--color-borde-superficie, #e7d4f2);
+  border-radius: var(--radio-borde-lg);
+}
+
+.publicidad-plataforma__tipos label,
+.publicidad-plataforma__posts label {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-sm);
+  min-height: 48px;
+  min-width: 0;
+}
+
+.publicidad-plataforma__posts {
+  max-height: 280px;
+  overflow: auto;
+}
+
+.publicidad-plataforma__posts span {
+  overflow-wrap: anywhere;
+}
+
+.publicidad-plataforma__check {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-sm);
+  min-height: 48px;
+  font-weight: 700;
+}
+
+.publicidad-plataforma__cancelar,
+.publicidad-plataforma__item button {
+  min-height: 48px;
+  min-width: 48px;
+  border: 1px solid var(--color-borde-superficie, #e7d4f2);
+  border-radius: var(--radio-pill, 999px);
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.publicidad-plataforma__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.publicidad-plataforma__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-md);
+  min-width: 0;
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde-lg);
+  background: #fff;
+}
+
+.publicidad-plataforma__item strong,
+.publicidad-plataforma__item p {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.publicidad-plataforma__vacio {
+  color: var(--color-texto-muted-superficie, #5c5278);
+}

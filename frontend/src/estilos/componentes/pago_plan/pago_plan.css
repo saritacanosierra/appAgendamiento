@@ -1,0 +1,59 @@
+.pago-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  padding: var(--espacio-lg);
+  border-radius: 16px;
+  background: #fff;
+  color: #1c2430;
+  border: 1px solid #d5dde5;
+}
+
+.pago-plan--muro {
+  margin: var(--espacio-lg) auto;
+  width: min(100% - var(--espacio-lg), 480px);
+}
+
+.pago-plan--aviso {
+  margin-bottom: var(--espacio-lg);
+  background: #f8f1e4;
+  border-color: #e4d3b0;
+}
+
+.pago-plan__etiqueta {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a5a12;
+}
+
+.pago-plan h2,
+.pago-plan p {
+  margin: 0;
+}
+
+.pago-plan__boton {
+  min-height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: #1e3a4c;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pago-plan__boton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.pago-plan__error {
+  color: #8f2d2d;
+}
+
+.pago-plan__ok {
+  color: #1f6b3a;
+}

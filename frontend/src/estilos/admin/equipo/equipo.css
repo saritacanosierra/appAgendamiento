@@ -1,0 +1,17 @@
+.equipo-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.equipo-admin__cabecera h1 {
+  margin: 0 0 var(--espacio-sm);
+}
+
+.equipo-admin__cabecera p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie, #5c5278);
+}

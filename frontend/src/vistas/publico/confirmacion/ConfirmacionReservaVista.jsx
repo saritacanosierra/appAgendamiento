@@ -16,23 +16,25 @@ import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import '../../../estilos/publico/confirmacion/confirmacion.css';
 
 export default function ConfirmacionReservaVista() {
-  const { codigoReserva } = useParams();
+  const { codigoReserva, slug } = useParams();
   const ubicacion = useLocation();
   const { marca } = useMarca();
+  const previa = ubicacion.state?.confirmacion;
+  const previaDeEstaTienda = previa?.cita?.marca?.slug === slug ? previa : null;
 
-  const [confirmacion, setConfirmacion] = useState(ubicacion.state?.confirmacion ?? null);
-  const [cargando, setCargando] = useState(!ubicacion.state?.confirmacion);
+  const [confirmacion, setConfirmacion] = useState(previaDeEstaTienda);
+  const [cargando, setCargando] = useState(!previaDeEstaTienda);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (confirmacion) return;
 
     setCargando(true);
-    obtenerConfirmacion(codigoReserva)
+    obtenerConfirmacion(codigoReserva, slug)
       .then(setConfirmacion)
       .catch((err) => setError(err.message))
       .finally(() => setCargando(false));
-  }, [codigoReserva, confirmacion]);
+  }, [codigoReserva, slug, confirmacion]);
 
   if (cargando) return <Cargando mensaje="Cargando confirmacion..." />;
   if (error) return <MensajeError titulo="Reserva no encontrada" mensaje={error} />;
@@ -62,6 +64,12 @@ export default function ConfirmacionReservaVista() {
         <dd className="confirmacion-reserva__codigo">{cita.codigo}</dd>
         <dt>Servicio</dt>
         <dd>{cita.servicio.nombre}</dd>
+        {cita.estilista?.nombre && (
+          <>
+            <dt>Estilista</dt>
+            <dd>{cita.estilista.nombre}</dd>
+          </>
+        )}
         <dt>Fecha y hora</dt>
         <dd>{cita.fecha} · {formatearHoraLegible(cita.horaInicio)}</dd>
         <dt>Precio</dt>
@@ -87,6 +95,7 @@ export default function ConfirmacionReservaVista() {
         {whatsappReserva && (
           <BotonWhatsapp
             telefono={whatsappReserva}
+            codigoPais={marca?.codigoPais}
             anchoCompleto
             mensaje={mensajeConfirmacionCita({
               nombreMarca,

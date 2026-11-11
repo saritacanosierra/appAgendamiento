@@ -5,7 +5,8 @@ import ImagenAmpliable from '../../../compartido/componentes/imagen_ampliable/Im
 import MensajeError from '../../../compartido/componentes/mensaje_error/MensajeError';
 import { useImagenesEnContenedor } from '../../../compartido/hooks/useImagenesEnContenedor';
 import { ModalPortal } from '../../../compartido/utilidades/modalPortal';
-import { obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
+import { listarPublicidadBlog, obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
+import EspacioPublicidad from '../espacio_publicidad/EspacioPublicidad';
 import '../../../estilos/publico/blog/modal_blog_publico.css';
 
 function formatearFecha(valor) {
@@ -21,12 +22,14 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
   const { imagenAbierta } = useVisorImagen();
   const refContenido = useRef(null);
   const [publicacion, setPublicacion] = useState(null);
+  const [anuncios, setAnuncios] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!abierto || !marcaId || !slugPublicacion) {
       setPublicacion(null);
+      setAnuncios([]);
       setError(null);
       return undefined;
     }
@@ -53,6 +56,21 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
       cancelado = true;
     };
   }, [abierto, marcaId, slugPublicacion]);
+
+  useEffect(() => {
+    if (!publicacion?.id) return undefined;
+    let cancelado = false;
+    listarPublicidadBlog(publicacion.id)
+      .then((lista) => {
+        if (!cancelado) setAnuncios(lista);
+      })
+      .catch(() => {
+        if (!cancelado) setAnuncios([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [publicacion?.id]);
 
   useImagenesEnContenedor(refContenido, [publicacion?.contenido]);
 
@@ -118,6 +136,7 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
                   dangerouslySetInnerHTML={{ __html: publicacion.contenido }}
                 />
               )}
+              <EspacioPublicidad anuncios={anuncios} />
             </article>
           )}
         </div>

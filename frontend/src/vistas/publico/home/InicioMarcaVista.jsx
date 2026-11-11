@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
+import PortafolioEquipo from '../../../componentes/publico/portafolio_equipo/PortafolioEquipo';
 import {
   BotonPrincipal,
   CarruselMarca,
@@ -7,12 +9,29 @@ import {
   MensajeError,
 } from '../../../compartido/componentes';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
-import { Link, useParams } from 'react-router-dom';
+import { listarPortafolioPublico } from '../../../modulos/reservas/servicios/estilistasServicio';
+import { useParams } from 'react-router-dom';
 import '../../../estilos/publico/home/home.css';
 
 export default function InicioMarcaVista() {
   const { slug } = useParams();
   const { marca, cargando, error } = useMarca();
+  const [equipo, setEquipo] = useState([]);
+
+  useEffect(() => {
+    if (!marca?.id) return undefined;
+    let cancelado = false;
+    listarPortafolioPublico(marca.id)
+      .then((lista) => {
+        if (!cancelado) setEquipo(lista);
+      })
+      .catch(() => {
+        if (!cancelado) setEquipo([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [marca?.id]);
 
   if (cargando) return <Cargando />;
   if (error) return <MensajeError titulo="Marca no disponible" mensaje={error} />;
@@ -20,26 +39,17 @@ export default function InicioMarcaVista() {
 
   return (
     <div className="inicio-marca">
-      <EncabezadoMarca marca={marca} />
+      <EncabezadoMarca marca={marca} compacto />
+
+      <section className="inicio-marca__agendar tarjeta-app">
+        <BotonPrincipal href={RUTAS_PUBLICAS.citas(slug)} anchoCompleto>
+          Agendar cita
+        </BotonPrincipal>
+      </section>
 
       <CarruselMarca marca={marca} slug={slug} />
 
-      <div className="inicio-marca__saludo">
-        <p className="inicio-marca__bienvenida">Bienvenida</p>
-        <h2 className="inicio-marca__titulo">Tu momento de cuidado personal</h2>
-      </div>
-
-      <section className="inicio-marca__agendar tarjeta-app">
-        <p className="inicio-marca__agendar-texto">
-          Reserva en segundos y elige el horario que más te convenga.
-        </p>
-        <BotonPrincipal href={RUTAS_PUBLICAS.reservar(slug)} anchoCompleto>
-          Agendar cita
-        </BotonPrincipal>
-        <Link to={RUTAS_PUBLICAS.citas(slug)} className="inicio-marca__ver-citas">
-          Ver horarios y servicios →
-        </Link>
-      </section>
+      <PortafolioEquipo profesionales={equipo} slug={slug} compacto />
     </div>
   );
 }

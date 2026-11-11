@@ -4,7 +4,8 @@ import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { Cargando, EncabezadoMarca, ImagenAmpliable, MensajeError } from '../../../compartido/componentes';
 import { useImagenesEnContenedor } from '../../../compartido/hooks/useImagenesEnContenedor';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
-import { obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
+import { listarPublicidadBlog, obtenerBlogPublico } from '../../../modulos/blog/servicios/blogServicio';
+import EspacioPublicidad from '../../../componentes/publico/espacio_publicidad/EspacioPublicidad';
 import '../../../estilos/publico/blog_detalle/blog_detalle.css';
 
 function formatearFecha(valor) {
@@ -21,9 +22,25 @@ export default function BlogDetalleVista() {
   const { slug } = useParams();
   const { marca, cargando: cargandoMarca, error: errorMarca } = useMarca();
   const [publicacion, setPublicacion] = useState(null);
+  const [anuncios, setAnuncios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const refContenido = useRef(null);
+
+  useEffect(() => {
+    if (!publicacion?.id) return undefined;
+    let cancelado = false;
+    listarPublicidadBlog(publicacion.id)
+      .then((lista) => {
+        if (!cancelado) setAnuncios(lista);
+      })
+      .catch(() => {
+        if (!cancelado) setAnuncios([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [publicacion?.id]);
 
   useImagenesEnContenedor(refContenido, [publicacion?.contenido]);
 
@@ -42,7 +59,7 @@ export default function BlogDetalleVista() {
 
   return (
     <div className="blog-detalle">
-      <EncabezadoMarca marca={marca} />
+      <EncabezadoMarca marca={marca} compacto />
 
       <p className="blog-detalle__volver">
         <Link to={RUTAS_PUBLICAS.blog(slug)}>← Volver al blog</Link>
@@ -75,6 +92,7 @@ export default function BlogDetalleVista() {
             className="blog-detalle__contenido"
             dangerouslySetInnerHTML={{ __html: publicacion.contenido }}
           />
+          <EspacioPublicidad anuncios={anuncios} />
         </article>
       )}
     </div>

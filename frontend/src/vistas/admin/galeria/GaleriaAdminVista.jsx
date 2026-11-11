@@ -4,6 +4,7 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  EstadoVacio,
   GaleriaFiltrosAcordeon,
   ImagenAmpliable,
   InputTexto,
@@ -19,6 +20,8 @@ import {
   listarCatalogoGaleriaAdmin,
   listarGaleriaAdmin,
 } from '../../../modulos/galeria/servicios/galeriaServicio';
+import { listarEstilistasAdmin } from '../../../modulos/reservas/servicios/estilistasServicio';
+import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
 import {
   categoriasUnicas,
   etiquetaDesdeCatalogo,
@@ -40,10 +43,12 @@ function formularioVacio(catalogo) {
     activo: true,
     enTendencia: false,
     ordenVisualizacion: '0',
+    estilistaId: '',
   };
 }
 
 export default function GaleriaAdminVista() {
+  const avisos = useAvisos();
   const [disenos, setDisenos] = useState([]);
   const [catalogo, setCatalogo] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -57,6 +62,7 @@ export default function GaleriaAdminVista() {
   const [categoria, setCategoria] = useState('todas');
   const [temporada, setTemporada] = useState('todas');
   const [tendencia, setTendencia] = useState('todas');
+  const [estilistas, setEstilistas] = useState([]);
 
   const categoriasActivas = useMemo(
     () => catalogoActivoPorTipo(catalogo, 'categoria'),
@@ -77,12 +83,14 @@ export default function GaleriaAdminVista() {
     setCargando(true);
     setError(null);
     try {
-      const [disenosData, catalogoData] = await Promise.all([
+      const [disenosData, catalogoData, estilistasData] = await Promise.all([
         listarGaleriaAdmin(),
         listarCatalogoGaleriaAdmin(),
+        listarEstilistasAdmin().catch(() => []),
       ]);
       setDisenos(Array.isArray(disenosData) ? disenosData : []);
       setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
+      setEstilistas(Array.isArray(estilistasData) ? estilistasData : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -131,6 +139,7 @@ export default function GaleriaAdminVista() {
       activo: diseno.activo,
       enTendencia: Boolean(diseno.enTendencia),
       ordenVisualizacion: String(diseno.ordenVisualizacion ?? 0),
+      estilistaId: diseno.estilistaId ? String(diseno.estilistaId) : '',
     });
     setMostrarForm(true);
   }
@@ -171,13 +180,16 @@ export default function GaleriaAdminVista() {
       activo: form.activo,
       en_tendencia: form.enTendencia,
       orden_visualizacion: Number(form.ordenVisualizacion) || 0,
+      estilista_id: form.estilistaId ? Number(form.estilistaId) : null,
     };
 
     try {
       if (editandoId) {
         await actualizarDiseno(editandoId, payload);
+        avisos.exito('Diseño actualizado');
       } else {
         await crearDiseno(payload);
+        avisos.exito('Diseño guardado en la galería');
       }
       cerrarForm();
       await cargar();
@@ -303,6 +315,20 @@ export default function GaleriaAdminVista() {
                 placeholder="rosa, blanco, nude"
               />
             </CampoFormulario>
+            <CampoFormulario etiqueta="Estilista" id="gal-estilista" ayuda="Si eliges una profesional, esta foto sale en su portafolio como uno de sus mejores trabajos.">
+              <select
+                id="gal-estilista"
+                value={form.estilistaId}
+                onChange={(e) => setForm({ ...form, estilistaId: e.target.value })}
+              >
+                <option value="">Todo el salon</option>
+                {estilistas.filter((item) => item.activo).map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.nombre}
+                  </option>
+                ))}
+              </select>
+            </CampoFormulario>
             <CampoFormulario etiqueta="Orden" id="gal-orden">
               <input
                 id="gal-orden"
@@ -353,7 +379,12 @@ export default function GaleriaAdminVista() {
       {!cargando && !mostrarForm && (
         <div className="galeria-admin__grid">
           {disenos.length === 0 ? (
-            <p className="galeria-admin__vacio">No hay disenos registrados.</p>
+            <EstadoVacio
+              titulo="Aun no tienes fotos"
+              mensaje="Aun no tienes disenos en la galeria. Sube el primero para mostrarlo al reservar."
+              textoAccion={puedeCrearDiseno ? 'Subir el primer diseno' : undefined}
+              onAccion={puedeCrearDiseno ? abrirCrear : undefined}
+            />
           ) : (
             disenosFiltrados.map((diseno) => (
               <article key={diseno.id} className="galeria-admin__item">

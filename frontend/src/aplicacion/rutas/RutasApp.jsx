@@ -11,6 +11,7 @@ import {
   InicioMarcaVista,
   ReservarVista,
   GaleriaPublicaVista,
+  PortafolioVista,
   BlogListaVista,
   BlogDetalleVista,
   ConfirmacionReservaVista,
@@ -23,15 +24,17 @@ import {
   ServiciosAdminVista,
   BlogAdminVista,
   GaleriaAdminVista,
+  EquipoAdminVista,
   ConfiguracionMarcaVista,
   CarruselAdminVista,
   ReportesVista,
   AtencionVista,
-  InicioVista,
+  LandingVista,
   MarcasPlataformaVista,
   EditarMarcaPlataformaVista,
   PanelPlataformaVista,
   ReportesPlataformaVista,
+  PublicidadPlataformaVista,
 } from './vistasLazy';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../compartido/constantes';
 
@@ -40,13 +43,14 @@ export default function RutasApp() {
     <>
       <RedireccionBarraFinal />
       <Routes>
-        <Route path="/" element={<SuspenseCarga><InicioVista /></SuspenseCarga>} />
+        <Route path="/" element={<SuspenseCarga><LandingVista /></SuspenseCarga>} />
 
         <Route path="/m/:slug" element={<LayoutPublico />}>
           <Route index element={<SuspenseCarga><InicioMarcaVista /></SuspenseCarga>} />
           <Route path="citas" element={<SuspenseCarga><CitasMarcaVista /></SuspenseCarga>} />
           <Route path="reservar" element={<SuspenseCarga><ReservarVista /></SuspenseCarga>} />
           <Route path="galeria" element={<SuspenseCarga><GaleriaPublicaVista /></SuspenseCarga>} />
+          <Route path="equipo" element={<SuspenseCarga><PortafolioVista /></SuspenseCarga>} />
           <Route path="blog" element={<SuspenseCarga><BlogListaVista /></SuspenseCarga>} />
           <Route path="blog/:slugPublicacion" element={<SuspenseCarga><BlogDetalleVista /></SuspenseCarga>} />
           <Route path="confirmacion/:codigoReserva" element={<SuspenseCarga><ConfirmacionReservaVista /></SuspenseCarga>} />
@@ -71,6 +75,7 @@ export default function RutasApp() {
             <Route path="servicios" element={<SuspenseCarga><ServiciosAdminVista /></SuspenseCarga>} />
             <Route path="blog" element={<SuspenseCarga><BlogAdminVista /></SuspenseCarga>} />
             <Route path="galeria" element={<SuspenseCarga><GaleriaAdminVista /></SuspenseCarga>} />
+            <Route path="equipo" element={<SuspenseCarga><EquipoAdminVista /></SuspenseCarga>} />
             <Route path="configuracion-marca" element={<SuspenseCarga><ConfiguracionMarcaVista /></SuspenseCarga>} />
             <Route path="carrusel-inicio" element={<SuspenseCarga><CarruselAdminVista /></SuspenseCarga>} />
           </Route>
@@ -92,6 +97,7 @@ export default function RutasApp() {
                 <Route path="marcas" element={<SuspenseCarga><MarcasPlataformaVista /></SuspenseCarga>} />
                 <Route path="marcas/:id" element={<SuspenseCarga><EditarMarcaPlataformaVista /></SuspenseCarga>} />
                 <Route path="reportes" element={<SuspenseCarga><ReportesPlataformaVista /></SuspenseCarga>} />
+                <Route path="publicidad" element={<SuspenseCarga><PublicidadPlataformaVista /></SuspenseCarga>} />
               </Route>
             </Route>
 
@@ -107,7 +113,7 @@ export default function RutasApp() {
           </>
         )}
 
-        <Route path="*" element={<SuspenseCarga><InicioVista /></SuspenseCarga>} />
+        <Route path="*" element={<SuspenseCarga><LandingVista /></SuspenseCarga>} />
       </Routes>
     </>
   );

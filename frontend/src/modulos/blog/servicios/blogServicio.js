@@ -1,5 +1,11 @@
 import { peticionAdmin, peticionPublica } from '../../../compartido/utilidades/apiCliente';
 
+export async function listarPublicidadBlog(publicacionId) {
+  if (!publicacionId) return [];
+  const respuesta = await peticionPublica(`/publicidad/blog?publicacion_id=${encodeURIComponent(publicacionId)}`);
+  return respuesta.datos.anuncios ?? [];
+}
+
 export async function listarBlogPublico(marcaId) {
   const respuesta = await peticionPublica(`/marcas/${marcaId}/blog`);
   return respuesta.datos;

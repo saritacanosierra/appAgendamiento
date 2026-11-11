@@ -7,7 +7,7 @@ import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
 import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { MarcaRepositorio } from '../repositorios/index.js';
-import { requerido, telefono as validarTelefono, email, validar } from '../utilidades/validador.js';
+import { requerido, telefono as validarTelefono, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
@@ -36,16 +36,14 @@ export class ClientePerfilServicio {
     this.seleccionGaleriaRepo = deps.seleccionGaleriaRepo ?? new CitaDisenosGaleriaRepositorio();
   }
 
-  normalizarCredenciales({ marcaId, telefono, correo }) {
+  normalizarCredenciales({ marcaId, telefono }) {
     const tel = texto(telefono).replace(/\D+/g, '');
-    const correoNorm = texto(correo).trim().toLowerCase();
 
     const errores = validar(
-      { marca_id: marcaId, telefono: tel, correo: correoNorm },
+      { marca_id: marcaId, telefono: tel },
       {
         marca_id: (v) => (v ? null : 'La marca es obligatoria.'),
         telefono: (v) => requerido(v, 'telefono') ?? validarTelefono(v),
-        correo: (v) => requerido(v, 'correo') ?? email(v),
       }
     );
 
@@ -53,7 +51,7 @@ export class ClientePerfilServicio {
       return { error: 'Datos incorrectos.', codigoHttp: 422 };
     }
 
-    return { marcaId, telefono: tel, correo: correoNorm };
+    return { marcaId, telefono: tel };
   }
 
   async verificarMarca(marcaId) {
@@ -64,8 +62,8 @@ export class ClientePerfilServicio {
     return { marca };
   }
 
-  async autenticarCliente(marcaId, telefono, correo) {
-    const cliente = await this.clienteRepo.buscarPorTelefonoYCorreo(marcaId, telefono, correo);
+  async autenticarCliente(marcaId, telefono) {
+    const cliente = await this.clienteRepo.buscarPorTelefono(marcaId, telefono);
     if (!cliente) {
       return { error: 'Datos incorrectos.', codigoHttp: 404 };
     }
@@ -95,11 +93,7 @@ export class ClientePerfilServicio {
     const marcaOk = await this.verificarMarca(credenciales.marcaId);
     if (marcaOk.error) return marcaOk;
 
-    const auth = await this.autenticarCliente(
-      credenciales.marcaId,
-      credenciales.telefono,
-      credenciales.correo
-    );
+    const auth = await this.autenticarCliente(credenciales.marcaId, credenciales.telefono);
     if (auth.error) return auth;
 
     const tipo = texto(tipoEntrada);
@@ -150,11 +144,7 @@ export class ClientePerfilServicio {
     const marcaOk = await this.verificarMarca(credenciales.marcaId);
     if (marcaOk.error) return marcaOk;
 
-    const auth = await this.autenticarCliente(
-      credenciales.marcaId,
-      credenciales.telefono,
-      credenciales.correo
-    );
+    const auth = await this.autenticarCliente(credenciales.marcaId, credenciales.telefono);
     if (auth.error) return auth;
 
     const tipo = texto(tipoEntrada);

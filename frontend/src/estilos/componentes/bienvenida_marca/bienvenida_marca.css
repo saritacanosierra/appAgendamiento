@@ -1,0 +1,173 @@
+.bienvenida-marca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.bienvenida-marca__portada {
+  padding: var(--espacio-xl) var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  color: #3c3568;
+  background:
+    radial-gradient(circle at 100% 0%, #f7c2d8 0%, transparent 48%),
+    radial-gradient(circle at 0% 100%, #d9c6f0 0%, transparent 50%),
+    linear-gradient(160deg, #ffffff 0%, #fde8f2 46%, #efe4f8 100%);
+  box-shadow: 0 18px 40px rgba(60, 53, 104, 0.12);
+}
+
+.bienvenida-marca__etiqueta {
+  margin: 0 0 var(--espacio-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3c3568;
+}
+
+.bienvenida-marca__portada h1 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: clamp(1.85rem, 7vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.bienvenida-marca__texto {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.55;
+  color: #5c5278;
+}
+
+.bienvenida-marca__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  min-width: 0;
+}
+
+.bienvenida-marca__preview-marco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 148px;
+  padding: var(--espacio-lg);
+  border-radius: 28px;
+  border: 1px solid color-mix(in srgb, #e7d4f2 70%, #fff);
+  background:
+    linear-gradient(160deg, #ffffff 0%, #fde8f2 42%, #efe4f8 100%);
+  box-shadow: 0 12px 32px rgba(60, 53, 104, 0.08);
+}
+
+.bienvenida-marca__preview-marco span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-texto-muted-superficie);
+}
+
+.bienvenida-marca__preview-marco strong {
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: var(--color-texto-superficie);
+}
+
+.bienvenida-marca__preview-marco p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+}
+
+.bienvenida-marca__preview-enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-sm);
+  min-height: 48px;
+  font-weight: 700;
+  color: var(--color-acento-superficie);
+  text-decoration: none;
+}
+
+.bienvenida-marca__pasos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.bienvenida-marca__paso {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-md);
+  min-height: 72px;
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid var(--color-borde-superficie);
+  background: var(--color-superficie);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--sombra-card);
+}
+
+.bienvenida-marca__paso-numero {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-principal) 12%, var(--color-superficie));
+  color: var(--color-acento-superficie);
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.bienvenida-marca__paso-icono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: #efe4f8;
+  color: var(--color-acento-superficie);
+  flex-shrink: 0;
+}
+
+.bienvenida-marca__paso-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.bienvenida-marca__paso-texto strong {
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-superficie);
+}
+
+.bienvenida-marca__paso-texto span {
+  font-size: 0.8rem;
+  color: var(--color-texto-muted-superficie);
+}
+
+.bienvenida-marca__paso-flecha {
+  color: var(--color-texto-muted-superficie);
+  flex-shrink: 0;
+}
+
+.bienvenida-marca__secundario {
+  min-height: 48px;
+  border: none;
+  background: transparent;
+  color: var(--color-texto-muted-superficie);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

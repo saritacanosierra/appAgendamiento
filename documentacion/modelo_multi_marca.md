@@ -24,6 +24,7 @@ Todas estas tablas incluyen `marca_id`:
 - `notificaciones`
 - `configuraciones_marca`
 - `usuarios` (admin pertenece a una marca)
+- `estilistas` (portafolio del equipo: foto, habilidades y trabajos de esa marca)
 
 ## Reglas de confidencialidad
 
@@ -41,6 +42,20 @@ SELECT * FROM clientes WHERE marca_id = :marca_id ORDER BY nombre;
 -- Incorrecto (nunca en produccion)
 SELECT * FROM clientes WHERE telefono = :telefono;
 ```
+
+## Tres puertas
+
+| Rol | Quien | Entrada | Sesion |
+|-----|-------|---------|--------|
+| Superadmin | Duena de la app | `/plataforma` | Token propio, sin `marca_id`. Ve las tiendas; al entrar a una abre solo esa |
+| Admin | Duena de una marca | `/admin` | Token de su marca. `marca_id` sale de la sesion |
+| Cliente | Quien agenda | `/m/{slug}` | Sin cuenta ni token. Solo esa tienda, con su WhatsApp |
+
+Un token de un rol no abre las rutas de otro. El mismo telefono en dos tiendas son dos clientes.
+
+Una marca nueva entra a un inicio generico: portada con su nombre, paleta blanco, rosa, lila y morado oscuro, y tres pasos en el panel (estilo, servicios, foto). No hereda contenido de otra tienda. Al crear el primer servicio, el panel pasa a la agenda del dia.
+
+La publicidad del blog es de la plataforma, no de la marca. Solo el superadmin crea campanas en `/plataforma/publicidad`. Cada campana es una imagen que abre un enlace, o un enlace suelto, y se asigna a una o varias publicaciones. No usa `marca_id` y no sale en el resto del blog.
 
 ## Usuarios y roles
 
@@ -68,7 +83,9 @@ Campos de control por empresa:
 | `activa` | Empresa visible o suspendida |
 | `plan_habilitado` | Si puede operar (reservas, panel) segun plan contratado |
 
-Si `activa` o `plan_habilitado` estan off, el admin de marca no puede iniciar sesion y las reservas publicas se bloquean.
+Si `activa` esta off, el admin no entra y la agenda publica se bloquea. Si el plan vencio, las clientas no reservan, pero la administradora si entra para pagar $25.000 con Wompi y renovar un mes. Un salon nuevo, creado en la landing, tiene 8 dias gratis.
+
+La landing `/` es la puerta de la web: registro del salon, entrada de administradora, entrada de clienta por el nombre corto, y entrada de la duena de la app.
 
 ## Modo soporte (superadmin)
 

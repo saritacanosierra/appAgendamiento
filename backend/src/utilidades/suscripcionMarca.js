@@ -52,6 +52,14 @@ export function formatearFechaISO(date) {
   return date.toISOString().slice(0, 10);
 }
 
+export function sumarDiasISO(fechaInicio, dias) {
+  const inicio = parseFechaLocal(fechaInicio);
+  if (!inicio) return null;
+  const vence = new Date(inicio);
+  vence.setUTCDate(vence.getUTCDate() + dias);
+  return formatearFechaISO(vence);
+}
+
 export function calcularVencimiento(fechaInicio, planTipo) {
   const inicio = parseFechaLocal(fechaInicio);
   const meses = PLAN_TIPOS[planTipo]?.meses ?? 1;
@@ -109,7 +117,14 @@ export function mapearEstadoSuscripcion(fila) {
     porVencer: tieneVigencia && !vencido && diasRestantes != null && diasRestantes <= 7,
     vigente: tieneVigencia && !vencido && Boolean(fila.plan_habilitado),
     configurado: tieneVigencia && Boolean(fila.plan_tipo),
+    prueba: esPeriodoDePrueba(fila),
   };
+}
+
+function esPeriodoDePrueba(fila) {
+  if (!fila?.plan_inicio_en || !fila?.plan_vence_en || fila.plan_ultima_facturacion_en) return false;
+  const dias = diasEntre(fila.plan_inicio_en, fila.plan_vence_en);
+  return dias != null && dias > 0 && dias <= 8;
 }
 
 export function resolverDiasAvisoSuscripcion() {

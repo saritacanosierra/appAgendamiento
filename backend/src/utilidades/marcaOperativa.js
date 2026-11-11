@@ -30,3 +30,10 @@ export function verificarMarcaOperativa(marca) {
   }
   return { ok: true };
 }
+
+/** El plan ya vencio y la duena puede entrar solo a pagar. Una suspension manual no se paga por aqui. */
+export function planSePuedePagar(marca, operativa) {
+  if (!operativa || operativa.ok) return false;
+  if (operativa.codigo === 'plan_vencido') return true;
+  return operativa.codigo === 'plan_inactivo' && planEstaVencido(marca);
+}

@@ -1,0 +1,24 @@
+.prueba-social {
+  margin-top: var(--espacio-lg);
+}
+
+.prueba-social h3 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.prueba-social__grilla {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--espacio-sm);
+}
+
+.prueba-social__grilla img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radio-borde);
+  background: var(--color-fondo);
+}

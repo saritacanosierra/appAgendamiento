@@ -9,7 +9,7 @@ import { publicarImagenSubida } from '../servicios/almacenamientoArchivosServici
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const directorioSubidas = path.resolve(__dirname, '../../subidas');
 
-const CARPETAS_PERMITIDAS = new Set(['galeria', 'blog', 'logos', 'carrusel', 'servicios']);
+const CARPETAS_PERMITIDAS = new Set(['galeria', 'blog', 'logos', 'carrusel', 'servicios', 'publicidad', 'equipo']);
 
 const MIME_POR_EXTENSION = {
   '.jpg': 'image/jpeg',
@@ -44,7 +44,8 @@ function almacenamiento(carpeta) {
       const base = path.basename(file.originalname, ext)
         .replace(/[^a-z0-9]+/gi, '-')
         .slice(0, 40) || 'archivo';
-      const sufijo = `${req.marcaId}-${Date.now()}`;
+      const dueno = req.marcaId ? String(req.marcaId) : 'plataforma';
+      const sufijo = `${dueno}-${Date.now()}`;
       cb(null, `${base}-${sufijo}${ext}`);
     },
   });

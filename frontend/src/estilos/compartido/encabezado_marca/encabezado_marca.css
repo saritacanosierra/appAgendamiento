@@ -194,6 +194,15 @@ a.encabezado-marca__contacto-chip:hover {
   min-width: 0;
 }
 
+.encabezado-marca--compacto .encabezado-marca__pagina {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-texto);
+}
+
 .encabezado-marca--compacto .encabezado-marca__nombre {
   margin: 0;
   font-size: 0.875rem;
@@ -218,8 +227,8 @@ a.encabezado-marca__contacto-chip:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.125rem;
-  height: 2.125rem;
+  width: 48px;
+  height: 48px;
   padding: 0;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--color-texto) 14%, transparent);
@@ -295,10 +304,5 @@ a.encabezado-marca__contacto-chip:hover {
 
   .encabezado-marca--compacto .encabezado-marca__contacto-iconos {
     gap: 0.35rem;
-  }
-
-  .encabezado-marca--compacto .encabezado-marca__icono-btn {
-    width: 2rem;
-    height: 2rem;
   }
 }

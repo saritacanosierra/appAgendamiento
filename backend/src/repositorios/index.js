@@ -124,7 +124,7 @@ export class ServicioRepositorio {
 export class MarcaRepositorio {
   async buscarPorSlug(slug) {
     const [filas] = await pool.execute(
-      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia
+      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia, c.configuracion_json
        FROM marcas m
        LEFT JOIN configuraciones_marca c ON c.marca_id = m.id
        WHERE m.slug = ? AND m.activa = 1
@@ -136,7 +136,7 @@ export class MarcaRepositorio {
 
   async buscarPorId(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia
+      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia, c.configuracion_json
        FROM marcas m
        LEFT JOIN configuraciones_marca c ON c.marca_id = m.id
        WHERE m.id = ? AND m.activa = 1
@@ -148,7 +148,7 @@ export class MarcaRepositorio {
 
   async buscarPorIdCompleto(marcaId) {
     const [filas] = await pool.execute(
-      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia
+      `SELECT m.*, c.color_fondo, c.color_texto, c.tipografia, c.configuracion_json
        FROM marcas m
        LEFT JOIN configuraciones_marca c ON c.marca_id = m.id
        WHERE m.id = ?

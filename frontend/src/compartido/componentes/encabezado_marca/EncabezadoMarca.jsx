@@ -126,7 +126,9 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
   const whatsappLimpio = marca.whatsapp?.trim() || null;
   const direccionLimpia = marca.direccion?.trim() || null;
   const numeroWhatsapp = whatsappLimpio || telefonoLimpio;
-  const enlaceWhatsapp = numeroWhatsapp ? construirEnlaceWhatsapp(numeroWhatsapp) : null;
+  const enlaceWhatsapp = numeroWhatsapp
+    ? construirEnlaceWhatsapp(numeroWhatsapp, { codigoPais: marca.codigoPais })
+    : null;
   const enlaceTelefono = telefonoLimpio ? `tel:${digitosTelefono(telefonoLimpio)}` : null;
   const tieneContacto = Boolean(telefonoLimpio || direccionLimpia || enlaceWhatsapp);
 
@@ -178,7 +180,7 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
             )}
           </div>
           <div className="encabezado-marca__identidad">
-            <p className="encabezado-marca__nombre">{marca.nombreComercial}</p>
+            <h1 className="encabezado-marca__nombre">{marca.nombreComercial}</h1>
           </div>
           {tieneContacto && (
             <ContactoCompacto
@@ -190,6 +192,7 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
             />
           )}
         </div>
+        {titulo && <p className="encabezado-marca__pagina">{titulo}</p>}
 
         <ModalConfirmacion
           abierto={Boolean(modalContacto)}

@@ -19,10 +19,9 @@ export async function iniciarSesionGaleria(req, res) {
 
 export async function listarSeleccionesGaleria(req, res) {
   const marcaId = entero(req.params.marca_id);
-  const citaId = entero(req.query.cita_id ?? req.query.citaId);
   const telefono = texto(req.query.telefono);
 
-  const resultado = await galeriaSeleccionServicio.listarSelecciones(marcaId, citaId, telefono);
+  const resultado = await galeriaSeleccionServicio.listarSelecciones(marcaId, telefono);
 
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
@@ -33,13 +32,11 @@ export async function listarSeleccionesGaleria(req, res) {
 
 export async function agregarSeleccionGaleria(req, res) {
   const marcaId = entero(req.params.marca_id);
-  const citaId = entero(req.body?.cita_id ?? req.body?.citaId);
   const disenoId = entero(req.body?.diseno_id ?? req.body?.disenoId);
   const telefono = texto(req.body?.telefono);
 
   const resultado = await galeriaSeleccionServicio.agregarSeleccion(
     marcaId,
-    citaId,
     disenoId,
     telefono
   );
@@ -53,13 +50,11 @@ export async function agregarSeleccionGaleria(req, res) {
 
 export async function quitarSeleccionGaleria(req, res) {
   const marcaId = entero(req.params.marca_id);
-  const citaId = entero(req.body?.cita_id ?? req.body?.citaId);
   const disenoId = entero(req.body?.diseno_id ?? req.body?.disenoId);
   const telefono = texto(req.body?.telefono);
 
   const resultado = await galeriaSeleccionServicio.quitarSeleccion(
     marcaId,
-    citaId,
     disenoId,
     telefono
   );

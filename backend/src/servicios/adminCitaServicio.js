@@ -8,6 +8,7 @@ import {
   generarCodigoConfirmacion,
 } from '../repositorios/index.js';
 import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { SeleccionesGaleriaTelefonoRepositorio } from '../repositorios/seleccionesGaleriaTelefonoRepositorio.js';
 import { adjuntarDisenosGaleriaACitas } from '../utilidades/adjuntarDisenosGaleria.js';
 import {
   mapearCitaAdmin,
@@ -31,6 +32,7 @@ export class AdminCitaServicio {
     this.marcaRepo = deps.marcaRepo ?? new MarcaRepositorio();
     this.solicitudRepo = deps.solicitudRepo ?? new SolicitudReagendamientoRepositorio();
     this.seleccionRepo = deps.seleccionRepo ?? new CitaDisenosGaleriaRepositorio();
+    this.seleccionTelefonoRepo = deps.seleccionTelefonoRepo ?? new SeleccionesGaleriaTelefonoRepositorio();
   }
 
   async listarCitas(marcaId, filtros = {}) {
@@ -384,12 +386,19 @@ export class AdminClienteServicio {
       return { error: 'Ya existe otro cliente con ese telefono en esta marca.', codigoHttp: 409 };
     }
 
+    const telefonoAnterior = texto(existente.telefono).replace(/\D+/g, '');
+
     await this.clienteRepo.actualizarAdmin(marcaId, clienteId, {
       nombre,
       telefono: tel,
       correo,
       notas,
     });
+
+    if (telefonoAnterior && telefonoAnterior !== tel) {
+      await this.seleccionRepo.reasignarTelefono(marcaId, telefonoAnterior, tel);
+      await this.seleccionTelefonoRepo.reasignarTelefono(marcaId, telefonoAnterior, tel);
+    }
 
     const cliente = mapearClienteAdmin(await this.clienteRepo.buscarPorId(marcaId, clienteId));
     return { cliente };

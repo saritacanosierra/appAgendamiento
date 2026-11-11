@@ -30,6 +30,10 @@
   color: var(--color-texto-sobre-principal);
 }
 
+.boton-principal--principal:hover:not(:disabled) {
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-principal) 32%, transparent);
+}
+
 .boton-principal--secundario {
   background: var(--color-superficie);
   color: var(--color-texto-superficie);

@@ -42,13 +42,27 @@ export function mensajeConfirmacionCita({ nombreMarca, servicio, fecha, hora, co
   return partes.join(' ');
 }
 
-export function mensajeConsultaCita({ nombreMarca, servicio, fecha, hora, codigo }) {
-  const nombre = nombreMarca?.trim() || 'su negocio';
-  const partes = [
-    `Hola, tengo una consulta sobre mi cita en ${nombre}.`,
-    servicio ? `Servicio: ${servicio}.` : null,
-    fecha && hora ? `Fecha: ${fecha} a las ${hora}.` : null,
-    codigo ? `Codigo: ${codigo}.` : null,
-  ].filter(Boolean);
-  return partes.join(' ');
+export function mensajeConsultaCita({
+  nombreMarca,
+  nombreCliente,
+  telefonoCliente,
+  servicio,
+  fecha,
+  hora,
+  codigo,
+}) {
+  const salon = nombreMarca?.trim() || 'su negocio';
+  const cliente = nombreCliente?.trim();
+  const celular = String(telefonoCliente ?? '').trim();
+  const lineas = [
+    cliente ? `Hola, soy ${cliente}.` : `Hola, tengo una consulta sobre mi cita en ${salon}.`,
+    celular ? `Celular: ${celular}` : null,
+    cliente ? `Tengo una consulta sobre mi cita en ${salon}.` : null,
+    '',
+    servicio ? `Servicio: ${servicio}` : null,
+    fecha && hora ? `Fecha: ${fecha} a las ${hora}` : null,
+    codigo ? `Codigo: ${codigo}` : null,
+  ].filter((linea) => linea !== null);
+
+  return lineas.join('\n');
 }

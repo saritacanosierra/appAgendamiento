@@ -124,12 +124,6 @@
   padding-bottom: calc(var(--altura-nav-admin-movil) + var(--espacio-md));
 }
 
-@media (min-width: 960px) {
-  .layout-admin__main {
-    padding-bottom: 0;
-  }
-}
-
 .layout-admin__topbar {
   display: flex;
   align-items: center;

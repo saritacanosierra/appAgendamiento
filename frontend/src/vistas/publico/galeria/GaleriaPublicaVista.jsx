@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import {
   Cargando,
@@ -26,29 +25,14 @@ import {
   filtrarDisenosGaleria,
   temporadasUnicas,
 } from '../../../modulos/galeria/utilidades/filtrarDisenosGaleria';
-import { formatearFechaLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import {
   guardarTelefonoLocalMarca,
   leerTelefonoLocalMarca,
 } from '../../../modulos/reservas/utilidades/credencialesMiCita';
 import '../../../estilos/publico/galeria/galeria.css';
 
-function elegirCitaInicial(citas, citaParam, servicioParam) {
-  if (citaParam) {
-    return citas.find((c) => String(c.id) === String(citaParam)) ?? null;
-  }
-  if (servicioParam) {
-    return citas.find((c) => String(c.servicio.id) === String(servicioParam)) ?? null;
-  }
-  return null;
-}
-
 export default function GaleriaPublicaVista() {
   const { marca, cargando: cargandoMarca, error: errorMarca } = useMarca();
-  const [searchParams] = useSearchParams();
-  const citaParam = searchParams.get('cita');
-  const servicioParam = searchParams.get('servicio');
-
   const [disenos, setDisenos] = useState([]);
   const [catalogo, setCatalogo] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -62,15 +46,12 @@ export default function GaleriaPublicaVista() {
   const [restaurandoSesion, setRestaurandoSesion] = useState(true);
   const [modalCargando, setModalCargando] = useState(false);
   const [modalError, setModalError] = useState(null);
-  const [citasDisponibles, setCitasDisponibles] = useState([]);
-  const [citaPendiente, setCitaPendiente] = useState(null);
-  const [citaActiva, setCitaActiva] = useState(null);
   const [telefonoSesion, setTelefonoSesion] = useState('');
   const [seleccionados, setSeleccionados] = useState([]);
   const [toggleandoId, setToggleandoId] = useState(null);
   const sesionRestauradaRef = useRef(false);
 
-  const sesionActiva = Boolean(citaActiva && telefonoSesion);
+  const sesionActiva = Boolean(telefonoSesion);
   const telefonoGuardado = useMemo(
     () => (marca?.id ? leerTelefonoLocalMarca(marca.id) : null),
     [marca?.id]
@@ -117,23 +98,10 @@ export default function GaleriaPublicaVista() {
     || temporada !== 'todas'
     || tendencia !== 'todas';
 
-  const cargarSelecciones = useCallback(async (telefono, cita) => {
-    const datos = await listarSeleccionesGaleria(marca.id, {
-      telefono,
-      citaId: cita.id,
-    });
+  const cargarSelecciones = useCallback(async (telefono) => {
+    const datos = await listarSeleccionesGaleria(marca.id, { telefono });
     setSeleccionados(datos.disenoIds ?? []);
   }, [marca?.id]);
-
-  async function activarSesion(telefono, cita) {
-    setTelefonoSesion(telefono);
-    setCitaActiva(cita);
-    setModalAccesoAbierto(false);
-    setModalError(null);
-    setCitasDisponibles([]);
-    setCitaPendiente(null);
-    await cargarSelecciones(telefono, cita);
-  }
 
   async function iniciarSesionDesdeTelefono(telefonoInput, { silencioso = false } = {}) {
     if (!marca?.id) return false;
@@ -145,19 +113,11 @@ export default function GaleriaPublicaVista() {
 
     try {
       const datos = await iniciarSesionGaleria(marca.id, telefonoInput);
-      const citas = datos.citas ?? [];
       guardarTelefonoLocalMarca(marca.id, datos.telefono);
       setTelefonoSesion(datos.telefono);
-
-      if (citas.length === 1) {
-        await activarSesion(datos.telefono, citas[0]);
-        return true;
-      }
-
-      setCitasDisponibles(citas);
-      const preseleccion = elegirCitaInicial(citas, citaParam, servicioParam) ?? citas[0];
-      setCitaPendiente(preseleccion);
-      setModalAccesoAbierto(true);
+      setModalAccesoAbierto(false);
+      setModalError(null);
+      await cargarSelecciones(datos.telefono);
       return true;
     } catch (err) {
       if (silencioso) {
@@ -167,9 +127,8 @@ export default function GaleriaPublicaVista() {
         setModalError(err.message);
         setModalAccesoAbierto(true);
       }
-      setCitasDisponibles([]);
       setTelefonoSesion('');
-      setCitaPendiente(null);
+      setSeleccionados([]);
       return false;
     } finally {
       if (!silencioso) {
@@ -205,61 +164,23 @@ export default function GaleriaPublicaVista() {
     return () => {
       cancelado = true;
     };
-  }, [marca?.id, citaParam, servicioParam]);
+  }, [marca?.id]);
 
   async function manejarTelefonoSubmit(telefonoInput) {
     await iniciarSesionDesdeTelefono(telefonoInput);
   }
 
-  async function manejarConfirmarCitaDesdeLista() {
-    if (!citaPendiente) {
-      setModalError('Elige una cita para continuar.');
-      return;
-    }
-    if (!telefonoSesion) {
-      setModalError('Vuelve a ingresar tu telefono.');
-      return;
-    }
-
-    setModalCargando(true);
-    setModalError(null);
-
-    try {
-      await activarSesion(telefonoSesion, citaPendiente);
-    } catch (err) {
-      setModalError(err.message);
-    } finally {
-      setModalCargando(false);
-    }
-  }
-
   function cerrarModalAcceso() {
     setModalAccesoAbierto(false);
-    if (!citaActiva) {
-      setCitasDisponibles([]);
-      setCitaPendiente(null);
-      setTelefonoSesion('');
+    if (!telefonoSesion) {
       setModalError(null);
     }
   }
 
-  function cerrarSesionGaleria() {
-    setCitaActiva(null);
+  function cambiarCelular() {
     setTelefonoSesion('');
     setSeleccionados([]);
-    setCitasDisponibles([]);
-    setCitaPendiente(null);
     setModalError(null);
-    setModalAccesoAbierto(false);
-  }
-
-  async function cambiarCita() {
-    cerrarSesionGaleria();
-    const tel = telefonoGuardado ?? telefonoSesion;
-    if (tel) {
-      await iniciarSesionDesdeTelefono(tel);
-      return;
-    }
     setModalAccesoAbierto(true);
   }
 
@@ -278,7 +199,6 @@ export default function GaleriaPublicaVista() {
     try {
       const payload = {
         telefono: telefonoSesion,
-        citaId: citaActiva.id,
         disenoId,
       };
 
@@ -303,53 +223,34 @@ export default function GaleriaPublicaVista() {
         abierto={modalAccesoAbierto}
         cargando={modalCargando}
         error={modalError}
-        citas={citasDisponibles}
-        citaSeleccionadaId={citaPendiente?.id ?? null}
-        telefonoInicial={telefonoGuardado ?? ''}
-        mostrarTelefono={!telefonoGuardado}
+        telefonoInicial={telefonoSesion || telefonoGuardado || ''}
         onTelefonoSubmit={manejarTelefonoSubmit}
-        onElegirCita={setCitaPendiente}
-        onConfirmarCita={manejarConfirmarCitaDesdeLista}
         onCerrar={cerrarModalAcceso}
       />
 
-      <EncabezadoMarca marca={marca} titulo="Galeria de disenos" />
+      <EncabezadoMarca marca={marca} compacto titulo="Galería" />
 
       {sesionActiva && (
         <section className="galeria-publica__sesion tarjeta-app">
           <div>
-            <p className="galeria-publica__sesion-etiqueta">Guardando para tu cita</p>
-            <strong>{citaActiva.servicio.nombre}</strong>
-            <span>
-              {formatearFechaLegible(citaActiva.fecha)} · {citaActiva.horaInicio}
-            </span>
+            <p className="galeria-publica__sesion-etiqueta">Guardando en tu celular</p>
+            <strong>{telefonoSesion}</strong>
             <p className="galeria-publica__sesion-ayuda">
-              Toca el corazon en los disenos que te gusten. Se asocian a tu reserva.
+              Toca el corazon en las fotos que te gusten. Cuando agendes, quedan en tu cita.
             </p>
           </div>
-          <button type="button" className="galeria-publica__sesion-cambiar" onClick={cambiarCita}>
-            Cambiar cita
+          <button type="button" className="galeria-publica__sesion-cambiar" onClick={cambiarCelular}>
+            Cambiar celular
           </button>
         </section>
       )}
 
       {!sesionActiva && !modalAccesoAbierto && !restaurandoSesion && (
         <p className="galeria-publica__aviso-sesion">
-          {telefonoGuardado ? (
-            <>
-              <button type="button" onClick={() => iniciarSesionDesdeTelefono(telefonoGuardado)}>
-                Vincular tu cita
-              </button>
-              {' '}para guardar disenos en tu reserva.
-            </>
-          ) : (
-            <>
-              <button type="button" onClick={abrirModalAcceso}>
-                Ingresa tu telefono
-              </button>
-              {' '}para guardar disenos en tu cita reservada.
-            </>
-          )}
+          <button type="button" onClick={abrirModalAcceso}>
+            Ingresa tu celular
+          </button>
+          {' '}para guardar las fotos que te gusten. No necesitas tener una cita.
         </p>
       )}
 
@@ -416,7 +317,7 @@ export default function GaleriaPublicaVista() {
                       aria-label={
                         seleccionado
                           ? `Quitar ${diseno.titulo} de tu seleccion`
-                          : `Guardar ${diseno.titulo} para tu cita`
+                          : `Guardar ${diseno.titulo} en tu celular`
                       }
                       aria-pressed={seleccionado}
                     >

@@ -1,4 +1,4 @@
-import { peticionPlataforma } from '../../../compartido/utilidades/apiCliente';
+import { peticionPlataforma, peticionPlataformaFormData } from '../../../compartido/utilidades/apiCliente';
 
 export async function obtenerResumenPlataforma() {
   const respuesta = await peticionPlataforma('/plataforma/resumen');
@@ -69,6 +69,39 @@ export async function renovarSuscripcionMarcaPlataforma(id, datos) {
     body: JSON.stringify(datos),
   });
   return respuesta.datos;
+}
+
+export async function subirImagenPublicidad(archivo) {
+  const formData = new FormData();
+  formData.append('archivo', archivo);
+  const respuesta = await peticionPlataformaFormData('/plataforma/subidas/publicidad', formData);
+  return respuesta.datos.ruta;
+}
+
+export async function listarPublicacionesParaPublicidad() {
+  const respuesta = await peticionPlataforma('/plataforma/publicidad/publicaciones');
+  return respuesta.datos.publicaciones;
+}
+
+export async function listarPublicidadPlataforma() {
+  const respuesta = await peticionPlataforma('/plataforma/publicidad');
+  return respuesta.datos.anuncios;
+}
+
+export async function crearPublicidadPlataforma(datos) {
+  const respuesta = await peticionPlataforma('/plataforma/publicidad', {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos.anuncio;
+}
+
+export async function actualizarPublicidadPlataforma(id, datos) {
+  const respuesta = await peticionPlataforma(`/plataforma/publicidad/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos.anuncio;
 }
 
 export async function listarHistorialSuscripcionMarcaPlataforma(id) {

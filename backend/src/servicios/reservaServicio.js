@@ -14,7 +14,10 @@ import { mapearMarcaPublica } from './marcaServicio.js';
 import { sincronizarFavoritosDesdeDisenosCita } from '../utilidades/sincronizarFavoritoDisenoGaleria.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { esFechaValida, esHoraValida } from '../utilidades/fechaHora.js';
-import { requerido, telefono, email, validar } from '../utilidades/validador.js';
+import { email, requerido, telefono, validar, whatsappCliente } from '../utilidades/validador.js';
+import { EstilistaRepositorio } from '../repositorios/estilistaRepositorio.js';
+import { CitaDisenosGaleriaRepositorio } from '../repositorios/citaDisenosGaleriaRepositorio.js';
+import { SeleccionesGaleriaTelefonoRepositorio } from '../repositorios/seleccionesGaleriaTelefonoRepositorio.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 import {
   calcularHorariosDisponibles,
@@ -39,9 +42,37 @@ export class ReservaServicio {
     this.solicitudRepo = deps.solicitudRepo ?? new SolicitudReagendamientoRepositorio();
     this.calendario = deps.calendario ?? new CalendarioServicio();
     this.clientePerfil = deps.clientePerfil ?? new ClientePerfilServicio();
+    this.estilistaRepo = deps.estilistaRepo ?? new EstilistaRepositorio();
+    this.seleccionRepo = deps.seleccionRepo ?? new CitaDisenosGaleriaRepositorio();
+    this.seleccionTelefonoRepo = deps.seleccionTelefonoRepo ?? new SeleccionesGaleriaTelefonoRepositorio();
   }
 
-  async obtenerDisponibilidad(marcaId, servicioId, fecha) {
+  async resolverEstilistaReserva(marcaId, estilistaIdEntrada) {
+    const activas = await this.estilistaRepo.listarActivos(marcaId);
+    if (activas.length === 0) return { estilistaId: null, estilista: null };
+
+    const estilistaId = entero(estilistaIdEntrada);
+    if (!estilistaId) {
+      return {
+        error: 'Elige una estilista.',
+        errores: { estilista_id: 'Elige una estilista para continuar.' },
+        codigoHttp: 422,
+      };
+    }
+
+    const estilista = activas.find((fila) => fila.id === estilistaId);
+    if (!estilista) {
+      return {
+        error: 'La estilista no esta disponible en esta marca.',
+        errores: { estilista_id: 'Elige una estilista de la lista.' },
+        codigoHttp: 422,
+      };
+    }
+
+    return { estilistaId, estilista };
+  }
+
+  async obtenerDisponibilidad(marcaId, servicioId, fecha, estilistaIdEntrada = null) {
     if (!esFechaValida(fecha)) {
       return { error: 'Fecha invalida.', codigoHttp: 422 };
     }
@@ -68,7 +99,11 @@ export class ReservaServicio {
       return { horarios: [], mensaje: 'La marca no atiende este dia.' };
     }
 
-    const citasOcupadas = await this.reservaRepo.listarOcupadasPorFecha(marcaId, fecha);
+    const estilistaResuelto = await this.resolverEstilistaReserva(marcaId, estilistaIdEntrada);
+    if (estilistaResuelto.error && estilistaIdEntrada) return estilistaResuelto;
+    const estilistaId = estilistaResuelto.estilistaId ?? null;
+
+    const citasOcupadas = await this.reservaRepo.listarOcupadasPorFecha(marcaId, fecha, estilistaId);
     let horariosDisponibles = calcularHorariosDisponibles({
       horarioDia,
       duracionMinutos: servicio.duracion_minutos,
@@ -92,7 +127,8 @@ export class ReservaServicio {
     const horaInicioRaw = texto(datosEntrada.hora_inicio ?? datosEntrada.horaInicio);
     const horaInicio = horaInicioRaw ? normalizarHora(horaInicioRaw) : '';
     const nombre = texto(datosEntrada.nombre, { capitalizar: 'palabras' });
-    const telefonoCliente = texto(datosEntrada.telefono).replace(/\D+/g, '');
+    const telefonoOriginal = texto(datosEntrada.telefono);
+    const telefonoCliente = telefonoOriginal.replace(/\D+/g, '');
     const correo = texto(datosEntrada.correo).trim().toLowerCase();
 
     const errores = validar(
@@ -122,15 +158,9 @@ export class ReservaServicio {
           if (String(v).trim().length > 120) return 'El nombre no puede superar 120 caracteres.';
           return null;
         },
-        telefono: (v) => {
-          if (!v || String(v).trim() === '') return 'El telefono es obligatorio.';
-          const err = telefono(v);
-          return err
-            ? `${err} Puedes usar espacios o +57. Ejemplo: 300 123 4567.`
-            : null;
-        },
+        telefono: () => whatsappCliente(telefonoOriginal),
         correo: (v) => {
-          if (!v || String(v).trim() === '') return 'El correo electronico es obligatorio.';
+          if (!v || String(v).trim() === '') return null;
           const err = email(v);
           return err ? 'Formato invalido. Ejemplo: tu@correo.com' : null;
         },
@@ -145,7 +175,18 @@ export class ReservaServicio {
       return { error: 'No puedes reservar en fechas pasadas.', codigoHttp: 422 };
     }
 
-    const disponibilidad = await this.obtenerDisponibilidad(marcaId, servicioId, fecha);
+    const estilistaResuelto = await this.resolverEstilistaReserva(
+      marcaId,
+      datosEntrada.estilista_id ?? datosEntrada.estilistaId
+    );
+    if (estilistaResuelto.error) return estilistaResuelto;
+
+    const disponibilidad = await this.obtenerDisponibilidad(
+      marcaId,
+      servicioId,
+      fecha,
+      estilistaResuelto.estilistaId
+    );
     if (disponibilidad.error) {
       return disponibilidad;
     }
@@ -172,7 +213,9 @@ export class ReservaServicio {
         marcaId,
         fecha,
         horaInicio,
-        horaFin
+        horaFin,
+        null,
+        estilistaResuelto.estilistaId
       );
 
       if (haySolapamiento) {
@@ -191,7 +234,7 @@ export class ReservaServicio {
           marcaId,
           nombre,
           telefono: telefonoCliente,
-          correo,
+          correo: correo || null,
         });
       }
 
@@ -199,6 +242,7 @@ export class ReservaServicio {
         marcaId,
         clienteId,
         servicioId,
+        estilistaId: estilistaResuelto.estilistaId,
         codigoConfirmacion,
         fecha,
         horaInicio,
@@ -207,6 +251,15 @@ export class ReservaServicio {
       });
 
       await conexion.commit();
+
+      try {
+        await this.seleccionTelefonoRepo.copiarACita(marcaId, telefonoCliente, citaId);
+        await sincronizarFavoritosDesdeDisenosCita(marcaId, clienteId, [citaId], {
+          seleccionRepo: this.seleccionRepo,
+        });
+      } catch (err) {
+        console.error('[galeria] No se asociaron los disenos a la cita', citaId, err.message);
+      }
 
       try {
         const { notificacionServicio } = await import('./notificacionServicio.js');
@@ -246,7 +299,8 @@ export class ReservaServicio {
         estado: 'pendiente',
         servicio,
         marca,
-        cliente: { nombre, telefono: telefonoCliente, correo },
+        cliente: { nombre, telefono: telefonoCliente, correo: correo || null },
+        estilistaNombre: estilistaResuelto.estilista?.nombre ?? null,
       });
 
       try {
@@ -286,9 +340,9 @@ export class ReservaServicio {
     }
   }
 
-  async obtenerPorCodigo(codigo) {
+  async obtenerPorCodigo(codigo, slug) {
     const fila = await this.reservaRepo.buscarPorCodigo(codigo);
-    if (!fila) return null;
+    if (!fila || !slug || String(fila.marca_slug) !== String(slug)) return null;
 
     return this.armarConfirmacion({
       id: fila.id,
@@ -316,10 +370,11 @@ export class ReservaServicio {
         telefono: fila.cliente_telefono,
         correo: fila.cliente_correo,
       },
+      estilistaNombre: fila.estilista_nombre ?? null,
     });
   }
 
-  armarConfirmacion({ id, codigoConfirmacion, fecha, horaInicio, horaFin, estado, servicio, marca, cliente }) {
+  armarConfirmacion({ id, codigoConfirmacion, fecha, horaInicio, horaFin, estado, servicio, marca, cliente, estilistaNombre = null }) {
     const marcaPublica = mapearMarcaPublica(marca) ?? {
       nombreComercial: marca.nombre_comercial,
       slug: marca.slug,
@@ -373,6 +428,7 @@ export class ReservaServicio {
           telefono: cliente.telefono,
           correo: cliente.correo,
         },
+        estilista: estilistaNombre ? { nombre: estilistaNombre } : null,
       },
       calendario: {
         enlaceGoogle: this.calendario.generarEnlaceGoogleCalendar(datosCalendario),
@@ -448,16 +504,53 @@ export class ReservaServicio {
     };
   }
 
-  async consultarCitas(marcaId, { correo, telefono: telefonoEntrada }) {
-    const tel = texto(telefonoEntrada).replace(/\D+/g, '');
-    const correoNorm = texto(correo).trim().toLowerCase();
+  async actualizarCelular(marcaId, telefonoActual, telefonoNuevo) {
+    const actual = texto(telefonoActual).replace(/\D+/g, '');
+    const nuevo = texto(telefonoNuevo).replace(/\D+/g, '');
 
     const errores = validar(
-      { marca_id: marcaId, telefono: tel, correo: correoNorm },
+      { marca_id: marcaId, telefono: actual, telefono_nuevo: nuevo },
       {
         marca_id: (v) => (v ? null : 'La marca es obligatoria.'),
         telefono: (v) => requerido(v, 'telefono') ?? telefono(v),
-        correo: (v) => requerido(v, 'correo') ?? email(v),
+        telefono_nuevo: (v) => requerido(v, 'telefono') ?? telefono(v),
+      }
+    );
+
+    if (Object.keys(errores).length > 0) {
+      return { error: 'Datos incorrectos.', codigoHttp: 422 };
+    }
+
+    if (actual === nuevo) return this.consultarCitas(marcaId, { telefono: actual });
+
+    const cliente = await this.clienteRepo.buscarPorTelefono(marcaId, actual);
+    if (!cliente) {
+      return { error: 'No encontramos citas con ese celular.', codigoHttp: 404 };
+    }
+
+    const ocupado = await this.clienteRepo.buscarPorTelefono(marcaId, nuevo);
+    if (ocupado && Number(ocupado.id) !== Number(cliente.id)) {
+      return { error: 'Ese celular ya esta registrado en este salon.', codigoHttp: 409 };
+    }
+
+    const actualizado = await this.clienteRepo.actualizarTelefono(marcaId, cliente.id, nuevo);
+    if (!actualizado) {
+      return { error: 'No se pudo actualizar el celular.', codigoHttp: 400 };
+    }
+
+    await this.seleccionRepo.reasignarTelefono(marcaId, actual, nuevo);
+    await this.seleccionTelefonoRepo.reasignarTelefono(marcaId, actual, nuevo);
+    return this.consultarCitas(marcaId, { telefono: nuevo });
+  }
+
+  async consultarCitas(marcaId, { telefono: telefonoEntrada }) {
+    const tel = texto(telefonoEntrada).replace(/\D+/g, '');
+
+    const errores = validar(
+      { marca_id: marcaId, telefono: tel },
+      {
+        marca_id: (v) => (v ? null : 'La marca es obligatoria.'),
+        telefono: (v) => requerido(v, 'telefono') ?? telefono(v),
       }
     );
 
@@ -472,7 +565,7 @@ export class ReservaServicio {
 
     await this.reservaRepo.marcarPasadasComoCompletadas(marcaId);
 
-    const auth = await this.clientePerfil.autenticarCliente(marcaId, tel, correoNorm);
+    const auth = await this.clientePerfil.autenticarCliente(marcaId, tel);
     if (auth.error) return auth;
 
     const { cliente } = auth;

@@ -9,12 +9,18 @@ export async function obtenerDisponibilidad(req, res) {
   const marcaId = entero(req.params.marca_id);
   const servicioId = entero(req.query.servicio_id);
   const fecha = texto(req.query.fecha);
+  const estilistaId = entero(req.query.estilista_id);
 
   if (!marcaId || !servicioId || !fecha) {
     return respuestaError(res, 'marca_id, servicio_id y fecha son obligatorios.', 422);
   }
 
-  const resultado = await reservaServicio.obtenerDisponibilidad(marcaId, servicioId, fecha);
+  const resultado = await reservaServicio.obtenerDisponibilidad(
+    marcaId,
+    servicioId,
+    fecha,
+    estilistaId || null
+  );
 
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
@@ -46,16 +52,31 @@ export async function crearReserva(req, res) {
 
 export async function obtenerConfirmacion(req, res) {
   const codigo = texto(req.params.codigo)?.toUpperCase();
-  if (!codigo) {
-    return respuestaError(res, 'Codigo invalido.', 422);
+  const slug = texto(req.query.slug);
+  if (!codigo || !slug) {
+    return respuestaError(res, 'Reserva no encontrada.', 404);
   }
 
-  const confirmacion = await reservaServicio.obtenerPorCodigo(codigo);
+  const confirmacion = await reservaServicio.obtenerPorCodigo(codigo, slug);
   if (!confirmacion) {
     return respuestaError(res, 'Reserva no encontrada.', 404);
   }
 
   return respuestaExito(res, confirmacion, 'Confirmacion de reserva');
+}
+
+export async function actualizarCelular(req, res) {
+  const marcaId = entero(req.body?.marca_id ?? req.body?.marcaId);
+  const telefonoActual = texto(req.body?.telefono_actual ?? req.body?.telefonoActual);
+  const telefonoNuevo = texto(req.body?.telefono_nuevo ?? req.body?.telefonoNuevo);
+
+  const resultado = await reservaServicio.actualizarCelular(marcaId, telefonoActual, telefonoNuevo);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+
+  return respuestaExito(res, resultado, 'Celular actualizado');
 }
 
 export async function consultarCitas(req, res) {

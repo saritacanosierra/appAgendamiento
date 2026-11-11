@@ -2,6 +2,12 @@ import { Router } from 'express';
 import { estado } from '../controladores/estadoControlador.js';
 import { obtenerPorSlug } from '../controladores/marcaControlador.js';
 import { login, logout, me, rotarToken } from '../controladores/autenticacionControlador.js';
+import { registrarMarcaPublica } from '../controladores/registroControlador.js';
+import {
+  crearPagoWompi,
+  obtenerPlanMarca,
+  webhookWompi,
+} from '../controladores/suscripcionPagoControlador.js';
 import {
   listarPublicos as listarServiciosPublicos,
   listarAdmin as listarServiciosAdmin,
@@ -19,6 +25,7 @@ import {
   crearReserva,
   obtenerConfirmacion,
   consultarCitas,
+  actualizarCelular,
   cancelarReservaPublica,
   solicitarReagendamiento,
 } from '../controladores/reservaControlador.js';
@@ -51,6 +58,13 @@ import {
   actualizarCatalogoAdmin as actualizarGaleriaCatalogoAdmin,
   eliminarCatalogoAdmin as eliminarGaleriaCatalogoAdmin,
 } from '../controladores/galeriaControlador.js';
+import {
+  listarEstilistasPublicos,
+  listarPortafolioPublico,
+  listarEstilistasAdmin,
+  crearEstilistaAdmin,
+  actualizarEstilistaAdmin,
+} from '../controladores/estilistaControlador.js';
 import {
   iniciarSesionGaleria,
   listarSeleccionesGaleria,
@@ -108,11 +122,18 @@ import {
   renovarSuscripcionMarcaPlataforma,
   listarHistorialSuscripcionMarcaPlataforma,
 } from '../controladores/plataformaControlador.js';
+import {
+  listarPublicidadPublica,
+  listarPublicacionesParaPublicidad,
+  listarPublicidadPlataforma,
+  crearPublicidadPlataforma,
+  actualizarPublicidadPlataforma,
+} from '../controladores/publicidadControlador.js';
 import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.js';
 import { superadminMiddleware, soloMarcaAdminMiddleware, plataformaDisponibleMiddleware } from '../middlewares/plataformaMiddleware.js';
 import { aislamientoMarcaMiddleware } from '../middlewares/aislamientoMarcaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
-import { limitarLogin, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
+import { limitarLogin, limitarRegistro, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
 import { parchearRouterAsync } from '../middlewares/manejoErrores.js';
 
 const router = parchearRouterAsync(Router());
@@ -122,8 +143,11 @@ router.get('/estado', estado);
 // Publicos
 router.get('/marcas/slug/:slug', obtenerPorSlug);
 router.get('/marcas/:marca_id/servicios', listarServiciosPublicos);
+router.get('/marcas/:marca_id/estilistas', listarEstilistasPublicos);
+router.get('/marcas/:marca_id/portafolio', listarPortafolioPublico);
 router.get('/marcas/:marca_id/disponibilidad', obtenerDisponibilidad);
 router.get('/marcas/:marca_id/blog', listarBlogPublicos);
+router.get('/publicidad/blog', listarPublicidadPublica);
 router.get('/marcas/:marca_id/blog/slug/:slug', obtenerBlogPublico);
 router.get('/marcas/:marca_id/galeria', listarGaleriaPublicos);
 router.get('/marcas/:marca_id/galeria/catalogo', listarGaleriaCatalogoPublicos);
@@ -134,6 +158,7 @@ router.delete('/marcas/:marca_id/galeria/selecciones', limitarConsultasReservas,
 router.get('/marcas/:marca_id/carrusel-inicio', listarCarruselPublicos);
 router.post('/reservas', limitarReservas, crearReserva);
 router.post('/reservas/consultar', limitarConsultasReservas, consultarCitas);
+router.post('/reservas/actualizar-celular', limitarConsultasReservas, actualizarCelular);
 router.post('/reservas/favoritos', limitarConsultasReservas, agregarFavoritoCliente);
 router.delete('/reservas/favoritos', limitarConsultasReservas, quitarFavoritoCliente);
 router.get('/reservas/confirmacion/:codigo', obtenerConfirmacion);
@@ -144,6 +169,8 @@ router.post('/reservas/:codigo/reagendar', limitarConsultasReservas, solicitarRe
 router.get('/integraciones/google/callback', callbackGoogle);
 
 // Auth
+router.post('/registro', limitarRegistro, registrarMarcaPublica);
+router.post('/webhooks/wompi', webhookWompi);
 router.post('/auth/login', limitarLogin, login);
 router.post('/auth/logout', autenticacionMiddleware, logout);
 router.post('/auth/rotar', autenticacionMiddleware, rotarToken);
@@ -152,6 +179,8 @@ router.get('/auth/me', autenticacionMiddleware, me);
 // Admin protegido (solo admin de marca)
 router.use('/admin', autenticacionMiddleware, soloMarcaAdminMiddleware, aislamientoMarcaMiddleware);
 
+router.get('/admin/suscripcion', obtenerPlanMarca);
+router.post('/admin/suscripcion/wompi', crearPagoWompi);
 router.get('/admin/agenda', obtenerAgenda);
 router.get('/admin/atencion/citas', listarCitasAtencion);
 router.post('/admin/atencion/citas/:id/cerrar', cerrarServicioAtencion);
@@ -167,6 +196,9 @@ router.post('/admin/clientes', crearCliente);
 router.put('/admin/clientes/:id', actualizarCliente);
 router.delete('/admin/clientes/:id', desactivarCliente);
 router.get('/admin/servicios', listarServiciosAdmin);
+router.get('/admin/estilistas', listarEstilistasAdmin);
+router.post('/admin/estilistas', crearEstilistaAdmin);
+router.put('/admin/estilistas/:id', actualizarEstilistaAdmin);
 router.get('/admin/servicios/adicionales', listarServiciosAdicionalesAdmin);
 router.post('/admin/servicios', crearServicioAdmin);
 router.put('/admin/servicios/:id', actualizarServicioAdmin);
@@ -202,6 +234,7 @@ router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo)
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);
 router.post('/admin/subidas/carrusel', subidaImagenMiddleware('carrusel'), subirArchivo);
 router.post('/admin/subidas/servicios', subidaImagenMiddleware('servicios'), subirArchivo);
+router.post('/admin/subidas/equipo', subidaImagenMiddleware('equipo'), subirArchivo);
 
 // Plataforma (superadmin) — deshabilitable en despliegues solo-marca
 router.use('/plataforma', plataformaDisponibleMiddleware, autenticacionMiddleware, superadminMiddleware);
@@ -216,5 +249,10 @@ router.put('/plataforma/marcas/:id/reset-contrasena', resetearContrasenaMarcaPla
 router.post('/plataforma/marcas/:id/suscripcion/activar', activarSuscripcionMarcaPlataforma);
 router.post('/plataforma/marcas/:id/suscripcion/renovar', renovarSuscripcionMarcaPlataforma);
 router.get('/plataforma/marcas/:id/suscripcion/historial', listarHistorialSuscripcionMarcaPlataforma);
+router.get('/plataforma/publicidad/publicaciones', listarPublicacionesParaPublicidad);
+router.get('/plataforma/publicidad', listarPublicidadPlataforma);
+router.post('/plataforma/publicidad', crearPublicidadPlataforma);
+router.put('/plataforma/publicidad/:id', actualizarPublicidadPlataforma);
+router.post('/plataforma/subidas/publicidad', subidaImagenMiddleware('publicidad'), subirArchivo);
 
 export default router;

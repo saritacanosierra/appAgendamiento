@@ -3,6 +3,7 @@ import {
   BotonPrincipal,
   CampoFormulario,
   Cargando,
+  EstadoVacio,
   ImagenAmpliable,
   InputTexto,
   MensajeError,
@@ -11,6 +12,7 @@ import {
   TextareaTexto,
   IconoApp,
 } from '../../../compartido/componentes';
+import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
   actualizarServicio,
@@ -38,6 +40,7 @@ const FILTROS_TIPO = [
 ];
 
 export default function ServiciosAdminVista() {
+  const avisos = useAvisos();
   const [servicios, setServicios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -141,8 +144,10 @@ export default function ServiciosAdminVista() {
     try {
       if (editandoId) {
         await actualizarServicio(editandoId, payload);
+        avisos.exito('Servicio actualizado');
       } else {
         await crearServicio(payload);
+        avisos.exito('Servicio guardado');
       }
       cerrarForm();
       await cargar();
@@ -331,7 +336,14 @@ export default function ServiciosAdminVista() {
 
       {!cargando && (
         <>
-          {serviciosFiltrados.length === 0 ? (
+          {servicios.length === 0 ? (
+            <EstadoVacio
+              titulo="Aun no tienes servicios"
+              mensaje="Aun no tienes servicios creados. Haz clic aqui para agregar el primero."
+              textoAccion="Agregar el primer servicio"
+              onAccion={() => abrirCrear('marca')}
+            />
+          ) : serviciosFiltrados.length === 0 ? (
             <p className="servicios-admin__vacio">
               {filtroTipo === 'adicional'
                 ? 'No hay servicios adicionales. Crea uno con + Adicional.'

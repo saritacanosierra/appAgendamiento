@@ -1,0 +1,71 @@
+.enlace-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  margin-bottom: var(--espacio-lg);
+  padding: var(--espacio-lg);
+  border: 1px solid #d5dde5;
+  border-radius: 16px;
+  background: #f7f9fb;
+  color: #1c2430;
+}
+
+.enlace-agenda__etiqueta {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5c6773;
+}
+
+.enlace-agenda h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.enlace-agenda__ayuda,
+.enlace-agenda__url {
+  margin: 0;
+}
+
+.enlace-agenda__url {
+  padding: var(--espacio-sm) var(--espacio-md);
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #d5dde5;
+  word-break: break-all;
+  font-weight: 700;
+}
+
+.enlace-agenda__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-sm);
+}
+
+.enlace-agenda__copiar,
+.enlace-agenda__abrir {
+  min-height: 48px;
+  padding: 0 var(--espacio-md);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.enlace-agenda__copiar {
+  border: none;
+  background: #1e3a4c;
+  color: #fff;
+  cursor: pointer;
+}
+
+.enlace-agenda__abrir {
+  border: 1px solid #1e3a4c;
+  color: #1e3a4c;
+  background: #fff;
+}

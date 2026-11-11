@@ -21,5 +21,6 @@ export { default as ImagenAmpliable } from './imagen_ampliable/ImagenAmpliable';
 export { default as IconoApp } from './icono_app/IconoApp';
 export { default as BotonWhatsapp } from './enlace_whatsapp/BotonWhatsapp';
 export { default as ContactoWhatsappMarca } from './enlace_whatsapp/ContactoWhatsappMarca';
+export { default as EstadoVacio } from './estado_vacio/EstadoVacio';
 export { default as GaleriaFiltrosAcordeon } from './galeria_filtros_acordeon/GaleriaFiltrosAcordeon';
 export { default as ModalAccesoGaleria } from './modal_acceso_galeria/ModalAccesoGaleria';

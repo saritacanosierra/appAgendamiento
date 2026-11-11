@@ -114,7 +114,23 @@ export default function CarruselMarca({ marca, slug }) {
     return () => clearInterval(timer);
   }, [pausado, slides.length]);
 
-  if (!marca || slides.length === 0) return null;
+  if (!marca) return null;
+
+  if (slides.length === 0) {
+    return (
+      <section className="carrusel-marca carrusel-marca--inicio" aria-label="Presentación de la marca">
+        <div className="carrusel-marca__viewport">
+          <article className="carrusel-marca__slide carrusel-marca__slide--inicio">
+            <div className="carrusel-marca__texto">
+              <span className="carrusel-marca__etiqueta">Tu app</span>
+              <h2>{marca.nombreComercial}</h2>
+              <p>Una portada lista para tu foto, tus colores y tus servicios.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    );
+  }
 
   const slide = slides[indice];
 

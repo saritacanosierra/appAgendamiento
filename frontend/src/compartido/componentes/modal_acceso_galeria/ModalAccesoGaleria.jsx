@@ -42,9 +42,9 @@ export default function ModalAccesoGaleria({
         {!pasoElegirCita ? (
           mostrarTelefono ? (
           <>
-            <h2 id="modal-galeria-titulo">Elige tus disenos</h2>
+            <h2 id="modal-galeria-titulo">Guarda las que te gusten</h2>
             <p className="modal-acceso-galeria__intro">
-              Ingresa el telefono con el que reservaste para guardar las uñas que te gusten en tu cita.
+              Escribe tu celular. No necesitas tener una cita. Cuando agendes, estas fotos quedan asociadas a ese numero.
             </p>
 
             <form className="modal-acceso-galeria__form" onSubmit={manejarTelefono}>

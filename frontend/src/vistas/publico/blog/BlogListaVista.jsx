@@ -36,7 +36,7 @@ export default function BlogListaVista() {
 
   return (
     <div className="blog-lista">
-      <EncabezadoMarca marca={marca} titulo="Blog" />
+      <EncabezadoMarca marca={marca} compacto titulo="Blog" />
 
       {error && <MensajeError mensaje={error} />}
       {cargando && <Cargando />}

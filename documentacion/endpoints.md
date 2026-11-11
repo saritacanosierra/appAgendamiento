@@ -21,14 +21,24 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | GET | `/api/estado` | No | Estado del sistema y conexion BD |
 | GET | `/api/marcas/slug/{slug}` | No | Datos publicos de marca + colores |
 | GET | `/api/marcas/{marca_id}/servicios` | No | Servicios activos de la marca |
-| GET | `/api/marcas/{marca_id}/disponibilidad` | No | Horarios libres (`?servicio_id=&fecha=`) |
+| GET | `/api/marcas/{marca_id}/disponibilidad` | No | Horarios libres (`?servicio_id=&fecha=&estilista_id=`) |
+| GET | `/api/marcas/{marca_id}/estilistas` | No | Estilistas activas de la marca |
+| GET | `/api/marcas/{marca_id}/portafolio` | No | Profesionales activas con foto, descripcion, habilidades y hasta 6 trabajos. Si solo hay una, el inicio muestra un boton Portafolio |
 | POST | `/api/reservas` | No | Crear reserva publica |
-| GET | `/api/reservas/confirmacion/{codigo}` | No | Detalle + calendario ICS |
+| GET | `/api/reservas/confirmacion/{codigo}?slug=` | No | Detalle de esa tienda + calendario ICS. Sin slug, o con slug de otra tienda, responde 404 |
+| POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis |
+| POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago de $25.000 y renueva un mes |
+| GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, precio y si Wompi esta listo |
+| POST | `/api/admin/suscripcion/wompi` | Si, marca | Abre el cobro mensual. Tambien si el plan ya vencio |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
 | POST | `/api/auth/logout` | Si | Revocar token actual |
 | POST | `/api/auth/rotar` | Si | Renovar token manualmente |
 | GET | `/api/auth/me` | Si | Sesion activa (usuario + marca) |
 | GET | `/api/admin/servicios` | Si | Servicios de la marca del usuario |
+| GET | `/api/admin/estilistas` | Si | Equipo (estilistas) de la marca |
+| POST | `/api/admin/estilistas` | Si | Crear estilista (`nombre`) |
+| PUT | `/api/admin/estilistas/{id}` | Si | Actualizar nombre, activo, foto, descripcion o habilidades |
+| POST | `/api/admin/subidas/equipo` | Si | Foto de una profesional (multipart, campo `archivo`) |
 | POST | `/api/admin/servicios` | Si | Crear servicio |
 | PUT | `/api/admin/servicios/{id}` | Si | Actualizar servicio |
 | GET | `/api/admin/agenda` | Si | Vista agenda (`?fecha=&vista=dia\|semana`) |
@@ -38,6 +48,7 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | DELETE | `/api/admin/citas/{id}` | Si | Cancelar cita |
 | GET | `/api/admin/clientes` | Si | Listar clientes (`?busqueda=`) |
 | POST | `/api/admin/clientes` | Si | Registrar cliente |
+| POST | `/api/reservas/actualizar-celular` | No | Cambia el celular de la clienta y conserva citas, favoritos y disenos (`telefono_actual`, `telefono_nuevo`, `marca_id`) |
 
 ### Reserva publica — ejemplo
 
@@ -99,8 +110,18 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | Metodo | Ruta | Auth | Descripcion |
 |--------|------|------|-------------|
 | GET | `/api/marcas/{marca_id}/blog` | No | Publicaciones publicadas |
+| GET | `/api/publicidad/blog?publicacion_id=` | No | Campanas activas asignadas a esa publicacion |
+| GET | `/api/plataforma/publicidad/publicaciones` | Si, superadmin | Publicaciones de todas las tiendas para elegir donde sale cada campana |
+| GET | `/api/plataforma/publicidad` | Si, superadmin | Campanas, con tipo imagen o enlace y sus publicaciones |
+| POST | `/api/plataforma/publicidad` | Si, superadmin | Crear anuncio |
+| PUT | `/api/plataforma/publicidad/{id}` | Si, superadmin | Actualizar anuncio |
+| POST | `/api/plataforma/subidas/publicidad` | Si, superadmin | Subir imagen del anuncio |
 | GET | `/api/marcas/{marca_id}/blog/slug/{slug}` | No | Detalle de publicacion |
 | GET | `/api/marcas/{marca_id}/galeria` | No | Disenos activos |
+| POST | `/api/marcas/{marca_id}/galeria/sesion` | No | Abre la seleccion con el celular, sin exigir cita |
+| GET | `/api/marcas/{marca_id}/galeria/selecciones?telefono=` | No | Fotos guardadas de ese celular en esa marca |
+| POST | `/api/marcas/{marca_id}/galeria/selecciones` | No | Guarda un diseno en el celular (`telefono`, `diseno_id`) |
+| DELETE | `/api/marcas/{marca_id}/galeria/selecciones` | No | Quita un diseno del celular |
 | GET | `/api/admin/blog` | Si | Todas las publicaciones de la marca |
 | POST | `/api/admin/blog` | Si | Crear publicacion |
 | PUT | `/api/admin/blog/{id}` | Si | Actualizar publicacion |

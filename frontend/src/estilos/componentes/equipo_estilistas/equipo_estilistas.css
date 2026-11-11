@@ -1,0 +1,131 @@
+.equipo-estilistas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.equipo-estilistas__ayuda,
+.equipo-estilistas__vacio {
+  margin: 0;
+  color: var(--color-texto-muted-superficie, var(--color-texto));
+  font-size: var(--tamano-texto-sm);
+}
+
+.equipo-estilistas__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-weight: 700;
+  color: var(--color-principal);
+}
+
+.equipo-estilistas__error {
+  margin: 0;
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.equipo-estilistas__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.equipo-estilistas__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  min-width: 0;
+  padding: var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde-lg);
+  background: var(--color-superficie);
+}
+
+.equipo-estilistas__cabeza {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-md);
+  min-width: 0;
+}
+
+.equipo-estilistas__cabeza strong,
+.equipo-estilistas__cabeza span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.equipo-estilistas__cabeza span {
+  color: var(--color-texto-muted-superficie, var(--color-texto));
+  font-size: var(--tamano-texto-sm);
+}
+
+.equipo-estilistas__foto {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.equipo-estilistas__foto--vacia {
+  display: grid;
+  place-items: center;
+  background: var(--color-secundario, #efe4f8);
+  color: var(--color-principal, #3c3568);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.equipo-estilistas__tarjeta input,
+.equipo-estilistas__tarjeta textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+}
+
+.equipo-estilistas__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+}
+
+.equipo-estilistas__acciones button,
+.equipo-estilistas__form button {
+  width: 100%;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-pill);
+  background: var(--color-superficie);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.equipo-estilistas__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  min-width: 0;
+}
+
+.equipo-estilistas__form input {
+  width: 100%;
+  min-height: 48px;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+}

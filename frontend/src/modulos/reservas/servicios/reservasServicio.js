@@ -1,7 +1,8 @@
 import { peticionPublica } from '../../../compartido/utilidades/apiCliente';
 
-export async function obtenerDisponibilidad(marcaId, servicioId, fecha) {
+export async function obtenerDisponibilidad(marcaId, servicioId, fecha, estilistaId) {
   const params = new URLSearchParams({ servicio_id: servicioId, fecha });
+  if (estilistaId) params.set('estilista_id', String(estilistaId));
   const respuesta = await peticionPublica(
     `/marcas/${marcaId}/disponibilidad?${params}`
   );
@@ -14,20 +15,33 @@ export async function crearReserva(datos) {
     body: JSON.stringify({
       marca_id: datos.marcaId,
       servicio_id: datos.servicioId,
+      estilista_id: datos.estilistaId ?? null,
       fecha: datos.fecha,
       hora_inicio: datos.horaInicio,
       nombre: datos.nombre,
       telefono: datos.telefono,
-      correo: datos.correo.trim().toLowerCase(),
     }),
   });
   return respuesta.datos;
 }
 
-export async function obtenerConfirmacion(codigo) {
+export async function obtenerConfirmacion(codigo, slug) {
+  const params = new URLSearchParams({ slug });
   const respuesta = await peticionPublica(
-    `/reservas/confirmacion/${encodeURIComponent(codigo)}`
+    `/reservas/confirmacion/${encodeURIComponent(codigo)}?${params}`
   );
+  return respuesta.datos;
+}
+
+export async function actualizarCelular(marcaId, telefonoActual, telefonoNuevo) {
+  const respuesta = await peticionPublica('/reservas/actualizar-celular', {
+    method: 'POST',
+    body: JSON.stringify({
+      marca_id: marcaId,
+      telefono_actual: telefonoActual,
+      telefono_nuevo: telefonoNuevo,
+    }),
+  });
   return respuesta.datos;
 }
 

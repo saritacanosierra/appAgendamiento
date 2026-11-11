@@ -6,6 +6,10 @@ import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { fechaHoyLocal } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { obtenerAgenda } from '../../../modulos/agenda/servicios/agendaServicio';
+import { obtenerServiciosAdmin } from '../../../modulos/reservas/servicios/serviciosServicio';
+import BienvenidaMarca from '../../../componentes/admin/bienvenida_marca/BienvenidaMarca';
+import EnlaceAgendaMarca from '../../../componentes/admin/enlace_agenda/EnlaceAgendaMarca';
+import PagoPlanMarca from '../../../componentes/admin/pago_plan/PagoPlanMarca';
 import '../../../estilos/admin/panel/panel.css';
 
 const METRICAS = [
@@ -20,6 +24,7 @@ const ACCESOS_RAPIDOS = [
   { to: RUTAS_ADMIN.reportes, etiqueta: 'Reportes', detalle: 'Ingresos del mes', icono: 'reportes' },
   { to: RUTAS_ADMIN.carruselInicio, etiqueta: 'Carrusel', detalle: 'Editar inicio', icono: 'carrusel' },
   { to: RUTAS_ADMIN.galeria, etiqueta: 'Galería', detalle: 'Subir diseños', icono: 'galeria' },
+  { to: RUTAS_ADMIN.equipo, etiqueta: 'Equipo', detalle: 'Foto y trabajos', icono: 'clientes' },
   { to: RUTAS_ADMIN.configuracionGoogleCalendar, etiqueta: 'Google Calendar', detalle: 'Sincronizar citas', icono: 'agenda' },
   { to: RUTAS_ADMIN.configuracionMarca, etiqueta: 'Mi marca', detalle: 'Logo y colores', icono: 'config' },
 ];
@@ -42,21 +47,43 @@ function obtenerSaludo() {
 export default function PanelVista() {
   const { usuario, marca } = useAuth();
   const [agenda, setAgenda] = useState(null);
+  const [servicios, setServicios] = useState(null);
+  const [verPanel, setVerPanel] = useState(false);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    obtenerAgenda(fechaHoyLocal(), 'dia')
-      .then(setAgenda)
-      .catch(() => setAgenda(null))
+    Promise.all([
+      obtenerAgenda(fechaHoyLocal(), 'dia').catch(() => null),
+      obtenerServiciosAdmin().catch(() => null),
+    ])
+      .then(([agendaDia, listaServicios]) => {
+        setAgenda(agendaDia);
+        setServicios(Array.isArray(listaServicios) ? listaServicios : null);
+      })
       .finally(() => setCargando(false));
   }, []);
 
   const slug = marca?.slug;
   const proximas = agenda?.citas?.slice(0, 5) ?? [];
   const primerNombre = usuario?.nombre?.split(' ')[0] ?? 'equipo';
+  const marcaNueva = Array.isArray(servicios) && servicios.length === 0;
+
+  if (cargando) return <Cargando mensaje="Preparando tu espacio..." />;
+
+  if (marcaNueva && !verPanel) {
+    return (
+      <div className="panel-admin">
+        {slug && <EnlaceAgendaMarca slug={slug} nombre={marca?.nombreComercial} />}
+        {marca?.plan?.prueba && <PagoPlanMarca variante="aviso" />}
+        <BienvenidaMarca marca={marca} onVerPanel={() => setVerPanel(true)} />
+      </div>
+    );
+  }
 
   return (
     <div className="panel-admin">
+      {slug && <EnlaceAgendaMarca slug={slug} nombre={marca?.nombreComercial} />}
+      {marca?.plan?.prueba && <PagoPlanMarca variante="aviso" />}
       <section className="panel-admin__hero">
         <div className="panel-admin__hero-texto">
           <p className="panel-admin__hero-etiqueta">{formatearFechaHoy()}</p>

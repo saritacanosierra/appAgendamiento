@@ -79,6 +79,15 @@ export class CitaDisenosGaleriaRepositorio {
     return Boolean(filas[0]);
   }
 
+  async reasignarTelefono(marcaId, telefonoAnterior, telefonoNuevo) {
+    if (!telefonoAnterior || telefonoAnterior === telefonoNuevo) return 0;
+    const [resultado] = await pool.execute(
+      `UPDATE cita_disenos_galeria SET telefono = ? WHERE marca_id = ? AND telefono = ?`,
+      [telefonoNuevo, marcaId, telefonoAnterior]
+    );
+    return resultado.affectedRows;
+  }
+
   async quitarPorTelefonoYDiseno(marcaId, telefono, disenoId) {
     const [resultado] = await pool.execute(
       `DELETE FROM cita_disenos_galeria

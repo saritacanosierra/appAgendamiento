@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS marcas (
   telefono VARCHAR(20) NULL,
   whatsapp VARCHAR(20) NULL,
   direccion VARCHAR(255) NULL,
+  ciudad VARCHAR(100) NULL,
   horarios_json JSON NULL COMMENT 'Horarios de atencion por dia',
   activa TINYINT(1) NOT NULL DEFAULT 1,
   plan_habilitado TINYINT(1) NOT NULL DEFAULT 1,
@@ -81,6 +82,24 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
+-- Estilistas publicas (equipo de la marca, sin cuenta de acceso)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS estilistas (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  marca_id INT UNSIGNED NOT NULL,
+  nombre VARCHAR(120) NOT NULL,
+  foto_ruta VARCHAR(255) NULL,
+  habilidades VARCHAR(280) NULL,
+  descripcion VARCHAR(280) NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+  orden_visualizacion SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_estilistas_marca (marca_id, activo),
+  CONSTRAINT fk_estilistas_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
 -- Clientes (aislados por marca)
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS clientes (
@@ -130,6 +149,7 @@ CREATE TABLE IF NOT EXISTS citas (
   marca_id INT UNSIGNED NOT NULL,
   cliente_id INT UNSIGNED NOT NULL,
   servicio_id INT UNSIGNED NOT NULL,
+  estilista_id INT UNSIGNED NULL,
   codigo_confirmacion VARCHAR(32) NOT NULL,
   fecha DATE NOT NULL,
   hora_inicio TIME NOT NULL,
@@ -152,9 +172,11 @@ CREATE TABLE IF NOT EXISTS citas (
   KEY idx_citas_fecha (marca_id, fecha),
   KEY idx_citas_estado (marca_id, estado),
   KEY idx_citas_horario (marca_id, fecha, hora_inicio, hora_fin),
+  KEY idx_citas_estilista_horario (marca_id, estilista_id, fecha, hora_inicio, hora_fin),
   CONSTRAINT fk_citas_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE,
   CONSTRAINT fk_citas_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT,
-  CONSTRAINT fk_citas_servicio FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE RESTRICT
+  CONSTRAINT fk_citas_servicio FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_citas_estilista FOREIGN KEY (estilista_id) REFERENCES estilistas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
@@ -179,12 +201,38 @@ CREATE TABLE IF NOT EXISTS publicaciones_blog (
   CONSTRAINT fk_publicaciones_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Publicidad pagada de la plataforma (no pertenece a una marca)
+CREATE TABLE IF NOT EXISTS publicidad_blog (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  anunciante VARCHAR(150) NOT NULL,
+  titulo VARCHAR(180) NOT NULL,
+  tipo ENUM('imagen', 'enlace') NOT NULL DEFAULT 'enlace',
+  texto VARCHAR(280) NULL,
+  imagen_ruta VARCHAR(255) NULL,
+  enlace_url VARCHAR(500) NULL,
+  activa TINYINT(1) NOT NULL DEFAULT 1,
+  orden_visualizacion SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_publicidad_activa (activa, orden_visualizacion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS publicidad_blog_publicacion (
+  publicidad_id INT UNSIGNED NOT NULL,
+  publicacion_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (publicidad_id, publicacion_id),
+  KEY idx_publicidad_publicacion (publicacion_id),
+  CONSTRAINT fk_publicidad_campana FOREIGN KEY (publicidad_id) REFERENCES publicidad_blog(id) ON DELETE CASCADE,
+  CONSTRAINT fk_publicidad_publicacion FOREIGN KEY (publicacion_id) REFERENCES publicaciones_blog(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------------------------------------------------------------------------
 -- Galeria de disenos
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS disenos_galeria (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   marca_id INT UNSIGNED NOT NULL,
+  estilista_id INT UNSIGNED NULL,
   titulo VARCHAR(150) NOT NULL,
   imagen_ruta VARCHAR(255) NOT NULL,
   categoria VARCHAR(100) NULL COMMENT 'Tipo: manicura, pedicura, etc.',
@@ -198,7 +246,9 @@ CREATE TABLE IF NOT EXISTS disenos_galeria (
   KEY idx_disenos_marca_id (marca_id),
   KEY idx_disenos_activo (marca_id, activo),
   KEY idx_disenos_orden (marca_id, orden_visualizacion),
-  CONSTRAINT fk_disenos_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
+  KEY idx_disenos_estilista (marca_id, estilista_id, activo),
+  CONSTRAINT fk_disenos_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE,
+  CONSTRAINT fk_disenos_estilista FOREIGN KEY (estilista_id) REFERENCES estilistas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Catalogo configurable de categorias y temporadas (galeria)

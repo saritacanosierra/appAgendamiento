@@ -27,11 +27,9 @@ export function leerCredencialesMiCita(marcaId) {
   if (!data) return null;
 
   const telefono = String(data.telefono ?? '').trim();
-  const correo = String(data.correo ?? '').trim();
+  if (!telefono) return null;
 
-  if (!telefono || !correo) return null;
-
-  return { telefono, correo };
+  return { telefono };
 }
 
 export function guardarTelefonoLocalMarca(marcaId, telefono) {
@@ -47,17 +45,15 @@ export function guardarTelefonoLocalMarca(marcaId, telefono) {
   );
 }
 
-export function guardarCredencialesMiCita(marcaId, { telefono, correo }) {
+export function guardarCredencialesMiCita(marcaId, { telefono }) {
   if (!marcaId || typeof localStorage === 'undefined') return;
 
   const tel = String(telefono ?? '').trim();
-  const mail = String(correo ?? '').trim();
-
-  if (!tel || !mail) return;
+  if (!tel) return;
 
   localStorage.setItem(
     claveMarca(marcaId),
-    JSON.stringify({ telefono: tel, correo: mail })
+    JSON.stringify({ telefono: tel })
   );
 }
 

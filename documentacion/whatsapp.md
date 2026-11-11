@@ -4,9 +4,9 @@ Integracion con la **WhatsApp Cloud API** de Meta. **Cada marca** usa su propio 
 
 ## Sin token (contacto manual)
 
-Si solo quieres que las clientas te escriban por WhatsApp **sin configurar Meta**, basta con el campo **WhatsApp (contacto)** en Admin → Mi marca. La web muestra un boton que abre `wa.me` con el numero de esa marca y un mensaje prellenado. No requiere API ni token.
+Si solo quieres que las clientas te escriban por WhatsApp **sin configurar Meta**, basta con el campo **WhatsApp (contacto)** en Admin → Mi marca. La web muestra un boton que abre `wa.me` con el numero de esa marca y un mensaje prellenado. No requiere API ni token. El enlace usa el **codigo de pais** de la marca: un celular de 10 digitos en Colombia debe llevar `57`. Si queda en `52`, WhatsApp busca un numero de Mexico y avisa que no existe.
 
-Vistas con boton wa.me: inicio de marca, hub de citas, confirmacion de reserva y Mi cita.
+Vistas con boton wa.me: inicio de marca, hub de citas, confirmacion de reserva y Mi cita. Desde Mi cita el texto va en varias lineas e incluye el nombre y el celular de la clienta, ademas del servicio, la fecha y el codigo.
 
 ## Requisitos por marca (mensajes automaticos)
 

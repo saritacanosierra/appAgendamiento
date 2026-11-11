@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--espacio-sm);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .citas-hub__intro h1 {
@@ -30,14 +32,26 @@
   font-size: var(--tamano-texto-sm);
 }
 
+.citas-hub__principal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  min-width: 0;
+  max-width: 100%;
+}
+
 .citas-hub__disponibilidad {
-  padding: var(--espacio-lg);
+  padding: var(--espacio-md);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .citas-hub__cta {
   display: flex;
   flex-direction: column;
   gap: var(--espacio-md);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .citas-hub__secundarias {
@@ -49,6 +63,46 @@
 .citas-hub__secundarias a {
   font-weight: 700;
   font-size: var(--tamano-texto-sm);
+}
+
+.citas-hub__reserva {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  min-width: 0;
+}
+
+.citas-hub__elegido {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: var(--espacio-md);
+}
+
+.citas-hub__elegido p,
+.citas-hub__elegido span {
+  margin: 0;
+  color: var(--color-texto-muted);
+  font-size: var(--tamano-texto-sm);
+}
+
+.citas-hub__elegido strong {
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+}
+
+.citas-hub__elegido button {
+  align-self: flex-start;
+  min-height: 48px;
+  margin-top: var(--espacio-xs);
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-principal);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .citas-hub__servicios h2 {
@@ -63,6 +117,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--espacio-md);
+  min-width: 0;
 }
 
 .citas-hub__vacio {
@@ -75,38 +130,3 @@
   box-shadow: var(--sombra-suave);
 }
 
-@media (min-width: 768px) {
-  .citas-hub {
-    gap: var(--espacio-lg);
-  }
-
-  .citas-hub__intro h1 {
-    font-size: var(--tamano-titulo-lg);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-
-  .citas-hub__intro p {
-    font-size: var(--tamano-texto-sm);
-    line-height: 1.5;
-  }
-
-  .citas-hub__lista-servicios {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--espacio-md);
-  }
-}
-
-@media (min-width: 1024px) {
-  .citas-hub__principal {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: var(--espacio-lg);
-    align-items: start;
-  }
-
-  .citas-hub__lista-servicios {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}

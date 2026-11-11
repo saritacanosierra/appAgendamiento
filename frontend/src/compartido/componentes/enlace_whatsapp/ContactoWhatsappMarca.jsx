@@ -23,7 +23,12 @@ export default function ContactoWhatsappMarca({
       {mostrarNumero && (
         <p className="contacto-marca-whatsapp__numero">{marca.whatsapp}</p>
       )}
-      <BotonWhatsapp telefono={marca.whatsapp} mensaje={textoMensaje} anchoCompleto={anchoCompleto}>
+      <BotonWhatsapp
+        telefono={marca.whatsapp}
+        codigoPais={marca.codigoPais}
+        mensaje={textoMensaje}
+        anchoCompleto={anchoCompleto}
+      >
         {children}
       </BotonWhatsapp>
     </section>

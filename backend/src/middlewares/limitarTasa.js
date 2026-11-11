@@ -28,6 +28,12 @@ export function limitarTasa({ ventanaMs = 60_000, max = 60, mensaje = 'Demasiada
   };
 }
 
+export const limitarRegistro = limitarTasa({
+  ventanaMs: 60 * 60 * 1000,
+  max: 5,
+  mensaje: 'Demasiados registros desde esta conexion. Intenta mas tarde.',
+});
+
 export const limitarLogin = limitarTasa({
   ventanaMs: 15 * 60 * 1000,
   max: Number(process.env.RATE_LIMIT_LOGIN ?? 10),

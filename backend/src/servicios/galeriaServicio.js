@@ -1,4 +1,5 @@
 import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
+import { EstilistaRepositorio } from '../repositorios/estilistaRepositorio.js';
 import { GaleriaCatalogoServicio } from './galeriaCatalogoServicio.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
@@ -18,6 +19,7 @@ export function mapearDisenoPublico(fila) {
       : [],
     ordenVisualizacion: fila.orden_visualizacion,
     enTendencia: Boolean(fila.en_tendencia),
+    estilistaId: fila.estilista_id ?? null,
   };
 }
 
@@ -34,10 +36,12 @@ export function mapearDisenoAdmin(fila) {
 export class GaleriaServicio {
   constructor(
     galeriaRepo = new GaleriaRepositorio(),
-    catalogoServicio = new GaleriaCatalogoServicio()
+    catalogoServicio = new GaleriaCatalogoServicio(),
+    estilistaRepo = new EstilistaRepositorio()
   ) {
     this.galeriaRepo = galeriaRepo;
     this.catalogoServicio = catalogoServicio;
+    this.estilistaRepo = estilistaRepo;
   }
 
   async listarPublicos(marcaId) {
@@ -101,6 +105,10 @@ export class GaleriaServicio {
       : datos.enTendencia !== undefined
         ? Boolean(datos.enTendencia)
         : Boolean(existente?.en_tendencia ?? 0);
+    const estilistaEntrada = datos.estilista_id ?? datos.estilistaId ?? existente?.estilista_id ?? null;
+    const estilistaId = estilistaEntrada === '' || estilistaEntrada === null || estilistaEntrada === undefined
+      ? null
+      : entero(estilistaEntrada);
 
     const errores = validar(
       { titulo, imagen_ruta: imagenRuta },
@@ -124,6 +132,7 @@ export class GaleriaServicio {
         activo,
         ordenVisualizacion,
         enTendencia,
+        estilistaId,
       },
     };
   }
@@ -144,6 +153,13 @@ export class GaleriaServicio {
       { requerido: false }
     );
     if (valTemporada.error) return valTemporada;
+
+    if (datos.estilistaId) {
+      const estilista = await this.estilistaRepo.buscarPorId(marcaId, datos.estilistaId);
+      if (!estilista) {
+        return { error: 'La estilista no pertenece a esta marca.', codigoHttp: 422 };
+      }
+    }
 
     return { ok: true };
   }

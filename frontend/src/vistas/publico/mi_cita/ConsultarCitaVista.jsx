@@ -17,6 +17,7 @@ import {
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import {
   cancelarCitaPublica,
+  actualizarCelular,
   consultarCitas,
   obtenerDisponibilidad,
   solicitarReagendamiento,
@@ -180,7 +181,15 @@ function SeccionFavoritos({ favoritos, credenciales, marcaId, slugMarca, onActua
   );
 }
 
-function TarjetaCitaCliente({ cita, marcaId, telefono, onActualizar, whatsappMarca, nombreMarca }) {
+function TarjetaCitaCliente({
+  cita,
+  marcaId,
+  telefono,
+  onActualizar,
+  whatsappMarca,
+  codigoPais,
+  nombreMarca,
+}) {
   const [modoReagendar, setModoReagendar] = useState(false);
   const [fechaNueva, setFechaNueva] = useState('');
   const [horaNueva, setHoraNueva] = useState('');
@@ -364,10 +373,13 @@ function TarjetaCitaCliente({ cita, marcaId, telefono, onActualizar, whatsappMar
         {whatsappMarca && cita.activa && (
           <BotonWhatsapp
             telefono={whatsappMarca}
+            codigoPais={codigoPais}
             anchoCompleto
             className="mi-cita__whatsapp-cita"
             mensaje={mensajeConsultaCita({
               nombreMarca,
+              nombreCliente: cita.cliente?.nombre,
+              telefonoCliente: telefono || cita.cliente?.telefono,
               servicio: cita.servicio.nombre,
               fecha: cita.fecha,
               hora: formatearHoraLegible(cita.horaInicio),
@@ -402,7 +414,6 @@ function TarjetaCitaCliente({ cita, marcaId, telefono, onActualizar, whatsappMar
 export default function ConsultarCitaVista() {
   const { marca } = useMarca();
   const [telefono, setTelefono] = useState('');
-  const [correo, setCorreo] = useState('');
   const [resultado, setResultado] = useState(null);
   const [buscando, setBuscando] = useState(false);
   const [error, setError] = useState(null);
@@ -412,9 +423,8 @@ export default function ConsultarCitaVista() {
   const credenciales = useMemo(
     () => ({
       telefono: telefono.replace(/\D+/g, ''),
-      correo: correo.trim().toLowerCase(),
     }),
-    [telefono, correo]
+    [telefono]
   );
 
   useEffect(() => {
@@ -429,13 +439,11 @@ export default function ConsultarCitaVista() {
 
     sesionRestauradaRef.current = true;
     setTelefono(guardadas.telefono);
-    setCorreo(guardadas.correo);
     setBuscando(true);
     setError(null);
 
     consultarCitas(marca.id, {
       telefono: guardadas.telefono.replace(/\D+/g, ''),
-      correo: guardadas.correo.trim().toLowerCase(),
     })
       .then((datos) => {
         setResultado(datos);
@@ -451,12 +459,18 @@ export default function ConsultarCitaVista() {
   async function buscar(e) {
     e.preventDefault();
     if (!marca?.id) return;
+    const telNuevo = credenciales.telefono;
+    const telActual = String(resultado?.cliente?.telefono ?? '').replace(/\D+/g, '');
+    const cambiaCelular = Boolean(telActual) && telActual !== telNuevo;
+
     setBuscando(true);
     setError(null);
-    setResultado(null);
+    if (!cambiaCelular) setResultado(null);
     try {
-      const datos = await consultarCitas(marca.id, credenciales);
-      guardarCredencialesMiCita(marca.id, { telefono, correo });
+      const datos = cambiaCelular
+        ? await actualizarCelular(marca.id, telActual, telNuevo)
+        : await consultarCitas(marca.id, credenciales);
+      guardarCredencialesMiCita(marca.id, { telefono: telNuevo });
       setResultado(datos);
       setMostrarBusqueda(false);
     } catch (err) {
@@ -496,7 +510,6 @@ export default function ConsultarCitaVista() {
     if (marca?.id) limpiarCredencialesMiCita(marca.id);
     sesionRestauradaRef.current = false;
     setTelefono('');
-    setCorreo('');
     setResultado(null);
     setMostrarBusqueda(true);
     setError(null);
@@ -510,37 +523,26 @@ export default function ConsultarCitaVista() {
       <p className="mi-cita__intro">
         {resultado
           ? 'Consulta tus citas, puntos y favoritos.'
-          : 'Busca tu reserva con tu telefono y el correo con el que te registraste al reservar.'}
+          : 'Busca tu reserva con el celular que usaste al agendar.'}
       </p>
 
       {resultado && !mostrarBusqueda && (
         <button type="button" className="mi-cita__cambiar-datos" onClick={() => setMostrarBusqueda(true)}>
-          Cambiar telefono o correo
+          Cambiar celular
         </button>
       )}
 
       {(mostrarBusqueda || !resultado) && (
         <form className="mi-cita__busqueda tarjeta-app" onSubmit={buscar}>
-          <CampoFormulario etiqueta="Telefono" id="mi-cita-tel" requerido>
+          <CampoFormulario etiqueta="Celular" id="mi-cita-tel" requerido>
             <input
               id="mi-cita-tel"
               type="tel"
               inputMode="tel"
+              autoComplete="tel"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
               placeholder="10 digitos"
-              required
-            />
-          </CampoFormulario>
-          <CampoFormulario etiqueta="Correo electronico" id="mi-cita-correo" requerido>
-            <input
-              id="mi-cita-correo"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-              placeholder="ejemplo@correo.com"
               required
             />
           </CampoFormulario>
@@ -553,8 +555,8 @@ export default function ConsultarCitaVista() {
       {error && (
         <MensajeError
           suave
-          titulo="Datos incorrectos"
-          mensaje="Verifica tu telefono y el correo con el que reservaste e intenta de nuevo."
+          titulo="No se pudo guardar"
+          mensaje={error}
         />
       )}
       {buscando && <Cargando mensaje="Buscando..." />}
@@ -591,6 +593,7 @@ export default function ConsultarCitaVista() {
                     marcaId={marca.id}
                     telefono={credenciales.telefono}
                     whatsappMarca={marca.whatsapp}
+                    codigoPais={marca.codigoPais}
                     nombreMarca={marca.nombreComercial}
                     onActualizar={recargar}
                   />

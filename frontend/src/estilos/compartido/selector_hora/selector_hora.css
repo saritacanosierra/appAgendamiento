@@ -17,7 +17,7 @@
 }
 
 .selector-hora-grid__pill {
-  min-height: 44px;
+  min-height: 48px;
   padding: 0.5rem 0.75rem;
   border: 1.5px solid var(--color-borde);
   border-radius: var(--radio-pill);
@@ -27,6 +27,12 @@
   font-size: var(--tamano-texto-sm);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.selector-hora-grid__pill:hover {
+  border-color: var(--color-acento);
+  background: color-mix(in srgb, var(--color-secundario) 40%, var(--color-superficie));
+  color: var(--color-acento);
 }
 
 .selector-hora-grid__pill--activo {

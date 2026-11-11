@@ -139,6 +139,37 @@ export async function peticionAdminFormData(ruta, formData, method = 'POST') {
   return datos;
 }
 
+export async function peticionPlataformaFormData(ruta, formData, method = 'POST') {
+  const url = ruta.startsWith('http') ? ruta : `${API_BASE_URL}${ruta}`;
+  const token = obtenerTokenPlataforma();
+
+  const respuesta = await fetch(url, {
+    method,
+    credentials: 'include',
+    headers: cabecerasRequestId({
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }),
+    body: formData,
+  });
+
+  aplicarTokenRotado(respuesta, 'plataforma');
+
+  const datos = await respuesta.json().catch(() => ({
+    exito: false,
+    mensaje: 'Respuesta invalida del servidor.',
+  }));
+
+  if (!respuesta.ok) {
+    const error = new Error(datos.mensaje || 'Error en la peticion');
+    error.datos = datos;
+    error.codigoHttp = respuesta.status;
+    throw error;
+  }
+
+  return datos;
+}
+
 export async function subirImagenAdmin(carpeta, archivo) {
   const formData = new FormData();
   formData.append('archivo', archivo);

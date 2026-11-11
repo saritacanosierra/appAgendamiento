@@ -25,7 +25,7 @@ export default function MenuMovilPublico() {
 
   const enlaces = [
     { to: RUTAS_PUBLICAS.inicioMarca(slug), etiqueta: 'Inicio', icono: 'inicio' },
-    { to: RUTAS_PUBLICAS.citas(slug), etiqueta: 'Citas', icono: 'citas' },
+    { to: RUTAS_PUBLICAS.citas(slug), etiqueta: 'Agendar', icono: 'citas' },
     { to: RUTAS_PUBLICAS.miCita(slug), etiqueta: 'Mi cita', icono: 'buscar' },
     { to: RUTAS_PUBLICAS.galeria(slug), etiqueta: 'Galería', icono: 'galeria' },
     { to: RUTAS_PUBLICAS.blog(slug), etiqueta: 'Blog', icono: 'blog' },

@@ -94,6 +94,41 @@ const MIGRACIONES = [
     nombre: 'Suscripcion SaaS por marca',
     ejecutar: (c) => ejecutarArchivoSql(c, '013_suscripcion_marca.sql'),
   },
+  {
+    id: '014_estilistas_ciudad',
+    nombre: 'Estilistas, ciudad SEO y galeria por estilista',
+    ejecutar: (c) => ejecutarArchivoSql(c, '014_estilistas_ciudad.sql'),
+  },
+  {
+    id: '015_publicidad_blog',
+    nombre: 'Publicidad pagada del blog',
+    ejecutar: (c) => ejecutarArchivoSql(c, '015_publicidad_blog.sql'),
+  },
+  {
+    id: '016_publicidad_por_publicacion',
+    nombre: 'Campanas de publicidad por publicacion',
+    ejecutar: (c) => ejecutarArchivoSql(c, '016_publicidad_por_publicacion.sql'),
+  },
+  {
+    id: '017_portafolio_estilistas',
+    nombre: 'Foto y habilidades del portafolio',
+    ejecutar: (c) => ejecutarArchivoSql(c, '017_portafolio_estilistas.sql'),
+  },
+  {
+    id: '018_estilista_descripcion',
+    nombre: 'Descripcion del portafolio',
+    ejecutar: (c) => ejecutarArchivoSql(c, '018_estilista_descripcion.sql'),
+  },
+  {
+    id: '019_selecciones_galeria_telefono',
+    nombre: 'Disenos de galeria guardados por celular',
+    ejecutar: (c) => ejecutarArchivoSql(c, '019_selecciones_galeria_telefono.sql'),
+  },
+  {
+    id: '020_pagos_wompi',
+    nombre: 'Pagos mensuales con Wompi',
+    ejecutar: (c) => ejecutarArchivoSql(c, '020_pagos_wompi.sql'),
+  },
 ];
 
 async function main() {

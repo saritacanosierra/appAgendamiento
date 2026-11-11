@@ -7,6 +7,7 @@ const enlaces = [
   { to: RUTAS_PLATAFORMA.panel, etiqueta: 'Panel', icono: 'panel' },
   { to: RUTAS_PLATAFORMA.marcas, etiqueta: 'Mis marcas', icono: 'marcas' },
   { to: RUTAS_PLATAFORMA.reportes, etiqueta: 'Reportes', icono: 'reportes' },
+  { to: RUTAS_PLATAFORMA.publicidad, etiqueta: 'Publicidad', icono: 'blog' },
 ];
 
 export default function MenuPlataforma() {

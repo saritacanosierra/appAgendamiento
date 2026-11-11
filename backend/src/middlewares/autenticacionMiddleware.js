@@ -1,7 +1,8 @@
 import { authServicio, extraerToken } from '../controladores/autenticacionControlador.js';
 import { MarcaRepositorio, UsuarioRepositorio } from '../repositorios/index.js';
 import { mapearMarcaPublica } from '../servicios/marcaServicio.js';
-import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
+import { planSePuedePagar, verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
+import { mapearEstadoSuscripcion } from '../utilidades/suscripcionMarca.js';
 import { respuestaError } from '../utilidades/respuestaJson.js';
 import { entorno } from '../configuracion/entorno.js';
 
@@ -75,14 +76,18 @@ export async function autenticacionMiddleware(req, res, next) {
 
     const marcaFila = await marcaRepo.buscarPorIdCompleto(usuarioDb.marca_id);
     const operativa = verificarMarcaOperativa(marcaFila);
-    if (!operativa.ok) {
-      const esLogout = req.originalUrl?.includes('/auth/logout');
-      if (!esLogout) {
-        return respuestaError(res, operativa.error, operativa.codigoHttp);
-      }
+    const url = req.originalUrl ?? '';
+    const rutaDePago = url.includes('/admin/suscripcion')
+      || url.includes('/auth/logout')
+      || url.includes('/auth/me');
+    if (!operativa.ok && !(planSePuedePagar(marcaFila, operativa) && rutaDePago) && !url.includes('/auth/logout')) {
+      return respuestaError(res, operativa.error, operativa.codigoHttp);
     }
 
-    req.marca = mapearMarcaPublica(marcaFila);
+    req.marca = {
+      ...mapearMarcaPublica(marcaFila),
+      plan: mapearEstadoSuscripcion(marcaFila),
+    };
     req.token = token;
 
     const esRotacionExplicita = req.originalUrl?.includes('/auth/rotar');

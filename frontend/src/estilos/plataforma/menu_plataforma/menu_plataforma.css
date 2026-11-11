@@ -6,13 +6,14 @@
   padding: var(--espacio-sm);
   background: var(--color-superficie, #fff);
   border-radius: 12px;
-  border: 1px solid #c5cae9;
+  border: 1px solid #d5dde5;
 }
 
 .menu-plataforma a.menu-plataforma__item {
   display: inline-flex;
   align-items: center;
   gap: var(--espacio-sm);
+  min-height: 48px;
   padding: var(--espacio-sm) var(--espacio-md);
   border-radius: 999px;
   font-size: var(--tamano-texto-sm);
@@ -22,23 +23,23 @@
 }
 
 .menu-plataforma a.menu-plataforma__item:not(.menu-plataforma__item--activo) {
-  background: #e8eaf6;
-  color: #1a237e;
+  background: #e6eef3;
+  color: #1e3a4c;
 }
 
 .menu-plataforma a.menu-plataforma__item:not(.menu-plataforma__item--activo):hover {
-  background: #c5cae9;
-  color: #0d1642;
+  background: #d5e2ea;
+  color: #163042;
 }
 
 .menu-plataforma a.menu-plataforma__item:not(.menu-plataforma__item--activo) .menu-plataforma__icono,
 .menu-plataforma a.menu-plataforma__item:not(.menu-plataforma__item--activo) .icono-app {
-  color: #1a237e;
+  color: #1e3a4c;
 }
 
 .menu-plataforma a.menu-plataforma__item--activo,
 .menu-plataforma a.menu-plataforma__item--activo:visited {
-  background: #1a237e;
+  background: #1e3a4c;
   color: #ffffff;
 }
 
@@ -48,7 +49,7 @@
 }
 
 .menu-plataforma a.menu-plataforma__item:focus-visible {
-  outline: 2px solid #5c6bc0;
+  outline: 2px solid #1e3a4c;
   outline-offset: 2px;
 }
 

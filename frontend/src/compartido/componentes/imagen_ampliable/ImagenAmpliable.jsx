@@ -8,6 +8,7 @@ export default function ImagenAmpliable({
   className = '',
   deshabilitado = false,
   onClick,
+  loading = 'lazy',
   ...rest
 }) {
   const { abrirImagen } = useVisorImagen();
@@ -29,6 +30,7 @@ export default function ImagenAmpliable({
     <img
       src={url}
       alt={alt}
+      loading={loading}
       className={clases}
       onClick={manejarClick}
       {...rest}

@@ -1,8 +1,11 @@
 .tarjeta-servicio {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 72px minmax(0, 1fr);
   grid-template-rows: auto auto;
   gap: var(--espacio-sm) var(--espacio-md);
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: var(--espacio-md);
   border-radius: var(--radio-borde-lg);
   background: var(--color-superficie);
@@ -74,7 +77,7 @@
 .tarjeta-servicio__accion {
   grid-column: 2;
   justify-self: start;
-  min-height: 40px;
+  min-height: 48px;
   padding: 0.5rem 1.25rem;
   border: none;
   border-radius: var(--radio-pill);
@@ -84,6 +87,15 @@
   font-size: var(--tamano-texto-sm);
   cursor: pointer;
   box-shadow: var(--sombra-suave);
+}
+
+.tarjeta-servicio__accion--ancha {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.tarjeta-servicio__accion:hover {
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-principal) 30%, transparent);
 }
 
 .tarjeta-servicio__accion:active {

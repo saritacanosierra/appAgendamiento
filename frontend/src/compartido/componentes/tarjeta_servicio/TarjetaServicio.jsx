@@ -3,7 +3,14 @@ import { resolverUrlMedia } from '../../utilidades/resolverUrlMedia';
 import IconoApp from '../icono_app/IconoApp';
 import '../../../estilos/compartido/tarjeta_servicio/tarjeta_servicio.css';
 
-export default function TarjetaServicio({ servicio, onSeleccionar, acciones, className = '' }) {
+export default function TarjetaServicio({
+  servicio,
+  onSeleccionar,
+  acciones,
+  textoAccion = 'Elegir',
+  accionAncha = false,
+  className = '',
+}) {
   const tieneImagen = Boolean(servicio.imagenRuta);
   const clases = [
     'tarjeta-servicio',
@@ -17,7 +24,7 @@ export default function TarjetaServicio({ servicio, onSeleccionar, acciones, cla
     <article className={clases}>
       <div className={`tarjeta-servicio__thumb${tieneImagen ? ' tarjeta-servicio__thumb--imagen' : ''}`}>
         {tieneImagen ? (
-          <img src={resolverUrlMedia(servicio.imagenRuta)} alt="" loading="lazy" />
+          <img src={resolverUrlMedia(servicio.imagenRuta)} alt={servicio.nombre || 'Servicio'} loading="lazy" />
         ) : (
           <IconoApp nombre="servicios" tamano="lg" aria-hidden="true" />
         )}
@@ -34,8 +41,12 @@ export default function TarjetaServicio({ servicio, onSeleccionar, acciones, cla
       </div>
       {acciones && <div className="tarjeta-servicio__acciones-admin">{acciones}</div>}
       {onSeleccionar && (
-        <button type="button" className="tarjeta-servicio__accion" onClick={() => onSeleccionar(servicio)}>
-          Elegir
+        <button
+          type="button"
+          className={accionAncha ? 'tarjeta-servicio__accion tarjeta-servicio__accion--ancha' : 'tarjeta-servicio__accion'}
+          onClick={() => onSeleccionar(servicio)}
+        >
+          {textoAccion || 'Elegir'}
         </button>
       )}
     </article>

@@ -1,5 +1,7 @@
 .layout-publico {
   min-height: 100dvh;
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--color-fondo-app);
   padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-md) + env(safe-area-inset-bottom));
 }

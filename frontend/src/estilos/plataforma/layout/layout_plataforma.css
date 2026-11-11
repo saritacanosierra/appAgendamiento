@@ -1,6 +1,24 @@
 .layout-plataforma {
+  --color-principal: #1e3a4c;
+  --color-secundario: #e6eef3;
+  --color-acento: #1e3a4c;
+  --color-acento-superficie: #1e3a4c;
+  --color-superficie: #ffffff;
+  --color-fondo: #ffffff;
+  --color-fondo-app: #f3f5f7;
+  --color-texto: #1c2430;
+  --color-texto-superficie: #1c2430;
+  --color-texto-muted: #5c6773;
+  --color-texto-muted-superficie: #5c6773;
+  --color-borde: #d5dde5;
+  --color-borde-superficie: #d5dde5;
+  --color-input-borde: #c9d3dc;
+  --color-input-fondo: #ffffff;
+  --color-input-texto: #1c2430;
+  --color-texto-sobre-principal: #ffffff;
   min-height: 100dvh;
-  background: #eef0fa;
+  background: #f3f5f7;
+  color: #1c2430;
 }
 
 .layout-plataforma__cabecera {
@@ -10,15 +28,15 @@
   align-items: flex-start;
   gap: var(--espacio-md);
   padding: var(--espacio-lg);
-  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  background: #1c2430;
   color: #fff;
-  border-bottom: 4px solid #5c6bc0;
+  border-bottom: 3px solid #8aa0b2;
 }
 
 .layout-plataforma__etiqueta {
   margin: 0 0 var(--espacio-xs);
   font-size: var(--tamano-texto-sm);
-  color: #c5cae9;
+  color: #c5d0d8;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -31,7 +49,7 @@
 
 .layout-plataforma__usuario {
   margin: 0;
-  color: #e8eaf6;
+  color: #e4ebf0;
   font-size: var(--tamano-texto-sm);
 }
 

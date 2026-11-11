@@ -109,9 +109,9 @@ export class MarcaPlataformaRepositorio {
       [
         datos.nombreComercial,
         datos.slug,
-        datos.colorPrincipal ?? '#C2185B',
-        datos.colorSecundario ?? '#F8BBD0',
-        datos.descripcion ?? null,
+        datos.colorPrincipal ?? '#3C3568',
+        datos.colorSecundario ?? '#E7D4F2',
+        datos.descripcion ?? 'Citas, horarios y servicios en un solo lugar.',
         datos.telefono ?? null,
         datos.whatsapp ?? null,
         datos.direccion ?? null,
@@ -144,7 +144,7 @@ export class MarcaPlataformaRepositorio {
   async crearConfiguracionVisual(marcaId) {
     await pool.execute(
       `INSERT INTO configuraciones_marca (marca_id, color_fondo, color_texto, tipografia)
-       VALUES (?, '#FFFFFF', '#1A1A1A', 'system-ui')`,
+       VALUES (?, '#FFFFFF', '#3C3568', 'system-ui')`,
       [marcaId]
     );
   }

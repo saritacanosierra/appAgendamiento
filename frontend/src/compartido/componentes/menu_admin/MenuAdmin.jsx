@@ -26,6 +26,7 @@ export const GRUPOS_MENU_ADMIN = [
     items: [
       { to: RUTAS_ADMIN.carruselInicio, etiqueta: 'Carrusel', icono: 'carrusel' },
       { to: RUTAS_ADMIN.galeria, etiqueta: 'Galería', icono: 'galeria' },
+      { to: RUTAS_ADMIN.equipo, etiqueta: 'Equipo', icono: 'clientes' },
       { to: RUTAS_ADMIN.blog, etiqueta: 'Blog', icono: 'blog' },
     ],
   },

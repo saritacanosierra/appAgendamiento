@@ -1,0 +1,5 @@
+.layout-admin button,
+.layout-admin .boton-principal {
+  min-height: 48px;
+  min-width: 48px;
+}

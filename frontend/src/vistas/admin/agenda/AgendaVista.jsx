@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   BotonPrincipal,
   Cargando,
+  EstadoVacio,
   MensajeError,
   ModalConfirmacion,
   ModalMensaje,
   SelectorFecha,
 } from '../../../compartido/componentes';
+import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { fechaHoyLocal } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import FormularioCitaAdmin from '../../../componentes/admin/formulario_cita_admin/FormularioCitaAdmin';
@@ -30,6 +32,7 @@ import '../../../estilos/admin/agenda/agenda.css';
 
 export default function AgendaVista() {
   const navigate = useNavigate();
+  const avisos = useAvisos();
   const [fecha, setFecha] = useState(fechaHoyLocal());
   const [vista, setVista] = useState('dia');
   const [agenda, setAgenda] = useState(null);
@@ -76,11 +79,7 @@ export default function AgendaVista() {
       await aprobarSolicitudReagendamiento(solicitud.id);
       await Promise.all([cargar(), cargarSolicitudes()]);
       emitirActualizacionNotificaciones();
-      setModalMensaje({
-        titulo: 'Reagendamiento aprobado',
-        mensaje: `La cita de ${solicitud.cliente.nombre} quedo en ${solicitud.fechaSolicitada} a las ${formatearHoraLegible(solicitud.horaInicioSolicitada)}.`,
-        variante: 'exito',
-      });
+      avisos.exito(`Cita movida: ${solicitud.cliente.nombre} queda el ${solicitud.fechaSolicitada} a las ${formatearHoraLegible(solicitud.horaInicioSolicitada)}.`);
     } catch (err) {
       setModalMensaje({
         titulo: 'No se pudo aprobar',
@@ -99,11 +98,7 @@ export default function AgendaVista() {
       await rechazarSolicitudReagendamiento(solicitud.id);
       await cargarSolicitudes();
       emitirActualizacionNotificaciones();
-      setModalMensaje({
-        titulo: 'Solicitud rechazada',
-        mensaje: `Se rechazo el reagendamiento de ${solicitud.cliente.nombre}. La cita original se mantiene.`,
-        variante: 'info',
-      });
+      avisos.info(`Se rechazo el reagendamiento de ${solicitud.cliente.nombre}. La cita original se mantiene.`);
     } catch (err) {
       setModalMensaje({
         titulo: 'No se pudo rechazar',
@@ -144,11 +139,7 @@ export default function AgendaVista() {
       await actualizarCita(cita.id, { estado: 'confirmada' });
       cargar();
       emitirActualizacionNotificaciones();
-      setModalMensaje({
-        titulo: 'Cita confirmada',
-        mensaje: `La cita de ${cita.cliente.nombre} quedo confirmada.`,
-        variante: 'exito',
-      });
+      avisos.exito(`La cita de ${cita.cliente.nombre} quedo confirmada.`);
     } catch (err) {
       setModalMensaje({
         titulo: 'Error',
@@ -164,11 +155,7 @@ export default function AgendaVista() {
       limpiarCronometroSiEsCita(cita.id);
       cargar();
       emitirActualizacionNotificaciones();
-      setModalMensaje({
-        titulo: 'Cita cancelada',
-        mensaje: `La cita de ${cita.cliente.nombre} fue cancelada.`,
-        variante: 'info',
-      });
+      avisos.info(`La cita de ${cita.cliente.nombre} fue cancelada.`);
     } catch (err) {
       setModalMensaje({
         titulo: 'Error',
@@ -198,11 +185,7 @@ export default function AgendaVista() {
       limpiarCronometroSiEsCita(solicitud.citaId);
       await Promise.all([cargar(), cargarSolicitudes()]);
       emitirActualizacionNotificaciones();
-      setModalMensaje({
-        titulo: 'Cita cancelada',
-        mensaje: `La cita de ${solicitud.cliente.nombre} fue cancelada y la solicitud de reagendamiento se cerro.`,
-        variante: 'info',
-      });
+      avisos.info(`La cita de ${solicitud.cliente.nombre} fue cancelada y la solicitud de reagendamiento se cerro.`);
     } catch (err) {
       setModalMensaje({
         titulo: 'Error',
@@ -289,11 +272,7 @@ export default function AgendaVista() {
             setMostrarFormCita(false);
             cargar();
             emitirActualizacionNotificaciones();
-            setModalMensaje({
-              titulo: 'Cita creada',
-              mensaje: 'La nueva cita se agrego a la agenda.',
-              variante: 'exito',
-            });
+            avisos.exito('La nueva cita se agrego a la agenda.');
           }}
           onCancelar={() => setMostrarFormCita(false)}
         />
@@ -378,7 +357,12 @@ export default function AgendaVista() {
       {!cargando && agenda && (
         <div className="agenda-vista__lista">
           {agenda.citas.length === 0 ? (
-            <p className="agenda-vista__vacio">No hay citas en este periodo.</p>
+            <EstadoVacio
+              titulo="No hay citas en este periodo"
+              mensaje="La agenda esta libre. Crea la primera cita o espera una reserva publica."
+              textoAccion="Crear una cita"
+              onAccion={() => setMostrarFormCita(true)}
+            />
           ) : (
             agenda.citas.map((cita) => (
               <div key={cita.id}>

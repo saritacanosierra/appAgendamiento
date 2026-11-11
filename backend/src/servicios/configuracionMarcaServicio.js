@@ -66,6 +66,7 @@ export function mapearConfiguracionAdmin(fila) {
     telefono: fila.telefono,
     whatsapp: fila.whatsapp,
     direccion: fila.direccion,
+    ciudad: fila.ciudad ?? null,
     horarios: normalizarHorariosMarca(parsearJsonCampo(fila.horarios_json, {})),
     whatsappApi: whatsappApiDesdeFila(fila),
   };
@@ -101,6 +102,7 @@ export class ConfiguracionMarcaServicio {
     const telefono = datos.telefono !== undefined ? texto(datos.telefono) || null : actual.telefono;
     const whatsapp = datos.whatsapp !== undefined ? texto(datos.whatsapp) || null : actual.whatsapp;
     const direccion = datos.direccion !== undefined ? texto(datos.direccion) || null : actual.direccion;
+    const ciudad = datos.ciudad !== undefined ? texto(datos.ciudad, { capitalizar: 'palabras' }) || null : actual.ciudad;
     const horariosJson = normalizarHorariosMarca(
       datos.horarios ?? parsearJsonCampo(actual.horarios_json, {})
     );
@@ -129,6 +131,7 @@ export class ConfiguracionMarcaServicio {
       telefono,
       whatsapp,
       direccion,
+      ciudad,
       horariosJson,
     });
 

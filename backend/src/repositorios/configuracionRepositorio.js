@@ -18,7 +18,7 @@ export class ConfiguracionRepositorio {
       `UPDATE marcas
        SET nombre_comercial = ?, color_principal = ?, color_secundario = ?,
            logo_ruta = ?, descripcion = ?, telefono = ?, whatsapp = ?,
-           direccion = ?, horarios_json = ?
+           direccion = ?, ciudad = ?, horarios_json = ?
        WHERE id = ?`,
       [
         datos.nombreComercial,
@@ -29,6 +29,7 @@ export class ConfiguracionRepositorio {
         datos.telefono ?? null,
         datos.whatsapp ?? null,
         datos.direccion ?? null,
+        datos.ciudad ?? null,
         datos.horariosJson ? JSON.stringify(datos.horariosJson) : null,
         marcaId,
       ]

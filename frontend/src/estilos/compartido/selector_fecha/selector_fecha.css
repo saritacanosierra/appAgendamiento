@@ -19,6 +19,9 @@
 /* Calendario mensual — tablero de dias */
 .calendario-mes {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   margin-bottom: 0;
   padding: var(--espacio-md);
   border-radius: var(--radio-borde-lg);
@@ -76,35 +79,42 @@
 
 .calendario-mes__semana {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--espacio-xs);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
   margin-bottom: var(--espacio-xs);
+  min-width: 0;
 }
 
 .calendario-mes__dia-semana {
+  min-width: 0;
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--color-texto-muted-superficie);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
 }
 
 .calendario-mes__tablero {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--espacio-xs);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  min-width: 0;
+  width: 100%;
 }
 
 .calendario-mes__celda {
+  width: 100%;
+  min-width: 0;
   aspect-ratio: 1;
-  min-height: 40px;
+  min-height: 0;
+  padding: 0;
   border: none;
   border-radius: 50%;
   background: transparent;
   color: var(--color-texto-superficie);
   font-weight: 600;
-  font-size: var(--tamano-texto-sm);
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }

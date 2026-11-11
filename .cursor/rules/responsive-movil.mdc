@@ -1,0 +1,20 @@
+---
+description: La app se usa en el celular; el responsive cabe dentro del marco, no del monitor
+alwaysApply: true
+---
+
+# Responsive móvil (prioridad)
+
+La app se usa en el celular. Toda pantalla pública, admin y de plataforma debe caber en ese ancho, con áreas táctiles de al menos 48 px.
+
+## El marco de escritorio
+
+En viewports de 768 px o más, `vista_escritorio.css` limita `.layout-publico`, `.layout-admin` y `.layout-plataforma` a `--ancho-marco-escritorio` (768 px) y los centra. El monitor sigue siendo ancho: un `@media (min-width: 768px)` o `1024px` se activa igual y maqueta **dentro** de ese marco. Por eso esas media queries empujan columnas fuera del teléfono.
+
+## Qué hacer
+
+- Mobile first y una sola columna. Listas, hubs, horarios y formularios usan `width: 100%`, `max-width: 100%` y `min-width: 0`.
+- No añadir rejillas de 2 o 3 columnas con `min-width` del viewport para contenido que vive dentro de esos layouts.
+- Una franja horizontal (días, chips) se desplaza dentro de su contenedor. En flex, `min-width: auto` estira la fila: forzar `min-width: 0` en la franja.
+- Botones y celdas de hora: alto y ancho mínimos de 48 px.
+- Comprobar que nada desborda el marco en un monitor ancho y en un ancho de teléfono (~390 px). `scrollWidth` del documento no debe superar el ancho del layout.

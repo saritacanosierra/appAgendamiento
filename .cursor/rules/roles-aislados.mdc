@@ -1,0 +1,23 @@
+---
+description: Tres roles separados — superadmin, admin de marca y cliente — sin mezclar datos
+alwaysApply: true
+---
+
+# Roles aislados
+
+Hay tres puertas. No comparten sesión, pantalla ni registros.
+
+| Rol | Entrada | Alcance |
+|-----|---------|---------|
+| `superadmin` | `/plataforma` | Todas las tiendas, de a una. Sin `marca_id` |
+| `admin` / `staff` | `/admin` | Solo la marca de su sesión |
+| Cliente | `/m/{slug}` | Solo esa tienda. Sin cuenta ni token |
+
+## Paredes
+
+- `/admin` rechaza al superadmin. `/plataforma` rechaza a admin y staff.
+- En el panel, `marca_id` sale de la sesión. Si el body o la query traen otra marca, responder 403 y no consultar.
+- Impersonar guarda el token de esa tienda aparte del de plataforma. Esa pantalla muestra solo esa marca.
+- El cliente no inicia sesión. Consultar, cancelar y reagendar exigen la tienda y su WhatsApp. El mismo teléfono en dos tiendas son dos filas.
+- La confirmación pública exige el `slug` de la URL. Un código de otra tienda responde 404, con el mismo mensaje que si no existiera.
+- Tokens de plataforma y de marca viven en claves distintas. No copiar uno en la otra.

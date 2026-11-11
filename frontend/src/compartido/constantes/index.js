@@ -20,6 +20,7 @@ export const RUTAS_PUBLICAS = {
   citas: (slug) => conBarraFinal(`/m/${slug}/citas`),
   reservar: (slug) => conBarraFinal(`/m/${slug}/reservar`),
   galeria: (slug) => conBarraFinal(`/m/${slug}/galeria`),
+  equipo: (slug) => conBarraFinal(`/m/${slug}/equipo`),
   blog: (slug) => conBarraFinal(`/m/${slug}/blog`),
   blogPublicacion: (slug, slugPublicacion) => conBarraFinal(`/m/${slug}/blog/${slugPublicacion}`),
   confirmacion: (slug, codigo) => conBarraFinal(`/m/${slug}/confirmacion/${codigo}`),
@@ -36,6 +37,7 @@ export const RUTAS_ADMIN = {
   servicios: conBarraFinal('/admin/servicios'),
   blog: conBarraFinal('/admin/blog'),
   galeria: conBarraFinal('/admin/galeria'),
+  equipo: conBarraFinal('/admin/equipo'),
   carruselInicio: conBarraFinal('/admin/carrusel-inicio'),
   configuracionMarca: conBarraFinal('/admin/configuracion-marca'),
   configuracionGoogleCalendar: `${conBarraFinal('/admin/configuracion-marca')}#google-calendar`,
@@ -53,6 +55,7 @@ export const RUTAS_PLATAFORMA = {
   panel: conBarraFinal('/plataforma/panel'),
   marcas: conBarraFinal('/plataforma/marcas'),
   reportes: conBarraFinal('/plataforma/reportes'),
+  publicidad: conBarraFinal('/plataforma/publicidad'),
   editarMarca: (id) => conBarraFinal(`/plataforma/marcas/${id}`),
 };
 

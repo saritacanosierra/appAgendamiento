@@ -9,6 +9,9 @@ export const ReservarVista = lazy(
 export const GaleriaPublicaVista = lazy(
   () => import('../../vistas/publico/galeria/GaleriaPublicaVista')
 );
+export const PortafolioVista = lazy(
+  () => import('../../vistas/publico/portafolio/PortafolioVista')
+);
 export const BlogListaVista = lazy(
   () => import('../../vistas/publico/blog/BlogListaVista')
 );
@@ -46,6 +49,9 @@ export const BlogAdminVista = lazy(
 export const GaleriaAdminVista = lazy(
   () => import('../../vistas/admin/galeria/GaleriaAdminVista')
 );
+export const EquipoAdminVista = lazy(
+  () => import('../../vistas/admin/equipo/EquipoAdminVista')
+);
 export const ConfiguracionMarcaVista = lazy(
   () => import('../../vistas/admin/configuracion/ConfiguracionMarcaVista')
 );
@@ -58,8 +64,8 @@ export const ReportesVista = lazy(
 export const AtencionVista = lazy(
   () => import('../../vistas/admin/atencion/AtencionVista')
 );
-export const InicioVista = lazy(
-  () => import('../../vistas/plataforma/inicio/InicioVista')
+export const LandingVista = lazy(
+  () => import('../../vistas/publico/landing/LandingVista')
 );
 export const MarcasPlataformaVista = lazy(
   () => import('../../vistas/plataforma/marcas/MarcasPlataformaVista')
@@ -72,4 +78,7 @@ export const PanelPlataformaVista = lazy(
 );
 export const ReportesPlataformaVista = lazy(
   () => import('../../vistas/plataforma/reportes/ReportesPlataformaVista')
+);
+export const PublicidadPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/publicidad/PublicidadPlataformaVista')
 );

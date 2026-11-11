@@ -1,6 +1,23 @@
-const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+export function validarWhatsappCliente(valor) {
+  const original = String(valor ?? '').trim();
+  if (!original) return 'Escribe tu celular.';
+  if (/[a-zA-Z]/.test(original)) {
+    return 'El celular solo puede incluir numeros.';
+  }
+  const digitos = original.replace(/\D+/g, '');
+  if (digitos.length < 10 || digitos.length > 15) {
+    return 'Revisa el celular.';
+  }
+  if (digitos.startsWith('0')) {
+    return 'Revisa el celular.';
+  }
+  if (/^(\d)\1+$/.test(digitos)) {
+    return 'Revisa el celular.';
+  }
+  return null;
+}
 
-export function validarDatosCliente({ nombre, telefono, correo }) {
+export function validarDatosCliente({ nombre, telefono }) {
   const errores = {};
 
   const nombreLimpio = (nombre ?? '').trim();
@@ -12,33 +29,16 @@ export function validarDatosCliente({ nombre, telefono, correo }) {
     errores.nombre = 'El nombre no puede superar 120 caracteres.';
   }
 
-  const telefonoLimpio = (telefono ?? '').trim();
-  const digitosTelefono = telefonoLimpio.replace(/\D+/g, '');
-  if (!telefonoLimpio) {
-    errores.telefono = 'El telefono es obligatorio.';
-  } else if (digitosTelefono.length < 10) {
-    errores.telefono =
-      'Ingresa al menos 10 digitos. Puedes usar espacios o +57. Ejemplo: 300 123 4567.';
-  } else if (digitosTelefono.length > 15) {
-    errores.telefono = 'El telefono no puede tener mas de 15 digitos.';
-  }
-
-  const correoLimpio = (correo ?? '').trim();
-  if (!correoLimpio) {
-    errores.correo = 'El correo electronico es obligatorio.';
-  } else if (!RE_CORREO.test(correoLimpio)) {
-    errores.correo = 'Formato invalido. Ejemplo: tu@correo.com';
-  } else if (correoLimpio.length > 254) {
-    errores.correo = 'El correo es demasiado largo.';
-  }
+  const errorWhatsapp = validarWhatsappCliente(telefono);
+  if (errorWhatsapp) errores.telefono = errorWhatsapp;
 
   return errores;
 }
 
 export function pasoParaErroresApi(errores) {
   const campos = Object.keys(errores ?? {});
-  if (campos.some((c) => ['fecha', 'hora_inicio', 'servicio_id', 'marca_id'].includes(c))) {
-    return 1;
+  if (campos.some((c) => ['fecha', 'hora_inicio', 'servicio_id', 'estilista_id', 'marca_id'].includes(c))) {
+    return campos.some((c) => c === 'servicio_id') && campos.length === 1 ? 0 : 1;
   }
   if (campos.some((c) => ['nombre', 'telefono', 'correo'].includes(c))) {
     return 2;

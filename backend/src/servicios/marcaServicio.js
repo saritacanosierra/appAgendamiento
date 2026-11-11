@@ -4,6 +4,12 @@ import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 
+function codigoPaisWhatsapp(configuracionJson) {
+  const config = parsearJsonCampo(configuracionJson, {});
+  const codigo = String(config?.whatsapp_api?.codigo_pais ?? '').replace(/\D+/g, '');
+  return codigo || '52';
+}
+
 export function mapearMarcaPublica(fila) {
   if (!fila) return null;
 
@@ -19,7 +25,9 @@ export function mapearMarcaPublica(fila) {
     descripcion: fila.descripcion,
     telefono: fila.telefono,
     whatsapp: fila.whatsapp,
+    codigoPais: codigoPaisWhatsapp(fila.configuracion_json),
     direccion: fila.direccion,
+    ciudad: fila.ciudad ?? null,
     horarios: parsearJsonCampo(fila.horarios_json, {}),
     tipografia: fila.tipografia ?? 'system-ui',
   };

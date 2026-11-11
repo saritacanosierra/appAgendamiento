@@ -7,7 +7,8 @@ import {
 } from '../repositorios/index.js';
 import { entorno } from '../configuracion/entorno.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
-import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
+import { planSePuedePagar, verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
+import { mapearEstadoSuscripcion } from '../utilidades/suscripcionMarca.js';
 
 const HORAS_EXPIRACION = Number(process.env.TOKEN_EXPIRACION_HORAS ?? 168);
 const HORAS_ROTACION = Number(process.env.TOKEN_ROTACION_HORAS ?? 24);
@@ -50,7 +51,7 @@ export class AutenticacionServicio {
     if (usuario.rol !== 'superadmin') {
       const marca = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
       const operativa = verificarMarcaOperativa(marca);
-      if (!operativa.ok) {
+      if (!operativa.ok && !planSePuedePagar(marca, operativa)) {
         return { error: operativa.error, codigoHttp: operativa.codigoHttp };
       }
     }
@@ -88,7 +89,10 @@ export class AutenticacionServicio {
     }
 
     const marcaFila = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
-    const marca = mapearMarcaPublica(marcaFila);
+    const marca = {
+      ...mapearMarcaPublica(marcaFila),
+      plan: mapearEstadoSuscripcion(marcaFila),
+    };
 
     return {
       token,
@@ -196,7 +200,10 @@ export class AutenticacionServicio {
         correo: usuario.correo,
         rol: usuario.rol,
       },
-      marca: mapearMarcaPublica(marcaFila),
+      marca: {
+        ...mapearMarcaPublica(marcaFila),
+        plan: mapearEstadoSuscripcion(marcaFila),
+      },
     };
   }
 

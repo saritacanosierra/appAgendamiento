@@ -14,9 +14,12 @@ export default function HorariosDisponiblesDia({
   marcaId,
   servicios = [],
   onElegirHorario,
+  ocultarServicio = false,
+  fechaInicial = '',
+  estilistaId = null,
 }) {
   const hoy = fechaHoyLocal();
-  const [fecha, setFecha] = useState(hoy);
+  const [fecha, setFecha] = useState(() => (fechaInicial && fechaInicial >= hoy ? fechaInicial : hoy));
   const [servicioId, setServicioId] = useState(null);
   const [horarios, setHorarios] = useState([]);
   const [mensaje, setMensaje] = useState('');
@@ -44,7 +47,7 @@ export default function HorariosDisponiblesDia({
 
     setCargando(true);
     setMensaje('');
-    obtenerDisponibilidad(marcaId, servicioId, fecha)
+    obtenerDisponibilidad(marcaId, servicioId, fecha, estilistaId)
       .then((datos) => {
         setHorarios(datos.horarios ?? []);
         setMensaje(datos.mensaje ?? '');
@@ -54,7 +57,7 @@ export default function HorariosDisponiblesDia({
         setMensaje('No se pudieron cargar los horarios.');
       })
       .finally(() => setCargando(false));
-  }, [marcaId, servicioId, fecha]);
+  }, [marcaId, servicioId, fecha, estilistaId]);
 
   if (servicios.length === 0) return null;
 
@@ -109,7 +112,7 @@ export default function HorariosDisponiblesDia({
         </button>
       </div>
 
-      {servicios.length > 1 && (
+      {ocultarServicio || servicios.length < 2 ? null : (
         <div className="horarios-dia__servicios" role="tablist" aria-label="Servicio">
           {servicios.map((s) => (
             <button
@@ -126,7 +129,7 @@ export default function HorariosDisponiblesDia({
         </div>
       )}
 
-      {servicioActivo && servicios.length === 1 && (
+      {ocultarServicio || !servicioActivo || servicios.length !== 1 ? null : (
         <p className="horarios-dia__servicio-unico">{servicioActivo.nombre}</p>
       )}
 
