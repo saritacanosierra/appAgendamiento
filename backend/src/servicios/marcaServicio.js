@@ -3,6 +3,7 @@ import { normalizarRutaMediaAlmacenamiento } from '../utilidades/resolverRutaMed
 import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { cacheLecturasPublicas } from '../utilidades/cacheLecturas.js';
 
 function codigoPaisWhatsapp(configuracionJson) {
   const config = parsearJsonCampo(configuracionJson, {});
@@ -71,8 +72,10 @@ export class ServicioServicio {
   }
 
   async listarPublicos(marcaId) {
-    const filas = await this.servicioRepo.listarActivosPorMarca(marcaId);
-    return filas.map(mapearServicioPublico);
+    return cacheLecturasPublicas.obtener(`servicios:${marcaId}`, async () => {
+      const filas = await this.servicioRepo.listarActivosPorMarca(marcaId);
+      return filas.map(mapearServicioPublico);
+    });
   }
 
   async listarAdmin(marcaId, opciones = {}) {

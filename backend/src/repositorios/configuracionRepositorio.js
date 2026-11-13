@@ -104,4 +104,21 @@ export class ConfiguracionRepositorio {
 
     return fusionado;
   }
+
+  async resumenArranque(marcaId) {
+    const [filas] = await pool.execute(
+      `SELECT
+         (SELECT COUNT(*) FROM servicios WHERE marca_id = ? AND activo = 1) AS servicios,
+         (SELECT COUNT(*) FROM estilistas WHERE marca_id = ? AND activo = 1) AS equipo,
+         (SELECT COUNT(*) FROM disenos_galeria WHERE marca_id = ?) AS galeria,
+         (SELECT CASE
+            WHEN (logo_ruta IS NOT NULL AND logo_ruta <> '')
+              OR (whatsapp IS NOT NULL AND whatsapp <> '')
+              OR (telefono IS NOT NULL AND telefono <> '')
+            THEN 1 ELSE 0 END
+          FROM marcas WHERE id = ?) AS marca`,
+      [marcaId, marcaId, marcaId, marcaId]
+    );
+    return filas[0] ?? null;
+  }
 }

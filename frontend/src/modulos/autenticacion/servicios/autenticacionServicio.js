@@ -23,6 +23,22 @@ export async function iniciarSesion(correo, contrasena, contexto = 'marca') {
   return respuesta.datos;
 }
 
+export async function solicitarRecuperacion(correo, celular, contexto = 'marca') {
+  const respuesta = await peticionPublica('/auth/recuperar-contrasena', {
+    method: 'POST',
+    body: JSON.stringify({ correo, celular, contexto }),
+  });
+  return respuesta;
+}
+
+export async function restablecerContrasena(token, contrasena) {
+  const respuesta = await peticionPublica('/auth/restablecer-contrasena', {
+    method: 'POST',
+    body: JSON.stringify({ token, contrasena }),
+  });
+  return respuesta.datos;
+}
+
 export async function cerrarSesion(contexto = 'marca') {
   try {
     if (contexto === 'plataforma') {

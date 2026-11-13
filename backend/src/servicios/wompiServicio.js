@@ -1,10 +1,9 @@
 import crypto from 'crypto';
 import { PagoWompiRepositorio } from '../repositorios/pagoWompiRepositorio.js';
 import { suscripcionMarcaServicio } from './suscripcionMarcaServicio.js';
-import { PRECIO_MENSUAL_COP } from './registroMarcaServicio.js';
+import { precioPlanCop, listarPlanesCobro } from '../utilidades/suscripcionMarca.js';
 
 const MONEDA = 'COP';
-export const MONTO_MENSUAL_CENTAVOS = PRECIO_MENSUAL_COP * 100;
 
 function leerRuta(objeto, ruta) {
   return String(ruta).split('.').reduce((actual, parte) => actual?.[parte], objeto);
@@ -37,7 +36,7 @@ export class WompiServicio {
     return Boolean(this.entorno.WOMPI_LLAVE_PUBLICA && this.entorno.WOMPI_SECRETO_INTEGRIDAD);
   }
 
-  async crearIntento(marcaId) {
+  async crearIntento(marcaId, planTipo) {
     if (!this.configurado()) {
       return {
         error: 'Wompi aun no esta configurado en el servidor.',
@@ -45,16 +44,22 @@ export class WompiServicio {
       };
     }
 
-    const referencia = `marca-${marcaId}-${Date.now()}`;
+    const tipoOk = this.suscripcion.validarTipoPlan(planTipo);
+    if (tipoOk.error) return tipoOk;
+
+    const precio = precioPlanCop(tipoOk.tipo);
+    const montoCentavos = precio * 100;
+    const referencia = `marca-${marcaId}-${tipoOk.tipo}-${Date.now()}`;
     await this.pagos.crear({
       marcaId,
       referencia,
-      montoCentavos: MONTO_MENSUAL_CENTAVOS,
+      montoCentavos,
+      planTipo: tipoOk.tipo,
     });
 
     const integridad = firmaIntegridadWompi({
       referencia,
-      montoCentavos: MONTO_MENSUAL_CENTAVOS,
+      montoCentavos,
       moneda: MONEDA,
       secreto: this.entorno.WOMPI_SECRETO_INTEGRIDAD,
     });
@@ -65,8 +70,9 @@ export class WompiServicio {
       publicKey: this.entorno.WOMPI_LLAVE_PUBLICA,
       referencia,
       moneda: MONEDA,
-      montoCentavos: MONTO_MENSUAL_CENTAVOS,
-      precioMensual: PRECIO_MENSUAL_COP,
+      montoCentavos,
+      planTipo: tipoOk.tipo,
+      precio,
       integridad,
       redirectUrl: `${frontend}/admin/panel/`,
     };
@@ -113,9 +119,10 @@ export class WompiServicio {
     const aplicado = await this.pagos.marcar(transaccion.reference, 'aprobado', transaccion.id ?? null);
     if (!aplicado) return { yaAplicado: true };
 
+    const planTipo = pago.plan_tipo || 'mensual';
     await this.suscripcion.renovarPlan(pago.marca_id, {
-      plan_tipo: 'mensual',
-      monto: PRECIO_MENSUAL_COP,
+      plan_tipo: planTipo,
+      monto: precioPlanCop(planTipo),
     });
 
     return { aprobado: true, marcaId: pago.marca_id };

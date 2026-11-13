@@ -197,6 +197,7 @@
 }
 
 .modal-marca__acciones-secundarias button {
+  min-height: 48px;
   border: none;
   background: none;
   color: var(--color-texto-muted-superficie);
@@ -204,6 +205,53 @@
   font-size: var(--tamano-texto-sm);
   text-decoration: underline;
   cursor: pointer;
+}
+
+.modal-marca__eliminar,
+.modal-marca__borrar-confirmar,
+.modal-marca__borrar-acciones button {
+  min-height: 48px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-marca__eliminar {
+  width: 100%;
+  border: 1px solid #c62828;
+  background: #fff;
+  color: #c62828;
+}
+
+.modal-marca__borrar {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff5f5;
+  text-align: left;
+}
+
+.modal-marca__borrar p {
+  margin: 0 0 12px;
+  color: #5d1a1a;
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__borrar-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-marca__borrar-acciones button {
+  flex: 1;
+  border: 1px solid #e8e8ec;
+  background: #fff;
+  color: #1f2022;
+}
+
+.modal-marca__borrar-confirmar {
+  border-color: #c62828;
+  background: #c62828;
+  color: #fff;
 }
 
 .modal-marca .enlaces-entrega {

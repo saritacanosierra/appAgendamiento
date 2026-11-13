@@ -5,7 +5,10 @@ export async function obtenerPlanMarca() {
   return respuesta.datos;
 }
 
-export async function crearPagoWompi() {
-  const respuesta = await peticionAdmin('/admin/suscripcion/wompi', { method: 'POST' });
+export async function crearPagoWompi(planTipo) {
+  const respuesta = await peticionAdmin('/admin/suscripcion/wompi', {
+    method: 'POST',
+    body: JSON.stringify({ plan_tipo: planTipo }),
+  });
   return respuesta.datos;
 }

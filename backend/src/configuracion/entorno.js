@@ -27,8 +27,10 @@ export const baseDatos = {
   user: process.env.DB_USUARIO ?? 'root',
   password: process.env.DB_CONTRASENA ?? '',
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+  connectionLimit: Number(process.env.DB_POOL ?? 20),
+  queueLimit: Number(process.env.DB_COLA ?? 50),
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   charset: 'utf8mb4',
   ...(process.env.DB_SSL === '1' || process.env.DB_SSL === 'true'
     ? { ssl: { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } }

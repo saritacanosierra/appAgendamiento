@@ -2,14 +2,17 @@ import { BotonPrincipal, IconoApp } from '../../../compartido/componentes';
 import { obtenerPasosInstalarPwa } from './pasosInstalarPwaAdmin';
 
 export default function ContenidoInstalarPwaAdmin({
-  esIos,
+  sistema = 'escritorio',
   esStandalone,
   puedeInstalarNativo,
   instalar,
   onCerrar,
   variante = 'banner',
 }) {
-  const { intro, pasos } = obtenerPasosInstalarPwa({ esIos, esStandalone, puedeInstalarNativo });
+  const { intro, pasos } = obtenerPasosInstalarPwa({ sistema, esStandalone, puedeInstalarNativo });
+  const titulo = sistema === 'escritorio'
+    ? 'Acceso rápido en este equipo'
+    : 'Acceso rápido en tu celular';
 
   return (
     <>
@@ -17,7 +20,7 @@ export default function ContenidoInstalarPwaAdmin({
         <IconoApp nombre="instalar" tamano="lg" />
       </div>
       <div className="instalar-app-admin__texto">
-        <strong>Acceso rapido en tu celular</strong>
+        <strong>{titulo}</strong>
         <p className="instalar-app-admin__intro">{intro}</p>
         <ol className="instalar-app-admin__pasos">
           {pasos.map((paso, indice) => (

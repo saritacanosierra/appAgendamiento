@@ -82,6 +82,37 @@ export class EmailServicio {
       html,
     });
   }
+
+  async enviarRecuperacionContrasena({ correo, nombre, url }) {
+    const asunto = 'Elige una contrasena nueva';
+    const texto = [
+      `Hola ${nombre},`,
+      '',
+      'Pediste recuperar la contrasena de tu panel.',
+      'Este enlace sirve una sola vez y vence en 1 hora:',
+      url,
+      '',
+      'Si no fuiste tu, ignora este correo.',
+    ].join('\n');
+    const nombreSeguro = escaparHtml(nombre);
+    const urlSegura = escaparHtml(url);
+    const html = `
+      <p>Hola <strong>${nombreSeguro}</strong>,</p>
+      <p>Pediste recuperar la contrasena de tu panel.</p>
+      <p><a href="${urlSegura}">Elegir una contrasena nueva</a></p>
+      <p>Este enlace sirve una sola vez y vence en 1 hora. Si no fuiste tu, ignora este correo.</p>
+    `;
+
+    return this.enviar({ para: correo, asunto, texto, html });
+  }
+}
+
+function escaparHtml(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export const emailServicio = new EmailServicio();

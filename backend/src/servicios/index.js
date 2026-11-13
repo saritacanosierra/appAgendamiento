@@ -5,6 +5,8 @@ import {
   TokenRepositorio,
   MarcaRepositorio,
 } from '../repositorios/index.js';
+import { RecuperacionContrasenaRepositorio } from '../repositorios/recuperacionContrasenaRepositorio.js';
+import { emailServicio } from './emailServicio.js';
 import { entorno } from '../configuracion/entorno.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
 import { planSePuedePagar, verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
@@ -12,18 +14,32 @@ import { mapearEstadoSuscripcion } from '../utilidades/suscripcionMarca.js';
 
 const HORAS_EXPIRACION = Number(process.env.TOKEN_EXPIRACION_HORAS ?? 168);
 const HORAS_ROTACION = Number(process.env.TOKEN_ROTACION_HORAS ?? 24);
+const MINUTOS_RECUPERACION = 60;
+const MENSAJE_RECUPERACION = 'Si el correo y el celular coinciden, enviamos un enlace a ese correo para cambiar la contrasena.';
+const MENSAJE_NO_COINCIDEN = 'El correo y el celular no coinciden. No enviamos nada y la contrasena no cambio.';
+
+function celularCoincide(ingresado, guardado) {
+  const a = String(ingresado ?? '').replace(/\D+/g, '');
+  const b = String(guardado ?? '').replace(/\D+/g, '');
+  if (a.length < 10 || b.length < 10) return false;
+  return a.slice(-10) === b.slice(-10);
+}
 
 export class AutenticacionServicio {
   constructor(
     usuarioRepo = new UsuarioRepositorio(),
     tokenRepo = new TokenRepositorio(),
     marcaRepo = new MarcaRepositorio(),
-    seguridad = new SeguridadServicio()
+    seguridad = new SeguridadServicio(),
+    recuperacionRepo = new RecuperacionContrasenaRepositorio(),
+    correoServicio = emailServicio
   ) {
     this.usuarioRepo = usuarioRepo;
     this.tokenRepo = tokenRepo;
     this.marcaRepo = marcaRepo;
     this.seguridad = seguridad;
+    this.recuperacionRepo = recuperacionRepo;
+    this.correoServicio = correoServicio;
   }
 
   async verificarCredenciales(correo, contrasena) {
@@ -209,6 +225,96 @@ export class AutenticacionServicio {
 
   async hashContrasena(contrasena) {
     return bcrypt.hash(contrasena, 10);
+  }
+
+  async solicitarRecuperacion(correo, celular, contexto) {
+    if (!this.correoServicio.estaHabilitado()) {
+      return {
+        error: 'No enviamos el correo: falta conectar el buzon. La contrasena no cambio.',
+        codigoHttp: 503,
+      };
+    }
+
+    const usuario = await this.usuarioRepo.buscarPorCorreo(correo);
+    const rolPermitido = contexto === 'plataforma'
+      ? usuario?.rol === 'superadmin'
+      : usuario?.rol === 'admin' || usuario?.rol === 'staff';
+
+    if (!usuario || !rolPermitido || (contexto === 'plataforma' && !entorno.plataformaHabilitada)) {
+      return { error: MENSAJE_NO_COINCIDEN, codigoHttp: 422 };
+    }
+
+    let coincide = false;
+    if (usuario.marca_id) {
+      const marca = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
+      coincide = celularCoincide(celular, marca?.telefono) || celularCoincide(celular, marca?.whatsapp);
+    }
+    if (!coincide) {
+      return { error: MENSAJE_NO_COINCIDEN, codigoHttp: 422 };
+    }
+
+    const token = this.seguridad.generarToken();
+    const tokenHash = this.seguridad.hashToken(token);
+    const expiraEn = new Date(Date.now() + MINUTOS_RECUPERACION * 60 * 1000);
+    const base = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+    const ruta = contexto === 'plataforma'
+      ? '/plataforma/restablecer-contrasena'
+      : '/admin/restablecer-contrasena';
+    const url = `${base}${ruta}?token=${token}`;
+
+    await this.recuperacionRepo.invalidarPendientes(usuario.id);
+    await this.recuperacionRepo.crear({
+      usuarioId: usuario.id,
+      tokenHash,
+      expiraEn,
+    });
+
+    try {
+      const envio = await this.correoServicio.enviarRecuperacionContrasena({
+        correo: usuario.correo,
+        nombre: usuario.nombre,
+        url,
+      });
+      if (!envio.enviado) {
+        await this.recuperacionRepo.invalidarPendientes(usuario.id);
+        return {
+          error: 'No pudimos enviar el correo. Intenta de nuevo en unos minutos.',
+          codigoHttp: 503,
+        };
+      }
+    } catch {
+      await this.recuperacionRepo.invalidarPendientes(usuario.id);
+      return {
+        error: 'No pudimos enviar el correo. Intenta de nuevo en unos minutos.',
+        codigoHttp: 503,
+      };
+    }
+
+    return { mensaje: MENSAJE_RECUPERACION };
+  }
+
+  async restablecerContrasena(token, contrasena) {
+    if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+      return { error: 'El enlace ya no sirve. Pide otro desde el inicio de sesion.', codigoHttp: 400 };
+    }
+    if (String(contrasena).length < 8) {
+      return { error: 'La contrasena debe tener al menos 8 caracteres.', codigoHttp: 422 };
+    }
+
+    const tokenHash = this.seguridad.hashToken(token);
+    const fila = await this.recuperacionRepo.consumir(tokenHash);
+    if (!fila || !fila.activo) {
+      return { error: 'El enlace ya no sirve. Pide otro desde el inicio de sesion.', codigoHttp: 400 };
+    }
+
+    const hash = await this.hashContrasena(contrasena);
+    await this.usuarioRepo.actualizarContrasena(fila.usuario_id, hash);
+    await this.tokenRepo.revocarPorUsuario(fila.usuario_id);
+
+    return {
+      mensaje: 'Contrasena actualizada. Ya puedes entrar.',
+      destino: fila.rol === 'superadmin' ? 'plataforma' : 'marca',
+    };
   }
 }
 

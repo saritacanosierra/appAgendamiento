@@ -5,6 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { corsOrigenes, entorno } from './configuracion/entorno.js';
 import rutasApi from './rutas/api.js';
+import { comprimirRespuestas } from './middlewares/comprimirRespuestas.js';
 import { manejoErrores, rutaNoEncontrada } from './middlewares/manejoErrores.js';
 import { idPeticionMiddleware } from './middlewares/idPeticionMiddleware.js';
 import { directorioSubidas } from './middlewares/subidaArchivos.js';
@@ -42,6 +43,7 @@ export function crearApp() {
   }));
 
   app.use(express.json({ limit: '2mb' }));
+  app.use(comprimirRespuestas);
   app.use(express.urlencoded({ extended: true }));
 
   app.disable('x-powered-by');
@@ -55,7 +57,12 @@ export function crearApp() {
       res.setHeader('Access-Control-Allow-Origin', '*');
       next();
     },
-    express.static(directorioSubidas),
+    express.static(directorioSubidas, {
+      maxAge: '7d',
+      setHeaders(res) {
+        res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      },
+    }),
   );
   app.use('/api', rutasApi);
 

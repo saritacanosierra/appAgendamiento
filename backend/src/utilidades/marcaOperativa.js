@@ -23,7 +23,7 @@ export function verificarMarcaOperativa(marca) {
   if (planEstaVencido(marca)) {
     return {
       ok: false,
-      error: 'El plan de suscripcion ha vencido. Contacta al administrador de la plataforma para renovar.',
+      error: 'El tiempo del plan se acabo. Las reservas estan pausadas hasta un nuevo pago. Los datos siguen guardados.',
       codigoHttp: 403,
       codigo: 'plan_vencido',
     };

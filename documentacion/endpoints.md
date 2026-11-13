@@ -27,10 +27,12 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | POST | `/api/reservas` | No | Crear reserva publica |
 | GET | `/api/reservas/confirmacion/{codigo}?slug=` | No | Detalle de esa tienda + calendario ICS. Sin slug, o con slug de otra tienda, responde 404 |
 | POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis |
-| POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago de $25.000 y renueva un mes |
-| GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, precio y si Wompi esta listo |
-| POST | `/api/admin/suscripcion/wompi` | Si, marca | Abre el cobro mensual. Tambien si el plan ya vencio |
+| POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago del periodo elegido y abre la agenda. No borra datos |
+| GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, los cuatro periodos y si Wompi esta listo |
+| POST | `/api/admin/suscripcion/wompi` | Si, marca | Abre el cobro. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Tambien si el plan ya vencio |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
+| POST | `/api/auth/recuperar-contrasena` | No | Solo si el `correo` y el `celular` son de la misma cuenta envia a ese correo un enlace de un solo uso (1 hora) para cambiar la contrasena. La respuesta no incluye el enlace ni cambia la contrasena. Si no coinciden, no envia nada. Body: `correo`, `celular`, `contexto` (`marca` o `plataforma`) |
+| POST | `/api/auth/restablecer-contrasena` | No | Guarda la contraseña nueva con el `token` del enlace. Minimo 8 caracteres. Cierra las sesiones abiertas de esa cuenta |
 | POST | `/api/auth/logout` | Si | Revocar token actual |
 | POST | `/api/auth/rotar` | Si | Renovar token manualmente |
 | GET | `/api/auth/me` | Si | Sesion activa (usuario + marca) |
@@ -112,12 +114,13 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | GET | `/api/marcas/{marca_id}/blog` | No | Publicaciones publicadas |
 | GET | `/api/publicidad/blog?publicacion_id=` | No | Campanas activas asignadas a esa publicacion |
 | GET | `/api/plataforma/publicidad/publicaciones` | Si, superadmin | Publicaciones de todas las tiendas para elegir donde sale cada campana |
+| DELETE | `/api/plataforma/marcas/{id}` | Si, superadmin | Elimina la empresa, su agenda, sus usuarios y los datos ligados. No se puede deshacer |
 | GET | `/api/plataforma/publicidad` | Si, superadmin | Campanas, con tipo imagen o enlace y sus publicaciones |
 | POST | `/api/plataforma/publicidad` | Si, superadmin | Crear anuncio |
 | PUT | `/api/plataforma/publicidad/{id}` | Si, superadmin | Actualizar anuncio |
 | POST | `/api/plataforma/subidas/publicidad` | Si, superadmin | Subir imagen del anuncio |
 | GET | `/api/marcas/{marca_id}/blog/slug/{slug}` | No | Detalle de publicacion |
-| GET | `/api/marcas/{marca_id}/galeria` | No | Disenos activos |
+| GET | `/api/marcas/{marca_id}/galeria` | No | Disenos activos. `?limite=6` devuelve solo las primeras (maximo 24) |
 | POST | `/api/marcas/{marca_id}/galeria/sesion` | No | Abre la seleccion con el celular, sin exigir cita |
 | GET | `/api/marcas/{marca_id}/galeria/selecciones?telefono=` | No | Fotos guardadas de ese celular en esa marca |
 | POST | `/api/marcas/{marca_id}/galeria/selecciones` | No | Guarda un diseno en el celular (`telefono`, `diseno_id`) |
@@ -128,7 +131,9 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | GET | `/api/admin/galeria` | Si | Todos los disenos de la marca |
 | POST | `/api/admin/galeria` | Si | Crear diseno |
 | PUT | `/api/admin/galeria/{id}` | Si | Actualizar diseno |
+| DELETE | `/api/admin/galeria/{id}` | Si | Elimina el diseno de la marca. Las elecciones de las clientas de esa foto se borran con ella |
 | GET | `/api/admin/configuracion-marca` | Si | Configuracion editable |
+| GET | `/api/admin/puesta-en-marcha` | Si | Si la marca ya tiene logo o contacto, servicios, equipo y fotos. No trae las listas |
 | PUT | `/api/admin/configuracion-marca` | Si | Guardar colores, contacto, horarios |
 | POST | `/api/admin/subidas/{galeria\|blog\|logos}` | Si | Subir imagen (multipart, campo `archivo`) |
 

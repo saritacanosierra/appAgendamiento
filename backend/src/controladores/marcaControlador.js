@@ -1,6 +1,7 @@
 import { MarcaRepositorio } from '../repositorios/index.js';
 import { mapearMarcaPublica } from '../servicios/marcaServicio.js';
 import { verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
+import { cacheLecturasPublicas } from '../utilidades/cacheLecturas.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 import { slug as validarSlug } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
@@ -15,17 +16,18 @@ export async function obtenerPorSlug(req, res) {
     return respuestaError(res, errorSlug, 422);
   }
 
-  const fila = await marcaRepo.buscarPorSlug(slugParam);
+  const resultado = await cacheLecturasPublicas.obtener(`marca:${slugParam}`, async () => {
+    const fila = await marcaRepo.buscarPorSlug(slugParam);
+    if (!fila) return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    const operativa = verificarMarcaOperativa(fila);
+    if (!operativa.ok) return { error: operativa.error, codigoHttp: operativa.codigoHttp };
+    return { datos: mapearMarcaPublica(fila) };
+  });
 
-  if (!fila) {
-    return respuestaError(res, 'Marca no encontrada.', 404);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
   }
 
-  const operativa = verificarMarcaOperativa(fila);
-  if (!operativa.ok) {
-    return respuestaError(res, operativa.error, operativa.codigoHttp);
-  }
-
-  const marca = mapearMarcaPublica(fila);
-  return respuestaExito(res, marca, 'Marca obtenida');
+  res.setHeader('Cache-Control', 'public, max-age=15');
+  return respuestaExito(res, resultado.datos, 'Marca obtenida');
 }

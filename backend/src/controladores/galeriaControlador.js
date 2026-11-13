@@ -28,7 +28,7 @@ export async function listarPublicos(req, res) {
   const marcaId = await verificarMarcaPublica(req.params.marca_id, res);
   if (!marcaId) return;
 
-  const disenos = await galeriaServicio.listarPublicos(marcaId);
+  const disenos = await galeriaServicio.listarPublicos(marcaId, req.query.limite);
   return respuestaExito(res, disenos, 'Galeria obtenida');
 }
 
@@ -58,6 +58,19 @@ export async function actualizarAdmin(req, res) {
   }
 
   return respuestaExito(res, resultado.diseno, 'Diseno actualizado');
+}
+
+export async function eliminarDisenoAdmin(req, res) {
+  const id = entero(req.params.id);
+  if (!id) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await galeriaServicio.eliminarAdmin(req.marcaId, id);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  return respuestaExito(res, null, 'Diseno eliminado');
 }
 
 export async function listarCatalogoPublicos(req, res) {

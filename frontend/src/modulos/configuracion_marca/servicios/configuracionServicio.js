@@ -1,5 +1,10 @@
 import { peticionAdmin } from '../../../compartido/utilidades/apiCliente';
 
+export async function obtenerPuestaEnMarcha() {
+  const respuesta = await peticionAdmin('/admin/puesta-en-marcha');
+  return respuesta.datos;
+}
+
 export async function obtenerConfiguracionMarca() {
   const respuesta = await peticionAdmin('/admin/configuracion-marca');
   return respuesta.datos;

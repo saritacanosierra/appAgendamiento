@@ -58,19 +58,28 @@ export default function GaleriaPublicaVista() {
   );
 
   useEffect(() => {
-    if (!marca?.id) return;
+    if (!marca?.id) return undefined;
 
+    let vigente = true;
     setCargando(true);
     Promise.all([
       listarGaleriaPublica(marca.id),
       listarCatalogoGaleriaPublica(marca.id),
     ])
       .then(([disenosData, catalogoData]) => {
+        if (!vigente) return;
         setDisenos(Array.isArray(disenosData) ? disenosData : []);
         setCatalogo(Array.isArray(catalogoData) ? catalogoData : []);
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setCargando(false));
+      .catch((err) => {
+        if (vigente) setError(err.message);
+      })
+      .finally(() => {
+        if (vigente) setCargando(false);
+      });
+    return () => {
+      vigente = false;
+    };
   }, [marca?.id]);
 
   const categorias = useMemo(

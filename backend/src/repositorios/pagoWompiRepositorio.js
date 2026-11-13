@@ -1,11 +1,11 @@
 import { pool } from '../configuracion/baseDatos.js';
 
 export class PagoWompiRepositorio {
-  async crear({ marcaId, referencia, montoCentavos }) {
+  async crear({ marcaId, referencia, montoCentavos, planTipo }) {
     const [resultado] = await pool.execute(
-      `INSERT INTO pagos_wompi (marca_id, referencia, monto_centavos, estado)
-       VALUES (?, ?, ?, 'pendiente')`,
-      [marcaId, referencia, montoCentavos]
+      `INSERT INTO pagos_wompi (marca_id, referencia, monto_centavos, plan_tipo, estado)
+       VALUES (?, ?, ?, ?, 'pendiente')`,
+      [marcaId, referencia, montoCentavos, planTipo]
     );
     return resultado.insertId;
   }

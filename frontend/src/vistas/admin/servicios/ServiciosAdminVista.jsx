@@ -13,6 +13,7 @@ import {
   IconoApp,
 } from '../../../compartido/componentes';
 import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
+import { AyudaPasoTienda } from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
   actualizarServicio,
@@ -201,6 +202,7 @@ export default function ServiciosAdminVista() {
         onCancelar={() => !eliminando && setServicioAEliminar(null)}
       />
 
+      <AyudaPasoTienda paso="servicios" />
       <header className="servicios-admin__cabecera">
         <div>
           <h1>Servicios de tu marca</h1>

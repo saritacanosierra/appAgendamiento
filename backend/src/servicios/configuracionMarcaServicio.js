@@ -83,6 +83,22 @@ export class ConfiguracionMarcaServicio {
     return { configuracion: mapearConfiguracionAdmin(fila) };
   }
 
+  async resumenArranque(marcaId) {
+    const fila = await this.configRepo.resumenArranque(marcaId);
+    if (!fila || fila.marca === null || fila.marca === undefined) {
+      return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    }
+    return {
+      resumen: {
+        marca: Number(fila.marca) > 0,
+        servicios: Number(fila.servicios) > 0,
+        equipo: Number(fila.equipo) > 0,
+        galeria: Number(fila.galeria) > 0,
+        cantidadServicios: Number(fila.servicios) || 0,
+      },
+    };
+  }
+
   async actualizarAdmin(marcaId, datos) {
     const actual = await this.configRepo.obtenerAdmin(marcaId);
     if (!actual) return { error: 'Marca no encontrada.', codigoHttp: 404 };

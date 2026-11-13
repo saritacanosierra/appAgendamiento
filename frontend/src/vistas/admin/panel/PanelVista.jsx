@@ -6,9 +6,13 @@ import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { fechaHoyLocal } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { obtenerAgenda } from '../../../modulos/agenda/servicios/agendaServicio';
-import { obtenerServiciosAdmin } from '../../../modulos/reservas/servicios/serviciosServicio';
+import { obtenerPuestaEnMarcha } from '../../../modulos/configuracion_marca/servicios/configuracionServicio';
 import BienvenidaMarca from '../../../componentes/admin/bienvenida_marca/BienvenidaMarca';
 import EnlaceAgendaMarca from '../../../componentes/admin/enlace_agenda/EnlaceAgendaMarca';
+import GuiaPersonalizacion, {
+  claveGuiaTienda,
+  guiaTiendaOculta,
+} from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import PagoPlanMarca from '../../../componentes/admin/pago_plan/PagoPlanMarca';
 import '../../../estilos/admin/panel/panel.css';
 
@@ -47,26 +51,72 @@ function obtenerSaludo() {
 export default function PanelVista() {
   const { usuario, marca } = useAuth();
   const [agenda, setAgenda] = useState(null);
-  const [servicios, setServicios] = useState(null);
+  const [sinServicios, setSinServicios] = useState(false);
+  const [hechos, setHechos] = useState({});
   const [verPanel, setVerPanel] = useState(false);
+  const [guiaVisible, setGuiaVisible] = useState(true);
   const [cargando, setCargando] = useState(true);
 
+  const marcaId = marca?.id ?? usuario?.marcaId;
+
   useEffect(() => {
+    setGuiaVisible(!guiaTiendaOculta(marcaId));
+  }, [marcaId]);
+
+  useEffect(() => {
+    if (!marcaId) return undefined;
+    let vigente = true;
+    setCargando(true);
     Promise.all([
       obtenerAgenda(fechaHoyLocal(), 'dia').catch(() => null),
-      obtenerServiciosAdmin().catch(() => null),
+      obtenerPuestaEnMarcha().catch(() => null),
     ])
-      .then(([agendaDia, listaServicios]) => {
+      .then(([agendaDia, resumen]) => {
+        if (!vigente) return;
         setAgenda(agendaDia);
-        setServicios(Array.isArray(listaServicios) ? listaServicios : null);
+        if (!resumen) return;
+        setSinServicios(resumen.cantidadServicios === 0);
+        setHechos({
+          marca: Boolean(resumen.marca),
+          servicios: Boolean(resumen.servicios),
+          equipo: Boolean(resumen.equipo),
+          galeria: Boolean(resumen.galeria),
+        });
       })
-      .finally(() => setCargando(false));
-  }, []);
+      .finally(() => {
+        if (vigente) setCargando(false);
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [marcaId]);
+
+  function ocultarGuia() {
+    if (marcaId) {
+      try {
+        localStorage.setItem(claveGuiaTienda(marcaId), 'oculta');
+      } catch {
+        /* El panel sigue usable si el navegador bloquea el almacenamiento. */
+      }
+    }
+    setGuiaVisible(false);
+  }
+
+  function mostrarGuia() {
+    if (marcaId) {
+      try {
+        localStorage.removeItem(claveGuiaTienda(marcaId));
+      } catch {
+        /* Si no se puede borrar, la guía igual se muestra en esta visita. */
+      }
+    }
+    setGuiaVisible(true);
+  }
 
   const slug = marca?.slug;
   const proximas = agenda?.citas?.slice(0, 5) ?? [];
   const primerNombre = usuario?.nombre?.split(' ')[0] ?? 'equipo';
-  const marcaNueva = Array.isArray(servicios) && servicios.length === 0;
+  const marcaNueva = sinServicios;
 
   if (cargando) return <Cargando mensaje="Preparando tu espacio..." />;
 
@@ -74,8 +124,8 @@ export default function PanelVista() {
     return (
       <div className="panel-admin">
         {slug && <EnlaceAgendaMarca slug={slug} nombre={marca?.nombreComercial} />}
-        {marca?.plan?.prueba && <PagoPlanMarca variante="aviso" />}
-        <BienvenidaMarca marca={marca} onVerPanel={() => setVerPanel(true)} />
+        {(marca?.plan?.prueba || marca?.plan?.porVencer) && <PagoPlanMarca variante="aviso" />}
+        <BienvenidaMarca marca={marca} hechos={hechos} onVerPanel={() => setVerPanel(true)} />
       </div>
     );
   }
@@ -83,7 +133,14 @@ export default function PanelVista() {
   return (
     <div className="panel-admin">
       {slug && <EnlaceAgendaMarca slug={slug} nombre={marca?.nombreComercial} />}
-      {marca?.plan?.prueba && <PagoPlanMarca variante="aviso" />}
+      {(marca?.plan?.prueba || marca?.plan?.porVencer) && <PagoPlanMarca variante="aviso" />}
+      {guiaVisible ? (
+        <GuiaPersonalizacion hechos={hechos} onOcultar={ocultarGuia} />
+      ) : (
+        <button type="button" className="panel-admin__ver-guia" onClick={mostrarGuia}>
+          Ver los pasos para personalizar tu tienda
+        </button>
+      )}
       <section className="panel-admin__hero">
         <div className="panel-admin__hero-texto">
           <p className="panel-admin__hero-etiqueta">{formatearFechaHoy()}</p>

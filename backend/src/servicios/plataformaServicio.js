@@ -162,6 +162,16 @@ export class PlataformaServicio {
     return { marca: mapearMarcaPlataforma(fila) };
   }
 
+  async eliminarMarca(marcaId) {
+    const existente = await this.marcaRepo.buscarPorId(marcaId);
+    if (!existente) {
+      return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    }
+
+    await this.marcaRepo.eliminar(marcaId);
+    return { eliminada: true, nombre: existente.nombre_comercial };
+  }
+
   async impersonarMarca(marcaId) {
     const existente = await this.marcaRepo.buscarPorId(marcaId);
     if (!existente) {

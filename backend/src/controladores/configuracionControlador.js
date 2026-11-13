@@ -13,6 +13,16 @@ export async function obtenerAdmin(req, res) {
   return respuestaExito(res, resultado.configuracion, 'Configuracion de marca');
 }
 
+export async function resumenArranque(req, res) {
+  const resultado = await configServicio.resumenArranque(req.marcaId);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
+  }
+
+  return respuestaExito(res, resultado.resumen, 'Resumen de puesta en marcha');
+}
+
 export async function actualizarAdmin(req, res) {
   const resultado = await configServicio.actualizarAdmin(req.marcaId, req.body);
 

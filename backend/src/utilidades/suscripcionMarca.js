@@ -1,8 +1,10 @@
+export const PRECIO_MES_COP = 25000;
+
 export const PLAN_TIPOS = {
-  mensual: { meses: 1, etiqueta: 'Mensual' },
-  trimestral: { meses: 3, etiqueta: 'Trimestral' },
-  semestral: { meses: 6, etiqueta: 'Semestral' },
-  anual: { meses: 12, etiqueta: 'Anual' },
+  mensual: { meses: 1, etiqueta: 'Mensual', precio: 25000 },
+  trimestral: { meses: 3, etiqueta: 'Trimestral', precio: 90000 },
+  semestral: { meses: 6, etiqueta: 'Semestral', precio: 180000 },
+  anual: { meses: 12, etiqueta: 'Anual', precio: 360000 },
 };
 
 export const TIPOS_PLAN_VALIDOS = Object.keys(PLAN_TIPOS);
@@ -95,6 +97,19 @@ export function diasDesdeFacturacion(marca) {
 
 export function etiquetaPlanTipo(tipo) {
   return PLAN_TIPOS[tipo]?.etiqueta ?? tipo ?? '—';
+}
+
+export function precioPlanCop(planTipo) {
+  return PLAN_TIPOS[planTipo]?.precio ?? null;
+}
+
+export function listarPlanesCobro() {
+  return TIPOS_PLAN_VALIDOS.map((tipo) => ({
+    tipo,
+    etiqueta: PLAN_TIPOS[tipo].etiqueta,
+    meses: PLAN_TIPOS[tipo].meses,
+    precio: precioPlanCop(tipo),
+  }));
 }
 
 export function mapearEstadoSuscripcion(fila) {

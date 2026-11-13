@@ -11,11 +11,14 @@ export function manejoErrores(err, req, res, _next) {
     marcaId: req.marcaId ?? null,
   }, err.message ?? 'Error interno');
 
-  const mensaje = entorno.depuracion
-    ? err.message ?? 'Error interno del servidor.'
-    : 'Error interno del servidor.';
+  const colaLlena = /queue limit/i.test(err.message ?? '');
+  const mensaje = colaLlena
+    ? 'Hay muchas personas usando la agenda. Intenta de nuevo en un momento.'
+    : entorno.depuracion
+      ? err.message ?? 'Error interno del servidor.'
+      : 'Error interno del servidor.';
 
-  respuestaError(res, mensaje, err.codigoHttp ?? 500);
+  respuestaError(res, mensaje, err.codigoHttp ?? (colaLlena ? 503 : 500));
 }
 
 export function rutaNoEncontrada(req, res) {

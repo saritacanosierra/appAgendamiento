@@ -2,6 +2,7 @@ import { EstilistaRepositorio } from '../repositorios/estilistaRepositorio.js';
 import { GaleriaRepositorio } from '../repositorios/galeriaRepositorio.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { entero, texto } from '../utilidades/sanitizador.js';
+import { cacheLecturasPublicas } from '../utilidades/cacheLecturas.js';
 import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 const MAX_TRABAJOS = 6;
@@ -59,8 +60,10 @@ export class EstilistaServicio {
   }
 
   async listarPublicos(marcaId) {
-    const filas = await this.estilistaRepo.listarActivos(marcaId);
-    return filas.map(mapearEstilista);
+    return cacheLecturasPublicas.obtener(`estilistas:${marcaId}`, async () => {
+      const filas = await this.estilistaRepo.listarActivos(marcaId);
+      return filas.map(mapearEstilista);
+    });
   }
 
   async listarPortafolio(marcaId) {

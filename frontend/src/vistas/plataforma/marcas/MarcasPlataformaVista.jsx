@@ -14,6 +14,7 @@ import { guardarTokenMarca, marcarImpersonacion } from '../../../compartido/util
 import {
   actualizarMarcaPlataforma,
   crearMarcaPlataforma,
+  eliminarMarcaPlataforma,
   impersonarMarcaPlataforma,
   listarMarcasPlataforma,
   obtenerMarcaPlataforma,
@@ -62,6 +63,7 @@ export default function MarcasPlataformaVista() {
   const [entrandoPanel, setEntrandoPanel] = useState(null);
   const [marcaDetalle, setMarcaDetalle] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
 
   async function abrirDetalleMarca(marca) {
     setMarcaDetalle(marca);
@@ -145,6 +147,21 @@ export default function MarcasPlataformaVista() {
       }
     } catch (err) {
       setError(err.message);
+    }
+  }
+
+  async function eliminarMarca(marca) {
+    setEliminando(true);
+    setError(null);
+    try {
+      await eliminarMarcaPlataforma(marca.id);
+      setMarcaDetalle(null);
+      setMensaje(`${marca.nombreComercial} fue eliminada.`);
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEliminando(false);
     }
   }
 
@@ -305,6 +322,8 @@ export default function MarcasPlataformaVista() {
         onEntrarPanel={entrarPanelMarca}
         onToggleActiva={(marca) => toggleCampo(marca, 'activa')}
         onTogglePlan={(marca) => toggleCampo(marca, 'plan')}
+        eliminando={eliminando}
+        onEliminar={eliminarMarca}
       />
     </div>
   );

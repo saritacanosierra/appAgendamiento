@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { estado } from '../controladores/estadoControlador.js';
 import { obtenerPorSlug } from '../controladores/marcaControlador.js';
-import { login, logout, me, rotarToken } from '../controladores/autenticacionControlador.js';
+import { login, logout, me, rotarToken, recuperarContrasena, restablecerContrasena } from '../controladores/autenticacionControlador.js';
 import { registrarMarcaPublica } from '../controladores/registroControlador.js';
 import {
   crearPagoWompi,
@@ -52,6 +52,7 @@ import {
   listarAdmin as listarGaleriaAdmin,
   crearAdmin as crearGaleriaAdmin,
   actualizarAdmin as actualizarGaleriaAdmin,
+  eliminarDisenoAdmin,
   listarCatalogoPublicos as listarGaleriaCatalogoPublicos,
   listarCatalogoAdmin as listarGaleriaCatalogoAdmin,
   crearCatalogoAdmin as crearGaleriaCatalogoAdmin,
@@ -79,6 +80,7 @@ import {
 } from '../controladores/carruselControlador.js';
 import {
   obtenerAdmin as obtenerConfiguracionAdmin,
+  resumenArranque,
   actualizarAdmin as actualizarConfiguracionAdmin,
   subirArchivo,
 } from '../controladores/configuracionControlador.js';
@@ -115,6 +117,7 @@ import {
   obtenerResumenPlataforma,
   crearMarcaPlataforma,
   actualizarMarcaPlataforma,
+  eliminarMarcaPlataforma,
   impersonarMarcaPlataforma,
   obtenerReportePlataforma,
   resetearContrasenaMarcaPlataforma,
@@ -172,6 +175,8 @@ router.get('/integraciones/google/callback', callbackGoogle);
 router.post('/registro', limitarRegistro, registrarMarcaPublica);
 router.post('/webhooks/wompi', webhookWompi);
 router.post('/auth/login', limitarLogin, login);
+router.post('/auth/recuperar-contrasena', recuperarContrasena);
+router.post('/auth/restablecer-contrasena', restablecerContrasena);
 router.post('/auth/logout', autenticacionMiddleware, logout);
 router.post('/auth/rotar', autenticacionMiddleware, rotarToken);
 router.get('/auth/me', autenticacionMiddleware, me);
@@ -209,6 +214,7 @@ router.put('/admin/blog/:id', actualizarBlogAdmin);
 router.get('/admin/galeria', listarGaleriaAdmin);
 router.post('/admin/galeria', crearGaleriaAdmin);
 router.put('/admin/galeria/:id', actualizarGaleriaAdmin);
+router.delete('/admin/galeria/:id', eliminarDisenoAdmin);
 router.get('/admin/galeria/catalogo', listarGaleriaCatalogoAdmin);
 router.post('/admin/galeria/catalogo', crearGaleriaCatalogoAdmin);
 router.put('/admin/galeria/catalogo/:id', actualizarGaleriaCatalogoAdmin);
@@ -217,6 +223,7 @@ router.get('/admin/carrusel-inicio', listarCarruselAdmin);
 router.post('/admin/carrusel-inicio', crearCarruselAdmin);
 router.put('/admin/carrusel-inicio/:id', actualizarCarruselAdmin);
 router.get('/admin/configuracion-marca', obtenerConfiguracionAdmin);
+router.get('/admin/puesta-en-marcha', resumenArranque);
 router.put('/admin/configuracion-marca', actualizarConfiguracionAdmin);
 router.get('/admin/notificaciones/resumen', obtenerResumen);
 router.put('/admin/notificaciones/marcar-todas-leidas', marcarTodasLeidas);
@@ -244,6 +251,7 @@ router.get('/plataforma/marcas', listarMarcasPlataforma);
 router.get('/plataforma/marcas/:id', obtenerMarcaPlataforma);
 router.post('/plataforma/marcas', crearMarcaPlataforma);
 router.put('/plataforma/marcas/:id', actualizarMarcaPlataforma);
+router.delete('/plataforma/marcas/:id', eliminarMarcaPlataforma);
 router.post('/plataforma/marcas/:id/impersonar', impersonarMarcaPlataforma);
 router.put('/plataforma/marcas/:id/reset-contrasena', resetearContrasenaMarcaPlataforma);
 router.post('/plataforma/marcas/:id/suscripcion/activar', activarSuscripcionMarcaPlataforma);

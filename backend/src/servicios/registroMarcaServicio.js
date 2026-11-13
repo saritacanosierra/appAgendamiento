@@ -3,12 +3,13 @@ import { MarcaPlataformaRepositorio } from '../repositorios/plataformaRepositori
 import { UsuarioRepositorio } from '../repositorios/index.js';
 import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositorio.js';
 import { suscripcionMarcaServicio } from './suscripcionMarcaServicio.js';
+import { PRECIO_MES_COP } from '../utilidades/suscripcionMarca.js';
 import { slugUnico } from '../utilidades/slug.js';
 import { email, requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 
 export const DIAS_PRUEBA = 8;
-export const PRECIO_MENSUAL_COP = 25000;
+export const PRECIO_MENSUAL_COP = PRECIO_MES_COP;
 
 export class RegistroMarcaServicio {
   constructor(deps = {}) {

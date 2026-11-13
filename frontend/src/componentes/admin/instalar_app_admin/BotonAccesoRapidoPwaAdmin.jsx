@@ -5,12 +5,14 @@ import ContenidoInstalarPwaAdmin from './ContenidoInstalarPwaAdmin';
 import '../../../estilos/componentes/instalar_app_admin/instalar_app_admin.css';
 
 export default function BotonAccesoRapidoPwaAdmin({
-  esIos,
+  sistema = 'escritorio',
   esStandalone,
   puedeInstalarNativo,
   instalar,
 }) {
   const [abierto, setAbierto] = useState(false);
+  const enCelular = sistema === 'ios' || sistema === 'android';
+  const titulo = enCelular ? 'Acceso rápido en el celular' : 'Instalar el panel en este equipo';
 
   return (
     <>
@@ -18,8 +20,8 @@ export default function BotonAccesoRapidoPwaAdmin({
         type="button"
         className="instalar-app-admin__boton-topbar"
         onClick={() => setAbierto(true)}
-        title="Acceso rapido en celular"
-        aria-label="Acceso rapido en celular — instalar icono del panel"
+        title={titulo}
+        aria-label={titulo}
       >
         <IconoApp nombre="instalar" tamano="md" />
       </button>
@@ -39,7 +41,7 @@ export default function BotonAccesoRapidoPwaAdmin({
           />
           <div className="instalar-app-admin__panel">
             <header className="instalar-app-admin__cabecera">
-              <h2 id="modal-acceso-rapido-titulo">Acceso rapido en celular</h2>
+              <h2 id="modal-acceso-rapido-titulo">{titulo}</h2>
               <button
                 type="button"
                 className="instalar-app-admin__cerrar-modal"
@@ -51,7 +53,7 @@ export default function BotonAccesoRapidoPwaAdmin({
             </header>
             <div className="instalar-app-admin instalar-app-admin--modal">
               <ContenidoInstalarPwaAdmin
-                esIos={esIos}
+                sistema={sistema}
                 esStandalone={esStandalone}
                 puedeInstalarNativo={puedeInstalarNativo}
                 instalar={async () => {

@@ -148,4 +148,20 @@ export class MarcaPlataformaRepositorio {
       [marcaId]
     );
   }
+
+  async eliminar(marcaId) {
+    const conexion = await pool.getConnection();
+    try {
+      await conexion.beginTransaction();
+      await conexion.execute('DELETE FROM citas WHERE marca_id = ?', [marcaId]);
+      const [resultado] = await conexion.execute('DELETE FROM marcas WHERE id = ?', [marcaId]);
+      await conexion.commit();
+      return resultado.affectedRows > 0;
+    } catch (error) {
+      await conexion.rollback();
+      throw error;
+    } finally {
+      conexion.release();
+    }
+  }
 }

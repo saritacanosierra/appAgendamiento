@@ -129,6 +129,16 @@ const MIGRACIONES = [
     nombre: 'Pagos mensuales con Wompi',
     ejecutar: (c) => ejecutarArchivoSql(c, '020_pagos_wompi.sql'),
   },
+  {
+    id: '021_pagos_wompi_plan',
+    nombre: 'Periodo elegido en el pago Wompi',
+    ejecutar: (c) => ejecutarArchivoSql(c, '021_pagos_wompi_plan.sql'),
+  },
+  {
+    id: '022_recuperaciones_contrasena',
+    nombre: 'Enlace para recuperar la contrasena',
+    ejecutar: (c) => ejecutarArchivoSql(c, '022_recuperaciones_contrasena.sql'),
+  },
 ];
 
 async function main() {

@@ -1,0 +1,196 @@
+.guia-tienda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: var(--espacio-xl);
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid var(--color-borde-superficie);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-card);
+}
+
+.guia-tienda__etiqueta {
+  margin: 0 0 var(--espacio-xs);
+  color: var(--color-acento-superficie);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.guia-tienda h2 {
+  margin: 0 0 var(--espacio-xs);
+  color: var(--color-texto-superficie);
+  font-size: 1.35rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.guia-tienda__cabecera p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  line-height: 1.45;
+}
+
+.guia-tienda__pasos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guia-tienda__paso {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-md);
+  min-height: 72px;
+  min-width: 0;
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid var(--color-borde-superficie);
+  background: var(--color-fondo);
+  color: inherit;
+  text-decoration: none;
+}
+
+.guia-tienda__paso--actual {
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-principal) 16%, transparent);
+}
+
+.guia-tienda__paso--hecho {
+  background: color-mix(in srgb, var(--color-principal) 6%, var(--color-fondo));
+}
+
+.guia-tienda__numero {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-principal) 12%, var(--color-superficie));
+  color: var(--color-acento-superficie);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.guia-tienda__paso--hecho .guia-tienda__numero {
+  background: var(--color-principal);
+  color: #fff;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.guia-tienda__icono {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-principal) 10%, var(--color-superficie));
+  color: var(--color-acento-superficie);
+}
+
+.guia-tienda__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.guia-tienda__texto strong {
+  color: var(--color-texto-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.guia-tienda__texto span {
+  color: var(--color-texto-muted-superficie);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.guia-tienda__ahora {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--color-principal) 14%, var(--color-superficie));
+  color: var(--color-acento-superficie);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.guia-tienda__flecha {
+  flex-shrink: 0;
+  color: var(--color-texto-muted-superficie);
+}
+
+.guia-tienda__ocultar {
+  min-height: 48px;
+  border: none;
+  background: transparent;
+  color: var(--color-texto-muted-superficie);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guia-tienda-paso {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: var(--espacio-lg);
+  padding: var(--espacio-md);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid var(--color-principal);
+  background: color-mix(in srgb, var(--color-principal) 8%, var(--color-superficie));
+}
+
+.guia-tienda-paso strong {
+  color: var(--color-texto-superficie);
+  font-size: 1.05rem;
+}
+
+.guia-tienda-paso p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  line-height: 1.45;
+}
+
+.guia-tienda-paso p.guia-tienda-paso__indice {
+  color: var(--color-acento-superficie);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.guia-tienda-paso__siguiente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: var(--espacio-sm);
+  padding: 0 var(--espacio-md);
+  border-radius: var(--radio-borde);
+  background: var(--color-principal);
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}

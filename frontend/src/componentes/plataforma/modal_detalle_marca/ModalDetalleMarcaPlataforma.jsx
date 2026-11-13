@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BotonPrincipal, IconoApp } from '../../../compartido/componentes';
 import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
@@ -46,7 +47,15 @@ export default function ModalDetalleMarcaPlataforma({
   onEntrarPanel,
   onToggleActiva,
   onTogglePlan,
+  eliminando = false,
+  onEliminar,
 }) {
+  const [confirmarBorrado, setConfirmarBorrado] = useState(false);
+
+  useEffect(() => {
+    setConfirmarBorrado(false);
+  }, [marca?.id]);
+
   if (!marca) return null;
 
   const sus = marca.suscripcion;
@@ -166,6 +175,34 @@ export default function ModalDetalleMarcaPlataforma({
                 {marca.planHabilitado ? 'Quitar plan manual' : 'Habilitar plan manual'}
               </button>
             </div>
+            {confirmarBorrado ? (
+              <div className="modal-marca__borrar">
+                <p>
+                  Se elimina {marca.nombreComercial}, su agenda y el acceso de su dueña. No se puede deshacer.
+                </p>
+                <div className="modal-marca__borrar-acciones">
+                  <button type="button" onClick={() => setConfirmarBorrado(false)} disabled={eliminando}>
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="modal-marca__borrar-confirmar"
+                    onClick={() => onEliminar(marca)}
+                    disabled={eliminando}
+                  >
+                    {eliminando ? 'Eliminando...' : 'Eliminar empresa'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="modal-marca__eliminar"
+                onClick={() => setConfirmarBorrado(true)}
+              >
+                Eliminar empresa
+              </button>
+            )}
           </footer>
         </div>
       </div>

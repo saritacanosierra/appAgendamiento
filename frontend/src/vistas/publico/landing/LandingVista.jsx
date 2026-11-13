@@ -4,7 +4,6 @@ import { CampoFormulario, InputTexto } from '../../../compartido/componentes';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { registrarSalon } from '../../../modulos/registro/servicios/registroServicio';
-import EnlaceAgendaMarca from '../../../componentes/admin/enlace_agenda/EnlaceAgendaMarca';
 import '../../../estilos/publico/landing/landing.css';
 
 const TITULO_SEO = 'Agenda en línea para peluquerías, uñas, pestañas, tatuaje y estética';
@@ -19,16 +18,28 @@ const VACIO = {
 
 const PASOS = [
   {
-    titulo: 'Creas tu agenda en minutos',
-    texto: 'Configura tu nombre, tu equipo, tus servicios y horarios. Entras al panel el mismo día.',
+    titulo: 'Crea tu cuenta en el formulario de abajo',
+    texto: 'Escribes el nombre del negocio, tu nombre, el correo y una contraseña. Le das a «Crear mi agenda gratis». No piden tarjeta.',
   },
   {
-    titulo: 'Compartes un solo enlace',
-    texto: 'Envíalo por WhatsApp o ponlo en tu Instagram. Reservan sin descargar nada ni crear cuentas.',
+    titulo: 'Tu marca',
+    texto: 'Entras al panel. Abres «Tu marca» y guardas logo, colores, WhatsApp y los días que atiendes.',
   },
   {
-    titulo: 'Automatizas tu día y tu caja',
-    texto: 'Sabes quién llega, a qué hora y cuánto ingresó, sin cruces de horarios.',
+    titulo: 'Tus servicios',
+    texto: 'Creas cada servicio con su nombre, cuánto dura y el precio. Sin esto, tu clienta no tiene qué reservar.',
+  },
+  {
+    titulo: 'Quién atiende',
+    texto: 'Agregas a cada profesional. Si trabajas sola, escribes tu nombre. Así ella elige con quién.',
+  },
+  {
+    titulo: 'Fotos de tus trabajos',
+    texto: 'Subes las fotos a la galería. Tu clienta las ve en el celular y puede elegir el diseño.',
+  },
+  {
+    titulo: 'El enlace para tu clienta',
+    texto: 'Pulsas «Copiar enlace» y lo pegas en WhatsApp. Ella abre tuagenda.com/m/tu-negocio, elige hora y reserva. No crea cuenta.',
   },
 ];
 
@@ -55,7 +66,7 @@ const PREGUNTAS = [
   },
   {
     pregunta: '¿Cuánto cuesta después de la prueba?',
-    respuesta: 'Un precio fijo de $25.000 al mes, con Wompi. No hay comisión por cada reserva.',
+    respuesta: 'El mes vale $25.000. El trimestre $90.000, el semestre $180.000 y el año $360.000, con Wompi. No hay comisión por cada reserva.',
   },
   {
     pregunta: '¿Mis clientas tienen que registrarse o descargar algo?',
@@ -63,7 +74,7 @@ const PREGUNTAS = [
   },
   {
     pregunta: '¿Qué pasa cuando terminan los 8 días?',
-    respuesta: 'Activas el plan de $25.000 con Wompi y tus clientas siguen reservando. Si el mes no está pago, ellas no agendan y tú entras al panel para renovar.',
+    respuesta: 'Activas el plan con Wompi: mes $25.000, trimestre $90.000, semestre $180.000 o año $360.000. Tus clientas siguen reservando. La prueba es una sola vez. Si se acaba el tiempo que pagaste, ellas no agendan y tú entras al panel a pagar de nuevo. Tus citas y fotos siguen guardadas.',
   },
 ];
 
@@ -259,10 +270,10 @@ export default function LandingVista() {
             </div>
           </div>
           <div className="landing__ola" aria-hidden="true">
-            <svg viewBox="0 0 1440 320" preserveAspectRatio="none" focusable="false">
+            <svg viewBox="0 0 1440 420" preserveAspectRatio="none" focusable="false">
               <path
-                fill="#7209b7"
-                d="M0,250 C220,270 380,230 560,245 C780,262 900,180 1080,120 C1220,72 1340,90 1440,70 L1440,320 L0,320 Z"
+                fill="#cfc4ff"
+                d="M0,390 A2000,1200 0 0 1 1440,86 L1440,420 L0,420 Z"
               />
             </svg>
           </div>
@@ -275,6 +286,36 @@ export default function LandingVista() {
             <li><strong>$25.000</strong><span>al mes, precio fijo</span></li>
             <li><strong>1 enlace</strong><span>para tus clientas</span></li>
           </ul>
+        </section>
+
+        <section className="landing__bloque landing__entra" id="puertas">
+          <div className="landing__ancho">
+            <p className="landing__etiqueta">Dos puertas</p>
+            <h2>Tú personalizas la marca. Tu clienta solo abre un enlace.</h2>
+            <div className="landing__puertas">
+              <article className="landing__puerta">
+                <p className="landing__puerta-rol">Dueña de la marca</p>
+                <h3>Entras al panel para dejarla a tu gusto.</h3>
+                <ul>
+                  <li>Nombre, logo y colores de tu negocio.</li>
+                  <li>Servicios, precios, equipo y horarios.</li>
+                  <li>Galería de trabajos y el aviso a tu WhatsApp.</li>
+                </ul>
+                <p className="landing__puerta-nota">Esta puerta es solo tuya, con correo y contraseña.</p>
+              </article>
+              <article className="landing__puerta">
+                <p className="landing__puerta-rol">Tu clienta</p>
+                <h3>No se registra. Le compartes este enlace.</h3>
+                <p className="landing__enlace-muestra">tuagenda.com/m/tu-negocio</p>
+                <ul>
+                  <li>Lo copias en el panel y lo envías por WhatsApp o Instagram.</li>
+                  <li>Ella elige servicio, hora y profesional desde el celular.</li>
+                  <li>Tú recibes el aviso con su nombre y la cita.</li>
+                </ul>
+                <p className="landing__puerta-nota">Ese enlace es lo único que ve tu clienta.</p>
+              </article>
+            </div>
+          </div>
         </section>
 
         <section className="landing__bloque landing__entra" id="problema">
@@ -301,7 +342,10 @@ export default function LandingVista() {
         <section className="landing__bloque landing__bloque--violeta landing__entra" id="como">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Cómo funciona</p>
-            <h2>De tu WhatsApp a una agenda que trabaja sola, en 3 pasos.</h2>
+            <h2>Si acabas de inscribirte, haz esto en orden.</h2>
+            <p className="landing__bajada">
+              El 1 es este formulario. Del 2 al 6 los haces en tu panel, en el mismo orden. El enlace es lo único que ve tu clienta.
+            </p>
             <ol className="landing__pasos">
               {PASOS.map((paso, indice) => (
                 <li key={paso.titulo}>
@@ -358,7 +402,7 @@ export default function LandingVista() {
                 <h2>Una tarifa plana que protege lo que cobras.</h2>
                 <p className="landing__precio-grande">$25.000 al mes</p>
                 <p className="landing__bajada">
-                  Sin porcentaje sobre el servicio. Aunque agendes más, el mes sigue en $25.000.
+                  Sin porcentaje sobre el servicio. El mes sigue en $25.000. El trimestre cuesta $90.000, el semestre $180.000 y el año $360.000.
                 </p>
                 <a className="landing__cta" href="#registro">Probar 8 días gratis</a>
               </div>
@@ -403,12 +447,12 @@ export default function LandingVista() {
           <div className="landing__ancho landing__registro-grid">
             <div>
               <p className="landing__etiqueta">Empieza hoy</p>
-              <h2>Deja lista tu agenda hoy.</h2>
-              <p className="landing__bajada">La pruebas 8 días, con el enlace listo para compartir.</p>
+              <h2>Crea tu perfil para empezar en la app.</h2>
+              <p className="landing__bajada">Este formulario es tu cuenta. El correo y la contraseña son los que usarás para entrar.</p>
               <ul className="landing__alta">
-                <li>Entras al panel de administradora.</li>
-                <li>Tu enlace queda listo para WhatsApp.</li>
-                <li>Sin tarjeta para empezar.</li>
+                <li>Escribes el negocio y tu nombre.</li>
+                <li>El correo es con el que vas a entrar.</li>
+                <li>La contraseña es la llave de ese ingreso.</li>
               </ul>
               <p className="landing__entrar">
                 ¿Ya tienes cuenta? <Link to={RUTAS_ADMIN.login}>Entrar al panel</Link>
@@ -417,16 +461,22 @@ export default function LandingVista() {
 
             {creado ? (
               <div className="landing__listo">
-                <h3>{creado.marca.nombreComercial} ya está listo</h3>
+                <h3>Paso 1 listo. Sigue con el paso 2.</h3>
                 <p>
-                  {creado.prueba.dias} días gratis, hasta {creado.prueba.venceEn}.
-                  Luego ${Number(creado.prueba.precioMensual).toLocaleString('es-CO')} al mes.
+                  {creado.marca.nombreComercial} tiene {creado.prueba.dias} días gratis, hasta {creado.prueba.venceEn}.
+                  En el panel, el paso 2 es tu marca: logo, colores, WhatsApp y horarios.
                 </p>
-                <EnlaceAgendaMarca slug={creado.marca.slug} nombre={creado.marca.nombreComercial} />
-                <Link className="landing__cta landing__cta--ancho" to={RUTAS_ADMIN.panel}>Ir a mi panel</Link>
+                <Link className="landing__cta landing__cta--ancho" to={RUTAS_ADMIN.configuracionMarca}>
+                  Ir al paso 2: tu marca
+                </Link>
+                <p className="landing__entrar">
+                  <Link to={RUTAS_ADMIN.panel}>Ver la lista completa en el panel</Link>
+                </p>
               </div>
             ) : (
               <form className="landing__form" onSubmit={registrar}>
+                <h3 className="landing__form-titulo">Tu perfil para entrar</h3>
+                <p className="landing__form-ayuda">Con estos datos abres el panel de tu marca cada vez que vuelvas.</p>
                 <CampoFormulario etiqueta="Negocio" id="reg-nombre" requerido>
                   <InputTexto
                     id="reg-nombre"
@@ -447,7 +497,12 @@ export default function LandingVista() {
                     required
                   />
                 </CampoFormulario>
-                <CampoFormulario etiqueta="Correo electrónico" id="reg-correo" requerido>
+                <CampoFormulario
+                  etiqueta="Correo para entrar"
+                  id="reg-correo"
+                  requerido
+                  ayuda="Con este correo inicias sesión."
+                >
                   <input
                     id="reg-correo"
                     type="email"
@@ -458,7 +513,12 @@ export default function LandingVista() {
                     required
                   />
                 </CampoFormulario>
-                <CampoFormulario etiqueta="Contraseña" id="reg-pass" requerido>
+                <CampoFormulario
+                  etiqueta="Contraseña para entrar"
+                  id="reg-pass"
+                  requerido
+                  ayuda="Con esta contraseña inicias sesión. Mínimo 8 caracteres."
+                >
                   <input
                     id="reg-pass"
                     type="password"
@@ -471,9 +531,9 @@ export default function LandingVista() {
                 </CampoFormulario>
                 {error && <p className="landing__error" role="alert">{error}</p>}
                 <button type="submit" className="landing__cta landing__cta--ancho" disabled={enviando}>
-                  {enviando ? 'Creando...' : 'Crear mi agenda gratis'}
+                  {enviando ? 'Creando...' : 'Crear mi perfil y entrar'}
                 </button>
-                <p className="landing__nota">Sin tarjeta. La contraseña tiene al menos 8 caracteres.</p>
+                <p className="landing__nota">Sin tarjeta. Guarda este correo y esta contraseña: son los de tu ingreso.</p>
               </form>
             )}
           </div>

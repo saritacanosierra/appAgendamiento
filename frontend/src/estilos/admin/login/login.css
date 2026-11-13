@@ -23,32 +23,42 @@
   color: #1a237e;
 }
 
-.login-vista--plataforma .login-vista__demo,
+.login-vista--plataforma .login-vista__recuperar,
 .login-vista--plataforma .login-vista__alterno a {
   color: #283593;
 }
 
-/* Marca — rosa / Luna Nails */
+/* Marca — misma lavanda que la landing */
 .login-vista--marca {
-  background: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 50%, #fff 100%);
+  --color-principal: #6e62c6;
+  --color-secundario: #f7f5ff;
+  --color-acento: #6e62c6;
+  --color-acento-superficie: #cfc4ff;
+  --color-texto: #1f2022;
+  --color-texto-superficie: #1f2022;
+  --color-texto-muted-superficie: #5c6168;
+  --color-texto-sobre-principal: #ffffff;
+  --color-input-borde: #e8e8ec;
+  --color-input-texto: #1f2022;
+  background: linear-gradient(165deg, #f7f5ff 0%, #ddd6ff 42%, #f4f1fc 100%);
 }
 
 .login-vista--marca .login-vista__tarjeta {
-  border-top: 5px solid #c2185b;
+  border-top: 5px solid #6e62c6;
 }
 
 .login-vista--marca .login-vista__badge--marca {
-  background: #c2185b;
+  background: #6e62c6;
   color: #fff;
 }
 
 .login-vista--marca h1 {
-  color: #c2185b;
+  color: #1f2022;
 }
 
-.login-vista--marca .login-vista__demo,
+.login-vista--marca .login-vista__recuperar,
 .login-vista--marca .login-vista__alterno a {
-  color: #c2185b;
+  color: #6e62c6;
 }
 
 .login-vista__tarjeta {
@@ -88,6 +98,30 @@
   margin-bottom: var(--espacio-md);
 }
 
+.login-vista__usos {
+  margin: 0 0 var(--espacio-md);
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.login-vista__usos li {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #f4f1fc;
+  color: #1f2022;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 600;
+}
+
+.login-vista__usos li:last-child {
+  margin-bottom: 0;
+}
+
 .login-vista__destino {
   padding: var(--espacio-sm) var(--espacio-md);
   margin-bottom: var(--espacio-md) !important;
@@ -101,17 +135,36 @@
   text-align: left;
 }
 
-.login-vista__demo {
-  display: block;
+.login-vista__recuperar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: 48px;
   margin-bottom: var(--espacio-sm);
-  padding: 0;
+  padding: 0 12px;
   border: none;
   background: none;
   font-size: var(--tamano-texto-sm);
+  font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
   text-align: center;
+}
+
+.login-vista__recuperar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.login-vista__aviso {
+  margin: 0 0 var(--espacio-md);
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f4f1fc;
+  color: #1f2022;
+  font-size: var(--tamano-texto-sm);
+  text-align: left;
 }
 
 .login-vista__alterno {
@@ -144,4 +197,76 @@
 
 .login-vista__conflicto p:last-of-type {
   margin-bottom: var(--espacio-md);
+}
+
+.login-recuperar {
+  position: fixed;
+  inset: 0;
+  z-index: 480;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.login-recuperar--marca {
+  --color-principal: #6e62c6;
+  --color-acento: #6e62c6;
+  --color-texto-sobre-principal: #ffffff;
+  --color-texto-superficie: #1f2022;
+  --color-input-borde: #e8e8ec;
+  --color-input-texto: #1f2022;
+}
+
+.login-recuperar__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  background: rgba(31, 32, 34, 0.45);
+  cursor: pointer;
+}
+
+.login-recuperar__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 440px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #1f2022;
+}
+
+.login-recuperar__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.login-recuperar__cabecera h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  text-align: left;
+}
+
+.login-recuperar__cerrar {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: #f4f1fc;
+  color: #1f2022;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-recuperar__ayuda {
+  margin: 0 0 16px;
+  color: #5c6168;
+  font-size: 0.9rem;
+  text-align: left;
 }

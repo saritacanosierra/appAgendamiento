@@ -9,8 +9,15 @@ function esModoStandalone() {
   );
 }
 
-function esDispositivoIos() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+export function detectarSistemaOperativo() {
+  if (typeof navigator === 'undefined') return 'escritorio';
+
+  const agente = navigator.userAgent || '';
+  const iosClasico = /iPad|iPhone|iPod/.test(agente) && !window.MSStream;
+  const ipadModerno = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  if (iosClasico || ipadModerno) return 'ios';
+  if (/Android/i.test(agente)) return 'android';
+  return 'escritorio';
 }
 
 function esPantallaMovil() {
@@ -20,21 +27,20 @@ function esPantallaMovil() {
 export function useInstalarPwaAdmin() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [mostrar, setMostrar] = useState(false);
-  const [esIos, setEsIos] = useState(false);
+  const [sistema, setSistema] = useState('escritorio');
   const [esStandalone, setEsStandalone] = useState(false);
 
   useEffect(() => {
     const standalone = esModoStandalone();
+    const detectado = detectarSistemaOperativo();
     setEsStandalone(standalone);
+    setSistema(detectado);
 
     if (standalone || sessionStorage.getItem(CLAVE_DESCARTADO)) {
       return undefined;
     }
 
-    const ios = esDispositivoIos();
-    setEsIos(ios);
-
-    if (ios && esPantallaMovil()) {
+    if ((detectado === 'ios' || detectado === 'android') && esPantallaMovil()) {
       setMostrar(true);
     }
 
@@ -70,7 +76,7 @@ export function useInstalarPwaAdmin() {
 
   return {
     mostrar: mostrar && !esStandalone,
-    esIos,
+    sistema,
     esStandalone,
     puedeInstalarNativo: Boolean(deferredPrompt),
     instalar,

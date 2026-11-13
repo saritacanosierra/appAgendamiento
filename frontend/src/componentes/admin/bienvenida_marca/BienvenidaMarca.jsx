@@ -1,34 +1,10 @@
-import { Link } from 'react-router-dom';
 import { BotonPrincipal } from '../../../compartido/componentes';
 import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
+import GuiaPersonalizacion from '../guia_personalizacion/GuiaPersonalizacion';
 import '../../../estilos/componentes/bienvenida_marca/bienvenida_marca.css';
 
-const PASOS = [
-  {
-    numero: '1',
-    titulo: 'Tu estilo',
-    detalle: 'Nombre, colores, logo y WhatsApp.',
-    to: RUTAS_ADMIN.configuracionMarca,
-    icono: 'config',
-  },
-  {
-    numero: '2',
-    titulo: 'Tus servicios',
-    detalle: 'Qué ofreces, cuánto dura y el precio.',
-    to: RUTAS_ADMIN.servicios,
-    icono: 'servicios',
-  },
-  {
-    numero: '3',
-    titulo: 'Tu portada',
-    detalle: 'Una foto para el inicio de tu app.',
-    to: RUTAS_ADMIN.carruselInicio,
-    icono: 'carrusel',
-  },
-];
-
-export default function BienvenidaMarca({ marca, onVerPanel }) {
+export default function BienvenidaMarca({ marca, hechos, onVerPanel }) {
   const slug = marca?.slug;
   const nombre = marca?.nombreComercial ?? 'Tu marca';
 
@@ -38,7 +14,7 @@ export default function BienvenidaMarca({ marca, onVerPanel }) {
         <p className="bienvenida-marca__etiqueta">Lista para personalizar</p>
         <h1>{nombre}</h1>
         <p className="bienvenida-marca__texto">
-          Esta es tu app, todavía en blanco. Tres pasos y queda con tu estilo. Tus clientas reservan desde el celular.
+          El paso 1 ya está: entraste. Sigue del 2 al 6. Al final copias el enlace y se lo envías a tu clienta. Ella no se registra.
         </p>
       </section>
 
@@ -61,26 +37,10 @@ export default function BienvenidaMarca({ marca, onVerPanel }) {
         )}
       </section>
 
-      <ol className="bienvenida-marca__pasos">
-        {PASOS.map((paso) => (
-          <li key={paso.numero}>
-            <Link to={paso.to} className="bienvenida-marca__paso">
-              <span className="bienvenida-marca__paso-numero">{paso.numero}</span>
-              <span className="bienvenida-marca__paso-icono">
-                <IconoApp nombre={paso.icono} />
-              </span>
-              <span className="bienvenida-marca__paso-texto">
-                <strong>{paso.titulo}</strong>
-                <span>{paso.detalle}</span>
-              </span>
-              <IconoApp nombre="flecha" className="bienvenida-marca__paso-flecha" />
-            </Link>
-          </li>
-        ))}
-      </ol>
+      <GuiaPersonalizacion hechos={hechos} permitirOcultar={false} />
 
       <BotonPrincipal to={RUTAS_ADMIN.configuracionMarca} anchoCompleto>
-        Empezar por el estilo
+        Seguir con el paso 2: tu marca
       </BotonPrincipal>
       <button type="button" className="bienvenida-marca__secundario" onClick={onVerPanel}>
         Ver el panel del día

@@ -26,6 +26,7 @@ import {
   probarGoogleCalendar,
   probarWhatsappMarca,
 } from '../../../modulos/configuracion_marca/servicios/integracionesServicio';
+import { AyudaPasoTienda } from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
 const DIAS = [
@@ -329,6 +330,7 @@ export default function ConfiguracionMarcaVista() {
         onCerrar={() => setModalMensaje(null)}
       />
 
+      <AyudaPasoTienda paso="marca" />
       <h1>Mi marca — perfil e identidad</h1>
       <p className="configuracion-marca__intro">
         Personaliza nombre, colores, contacto, horarios y conecta el Google Calendar de tu empresa.

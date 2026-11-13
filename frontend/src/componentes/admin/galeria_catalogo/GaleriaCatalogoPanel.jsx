@@ -151,7 +151,7 @@ function ListaCatalogo({ titulo, tipo, items, onCambio, error: _error, setError 
 
 export default function GaleriaCatalogoPanel({ catalogo, onCambio }) {
   const [error, setError] = useState(null);
-  const [abierto, setAbierto] = useState(false);
+  const [abierto, setAbierto] = useState(true);
 
   const categoriasActivas = catalogoActivoPorTipo(catalogo, 'categoria').length;
   const temporadasActivas = catalogoActivoPorTipo(catalogo, 'temporada').length;
@@ -164,7 +164,7 @@ export default function GaleriaCatalogoPanel({ catalogo, onCambio }) {
         onClick={() => setAbierto((prev) => !prev)}
         aria-expanded={abierto}
       >
-        <span>Categorias y temporadas</span>
+        <span>Filtros: categorías y temporadas</span>
         <span className="galeria-catalogo__resumen">
           {categoriasActivas} categorias · {temporadasActivas} temporadas
         </span>
@@ -173,8 +173,7 @@ export default function GaleriaCatalogoPanel({ catalogo, onCambio }) {
       {abierto && (
         <div className="galeria-catalogo__panel">
           <p className="galeria-catalogo__hint">
-            Define aqui las opciones que luego apareceran al subir disenos (manicura, pedicura,
-            Halloween, Navidad, etc.).
+            Estos nombres son los filtros que ve tu clienta. También puedes crearlos al subir una foto.
           </p>
           {error && <MensajeError mensaje={error} />}
           <div className="galeria-catalogo__grid">

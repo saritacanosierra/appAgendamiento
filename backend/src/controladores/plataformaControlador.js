@@ -45,6 +45,17 @@ export async function actualizarMarcaPlataforma(req, res) {
   return respuestaExito(res, resultado, 'Marca actualizada');
 }
 
+export async function eliminarMarcaPlataforma(req, res) {
+  const marcaId = Number(req.params.id);
+  const resultado = await plataformaServicio.eliminarMarca(marcaId);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  return respuestaExito(res, resultado, 'Empresa eliminada');
+}
+
 export async function impersonarMarcaPlataforma(req, res) {
   const marcaId = Number(req.params.id);
   const resultado = await plataformaServicio.impersonarMarca(marcaId);

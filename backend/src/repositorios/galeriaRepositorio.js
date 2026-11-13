@@ -1,13 +1,15 @@
 import { pool } from '../configuracion/baseDatos.js';
 
 export class GaleriaRepositorio {
-  async listarActivos(marcaId) {
+  async listarActivos(marcaId, limite = null) {
+    const tope = Number(limite);
+    const conTope = Number.isInteger(tope) && tope > 0 && tope <= 24;
     const [filas] = await pool.execute(
       `SELECT id, marca_id, estilista_id, titulo, imagen_ruta, categoria, temporada, colores_relacionados,
               activo, orden_visualizacion, en_tendencia, created_at
        FROM disenos_galeria
        WHERE marca_id = ? AND activo = 1
-       ORDER BY orden_visualizacion ASC, created_at DESC`,
+       ORDER BY orden_visualizacion ASC, created_at DESC${conTope ? ` LIMIT ${tope}` : ''}`,
       [marcaId]
     );
     return filas;
@@ -61,6 +63,13 @@ export class GaleriaRepositorio {
       ]
     );
     return resultado.insertId;
+  }
+
+  async eliminar(marcaId, id) {
+    await pool.execute(
+      `DELETE FROM disenos_galeria WHERE id = ? AND marca_id = ?`,
+      [id, marcaId]
+    );
   }
 
   async actualizar(marcaId, id, datos) {

@@ -1,7 +1,7 @@
 import { AutenticacionServicio } from '../servicios/index.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 import { texto } from '../utilidades/sanitizador.js';
-import { requerido, email, validar } from '../utilidades/validador.js';
+import { requerido, email, telefono, validar } from '../utilidades/validador.js';
 import { registrarAuditoria } from '../utilidades/auditoria.js';
 
 const authServicio = new AutenticacionServicio();
@@ -41,6 +41,44 @@ export async function login(req, res) {
     usuario: resultado.usuario,
     marca: resultado.marca,
   }, 'Sesion iniciada');
+}
+
+export async function recuperarContrasena(req, res) {
+  const correo = texto(req.body?.correo);
+  const celular = texto(req.body?.celular ?? req.body?.telefono);
+  const contexto = req.body?.contexto === 'plataforma' ? 'plataforma' : 'marca';
+  const errores = validar(
+    { correo, celular },
+    {
+      correo: (v) => requerido(v, 'correo') ?? email(v),
+      celular: (v) => requerido(v, 'celular') ?? telefono(v),
+    }
+  );
+
+  if (Object.keys(errores).length > 0) {
+    return respuestaError(res, 'Datos invalidos.', 422, errores);
+  }
+
+  const resultado = await authServicio.solicitarRecuperacion(correo, celular, contexto);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  registrarAuditoria('recuperacion_solicitada', { ip: req.ip, contexto });
+  return respuestaExito(res, null, resultado.mensaje);
+}
+
+export async function restablecerContrasena(req, res) {
+  const token = texto(req.body?.token);
+  const contrasena = req.body?.contrasena ?? '';
+  const resultado = await authServicio.restablecerContrasena(token, contrasena);
+
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  registrarAuditoria('contrasena_restablecida', { ip: req.ip, destino: resultado.destino });
+  return respuestaExito(res, { destino: resultado.destino }, resultado.mensaje);
 }
 
 export async function logout(req, res) {

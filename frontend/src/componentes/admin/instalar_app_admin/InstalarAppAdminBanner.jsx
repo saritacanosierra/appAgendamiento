@@ -3,7 +3,7 @@ import '../../../estilos/componentes/instalar_app_admin/instalar_app_admin.css';
 
 export default function InstalarAppAdminBanner({
   mostrarBanner,
-  esIos,
+  sistema,
   esStandalone,
   puedeInstalarNativo,
   instalar,
@@ -12,9 +12,9 @@ export default function InstalarAppAdminBanner({
   if (!mostrarBanner) return null;
 
   return (
-    <aside className="instalar-app-admin" aria-label="Instalar acceso rapido al panel">
+    <aside className="instalar-app-admin" aria-label="Instalar acceso rápido al panel">
       <ContenidoInstalarPwaAdmin
-        esIos={esIos}
+        sistema={sistema}
         esStandalone={esStandalone}
         puedeInstalarNativo={puedeInstalarNativo}
         instalar={instalar}

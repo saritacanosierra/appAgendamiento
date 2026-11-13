@@ -3,6 +3,7 @@ import { EstilistaRepositorio } from '../repositorios/estilistaRepositorio.js';
 import { GaleriaCatalogoServicio } from './galeriaCatalogoServicio.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { cacheLecturasPublicas } from '../utilidades/cacheLecturas.js';
 import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 
 export function mapearDisenoPublico(fila) {
@@ -44,9 +45,15 @@ export class GaleriaServicio {
     this.estilistaRepo = estilistaRepo;
   }
 
-  async listarPublicos(marcaId) {
-    const filas = await this.galeriaRepo.listarActivos(marcaId);
-    return filas.map(mapearDisenoPublico);
+  async listarPublicos(marcaId, limite = null) {
+    const tope = Number(limite);
+    const conTope = Number.isInteger(tope) && tope > 0 ? Math.min(tope, 24) : null;
+    const cargar = async () => {
+      const filas = await this.galeriaRepo.listarActivos(marcaId, conTope);
+      return filas.map(mapearDisenoPublico);
+    };
+    if (!conTope) return cargar();
+    return cacheLecturasPublicas.obtener(`galeria:${marcaId}:${conTope}`, cargar);
   }
 
   async listarAdmin(marcaId) {
@@ -79,6 +86,14 @@ export class GaleriaServicio {
     await this.galeriaRepo.actualizar(marcaId, id, parsed.datos);
     const fila = await this.galeriaRepo.buscarPorId(marcaId, id);
     return { diseno: mapearDisenoAdmin(fila) };
+  }
+
+  async eliminarAdmin(marcaId, id) {
+    const existente = await this.galeriaRepo.buscarPorId(marcaId, id);
+    if (!existente) return { error: 'Diseno no encontrado.', codigoHttp: 404 };
+
+    await this.galeriaRepo.eliminar(marcaId, id);
+    return { ok: true };
   }
 
   parsearDatos(datos, existente = null) {

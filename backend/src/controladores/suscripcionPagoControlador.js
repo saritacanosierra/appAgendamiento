@@ -1,6 +1,6 @@
 import { wompiServicio } from '../servicios/wompiServicio.js';
 import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.js';
-import { PRECIO_MENSUAL_COP } from '../servicios/registroMarcaServicio.js';
+import { listarPlanesCobro, PRECIO_MES_COP } from '../utilidades/suscripcionMarca.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 
 export async function obtenerPlanMarca(req, res) {
@@ -10,13 +10,17 @@ export async function obtenerPlanMarca(req, res) {
   const { mapearEstadoSuscripcion } = await import('../utilidades/suscripcionMarca.js');
   return respuestaExito(res, {
     plan: mapearEstadoSuscripcion(fila),
-    precioMensual: PRECIO_MENSUAL_COP,
+    precioMensual: PRECIO_MES_COP,
+    planes: listarPlanesCobro(),
     wompiConfigurado: wompiServicio.configurado(),
   }, 'Plan de la marca');
 }
 
 export async function crearPagoWompi(req, res) {
-  const resultado = await wompiServicio.crearIntento(req.marcaId);
+  const resultado = await wompiServicio.crearIntento(
+    req.marcaId,
+    req.body?.plan_tipo ?? req.body?.planTipo
+  );
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
   }

@@ -30,25 +30,35 @@ export default function CampanaNotificacionesAdmin() {
   const [resumen, setResumen] = useState({ noLeidas: 0, recientes: [] });
   const [cargando, setCargando] = useState(false);
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
+  const cargar = useCallback(async ({ silencioso = false } = {}) => {
+    if (!silencioso) setCargando(true);
     try {
       setResumen(await obtenerResumenNotificaciones());
     } catch {
       setResumen({ noLeidas: 0, recientes: [] });
     } finally {
-      setCargando(false);
+      if (!silencioso) setCargando(false);
     }
   }, []);
 
   useEffect(() => {
-    cargar();
-    const intervalo = setInterval(cargar, 30_000);
-    const escuchar = () => cargar();
+    let intervalo;
+    function programar() {
+      clearInterval(intervalo);
+      if (document.hidden) return;
+      cargar({ silencioso: true });
+      intervalo = setInterval(() => {
+        if (!document.hidden) cargar({ silencioso: true });
+      }, 60_000);
+    }
+    programar();
+    const escuchar = () => cargar({ silencioso: true });
     window.addEventListener(EVENTO_ACTUALIZAR, escuchar);
+    document.addEventListener('visibilitychange', programar);
     return () => {
       clearInterval(intervalo);
       window.removeEventListener(EVENTO_ACTUALIZAR, escuchar);
+      document.removeEventListener('visibilitychange', programar);
     };
   }, [cargar]);
 

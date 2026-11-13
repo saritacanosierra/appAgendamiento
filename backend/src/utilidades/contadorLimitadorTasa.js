@@ -30,8 +30,16 @@ async function obtenerRedis() {
   return redisDisponible ? clienteRedis : null;
 }
 
+function podarMemoria(ahora) {
+  if (registrosMemoria.size < 200) return;
+  for (const [clave, datos] of registrosMemoria) {
+    if (ahora - datos.inicio > 60 * 60 * 1000) registrosMemoria.delete(clave);
+  }
+}
+
 function incrementarMemoria(clave, ventanaMs) {
   const ahora = Date.now();
+  podarMemoria(ahora);
   let datos = registrosMemoria.get(clave);
 
   if (!datos || ahora - datos.inicio > ventanaMs) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import PruebaSocialGaleria from '../../../componentes/publico/prueba_social_galeria/PruebaSocialGaleria';
@@ -111,6 +111,8 @@ export default function ReservarVista() {
   const [estilista, setEstilista] = useState(null);
   const [fecha, setFecha] = useState('');
   const [hora, setHora] = useState('');
+  const horaRef = useRef('');
+  horaRef.current = hora;
   const [horarios, setHorarios] = useState([]);
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -145,20 +147,29 @@ export default function ReservarVista() {
   }
 
   useEffect(() => {
-    if (!marca?.id) return;
+    if (!marca?.id) return undefined;
+    let vigente = true;
     setCargandoServicios(true);
     Promise.all([
       obtenerServiciosPublicos(marca.id),
       listarEstilistasPublicas(marca.id).catch(() => []),
-      listarGaleriaPublica(marca.id).catch(() => []),
+      listarGaleriaPublica(marca.id, { limite: 6 }).catch(() => []),
     ])
       .then(([listaServicios, listaEstilistas, listaDisenos]) => {
+        if (!vigente) return;
         setServicios(listaServicios);
         setEstilistas(Array.isArray(listaEstilistas) ? listaEstilistas : []);
         setDisenos(Array.isArray(listaDisenos) ? listaDisenos : []);
       })
-      .catch(() => setError('No se pudieron cargar los servicios.'))
-      .finally(() => setCargandoServicios(false));
+      .catch(() => {
+        if (vigente) setError('No se pudieron cargar los servicios.');
+      })
+      .finally(() => {
+        if (vigente) setCargandoServicios(false);
+      });
+    return () => {
+      vigente = false;
+    };
   }, [marca?.id]);
 
   useEffect(() => {
@@ -210,20 +221,31 @@ export default function ReservarVista() {
       return;
     }
 
+    let vigente = true;
     setCargandoHorarios(true);
     limpiarErrorGeneral();
     obtenerDisponibilidad(marca.id, servicio.id, fecha, estilista?.id ?? null)
       .then((datos) => {
+        if (!vigente) return;
         const lista = datos.horarios ?? [];
+        const previa = horaRef.current;
         setHorarios(lista);
-        setHora((prev) => (prev && lista.includes(prev) ? prev : ''));
-        if (hora && !lista.includes(hora)) setHoraConfirmada(false);
+        if (previa && !lista.includes(previa)) {
+          setHora('');
+          setHoraConfirmada(false);
+        }
       })
       .catch((err) => {
+        if (!vigente) return;
         setHorarios([]);
         setError(err.message);
       })
-      .finally(() => setCargandoHorarios(false));
+      .finally(() => {
+        if (vigente) setCargandoHorarios(false);
+      });
+    return () => {
+      vigente = false;
+    };
   }, [marca?.id, servicio?.id, fecha, estilista?.id, requiereEstilista]);
 
   useEffect(() => {

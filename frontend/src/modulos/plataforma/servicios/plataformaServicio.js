@@ -10,6 +10,13 @@ export async function listarMarcasPlataforma() {
   return respuesta.datos.marcas;
 }
 
+export async function eliminarMarcaPlataforma(id) {
+  const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}`, {
+    method: 'DELETE',
+  });
+  return respuesta.datos;
+}
+
 export async function obtenerMarcaPlataforma(id) {
   const respuesta = await peticionPlataforma(`/plataforma/marcas/${id}`);
   return respuesta.datos.marca;

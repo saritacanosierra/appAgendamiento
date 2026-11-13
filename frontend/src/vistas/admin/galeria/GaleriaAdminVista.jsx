@@ -9,14 +9,18 @@ import {
   ImagenAmpliable,
   InputTexto,
   MensajeError,
+  ModalConfirmacion,
 } from '../../../compartido/componentes';
 import GaleriaCatalogoPanel from '../../../componentes/admin/galeria_catalogo/GaleriaCatalogoPanel';
+import { AyudaPasoTienda } from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import { catalogoActivoPorTipo } from '../../../modulos/galeria/constantes/galeriaCatalogo';
 import {
   actualizarDiseno,
   crearDiseno,
+  crearOpcionCatalogoGaleria,
+  eliminarDiseno,
   listarCatalogoGaleriaAdmin,
   listarGaleriaAdmin,
 } from '../../../modulos/galeria/servicios/galeriaServicio';
@@ -37,7 +41,9 @@ function formularioVacio(catalogo) {
   return {
     titulo: '',
     categoria: primeraCategoria,
+    categoriaNueva: '',
     temporada: '',
+    temporadaNueva: '',
     colores: '',
     imagenRuta: '',
     activo: true,
@@ -63,6 +69,8 @@ export default function GaleriaAdminVista() {
   const [temporada, setTemporada] = useState('todas');
   const [tendencia, setTendencia] = useState('todas');
   const [estilistas, setEstilistas] = useState([]);
+  const [disenoAEliminar, setDisenoAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
 
   const categoriasActivas = useMemo(
     () => catalogoActivoPorTipo(catalogo, 'categoria'),
@@ -133,7 +141,9 @@ export default function GaleriaAdminVista() {
     setForm({
       titulo: diseno.titulo,
       categoria: diseno.categoria ?? categoriasActivas[0]?.valor ?? '',
+      categoriaNueva: '',
       temporada: diseno.temporada ?? '',
+      temporadaNueva: '',
       colores: (diseno.coloresRelacionados ?? []).join(', '),
       imagenRuta: diseno.imagenRuta,
       activo: diseno.activo,
@@ -166,15 +176,40 @@ export default function GaleriaAdminVista() {
     }
   }
 
+  async function filtroParaGuardar(tipo, seleccionado, nuevo) {
+    const etiqueta = nuevo.trim();
+    if (!etiqueta) return seleccionado || null;
+
+    const item = await crearOpcionCatalogoGaleria({ tipo, etiqueta });
+    return item?.valor ?? null;
+  }
+
   async function manejarEnviar(e) {
     e.preventDefault();
     setEnviando(true);
     setError(null);
 
+    let categoriaValor;
+    let temporadaValor;
+    try {
+      categoriaValor = await filtroParaGuardar('categoria', form.categoria, form.categoriaNueva);
+      temporadaValor = await filtroParaGuardar('temporada', form.temporada, form.temporadaNueva);
+    } catch (err) {
+      setError(err.message);
+      setEnviando(false);
+      return;
+    }
+
+    if (!categoriaValor) {
+      setError('Elige un filtro o escribe uno nuevo. Así tu clienta puede buscar la foto.');
+      setEnviando(false);
+      return;
+    }
+
     const payload = {
       titulo: form.titulo.trim(),
-      categoria: form.categoria || null,
-      temporada: form.temporada || null,
+      categoria: categoriaValor,
+      temporada: temporadaValor,
       colores_relacionados: form.colores.trim() || null,
       imagen_ruta: form.imagenRuta,
       activo: form.activo,
@@ -200,17 +235,42 @@ export default function GaleriaAdminVista() {
     }
   }
 
-  const puedeCrearDiseno = categoriasActivas.length > 0;
+  async function confirmarEliminar() {
+    if (!disenoAEliminar) return;
+    setEliminando(true);
+    setError(null);
+    try {
+      await eliminarDiseno(disenoAEliminar.id);
+      avisos.exito('Foto eliminada');
+      setDisenoAEliminar(null);
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEliminando(false);
+    }
+  }
 
   return (
     <div className="galeria-admin">
+      <ModalConfirmacion
+        abierto={Boolean(disenoAEliminar)}
+        titulo="Eliminar foto"
+        mensaje={
+          disenoAEliminar
+            ? `¿Eliminar "${disenoAEliminar.titulo}"? Tu clienta ya no podrá verla ni elegirla.`
+            : ''
+        }
+        textoConfirmar={eliminando ? 'Eliminando...' : 'Sí, eliminar'}
+        textoCancelar="Cancelar"
+        onConfirmar={confirmarEliminar}
+        onCancelar={() => !eliminando && setDisenoAEliminar(null)}
+      />
+      <AyudaPasoTienda paso="galeria" />
       <header className="galeria-admin__cabecera">
-        <h1>Galeria</h1>
-        <BotonPrincipal
-          onClick={mostrarForm ? cerrarForm : abrirCrear}
-          deshabilitado={!mostrarForm && !puedeCrearDiseno}
-        >
-          {mostrarForm ? 'Cerrar' : '+ Nuevo diseno'}
+        <h1>Galería</h1>
+        <BotonPrincipal onClick={mostrarForm ? cerrarForm : abrirCrear}>
+          {mostrarForm ? 'Cerrar' : '+ Nueva foto'}
         </BotonPrincipal>
       </header>
 
@@ -222,12 +282,6 @@ export default function GaleriaAdminVista() {
       )}
 
       <GaleriaCatalogoPanel catalogo={catalogo} onCambio={cargarCatalogo} />
-
-      {!mostrarForm && !puedeCrearDiseno && (
-        <p className="galeria-admin__aviso-catalogo">
-          Agrega al menos una categoria en el panel de arriba antes de subir disenos.
-        </p>
-      )}
 
       {!mostrarForm && (
         <GaleriaFiltrosAcordeon
@@ -253,13 +307,11 @@ export default function GaleriaAdminVista() {
 
       {mostrarForm && (
         <form className="galeria-admin__formulario" onSubmit={manejarEnviar}>
-          <h2>{editandoId ? 'Editar diseno' : 'Nuevo diseno'}</h2>
-          {!puedeCrearDiseno && (
-            <p className="galeria-admin__aviso-catalogo">
-              Crea categorias en el panel superior antes de guardar.
-            </p>
-          )}
-          <CampoFormulario etiqueta="Titulo" id="gal-titulo" requerido>
+          <h2>{editandoId ? 'Editar foto' : 'Nueva foto'}</h2>
+          <p className="galeria-admin__hint">
+            Sube la foto y elige el filtro. Tu clienta la verá y podrá marcarla si le gusta.
+          </p>
+          <CampoFormulario etiqueta="Título" id="gal-titulo" requerido>
             <InputTexto
               id="gal-titulo"
               value={form.titulo}
@@ -267,30 +319,42 @@ export default function GaleriaAdminVista() {
               required
             />
           </CampoFormulario>
-          <CampoFormulario etiqueta="Imagen" id="gal-imagen" requerido>
-            <input id="gal-imagen" type="file" accept="image/*" onChange={manejarImagen} />
+          <CampoFormulario etiqueta="Foto" id="gal-imagen" requerido>
+            <input
+              id="gal-imagen"
+              className="galeria-admin__archivo"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={manejarImagen}
+            />
             {subiendoImagen && <p className="galeria-admin__hint">Subiendo imagen...</p>}
             {form.imagenRuta && (
               <ImagenAmpliable src={form.imagenRuta} alt="Vista previa" className="galeria-admin__preview" />
             )}
           </CampoFormulario>
           <div className="galeria-admin__fila">
-            <CampoFormulario etiqueta="Categoria" id="gal-categoria" requerido>
+            <CampoFormulario etiqueta="Filtro" id="gal-categoria" ayuda="Es la categoría con la que tu clienta busca la foto.">
               <select
                 id="gal-categoria"
                 value={form.categoria}
                 onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-                required
               >
-                {categoriasActivas.length === 0 && (
-                  <option value="">Sin categorias — agrega una arriba</option>
-                )}
+                <option value="">Elegir un filtro</option>
                 {categoriasActivas.map((item) => (
                   <option key={item.valor} value={item.valor}>
                     {item.etiqueta}
                   </option>
                 ))}
               </select>
+            </CampoFormulario>
+            <CampoFormulario etiqueta="O un filtro nuevo" id="gal-categoria-nueva" ayuda="Por ejemplo: Uñas, Color, Corte. Se guarda y queda en la lista.">
+              <InputTexto
+                id="gal-categoria-nueva"
+                capitalizar="palabras"
+                value={form.categoriaNueva}
+                onChange={(e) => setForm({ ...form, categoriaNueva: e.target.value })}
+                placeholder="Uñas"
+              />
             </CampoFormulario>
             <CampoFormulario etiqueta="Temporada" id="gal-temporada">
               <select
@@ -305,6 +369,15 @@ export default function GaleriaAdminVista() {
                   </option>
                 ))}
               </select>
+            </CampoFormulario>
+            <CampoFormulario etiqueta="O una temporada nueva" id="gal-temporada-nueva">
+              <InputTexto
+                id="gal-temporada-nueva"
+                capitalizar="palabras"
+                value={form.temporadaNueva}
+                onChange={(e) => setForm({ ...form, temporadaNueva: e.target.value })}
+                placeholder="Navidad"
+              />
             </CampoFormulario>
             <CampoFormulario etiqueta="Colores (separados por coma)" id="gal-colores">
               <InputTexto
@@ -347,7 +420,7 @@ export default function GaleriaAdminVista() {
                 checked={form.activo}
                 onChange={(e) => setForm({ ...form, activo: e.target.checked })}
               />
-              Visible en la galeria publica
+              Visible para tu clienta
             </label>
             <label className="galeria-admin__checkbox">
               <input
@@ -362,9 +435,9 @@ export default function GaleriaAdminVista() {
           <BotonPrincipal
             tipo="submit"
             anchoCompleto
-            deshabilitado={enviando || !form.imagenRuta || !puedeCrearDiseno}
+            deshabilitado={enviando || subiendoImagen || !form.imagenRuta}
           >
-            {enviando ? 'Guardando...' : editandoId ? 'Actualizar' : 'Crear diseno'}
+            {enviando ? 'Guardando...' : editandoId ? 'Guardar cambios' : 'Publicar foto'}
           </BotonPrincipal>
         </form>
       )}
@@ -380,10 +453,10 @@ export default function GaleriaAdminVista() {
         <div className="galeria-admin__grid">
           {disenos.length === 0 ? (
             <EstadoVacio
-              titulo="Aun no tienes fotos"
-              mensaje="Aun no tienes disenos en la galeria. Sube el primero para mostrarlo al reservar."
-              textoAccion={puedeCrearDiseno ? 'Subir el primer diseno' : undefined}
-              onAccion={puedeCrearDiseno ? abrirCrear : undefined}
+              titulo="Aún no tienes fotos"
+              mensaje="Sube la primera. Elige o escribe un filtro para que tu clienta pueda verla y marcarla."
+              textoAccion="Subir la primera foto"
+              onAccion={abrirCrear}
             />
           ) : (
             disenosFiltrados.map((diseno) => (
@@ -409,9 +482,14 @@ export default function GaleriaAdminVista() {
                     )}
                   </div>
                   {!diseno.activo && <span className="badge-fase">Inactivo</span>}
-                  <BotonPrincipal variante="secundario" onClick={() => abrirEditar(diseno)}>
-                    Editar
-                  </BotonPrincipal>
+                  <div className="galeria-admin__item-acciones">
+                    <BotonPrincipal variante="secundario" onClick={() => abrirEditar(diseno)}>
+                      Editar
+                    </BotonPrincipal>
+                    <BotonPrincipal variante="secundario" onClick={() => setDisenoAEliminar(diseno)}>
+                      Eliminar
+                    </BotonPrincipal>
+                  </div>
                 </div>
               </article>
             ))

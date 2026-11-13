@@ -43,6 +43,9 @@ export class SuscripcionMarcaServicio {
   async iniciarPrueba(marcaId, dias = 8) {
     const marca = await this.marcaRepo.buscarPorId(marcaId);
     if (!marca) return { error: 'Marca no encontrada.', codigoHttp: 404 };
+    if (marca.plan_inicio_en || marca.plan_vence_en) {
+      return { error: 'Esta cuenta ya uso su prueba gratis.', codigoHttp: 409 };
+    }
 
     const inicioEn = hoyISO();
     const venceEn = sumarDiasISO(inicioEn, dias);

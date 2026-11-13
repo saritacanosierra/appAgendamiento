@@ -14,40 +14,65 @@ const PASOS_ANDROID_NATIVO = [
 ];
 
 const PASOS_ANDROID_MANUAL = [
-  <>Abre esta pagina en <strong>Chrome</strong> (no en otro navegador ni dentro de otra app).</>,
-  <>Toca los <strong>tres puntos</strong> (menu) arriba a la derecha.</>,
+  <>Si abriste el panel desde WhatsApp u otra app, usa el menú y elige <strong>Abrir en Chrome</strong>.</>,
+  <>En Chrome, toca los <strong>tres puntos</strong> arriba a la derecha.</>,
   <>Elige <strong>Instalar app</strong> o <strong>Agregar a pantalla de inicio</strong>.</>,
   <>Confirma con <strong>Instalar</strong> o <strong>Agregar</strong>.</>,
-  <>Listo: el icono <strong>Panel Admin</strong> quedara en tu inicio. Abrelo para entrar al panel.</>,
+  <>El icono <strong>Panel Admin</strong> queda en el inicio o en el cajón de apps.</>,
 ];
 
-export function obtenerPasosInstalarPwa({ esIos, esStandalone, puedeInstalarNativo }) {
+const PASOS_ESCRITORIO_NATIVO = [
+  <>Pulsa el botón <strong>Instalar icono</strong> de esta ventana.</>,
+  <>En el aviso de Chrome o Edge, confirma con <strong>Instalar</strong>.</>,
+  <>Abre <strong>Panel Admin</strong> desde el menú Inicio o el escritorio.</>,
+];
+
+const PASOS_ESCRITORIO_MANUAL = [
+  <>Abre este panel en <strong>Chrome</strong> o en <strong>Edge</strong>.</>,
+  <>Busca el icono de instalar en la barra de la dirección. Si no está, abre el menú de los <strong>tres puntos</strong>.</>,
+  <>Elige <strong>Instalar</strong>, o <strong>Aplicaciones</strong> y luego instalar este sitio.</>,
+  <>Confirma. <strong>Panel Admin</strong> queda en el menú Inicio o en el escritorio.</>,
+];
+
+export function obtenerPasosInstalarPwa({ sistema = 'escritorio', esStandalone, puedeInstalarNativo }) {
   if (esStandalone) {
+    const enCelular = sistema === 'ios' || sistema === 'android';
     return {
-      intro: 'Ya abriste el panel como app instalada.',
-      pasos: [
-        'Cierra el navegador y busca el icono Panel Admin en tu pantalla de inicio.',
-        'Abrelo cuando quieras volver al panel sin escribir la direccion web.',
-      ],
+      intro: enCelular
+        ? 'Ya abriste el panel como app instalada en el celular.'
+        : 'Ya abriste el panel como aplicación en este equipo.',
+      pasos: enCelular
+        ? [
+          'Cierra el navegador y busca el icono Panel Admin en tu pantalla de inicio.',
+          'Ábrelo cuando quieras volver al panel sin escribir la dirección.',
+        ]
+        : [
+          'Cierra el navegador y abre Panel Admin desde el menú Inicio o el escritorio.',
+          'Ahí entras directo, sin escribir la dirección.',
+        ],
     };
   }
 
-  if (esIos) {
+  if (sistema === 'ios') {
     return {
-      intro: 'Sigue estos pasos en tu iPhone para tener un icono en la pantalla de inicio:',
+      intro: 'Estás en iPhone o iPad. Hazlo desde Safari.',
       pasos: PASOS_IOS,
     };
   }
 
-  if (puedeInstalarNativo) {
+  if (sistema === 'android') {
     return {
-      intro: 'Sigue estos pasos en tu Android para agregar el icono a tu celular:',
-      pasos: PASOS_ANDROID_NATIVO,
+      intro: puedeInstalarNativo
+        ? 'Estás en Android. Puedes instalar el icono desde este aviso.'
+        : 'Estás en Android. Instálalo desde Chrome, con estos pasos.',
+      pasos: puedeInstalarNativo ? PASOS_ANDROID_NATIVO : PASOS_ANDROID_MANUAL,
     };
   }
 
   return {
-    intro: 'Sigue estos pasos en tu Android para agregar el icono a tu celular:',
-    pasos: PASOS_ANDROID_MANUAL,
+    intro: puedeInstalarNativo
+      ? 'Estás en un computador. Instala el panel en este equipo.'
+      : 'Estás en un computador. Sigue estos pasos en Chrome o Edge.',
+    pasos: puedeInstalarNativo ? PASOS_ESCRITORIO_NATIVO : PASOS_ESCRITORIO_MANUAL,
   };
 }

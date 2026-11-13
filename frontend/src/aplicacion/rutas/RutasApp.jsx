@@ -18,6 +18,7 @@ import {
   ConsultarCitaVista,
   CitasMarcaVista,
   LoginVista,
+  RestablecerContrasenaVista,
   PanelVista,
   AgendaVista,
   ClientesVista,
@@ -60,6 +61,7 @@ export default function RutasApp() {
         <Route path="/admin">
           <Route index element={<SuspenseCarga><LoginVista key="login-marca" modo="marca" /></SuspenseCarga>} />
           <Route path="login" element={<Navigate to={RUTAS_ADMIN.login} replace />} />
+          <Route path="restablecer-contrasena" element={<SuspenseCarga><RestablecerContrasenaVista /></SuspenseCarga>} />
           <Route
             element={
               <RutaProtegidaAdmin>
@@ -86,6 +88,7 @@ export default function RutasApp() {
             <Route path="/plataforma">
               <Route index element={<SuspenseCarga><LoginVista key="login-plataforma" modo="plataforma" /></SuspenseCarga>} />
               <Route path="login" element={<Navigate to={RUTAS_PLATAFORMA.login} replace />} />
+              <Route path="restablecer-contrasena" element={<SuspenseCarga><RestablecerContrasenaVista /></SuspenseCarga>} />
               <Route
                 element={
                   <RutaProtegidaPlataforma>

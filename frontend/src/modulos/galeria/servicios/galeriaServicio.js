@@ -1,7 +1,9 @@
 import { peticionAdmin, peticionPublica } from '../../../compartido/utilidades/apiCliente';
 
-export async function listarGaleriaPublica(marcaId) {
-  const respuesta = await peticionPublica(`/marcas/${marcaId}/galeria`);
+export async function listarGaleriaPublica(marcaId, opciones = {}) {
+  const limite = Number(opciones.limite);
+  const consulta = Number.isInteger(limite) && limite > 0 ? `?limite=${limite}` : '';
+  const respuesta = await peticionPublica(`/marcas/${marcaId}/galeria${consulta}`);
   return respuesta.datos;
 }
 
@@ -56,4 +58,10 @@ export async function actualizarDiseno(id, datos) {
     body: JSON.stringify(datos),
   });
   return respuesta.datos;
+}
+
+export async function eliminarDiseno(id) {
+  await peticionAdmin(`/admin/galeria/${id}`, {
+    method: 'DELETE',
+  });
 }

@@ -242,6 +242,13 @@ export class TokenRepositorio {
     );
   }
 
+  async revocarPorUsuario(usuarioId) {
+    await pool.execute(
+      'UPDATE tokens_sesion SET revocado = 1 WHERE usuario_id = ? AND revocado = 0',
+      [usuarioId]
+    );
+  }
+
   async limpiarExpirados() {
     await pool.execute(
       'DELETE FROM tokens_sesion WHERE expira_en < NOW() OR revocado = 1'

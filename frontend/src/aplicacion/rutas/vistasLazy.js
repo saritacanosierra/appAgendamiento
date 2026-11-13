@@ -31,6 +31,9 @@ export const CitasMarcaVista = lazy(
 export const LoginVista = lazy(
   () => import('../../vistas/admin/login/LoginVista')
 );
+export const RestablecerContrasenaVista = lazy(
+  () => import('../../vistas/admin/login/RestablecerContrasenaVista')
+);
 export const PanelVista = lazy(
   () => import('../../vistas/admin/panel/PanelVista')
 );
