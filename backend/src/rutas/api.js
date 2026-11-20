@@ -46,6 +46,10 @@ import {
   listarAdmin as listarBlogAdmin,
   crearAdmin as crearBlogAdmin,
   actualizarAdmin as actualizarBlogAdmin,
+  listarPlataforma as listarBlogPlataforma,
+  crearPlataforma as crearBlogPlataforma,
+  actualizarPlataforma as actualizarBlogPlataforma,
+  eliminarPlataforma as eliminarBlogPlataforma,
 } from '../controladores/blogControlador.js';
 import {
   listarPublicos as listarGaleriaPublicos,
@@ -83,6 +87,8 @@ import {
   resumenArranque,
   actualizarAdmin as actualizarConfiguracionAdmin,
   subirArchivo,
+  obtenerPoliticaPrivacidad,
+  aceptarPoliticaPrivacidad,
 } from '../controladores/configuracionControlador.js';
 import {
   obtenerResumen,
@@ -124,6 +130,12 @@ import {
   activarSuscripcionMarcaPlataforma,
   renovarSuscripcionMarcaPlataforma,
   listarHistorialSuscripcionMarcaPlataforma,
+  listarCopiasPlataforma,
+  listarCopiasMarcaPlataforma,
+  guardarCopiaMarcaPlataforma,
+  subirCopiaMarcaPlataforma,
+  descargarCopiaMarcaPlataforma,
+  restaurarCopiaMarcaPlataforma,
 } from '../controladores/plataformaControlador.js';
 import {
   listarPublicidadPublica,
@@ -136,6 +148,7 @@ import { autenticacionMiddleware } from '../middlewares/autenticacionMiddleware.
 import { superadminMiddleware, soloMarcaAdminMiddleware, plataformaDisponibleMiddleware } from '../middlewares/plataformaMiddleware.js';
 import { aislamientoMarcaMiddleware } from '../middlewares/aislamientoMarcaMiddleware.js';
 import { subidaImagenMiddleware } from '../middlewares/subidaArchivos.js';
+import { subidaCopiaMarca } from '../middlewares/subidaCopiaMarca.js';
 import { limitarLogin, limitarRegistro, limitarReservas, limitarConsultasReservas } from '../middlewares/limitarTasa.js';
 import { parchearRouterAsync } from '../middlewares/manejoErrores.js';
 
@@ -225,6 +238,8 @@ router.put('/admin/carrusel-inicio/:id', actualizarCarruselAdmin);
 router.get('/admin/configuracion-marca', obtenerConfiguracionAdmin);
 router.get('/admin/puesta-en-marcha', resumenArranque);
 router.put('/admin/configuracion-marca', actualizarConfiguracionAdmin);
+router.get('/admin/politica-privacidad', obtenerPoliticaPrivacidad);
+router.post('/admin/politica-privacidad', aceptarPoliticaPrivacidad);
 router.get('/admin/notificaciones/resumen', obtenerResumen);
 router.put('/admin/notificaciones/marcar-todas-leidas', marcarTodasLeidas);
 router.put('/admin/notificaciones/:id/leida', marcarLeida);
@@ -257,6 +272,18 @@ router.put('/plataforma/marcas/:id/reset-contrasena', resetearContrasenaMarcaPla
 router.post('/plataforma/marcas/:id/suscripcion/activar', activarSuscripcionMarcaPlataforma);
 router.post('/plataforma/marcas/:id/suscripcion/renovar', renovarSuscripcionMarcaPlataforma);
 router.get('/plataforma/marcas/:id/suscripcion/historial', listarHistorialSuscripcionMarcaPlataforma);
+router.get('/plataforma/marcas/:id/copias', listarCopiasMarcaPlataforma);
+router.post('/plataforma/marcas/:id/copias', guardarCopiaMarcaPlataforma);
+router.post('/plataforma/marcas/:id/copias/:archivo/restaurar', restaurarCopiaMarcaPlataforma);
+router.get('/plataforma/copias', listarCopiasPlataforma);
+router.post('/plataforma/copias', subidaCopiaMarca, subirCopiaMarcaPlataforma);
+router.get('/plataforma/copias/:archivo', descargarCopiaMarcaPlataforma);
+router.post('/plataforma/copias/:archivo/restaurar', restaurarCopiaMarcaPlataforma);
+router.get('/plataforma/blog', listarBlogPlataforma);
+router.post('/plataforma/blog', crearBlogPlataforma);
+router.put('/plataforma/blog/:id', actualizarBlogPlataforma);
+router.delete('/plataforma/blog/:id', eliminarBlogPlataforma);
+router.post('/plataforma/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.get('/plataforma/publicidad/publicaciones', listarPublicacionesParaPublicidad);
 router.get('/plataforma/publicidad', listarPublicidadPlataforma);
 router.post('/plataforma/publicidad', crearPublicidadPlataforma);

@@ -32,7 +32,8 @@ function ContactoCompacto({
           href={enlaceTelefono}
           aria-label={`Llamar al ${telefonoLimpio}`}
         >
-          <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+          <IconoApp nombre="telefono" tamano="md" className="encabezado-marca__contacto-icono" />
+          <span>Llamar</span>
         </a>
       )}
       {telefonoLimpio && !enlaceTelefono && (
@@ -42,7 +43,8 @@ function ContactoCompacto({
           aria-label={`Telefono ${telefonoLimpio}`}
           onClick={() => onVerDireccion('telefono', telefonoLimpio)}
         >
-          <IconoApp nombre="telefono" tamano="sm" className="encabezado-marca__contacto-icono" />
+          <IconoApp nombre="telefono" tamano="md" className="encabezado-marca__contacto-icono" />
+          <span>Llamar</span>
         </button>
       )}
       {direccionLimpia && (
@@ -52,7 +54,8 @@ function ContactoCompacto({
           aria-label="Ver ubicacion"
           onClick={() => onVerDireccion('direccion', direccionLimpia)}
         >
-          <IconoApp nombre="ubicacion" tamano="sm" className="encabezado-marca__contacto-icono" />
+          <IconoApp nombre="ubicacion" tamano="md" className="encabezado-marca__contacto-icono" />
+          <span>Mapa</span>
         </button>
       )}
       {enlaceWhatsapp && (
@@ -63,7 +66,8 @@ function ContactoCompacto({
           rel="noopener noreferrer"
           aria-label="Escribir por WhatsApp"
         >
-          <IconoApp nombre="whatsapp" tamano="sm" className="encabezado-marca__whatsapp-icono" />
+          <IconoApp nombre="whatsapp" tamano="md" className="encabezado-marca__whatsapp-icono" />
+          <span>WhatsApp</span>
         </a>
       )}
     </div>
@@ -168,19 +172,22 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
     return (
       <header className={clases}>
         <div className="encabezado-marca__fila-principal">
-          <div className={marcoClases}>
-            {marca.logo ? (
-              <ImagenAmpliable
-                className="encabezado-marca__logo"
-                src={marca.logo}
-                alt={marca.nombreComercial}
-              />
-            ) : (
-              <span className="encabezado-marca__logo-inicial">{inicialMarca(marca.nombreComercial)}</span>
-            )}
-          </div>
-          <div className="encabezado-marca__identidad">
-            <h1 className="encabezado-marca__nombre">{marca.nombreComercial}</h1>
+          <div className="encabezado-marca__marca">
+            <div className={marcoClases}>
+              {marca.logo ? (
+                <ImagenAmpliable
+                  className="encabezado-marca__logo"
+                  src={marca.logo}
+                  alt={marca.nombreComercial}
+                />
+              ) : (
+                <span className="encabezado-marca__logo-inicial">{inicialMarca(marca.nombreComercial)}</span>
+              )}
+            </div>
+            <div className="encabezado-marca__identidad">
+              <h1 className="encabezado-marca__nombre">{marca.nombreComercial}</h1>
+              {titulo && <p className="encabezado-marca__pagina">{titulo}</p>}
+            </div>
           </div>
           {tieneContacto && (
             <ContactoCompacto
@@ -192,7 +199,6 @@ export default function EncabezadoMarca({ marca, titulo, compacto = false }) {
             />
           )}
         </div>
-        {titulo && <p className="encabezado-marca__pagina">{titulo}</p>}
 
         <ModalConfirmacion
           abierto={Boolean(modalContacto)}

@@ -238,14 +238,15 @@ export default function LoginVista({ modo = 'marca' }) {
         {error && <MensajeError titulo="Error de acceso" mensaje={error} />}
 
         <form className="login-vista__formulario" onSubmit={manejarSubmit}>
-          <CampoFormulario etiqueta="Correo" id="correo" requerido error={erroresCampo.correo}>
+          <CampoFormulario etiqueta={config.id === 'marca' ? 'WhatsApp o correo' : 'Correo'} id="correo" requerido error={erroresCampo.correo}>
             <input
               id="correo"
-              type="email"
+              type={config.id === 'marca' ? 'text' : 'email'}
+              inputMode={config.id === 'marca' ? 'text' : 'email'}
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
-              placeholder={config.correoDemo}
-              autoComplete="email"
+              placeholder={config.id === 'marca' ? '3001234567 o tu correo' : config.correoDemo}
+              autoComplete="username"
               required
             />
           </CampoFormulario>

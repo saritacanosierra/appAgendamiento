@@ -192,6 +192,13 @@ export class UsuarioRepositorio {
     return resultado.insertId;
   }
 
+  async actualizarNombreAdmins(marcaId, nombre) {
+    await pool.execute(
+      `UPDATE usuarios SET nombre = ? WHERE marca_id = ? AND rol = 'admin' AND activo = 1`,
+      [nombre, marcaId]
+    );
+  }
+
   async buscarAdminPrincipalPorMarca(marcaId) {
     const [filas] = await pool.execute(
       `SELECT id, marca_id, nombre, correo, rol, activo

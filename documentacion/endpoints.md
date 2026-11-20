@@ -111,21 +111,33 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 
 | Metodo | Ruta | Auth | Descripcion |
 |--------|------|------|-------------|
-| GET | `/api/marcas/{marca_id}/blog` | No | Publicaciones publicadas |
+| GET | `/api/marcas/{marca_id}/blog` | No | Publicaciones publicadas de la marca y las de la app |
 | GET | `/api/publicidad/blog?publicacion_id=` | No | Campanas activas asignadas a esa publicacion |
 | GET | `/api/plataforma/publicidad/publicaciones` | Si, superadmin | Publicaciones de todas las tiendas para elegir donde sale cada campana |
-| DELETE | `/api/plataforma/marcas/{id}` | Si, superadmin | Elimina la empresa, su agenda, sus usuarios y los datos ligados. No se puede deshacer |
+| DELETE | `/api/plataforma/marcas/{id}` | Si, superadmin | Elimina la empresa, su agenda, sus usuarios y los datos ligados. No se puede deshacer. La copia guardada de esa empresa, si existe, no se borra |
+| POST | `/api/plataforma/marcas/{id}/copias` | Si, superadmin | Guarda una copia solo de esa empresa y no toca a las demás. Además, la API guarda sola una copia por empresa cada 7 días |
+| GET | `/api/plataforma/marcas/{id}/copias` | Si, superadmin | Lista las copias de esa empresa |
+| POST | `/api/plataforma/marcas/{id}/copias/{archivo}/restaurar` | Si, superadmin | Devuelve esa empresa a su copia. Rechaza el archivo si es de otra |
+| GET | `/api/plataforma/copias` | Si, superadmin | Lista las copias guardadas. Sirve para volver a crear una empresa que ya no está |
+| POST | `/api/plataforma/copias` | Si, superadmin | Recibe el JSON de una sola empresa y lo guarda, sin restaurar |
+| GET | `/api/plataforma/copias/{archivo}` | Si, superadmin | Descarga esa copia |
+| POST | `/api/plataforma/copias/{archivo}/restaurar` | Si, superadmin | Restaura la empresa que está dentro del archivo. Si ya no existe y su enlace está libre, la vuelve a crear |
 | GET | `/api/plataforma/publicidad` | Si, superadmin | Campanas, con tipo imagen o enlace y sus publicaciones |
 | POST | `/api/plataforma/publicidad` | Si, superadmin | Crear anuncio |
 | PUT | `/api/plataforma/publicidad/{id}` | Si, superadmin | Actualizar anuncio |
 | POST | `/api/plataforma/subidas/publicidad` | Si, superadmin | Subir imagen del anuncio |
-| GET | `/api/marcas/{marca_id}/blog/slug/{slug}` | No | Detalle de publicacion |
+| GET | `/api/marcas/{marca_id}/blog/slug/{slug}` | No | Detalle. `?origen=app` abre la publicacion de la app si el enlace coincide con una de la marca |
+| GET | `/api/plataforma/blog` | Si, superadmin | Blogs de la app. Salen en cada marca |
+| POST | `/api/plataforma/blog` | Si, superadmin | Crear blog de la app |
+| PUT | `/api/plataforma/blog/{id}` | Si, superadmin | Editar blog de la app |
+| DELETE | `/api/plataforma/blog/{id}` | Si, superadmin | Quitar el blog de la app de todas las marcas |
+| POST | `/api/plataforma/subidas/blog` | Si, superadmin | Imagen del blog de la app |
 | GET | `/api/marcas/{marca_id}/galeria` | No | Disenos activos. `?limite=6` devuelve solo las primeras (maximo 24) |
 | POST | `/api/marcas/{marca_id}/galeria/sesion` | No | Abre la seleccion con el celular, sin exigir cita |
 | GET | `/api/marcas/{marca_id}/galeria/selecciones?telefono=` | No | Fotos guardadas de ese celular en esa marca |
 | POST | `/api/marcas/{marca_id}/galeria/selecciones` | No | Guarda un diseno en el celular (`telefono`, `diseno_id`) |
 | DELETE | `/api/marcas/{marca_id}/galeria/selecciones` | No | Quita un diseno del celular |
-| GET | `/api/admin/blog` | Si | Todas las publicaciones de la marca |
+| GET | `/api/admin/blog` | Si | Publicaciones de la marca. Las de la app vienen marcadas y no se editan desde aquí |
 | POST | `/api/admin/blog` | Si | Crear publicacion |
 | PUT | `/api/admin/blog/{id}` | Si | Actualizar publicacion |
 | GET | `/api/admin/galeria` | Si | Todos los disenos de la marca |
@@ -135,6 +147,8 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | GET | `/api/admin/configuracion-marca` | Si | Configuracion editable |
 | GET | `/api/admin/puesta-en-marcha` | Si | Si la marca ya tiene logo o contacto, servicios, equipo y fotos. No trae las listas |
 | PUT | `/api/admin/configuracion-marca` | Si | Guardar colores, contacto, horarios |
+| GET | `/api/admin/politica-privacidad` | Si | Si el propietario ya marco de acuerdo la politica vigente |
+| POST | `/api/admin/politica-privacidad` | Si | El propietario de la marca marca de acuerdo. Body: `{ "deAcuerdo": true }`. Staff recibe 403 |
 | POST | `/api/admin/subidas/{galeria\|blog\|logos}` | Si | Subir imagen (multipart, campo `archivo`) |
 
 Archivos estaticos servidos en `/subidas/...` (max 5 MB, JPG/PNG/WEBP/GIF).

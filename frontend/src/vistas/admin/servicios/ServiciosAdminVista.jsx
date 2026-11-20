@@ -23,6 +23,12 @@ import {
 } from '../../../modulos/reservas/servicios/serviciosServicio';
 import '../../../estilos/admin/servicios/servicios.css';
 
+const LIMITE_PALABRAS_DESCRIPCION = 20;
+
+function contarPalabras(valor) {
+  return String(valor ?? '').trim().split(/\s+/).filter(Boolean).length;
+}
+
 const FORM_VACIO = {
   nombre: '',
   descripcion: '',
@@ -130,6 +136,13 @@ export default function ServiciosAdminVista() {
     e.preventDefault();
     setEnviando(true);
     setError(null);
+
+    const palabras = contarPalabras(form.descripcion);
+    if (palabras > LIMITE_PALABRAS_DESCRIPCION) {
+      setError(`La descripción admite máximo ${LIMITE_PALABRAS_DESCRIPCION} palabras.`);
+      setEnviando(false);
+      return;
+    }
 
     const payload = {
       nombre: form.nombre.trim(),
@@ -261,11 +274,26 @@ export default function ServiciosAdminVista() {
               required
             />
           </CampoFormulario>
-          <CampoFormulario etiqueta="Descripcion" id="sv-desc">
+          <CampoFormulario
+            etiqueta="Descripcion"
+            id="sv-desc"
+            ayuda={`${contarPalabras(form.descripcion)} de ${LIMITE_PALABRAS_DESCRIPCION} palabras`}
+            error={contarPalabras(form.descripcion) > LIMITE_PALABRAS_DESCRIPCION
+              ? `Máximo ${LIMITE_PALABRAS_DESCRIPCION} palabras. Borra el resto para guardar.`
+              : undefined}
+          >
             <TextareaTexto
               id="sv-desc"
               value={form.descripcion}
-              onChange={(e) => actualizarCampo('descripcion', e.target.value)}
+              onChange={(e) => {
+                const valor = e.target.value;
+                const siguientes = contarPalabras(valor);
+                if (
+                  siguientes > LIMITE_PALABRAS_DESCRIPCION
+                  && valor.length >= form.descripcion.length
+                ) return;
+                actualizarCampo('descripcion', valor);
+              }}
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Imagen del servicio" id="sv-imagen">

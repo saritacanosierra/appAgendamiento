@@ -16,6 +16,8 @@ export const CLAVE_IMPERSONACION = 'spa_unas_impersonando';
 export const EVENTO_TOKEN_CAMBIADO = 'spa-unas:token-cambiado';
 
 export const RUTAS_PUBLICAS = {
+  condiciones: conBarraFinal('/condiciones'),
+  usoDatos: conBarraFinal('/uso-de-datos'),
   inicioMarca: (slug) => conBarraFinal(`/m/${slug}`),
   citas: (slug) => conBarraFinal(`/m/${slug}/citas`),
   reservar: (slug) => conBarraFinal(`/m/${slug}/reservar`),
@@ -56,6 +58,7 @@ export const RUTAS_PLATAFORMA = {
   marcas: conBarraFinal('/plataforma/marcas'),
   reportes: conBarraFinal('/plataforma/reportes'),
   publicidad: conBarraFinal('/plataforma/publicidad'),
+  blog: conBarraFinal('/plataforma/blog'),
   editarMarca: (id) => conBarraFinal(`/plataforma/marcas/${id}`),
 };
 

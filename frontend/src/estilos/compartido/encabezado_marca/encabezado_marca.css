@@ -154,39 +154,59 @@ a.encabezado-marca__contacto-chip:hover {
 
 /* Barra compacta — mobile first (celular) */
 .encabezado-marca--compacto {
-  padding: 0.3rem 0 0.45rem;
+  align-items: stretch;
+  text-align: left;
+  gap: 0;
+  padding: 0 0 0.15rem;
   margin-bottom: 0;
 }
 
 .encabezado-marca--compacto .encabezado-marca__fila-principal {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
   min-width: 0;
+}
+
+.encabezado-marca--compacto .encabezado-marca__marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .encabezado-marca--compacto .encabezado-marca__logo-marco {
   flex-shrink: 0;
-  min-width: 40px;
-  max-width: 40px;
-  width: 40px;
-  min-height: 40px;
-  height: 40px;
-  padding: 0.28rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-principal) 6%, transparent);
+  width: 92px;
+  height: 56px;
+  min-width: 92px;
+  max-width: 92px;
+  min-height: 56px;
+  padding: 4px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--color-texto) 8%, #fff);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(31, 32, 34, 0.06);
 }
 
 .encabezado-marca--compacto .encabezado-marca__logo {
-  max-width: 32px;
-  max-height: 28px;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
 }
 
 .encabezado-marca--compacto .encabezado-marca__logo-inicial {
-  width: 1.5rem;
-  height: 1.5rem;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  font-size: 1.15rem;
+  border-radius: 10px;
 }
 
 .encabezado-marca--compacto .encabezado-marca__identidad {
@@ -196,47 +216,63 @@ a.encabezado-marca__contacto-chip:hover {
 
 .encabezado-marca--compacto .encabezado-marca__pagina {
   margin: 0.15rem 0 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: var(--color-texto);
+  letter-spacing: 0;
+  color: var(--color-texto-muted);
 }
 
 .encabezado-marca--compacto .encabezado-marca__nombre {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   color: var(--color-texto);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .encabezado-marca--compacto .encabezado-marca__contacto-iconos {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  flex-shrink: 0;
-  margin-left: auto;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .encabezado-marca--compacto .encabezado-marca__icono-btn {
   display: inline-flex;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--color-texto) 14%, transparent);
-  background: color-mix(in srgb, var(--color-principal) 10%, var(--color-fondo-app));
-  color: var(--color-acento);
+  gap: 0.35rem;
+  width: auto;
+  min-width: 0;
+  min-height: 48px;
+  height: auto;
+  padding: 0 0.4rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-texto) 10%, transparent);
+  background: #fff;
+  color: var(--color-texto);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
   text-decoration: none;
+  box-shadow: 0 1px 2px rgba(31, 32, 34, 0.04);
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+.encabezado-marca--compacto .encabezado-marca__icono-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .encabezado-marca--compacto .encabezado-marca__icono-btn:hover {
@@ -303,6 +339,6 @@ a.encabezado-marca__contacto-chip:hover {
   }
 
   .encabezado-marca--compacto .encabezado-marca__contacto-iconos {
-    gap: 0.35rem;
+    gap: 0.5rem;
   }
 }

@@ -114,6 +114,12 @@ function ListaCatalogo({ titulo, tipo, items, onCambio, error: _error, setError 
                   <button type="button" onClick={() => guardarEdicion(item.id)} disabled={guardando}>
                     Guardar
                   </button>
+                  <button type="button" onClick={() => alternarActivo(item)} disabled={guardando}>
+                    {item.activo ? 'Ocultar' : 'Mostrar'}
+                  </button>
+                  <button type="button" onClick={() => eliminar(item)} disabled={guardando}>
+                    Eliminar
+                  </button>
                   <button type="button" onClick={() => setEditandoId(null)} disabled={guardando}>
                     Cancelar
                   </button>
@@ -132,12 +138,6 @@ function ListaCatalogo({ titulo, tipo, items, onCambio, error: _error, setError 
                     >
                       Editar
                     </button>
-                    <button type="button" onClick={() => alternarActivo(item)} disabled={guardando}>
-                      {item.activo ? 'Desactivar' : 'Activar'}
-                    </button>
-                    <button type="button" onClick={() => eliminar(item)} disabled={guardando}>
-                      Eliminar
-                    </button>
                   </div>
                 </>
               )}
@@ -151,7 +151,7 @@ function ListaCatalogo({ titulo, tipo, items, onCambio, error: _error, setError 
 
 export default function GaleriaCatalogoPanel({ catalogo, onCambio }) {
   const [error, setError] = useState(null);
-  const [abierto, setAbierto] = useState(true);
+  const [abierto, setAbierto] = useState(false);
 
   const categoriasActivas = catalogoActivoPorTipo(catalogo, 'categoria').length;
   const temporadasActivas = catalogoActivoPorTipo(catalogo, 'temporada').length;
@@ -173,7 +173,7 @@ export default function GaleriaCatalogoPanel({ catalogo, onCambio }) {
       {abierto && (
         <div className="galeria-catalogo__panel">
           <p className="galeria-catalogo__hint">
-            Estos nombres son los filtros que ve tu clienta. También puedes crearlos al subir una foto.
+            Ábrelos solo para renombrar o quitar un filtro. Al subir una foto también puedes crear uno.
           </p>
           {error && <MensajeError mensaje={error} />}
           <div className="galeria-catalogo__grid">

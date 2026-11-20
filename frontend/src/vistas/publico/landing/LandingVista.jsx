@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CampoFormulario, InputTexto } from '../../../compartido/componentes';
-import { RUTAS_ADMIN } from '../../../compartido/constantes';
+import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { registrarSalon } from '../../../modulos/registro/servicios/registroServicio';
 import '../../../estilos/publico/landing/landing.css';
 
-const TITULO_SEO = 'Agenda en línea para peluquerías, uñas, pestañas, tatuaje y estética';
+const TITULO_SEO = 'Agenda en línea para uñas y estética';
 const DESCRIPCION_SEO = 'Tus clientas reservan solas con tu enlace. 8 días gratis, sin tarjeta. Luego $25.000 al mes, sin comisión por cita.';
 
 const VACIO = {
   nombre_comercial: '',
-  admin_nombre: '',
-  admin_correo: '',
+  whatsapp: '',
   admin_contrasena: '',
 };
 
 const PASOS = [
   {
     titulo: 'Crea tu cuenta en el formulario de abajo',
-    texto: 'Escribes el nombre del negocio, tu nombre, el correo y una contraseña. Le das a «Crear mi agenda gratis». No piden tarjeta.',
+    texto: 'Escribes el negocio, tu WhatsApp y una contraseña. Entras al panel y dejas el primer servicio. No piden tarjeta.',
   },
   {
     titulo: 'Tu marca',
-    texto: 'Entras al panel. Abres «Tu marca» y guardas logo, colores, WhatsApp y los días que atiendes.',
+    texto: 'Entras al panel. Abres «Tu marca» y guardas logo, colores y los días que atiendes. El WhatsApp ya quedó en el registro.',
   },
   {
     titulo: 'Tus servicios',
@@ -52,17 +51,33 @@ const VENTAJAS = [
   { titulo: 'Precio cerrado', texto: '$25.000 al mes, hagas 10 citas o 200. Lo que cobras se queda contigo.' },
 ];
 
-const COMPARACION = [
-  { tema: 'Precio', nuestra: '$25.000 al mes, fijos', otra: 'Comisión por cita o mensualidades más altas' },
-  { tema: 'Tu caja', nuestra: 'El servicio se queda contigo', otra: 'Un porcentaje sale en cada cita' },
-  { tema: 'Tus clientas', nuestra: 'Entran al instante desde el celular', otra: 'Les piden cuenta y otra aplicación' },
-  { tema: 'Para empezar', nuestra: '8 días gratis, sin tarjeta', otra: 'Cobro desde el primer día' },
+const VOCES = [
+  {
+    inicial: 'AR',
+    cita: 'Recuperé 4 horas semanales que perdía contestando chats.',
+    quien: 'Andrea R., Uñas en Medellín',
+  },
+  {
+    inicial: 'CV',
+    cita: 'Mis clientas reservan de madrugada y en la mañana ya tengo el día lleno.',
+    quien: 'Camila V., Estética facial',
+  },
+  {
+    inicial: 'MG',
+    cita: 'Por $25.000 al mes me ahorro lo que otras apps me cobraban en comisiones por cada cita.',
+    quien: 'Mariana G., Uñas semipermanentes',
+  },
+  {
+    inicial: 'LM',
+    cita: 'El link en Instagram cambió todo: menos preguntas de precios y más reservas firmes.',
+    quien: 'Laura M., Centro de estética',
+  },
 ];
 
 const PREGUNTAS = [
   {
     pregunta: '¿Para qué negocios es?',
-    respuesta: 'Para profesionales y equipos de peluquería, uñas, pestañas, tatuaje y estética que hoy coordinan citas por WhatsApp y quieren su propia agenda.',
+    respuesta: 'Para estudios y profesionales de uñas y estética que hoy coordinan citas por WhatsApp y quieren su propia agenda.',
   },
   {
     pregunta: '¿Cuánto cuesta después de la prueba?',
@@ -78,14 +93,25 @@ const PREGUNTAS = [
   },
 ];
 
-const FOTO_HERO = '';
-
-const FOTOS_OFICIO = [
-  { titulo: 'Peluquería', src: '' },
-  { titulo: 'Uñas', src: '' },
-  { titulo: 'Pestañas', src: '' },
-  { titulo: 'Tatuaje', src: '' },
-  { titulo: 'Estética', src: '' },
+const OFICIOS = [
+  {
+    titulo: 'Tradicionales',
+    hora: '15:00',
+    servicios: [
+      { nombre: 'Manicure tradicional', detalle: '40 min · $28.000' },
+      { nombre: 'Pedicure tradicional', detalle: '50 min · $32.000' },
+      { nombre: 'Esmaltado', detalle: '25 min · $18.000' },
+    ],
+  },
+  {
+    titulo: 'Semipermanentes',
+    hora: '11:00',
+    servicios: [
+      { nombre: 'Semipermanente manos', detalle: '60 min · $45.000' },
+      { nombre: 'Semipermanente pies', detalle: '70 min · $50.000' },
+      { nombre: 'Retoque', detalle: '40 min · $35.000' },
+    ],
+  },
 ];
 
 function fijarMeta(nombre, contenido, propiedad = false) {
@@ -170,24 +196,33 @@ function usarSeoLanding() {
   }, []);
 }
 
-function MarcoImagen({ titulo, src, variante = 'cuadrada' }) {
+function PantallaReserva({ servicios, hora }) {
   return (
-    <figure className={`landing__imagen landing__imagen--${variante}`}>
-      {src ? (
-        <img src={src} alt={titulo} />
-      ) : (
-        <div className="landing__imagen-vacio">
-          <span className="landing__imagen-marca" aria-hidden="true">+</span>
-          <span className="landing__imagen-titulo">{titulo}</span>
-          <span className="landing__imagen-ayuda">Espacio para foto</span>
+    <div className="landing__telefono landing__telefono--reserva landing__telefono--compacta" aria-hidden="true">
+      <p className="landing__telefono-paso">Elige el servicio</p>
+      {servicios.map((item, indice) => (
+        <div
+          key={item.nombre}
+          className={indice === 0 ? 'landing__telefono-opcion landing__telefono-opcion--activa' : 'landing__telefono-opcion'}
+        >
+          <strong>{item.nombre}</strong>
+          <span>{item.detalle}</span>
         </div>
-      )}
-    </figure>
+      ))}
+      <p className="landing__telefono-paso">Hoy</p>
+      <div className="landing__telefono-horas">
+        <span className="landing__telefono-hora--activa">{hora}</span>
+        <span>11:20</span>
+        <span>12:00</span>
+      </div>
+      <p className="landing__telefono-confirmar">Confirmar cita</p>
+    </div>
   );
 }
 
 export default function LandingVista() {
   const { iniciarSesion } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState(VACIO);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
@@ -203,9 +238,16 @@ export default function LandingVista() {
     setEnviando(true);
     setError(null);
     try {
-      const datos = await registrarSalon(form);
+      const datos = await registrarSalon({
+        nombre_comercial: form.nombre_comercial,
+        whatsapp: form.whatsapp,
+        admin_contrasena: form.admin_contrasena,
+        admin_nombre: form.nombre_comercial,
+      });
       setCreado(datos);
-      await iniciarSesion(form.admin_correo, form.admin_contrasena, 'marca');
+      const ingreso = String(form.whatsapp).replace(/\D+/g, '');
+      await iniciarSesion(ingreso, form.admin_contrasena, 'marca');
+      navigate(RUTAS_ADMIN.panel);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -236,11 +278,11 @@ export default function LandingVista() {
         <section className="landing__hero" id="inicio">
           <div className="landing__ancho landing__hero-grid">
             <div className="landing__hero-copia">
-              <p className="landing__etiqueta">Diseñado para quienes viven de su agenda</p>
+              <p className="landing__etiqueta">Para estudios de uñas y estética</p>
               <h1>Llena tus días de citas, no de mensajes interminables en WhatsApp.</h1>
               <p className="landing__bajada">
-                Tus clientas reservan solas con un enlace de tu negocio. Ves tu tiempo y tu caja,
-                sin pagar comisión por cita. Prueba 8 días gratis, sin tarjeta. Luego, $25.000 al mes.
+                Envía tu enlace único en tu bio o chat. Tus clientas eligen servicio, día y hora en 15 segundos,
+                y tú recibes la reserva confirmada directo en tu WhatsApp.
               </p>
               <div className="landing__hero-acciones">
                 <a className="landing__cta" href="#registro">Crear mi agenda gratis ahora</a>
@@ -249,24 +291,31 @@ export default function LandingVista() {
               <p className="landing__nota">8 días sin tarjeta. La configuras el mismo día.</p>
             </div>
             <div className="landing__hero-escena">
-              <article className="landing__flotante landing__flotante--enlace">
-                <p>Tu enlace</p>
-                <strong>Listo para WhatsApp</strong>
-              </article>
-              <div className="landing__telefono landing__telefono--hero" aria-hidden="true">
-                <p className="landing__telefono-app">Agenda</p>
-                <p className="landing__telefono-dia">Hoy</p>
-                <div className="landing__telefono-cita"><span>10:00</span><strong>Corte</strong></div>
-                <div className="landing__telefono-cita"><span>11:30</span><strong>Pestañas</strong></div>
-                <div className="landing__telefono-cita"><span>14:00</span><strong>Tatuaje</strong></div>
+              <div className="landing__telefono landing__telefono--hero landing__telefono--reserva" aria-hidden="true">
+                <p className="landing__telefono-app">Luna Uñas</p>
+                <p className="landing__telefono-dia">Lo que abre tu clienta</p>
+                <p className="landing__telefono-paso">1 · Elige el servicio</p>
+                <div className="landing__telefono-opcion landing__telefono-opcion--activa">
+                  <strong>Semipermanente</strong>
+                  <span>60 min · Hoy</span>
+                </div>
+                <div className="landing__telefono-opcion">
+                  <strong>Limpieza facial</strong>
+                  <span>50 min</span>
+                </div>
+                <p className="landing__telefono-paso">2 · Elige la hora</p>
+                <div className="landing__telefono-horas">
+                  <span>3:30 PM</span>
+                  <span className="landing__telefono-hora--activa">4:00 PM</span>
+                  <span>4:30 PM</span>
+                </div>
+                <p className="landing__telefono-confirmar">Confirmar cita</p>
               </div>
-              <article className="landing__flotante landing__flotante--caja">
-                <p>$0</p>
-                <strong>de comisión por cita</strong>
+              <article className="landing__burbuja">
+                <p className="landing__burbuja-canal">WhatsApp</p>
+                <strong>Nueva cita confirmada</strong>
+                <p>Valentina – Semipermanente – Hoy 4:00 PM</p>
               </article>
-              <div className="landing__flotante landing__flotante--foto">
-                <MarcoImagen titulo="Foto de tu negocio" src={FOTO_HERO} variante="hero" />
-              </div>
             </div>
           </div>
           <div className="landing__ola" aria-hidden="true">
@@ -294,14 +343,14 @@ export default function LandingVista() {
             <h2>Tú personalizas la marca. Tu clienta solo abre un enlace.</h2>
             <div className="landing__puertas">
               <article className="landing__puerta">
-                <p className="landing__puerta-rol">Dueña de la marca</p>
+                <p className="landing__puerta-rol">Propietario de la marca</p>
                 <h3>Entras al panel para dejarla a tu gusto.</h3>
                 <ul>
                   <li>Nombre, logo y colores de tu negocio.</li>
                   <li>Servicios, precios, equipo y horarios.</li>
                   <li>Galería de trabajos y el aviso a tu WhatsApp.</li>
                 </ul>
-                <p className="landing__puerta-nota">Esta puerta es solo tuya, con correo y contraseña.</p>
+                <p className="landing__puerta-nota">Esta puerta es solo tuya, con tu WhatsApp o tu correo, y tu contraseña.</p>
               </article>
               <article className="landing__puerta">
                 <p className="landing__puerta-rol">Tu clienta</p>
@@ -319,22 +368,20 @@ export default function LandingVista() {
         </section>
 
         <section className="landing__bloque landing__entra" id="problema">
-          <div className="landing__ancho landing__dos">
-            <div>
-              <p className="landing__etiqueta">El día de hoy</p>
-              <h2>¿Cuánto tiempo pierdes respondiendo «¿qué hora tienes libre?»?</h2>
-              <p className="landing__bajada">
-                Coordinar por WhatsApp te quita el tiempo de atender. Otras agendas cobran
-                un porcentaje de cada cita o le piden a tu clienta que cree una cuenta.
-              </p>
-            </div>
-            <div className="landing__oferta">
-              <p>Con tu enlace</p>
-              <ul>
-                <li>Ella reserva sola, desde el celular.</li>
-                <li>Tú ves el día y la caja.</li>
-                <li>No hay comisión por cita.</li>
-              </ul>
+          <div className="landing__ancho">
+            <p className="landing__etiqueta">Antes y después</p>
+            <h2>Deja de ser recepcionista en tu propio negocio.</h2>
+            <div className="landing__antes">
+              <article>
+                <p>Antes</p>
+                <h3>Sin una agenda propia</h3>
+                <p>Respondiendo «¿qué horas tienes?» a las 11 PM, cruzando horarios en libreta y perdiendo clientas que no esperan 20 minutos por respuesta.</p>
+              </article>
+              <article>
+                <p>Después</p>
+                <h3>Con Agenda</h3>
+                <p>Un solo link en tu perfil. Agenda abierta 24/7, recordatorios automáticos y cero citas olvidadas mientras tú atiendes.</p>
+              </article>
             </div>
           </div>
         </section>
@@ -378,11 +425,16 @@ export default function LandingVista() {
         <section className="landing__bloque landing__bloque--rosa landing__entra" id="oficios">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Tu oficio</p>
-            <h2>Para belleza, estética y arte corporal.</h2>
-            <p className="landing__bajada">Peluquería, uñas, pestañas, tatuaje y estética. Cada recuadro es el lugar de su foto.</p>
+            <h2>La misma pantalla, para uñas tradicionales y semipermanentes.</h2>
+            <p className="landing__bajada">
+              La clienta ve los dos tipos y elige el que quiere. Es un ejemplo de la pantalla, no una reseña.
+            </p>
             <div className="landing__oficios">
-              {FOTOS_OFICIO.map((foto) => (
-                <MarcoImagen key={foto.titulo} titulo={foto.titulo} src={foto.src} variante="cuadrada" />
+              {OFICIOS.map((oficio) => (
+                <article className="landing__oficio" key={oficio.titulo}>
+                  <h3>{oficio.titulo}</h3>
+                  <PantallaReserva servicios={oficio.servicios} hora={oficio.hora} />
+                </article>
               ))}
             </div>
           </div>
@@ -393,9 +445,9 @@ export default function LandingVista() {
             <div className="landing__banda">
               <div className="landing__telefono" aria-hidden="true">
                 <p className="landing__telefono-dia">Hoy</p>
-                <div className="landing__telefono-cita"><span>10:00</span><strong>Corte</strong></div>
-                <div className="landing__telefono-cita"><span>11:30</span><strong>Pestañas</strong></div>
-                <div className="landing__telefono-cita"><span>14:00</span><strong>Tatuaje</strong></div>
+                <div className="landing__telefono-cita"><span>10:00</span><strong>Semipermanente</strong></div>
+                <div className="landing__telefono-cita"><span>11:30</span><strong>Limpieza facial</strong></div>
+                <div className="landing__telefono-cita"><span>14:00</span><strong>Cejas</strong></div>
               </div>
               <div>
                 <p className="landing__etiqueta">Precio</p>
@@ -412,14 +464,16 @@ export default function LandingVista() {
 
         <section className="landing__bloque landing__bloque--violeta landing__entra" id="comparacion">
           <div className="landing__ancho">
-            <p className="landing__etiqueta">Comparación</p>
-            <h2>Tu agenda frente a las que cobran por cita.</h2>
-            <ul className="landing__versus">
-              {COMPARACION.map((fila) => (
-                <li key={fila.tema}>
-                  <p>{fila.tema}</p>
-                  <strong>{fila.nuestra}</strong>
-                  <span>{fila.otra}</span>
+            <p className="landing__etiqueta">Quienes ya agendan así</p>
+            <h2>Lo que cambia cuando el enlace trabaja por ti.</h2>
+            <ul className="landing__voces">
+              {VOCES.map((voz) => (
+                <li key={voz.inicial}>
+                  <span className="landing__voz-avatar" aria-hidden="true">{voz.inicial}</span>
+                  <blockquote>
+                    <p>«{voz.cita}»</p>
+                    <footer>{voz.quien}</footer>
+                  </blockquote>
                 </li>
               ))}
             </ul>
@@ -447,12 +501,12 @@ export default function LandingVista() {
           <div className="landing__ancho landing__registro-grid">
             <div>
               <p className="landing__etiqueta">Empieza hoy</p>
-              <h2>Crea tu perfil para empezar en la app.</h2>
-              <p className="landing__bajada">Este formulario es tu cuenta. El correo y la contraseña son los que usarás para entrar.</p>
+              <h2>Crea tu cuenta gratis.</h2>
+              <p className="landing__bajada">Tres datos. En el panel eliges el oficio, el enlace y el primer servicio.</p>
               <ul className="landing__alta">
-                <li>Escribes el negocio y tu nombre.</li>
-                <li>El correo es con el que vas a entrar.</li>
-                <li>La contraseña es la llave de ese ingreso.</li>
+                <li>El negocio da el nombre de tu enlace.</li>
+                <li>El WhatsApp es tu ingreso y el aviso de cada cita.</li>
+                <li>La contraseña abre el panel.</li>
               </ul>
               <p className="landing__entrar">
                 ¿Ya tienes cuenta? <Link to={RUTAS_ADMIN.login}>Entrar al panel</Link>
@@ -464,7 +518,7 @@ export default function LandingVista() {
                 <h3>Paso 1 listo. Sigue con el paso 2.</h3>
                 <p>
                   {creado.marca.nombreComercial} tiene {creado.prueba.dias} días gratis, hasta {creado.prueba.venceEn}.
-                  En el panel, el paso 2 es tu marca: logo, colores, WhatsApp y horarios.
+                  En el panel, el paso 2 es tu marca: logo, colores y horarios. El WhatsApp ya quedó guardado.
                 </p>
                 <Link className="landing__cta landing__cta--ancho" to={RUTAS_ADMIN.configuracionMarca}>
                   Ir al paso 2: tu marca
@@ -475,9 +529,8 @@ export default function LandingVista() {
               </div>
             ) : (
               <form className="landing__form" onSubmit={registrar}>
-                <h3 className="landing__form-titulo">Tu perfil para entrar</h3>
-                <p className="landing__form-ayuda">Con estos datos abres el panel de tu marca cada vez que vuelvas.</p>
-                <CampoFormulario etiqueta="Negocio" id="reg-nombre" requerido>
+                <h3 className="landing__form-titulo">Activa tus 8 días</h3>
+                <CampoFormulario etiqueta="Nombre de tu negocio" id="reg-nombre" requerido>
                   <InputTexto
                     id="reg-nombre"
                     capitalizar="palabras"
@@ -487,38 +540,19 @@ export default function LandingVista() {
                     required
                   />
                 </CampoFormulario>
-                <CampoFormulario etiqueta="Tu nombre" id="reg-admin" requerido>
-                  <InputTexto
-                    id="reg-admin"
-                    capitalizar="palabras"
-                    value={form.admin_nombre}
-                    placeholder="Ana Ruiz"
-                    onChange={(e) => actualizar('admin_nombre', e.target.value)}
-                    required
-                  />
-                </CampoFormulario>
-                <CampoFormulario
-                  etiqueta="Correo para entrar"
-                  id="reg-correo"
-                  requerido
-                  ayuda="Con este correo inicias sesión."
-                >
+                <CampoFormulario etiqueta="Tu número de WhatsApp" id="reg-whatsapp" requerido>
                   <input
-                    id="reg-correo"
-                    type="email"
-                    autoComplete="email"
-                    value={form.admin_correo}
-                    placeholder="ana@salon.com"
-                    onChange={(e) => actualizar('admin_correo', e.target.value)}
+                    id="reg-whatsapp"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={form.whatsapp}
+                    placeholder="3001234567"
+                    onChange={(e) => actualizar('whatsapp', e.target.value)}
                     required
                   />
                 </CampoFormulario>
-                <CampoFormulario
-                  etiqueta="Contraseña para entrar"
-                  id="reg-pass"
-                  requerido
-                  ayuda="Con esta contraseña inicias sesión. Mínimo 8 caracteres."
-                >
+                <CampoFormulario etiqueta="Contraseña" id="reg-pass" requerido>
                   <input
                     id="reg-pass"
                     type="password"
@@ -531,9 +565,13 @@ export default function LandingVista() {
                 </CampoFormulario>
                 {error && <p className="landing__error" role="alert">{error}</p>}
                 <button type="submit" className="landing__cta landing__cta--ancho" disabled={enviando}>
-                  {enviando ? 'Creando...' : 'Crear mi perfil y entrar'}
+                  {enviando ? 'Creando...' : 'Activar mis 8 días gratis'}
                 </button>
-                <p className="landing__nota">Sin tarjeta. Guarda este correo y esta contraseña: son los de tu ingreso.</p>
+                <p className="landing__nota">
+                  Sin tarjeta. Entras con este WhatsApp y esta contraseña.
+                  {' '}
+                  <Link to={RUTAS_PUBLICAS.condiciones}>Condiciones y acceso</Link>
+                </p>
               </form>
             )}
           </div>
@@ -543,7 +581,8 @@ export default function LandingVista() {
       <footer className="landing__pie">
         <div className="landing__ancho">
           <strong>Agenda</strong>
-          <p>Peluquería, uñas, pestañas, tatuaje y estética. 8 días gratis y luego $25.000 al mes con Wompi.</p>
+          <p>Uñas y estética. 8 días gratis y luego $25.000 al mes con Wompi.</p>
+          <Link to={RUTAS_PUBLICAS.condiciones}>Condiciones y acceso</Link>
         </div>
       </footer>
     </div>

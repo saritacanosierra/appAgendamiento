@@ -70,6 +70,12 @@ export const AtencionVista = lazy(
 export const LandingVista = lazy(
   () => import('../../vistas/publico/landing/LandingVista')
 );
+export const CondicionesVista = lazy(
+  () => import('../../vistas/publico/condiciones/CondicionesVista')
+);
+export const UsoDatosVista = lazy(
+  () => import('../../vistas/publico/uso_datos/UsoDatosVista')
+);
 export const MarcasPlataformaVista = lazy(
   () => import('../../vistas/plataforma/marcas/MarcasPlataformaVista')
 );
@@ -84,4 +90,7 @@ export const ReportesPlataformaVista = lazy(
 );
 export const PublicidadPlataformaVista = lazy(
   () => import('../../vistas/plataforma/publicidad/PublicidadPlataformaVista')
+);
+export const BlogPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/blog/BlogPlataformaVista')
 );

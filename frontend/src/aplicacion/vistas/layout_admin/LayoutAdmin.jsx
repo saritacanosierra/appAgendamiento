@@ -35,7 +35,7 @@ export default function LayoutAdmin() {
         <header className="layout-admin__topbar">
           <div className="layout-admin__topbar-info">
             <p className="layout-admin__topbar-etiqueta">Plan vencido</p>
-            <strong>{marca?.nombreComercial}</strong>
+            <strong>{marca?.nombreComercial ?? 'Mi empresa'}</strong>
           </div>
           <button type="button" className="layout-admin__topbar-salir" onClick={cerrarSesion}>
             Salir
@@ -89,7 +89,7 @@ export default function LayoutAdmin() {
         <header className="layout-admin__topbar">
           <div className="layout-admin__topbar-info">
             <p className="layout-admin__topbar-etiqueta">Bienvenida</p>
-            <strong>{usuario?.nombre}</strong>
+            <strong>{marca?.nombreComercial ?? usuario?.nombre ?? 'Mi empresa'}</strong>
           </div>
           <div className="layout-admin__topbar-acciones">
             {slugPublico && (

@@ -1,4 +1,5 @@
 import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositorio.js';
+import { UsuarioRepositorio } from '../repositorios/index.js';
 import {
   mapearWhatsappApiAdmin,
   whatsappMarcaServicio,
@@ -8,8 +9,19 @@ import { normalizarHorariosMarca } from '../utilidades/horarios.js';
 import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
+import { generarSlug } from '../utilidades/slug.js';
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
+const VERSION_POLITICA_PRIVACIDAD = 1;
+
+function mapearPolitica(politica) {
+  const aceptada = politica?.version === VERSION_POLITICA_PRIVACIDAD && Boolean(politica.aceptadaEn);
+  return {
+    version: VERSION_POLITICA_PRIVACIDAD,
+    aceptada,
+    aceptadaEn: aceptada ? politica.aceptadaEn : null,
+  };
+}
 
 function validarColor(valor, campo) {
   if (!valor) return `El campo ${campo} es obligatorio.`;
@@ -73,8 +85,9 @@ export function mapearConfiguracionAdmin(fila) {
 }
 
 export class ConfiguracionMarcaServicio {
-  constructor(configRepo = new ConfiguracionRepositorio()) {
+  constructor(configRepo = new ConfiguracionRepositorio(), usuarioRepo = new UsuarioRepositorio()) {
     this.configRepo = configRepo;
+    this.usuarioRepo = usuarioRepo;
   }
 
   async obtenerAdmin(marcaId) {
@@ -138,6 +151,10 @@ export class ConfiguracionMarcaServicio {
       return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
     }
 
+    if (nombreComercial && nombreComercial !== actual.nombre_comercial) {
+      await this.usuarioRepo.actualizarNombreAdmins(marcaId, nombreComercial);
+    }
+
     await this.configRepo.actualizarMarca(marcaId, {
       nombreComercial,
       colorPrincipal,
@@ -161,7 +178,45 @@ export class ConfiguracionMarcaServicio {
       await whatsappMarcaServicio.guardarConfigAdmin(marcaId, datos);
     }
 
+    if (datos.slug) {
+      const slug = generarSlug(datos.slug);
+      if (!slug) return { error: 'El enlace no es valido.', codigoHttp: 422 };
+      if (slug !== actual.slug && await this.configRepo.slugOcupado(slug, marcaId)) {
+        return { error: 'Ese enlace ya esta en uso.', codigoHttp: 409 };
+      }
+      if (slug !== actual.slug) await this.configRepo.actualizarSlug(marcaId, slug);
+    }
+
     const fila = await this.configRepo.obtenerAdmin(marcaId);
     return { configuracion: mapearConfiguracionAdmin(fila) };
+  }
+
+  async obtenerPoliticaPrivacidad(marcaId) {
+    const json = await this.configRepo.obtenerConfiguracionJson(marcaId);
+    return { politica: mapearPolitica(json.politica_privacidad) };
+  }
+
+  async aceptarPoliticaPrivacidad(marcaId, usuario) {
+    if (usuario?.rol !== 'admin') {
+      return { error: 'Solo el propietario de la marca puede marcar de acuerdo.', codigoHttp: 403 };
+    }
+
+    const ahora = new Date();
+    const aceptadaEn = ahora.toISOString().slice(0, 19).replace('T', ' ');
+    await this.configRepo.actualizarConfiguracionJson(marcaId, {
+      politica_privacidad: {
+        version: VERSION_POLITICA_PRIVACIDAD,
+        aceptadaEn,
+        usuarioId: usuario.id,
+      },
+    });
+
+    return {
+      politica: {
+        version: VERSION_POLITICA_PRIVACIDAD,
+        aceptada: true,
+        aceptadaEn,
+      },
+    };
   }
 }

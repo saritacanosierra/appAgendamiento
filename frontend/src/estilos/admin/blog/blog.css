@@ -91,3 +91,12 @@
 .blog-admin__vacio {
   color: var(--color-texto-muted-superficie);
 }
+
+.blog-admin__fija {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  color: var(--color-texto-muted-superficie);
+}

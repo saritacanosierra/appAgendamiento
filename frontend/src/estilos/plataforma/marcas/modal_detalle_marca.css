@@ -258,6 +258,119 @@
   max-width: none;
 }
 
+.modal-marca__copia-ayuda,
+.modal-marca__copia-vacia {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__copia-guardar,
+.modal-marca__copia-subir,
+.modal-marca__copia-acciones button,
+.modal-marca__copia-restaurar {
+  min-height: 48px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-marca__copia-guardar,
+.modal-marca__copia-subir {
+  width: 100%;
+  border: 1px solid #6e62c6;
+  background: #f7f5ff;
+  color: #1f2022;
+}
+
+.modal-marca__copia-subir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.modal-marca__archivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.modal-marca__copias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.modal-marca__copias li {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f7f5ff;
+}
+
+.modal-marca__copias p {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 8px;
+  min-width: 0;
+}
+
+.modal-marca__copias span {
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.modal-marca__copia-acciones,
+.modal-marca__copia-confirmar {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.modal-marca__copia-acciones button,
+.modal-marca__copia-restaurar {
+  flex: 1;
+  border: 1px solid #6e62c6;
+  background: #fff;
+  color: #1f2022;
+}
+
+.modal-marca__copia-confirmar {
+  flex-direction: column;
+}
+
+.modal-marca__copia-confirmar p {
+  margin: 0;
+}
+
+.modal-marca__copia-restaurar {
+  background: #6e62c6;
+  color: #fff;
+}
+
+.modal-marca__copia-guardar:disabled,
+.modal-marca__copia-subir:disabled,
+.modal-marca__copia-acciones button:disabled,
+.modal-marca__copia-restaurar:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.modal-marca__borrar-acciones button.modal-marca__copia-restaurar {
+  border-color: #6e62c6;
+  background: #6e62c6;
+  color: #fff;
+}
+
 @media (min-width: 640px) {
   .modal-marca {
     align-items: center;

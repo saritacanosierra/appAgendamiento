@@ -23,6 +23,8 @@ Thumbs.db
 
 # Base de datos respaldos locales
 base_de_datos/respaldos/*.sql
+backend/almacen/copias/**
+!backend/almacen/copias/.gitkeep
 
 # Playwright
 test-results/

@@ -59,7 +59,19 @@ Exit code `0` = API operativa · `1` = problema.
 
 ## 4. Rollback / restore
 
-### Restaurar BD desde backup
+### Restaurar una sola empresa
+
+En `/plataforma`, abre la empresa y usa **Guardar copia de esta empresa**. Esa copia no incluye a las demás. **Restaurar** devuelve solo esa empresa a la fecha de la copia; las citas que ella hizo después se reemplazan y el resto de empresas queda igual.
+
+Mientras la API está encendida, cada empresa recibe sola una copia automática si la anterior tiene 7 días o más. Se conservan las últimas 8 automáticas y las últimas 8 hechas a mano. El texto para la clienta y la dueña está en `/condiciones`.
+
+Si la empresa ya no existe, la sección **Copias de empresas que ya no están** la vuelve a crear cuando su enlace sigue libre. Si otra empresa usa ese enlace, no se cambia nada.
+
+La copia guarda los datos, no los archivos de las fotos. Hay que guardar una copia antes de la pérdida: una copia posterior no reconstruye lo que ya se borró.
+
+### Restaurar toda la base
+
+Este comando reemplaza a **todas** las empresas, también a las que estaban bien. Úsalo solo si se perdió la base completa.
 
 ```bash
 systemctl stop appcitas-api

@@ -171,3 +171,53 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+.bienvenida-marca__paso {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bienvenida-marca__paso h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.bienvenida-marca__paso p {
+  margin: 0;
+}
+
+.bienvenida-marca__categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.bienvenida-marca__categoria {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--color-borde);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bienvenida-marca__categoria--activa {
+  background: #6e62c6;
+  border-color: #6e62c6;
+  color: #fff;
+}
+
+.bienvenida-marca__enlace,
+.bienvenida-marca__aviso,
+.bienvenida-marca__error {
+  overflow-wrap: anywhere;
+}
+
+.bienvenida-marca__error {
+  color: #8f2d2d;
+}

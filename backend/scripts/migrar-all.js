@@ -139,6 +139,11 @@ const MIGRACIONES = [
     nombre: 'Enlace para recuperar la contrasena',
     ejecutar: (c) => ejecutarArchivoSql(c, '022_recuperaciones_contrasena.sql'),
   },
+  {
+    id: '023_blog_plataforma',
+    nombre: 'Blogs de la app en cada marca',
+    ejecutar: (c) => ejecutarArchivoSql(c, '023_blog_plataforma.sql'),
+  },
 ];
 
 async function main() {

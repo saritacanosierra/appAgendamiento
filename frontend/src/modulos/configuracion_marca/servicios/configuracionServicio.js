@@ -17,3 +17,16 @@ export async function actualizarConfiguracionMarca(datos) {
   });
   return respuesta.datos;
 }
+
+export async function obtenerPoliticaPrivacidad() {
+  const respuesta = await peticionAdmin('/admin/politica-privacidad');
+  return respuesta.datos;
+}
+
+export async function aceptarPoliticaPrivacidad() {
+  const respuesta = await peticionAdmin('/admin/politica-privacidad', {
+    method: 'POST',
+    body: JSON.stringify({ deAcuerdo: true }),
+  });
+  return respuesta.datos;
+}

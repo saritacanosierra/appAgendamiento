@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { RUTAS_ADMIN } from '../../constantes';
+import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../constantes';
 import IconoApp from '../icono_app/IconoApp';
 import '../../../estilos/compartido/menu_admin/menu_admin.css';
 
@@ -33,7 +33,10 @@ export const GRUPOS_MENU_ADMIN = [
   {
     id: 'config',
     titulo: 'Configuración',
-    items: [{ to: RUTAS_ADMIN.configuracionMarca, etiqueta: 'Mi marca', icono: 'config' }],
+    items: [
+      { to: RUTAS_ADMIN.configuracionMarca, etiqueta: 'Mi marca', icono: 'config' },
+      { to: RUTAS_PUBLICAS.condiciones, etiqueta: 'Condiciones', icono: 'config' },
+    ],
   },
 ];
 

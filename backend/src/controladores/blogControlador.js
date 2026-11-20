@@ -35,7 +35,8 @@ export async function obtenerPublicoPorSlug(req, res) {
   if (!marcaId) return;
 
   const slug = texto(req.params.slug);
-  const resultado = await blogServicio.obtenerPublicoPorSlug(marcaId, slug);
+  const origenApp = texto(req.query.origen) === 'app';
+  const resultado = await blogServicio.obtenerPublicoPorSlug(marcaId, slug, origenApp);
 
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
@@ -70,4 +71,39 @@ export async function actualizarAdmin(req, res) {
   }
 
   return respuestaExito(res, resultado.publicacion, 'Publicacion actualizada');
+}
+
+export async function listarPlataforma(req, res) {
+  const publicaciones = await blogServicio.listarPlataforma();
+  return respuestaExito(res, publicaciones, 'Blogs de la app');
+}
+
+export async function crearPlataforma(req, res) {
+  const resultado = await blogServicio.crearPlataforma(req.body);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+  return respuestaExito(res, resultado.publicacion, 'Blog de la app creado', 201);
+}
+
+export async function actualizarPlataforma(req, res) {
+  const id = entero(req.params.id);
+  if (!id) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await blogServicio.actualizarPlataforma(id, req.body);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+  return respuestaExito(res, resultado.publicacion, 'Blog de la app actualizado');
+}
+
+export async function eliminarPlataforma(req, res) {
+  const id = entero(req.params.id);
+  if (!id) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await blogServicio.eliminarPlataforma(id);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
+  }
+  return respuestaExito(res, { eliminada: true }, 'Blog de la app eliminado');
 }

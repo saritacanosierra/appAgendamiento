@@ -57,6 +57,10 @@
   color: var(--color-texto-muted);
   font-size: var(--tamano-texto-sm);
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tarjeta-servicio__meta {
@@ -104,7 +108,7 @@
 
 .tarjeta-servicio--admin {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
 }

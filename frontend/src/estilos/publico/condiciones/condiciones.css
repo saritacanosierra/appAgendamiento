@@ -1,0 +1,106 @@
+.condiciones {
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 16px 16px 48px;
+  background: var(--color-fondo-app);
+  color: var(--color-texto);
+}
+
+.condiciones__ancho {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.condiciones__volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  color: var(--color-principal);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.condiciones h1 {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+.condiciones h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.condiciones section {
+  margin-top: 24px;
+  min-width: 0;
+}
+
+.condiciones p,
+.condiciones li {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.condiciones ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.condiciones li + li {
+  margin-top: 8px;
+}
+
+.condiciones__acuerdo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.condiciones__acuerdo label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 48px;
+}
+
+.condiciones__acuerdo input {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.condiciones__acuerdo button {
+  min-height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-principal);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.condiciones__acuerdo button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.condiciones__aceptada {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 700;
+}
+
+.condiciones__error {
+  color: #8f2d2d;
+}

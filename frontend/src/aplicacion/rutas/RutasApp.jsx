@@ -31,11 +31,14 @@ import {
   ReportesVista,
   AtencionVista,
   LandingVista,
+  CondicionesVista,
+  UsoDatosVista,
   MarcasPlataformaVista,
   EditarMarcaPlataformaVista,
   PanelPlataformaVista,
   ReportesPlataformaVista,
   PublicidadPlataformaVista,
+  BlogPlataformaVista,
 } from './vistasLazy';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../compartido/constantes';
 
@@ -45,6 +48,8 @@ export default function RutasApp() {
       <RedireccionBarraFinal />
       <Routes>
         <Route path="/" element={<SuspenseCarga><LandingVista /></SuspenseCarga>} />
+        <Route path="/condiciones" element={<SuspenseCarga><CondicionesVista /></SuspenseCarga>} />
+        <Route path="/uso-de-datos" element={<SuspenseCarga><UsoDatosVista /></SuspenseCarga>} />
 
         <Route path="/m/:slug" element={<LayoutPublico />}>
           <Route index element={<SuspenseCarga><InicioMarcaVista /></SuspenseCarga>} />
@@ -101,6 +106,7 @@ export default function RutasApp() {
                 <Route path="marcas/:id" element={<SuspenseCarga><EditarMarcaPlataformaVista /></SuspenseCarga>} />
                 <Route path="reportes" element={<SuspenseCarga><ReportesPlataformaVista /></SuspenseCarga>} />
                 <Route path="publicidad" element={<SuspenseCarga><PublicidadPlataformaVista /></SuspenseCarga>} />
+                <Route path="blog" element={<SuspenseCarga><BlogPlataformaVista /></SuspenseCarga>} />
               </Route>
             </Route>
 

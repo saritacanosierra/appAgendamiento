@@ -1,4 +1,5 @@
 import { plataformaServicio } from '../servicios/plataformaServicio.js';
+import { copiaMarcaServicio } from '../servicios/copiaMarcaServicio.js';
 import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.js';
 import { reporteServicio } from '../servicios/reporteServicio.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
@@ -128,4 +129,53 @@ export async function listarHistorialSuscripcionMarcaPlataforma(req, res) {
   const marcaId = Number(req.params.id);
   const historial = await suscripcionMarcaServicio.listarHistorial(marcaId);
   return respuestaExito(res, { historial }, 'Historial de suscripcion');
+}
+
+function idMarca(valor) {
+  const id = Number(valor);
+  if (!Number.isInteger(id) || id <= 0) return null;
+  return id;
+}
+
+export async function listarCopiasPlataforma(_req, res) {
+  const copias = await copiaMarcaServicio.listar();
+  return respuestaExito(res, { copias }, 'Copias guardadas');
+}
+
+export async function listarCopiasMarcaPlataforma(req, res) {
+  const marcaId = idMarca(req.params.id);
+  if (!marcaId) return respuestaError(res, 'Marca no encontrada.', 404);
+  const copias = await copiaMarcaServicio.listar(marcaId);
+  return respuestaExito(res, { copias }, 'Copias de la empresa');
+}
+
+export async function guardarCopiaMarcaPlataforma(req, res) {
+  const marcaId = idMarca(req.params.id);
+  if (!marcaId) return respuestaError(res, 'Marca no encontrada.', 404);
+  const resultado = await copiaMarcaServicio.guardar(marcaId);
+  if (resultado.error) return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  return respuestaExito(res, resultado, 'Copia guardada', 201);
+}
+
+export async function subirCopiaMarcaPlataforma(req, res) {
+  const resultado = await copiaMarcaServicio.guardarDocumento(req.file.buffer.toString('utf8'));
+  if (resultado.error) return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  return respuestaExito(res, resultado, 'Copia guardada', 201);
+}
+
+export async function descargarCopiaMarcaPlataforma(req, res) {
+  const ruta = copiaMarcaServicio.rutaDescarga(req.params.archivo);
+  if (!ruta) return respuestaError(res, 'Copia no encontrada.', 404);
+  return res.download(ruta, req.params.archivo, (error) => {
+    if (!error || res.headersSent) return;
+    respuestaError(res, 'Copia no encontrada.', 404);
+  });
+}
+
+export async function restaurarCopiaMarcaPlataforma(req, res) {
+  const forzada = req.params.id ? idMarca(req.params.id) : null;
+  if (req.params.id && !forzada) return respuestaError(res, 'Marca no encontrada.', 404);
+  const resultado = await copiaMarcaServicio.restaurar(req.params.archivo, forzada);
+  if (resultado.error) return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  return respuestaExito(res, resultado, 'Empresa restaurada');
 }

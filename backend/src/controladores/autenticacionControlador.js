@@ -7,13 +7,18 @@ import { registrarAuditoria } from '../utilidades/auditoria.js';
 const authServicio = new AutenticacionServicio();
 
 export async function login(req, res) {
-  const correo = texto(req.body?.correo);
+  let correo = texto(req.body?.correo);
+  if (correo && !correo.includes('@')) correo = correo.replace(/\D+/g, '');
   const contrasena = req.body?.contrasena ?? '';
 
   const errores = validar(
     { correo, contrasena },
     {
-      correo: (v) => requerido(v, 'correo') ?? email(v),
+      correo: (v) => {
+        if (!v) return 'El campo correo es obligatorio.';
+        if (String(v).includes('@')) return email(v);
+        return telefono(v);
+      },
       contrasena: (v) => requerido(v, 'contrasena'),
     }
   );

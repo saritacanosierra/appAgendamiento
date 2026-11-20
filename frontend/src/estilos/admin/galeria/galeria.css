@@ -64,6 +64,45 @@
   width: 100%;
 }
 
+.galeria-admin__item-acciones {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+}
+
+.galeria-admin__icono {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2022;
+  cursor: pointer;
+}
+
+.galeria-admin__icono--peligro {
+  color: #9a2342;
+}
+
+.galeria-admin__oculta {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(31, 32, 34, 0.72);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
 .galeria-admin__item-media img,
 .galeria-admin__item-media .imagen-ampliable {
   display: block;
@@ -162,28 +201,34 @@
 }
 
 .galeria-admin__item-info {
-  padding: 4px 4px 5px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+
+.galeria-admin__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+  min-width: 0;
+}
+
+.galeria-admin__opciones .campo-formulario {
+  flex: 0 0 96px;
+  min-width: 0;
 }
 
 .galeria-admin__item-info strong {
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.galeria-admin__item-info .boton-principal {
-  min-height: 48px;
-  margin-top: 2px;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.75rem;
 }
 
 .galeria-admin__hint {
@@ -196,15 +241,4 @@
   width: 100%;
   max-width: 100%;
   min-height: 48px;
-}
-
-.galeria-admin__item-acciones {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.galeria-admin__item-acciones .boton-principal {
-  width: 100%;
 }

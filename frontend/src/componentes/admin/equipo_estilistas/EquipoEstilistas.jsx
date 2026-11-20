@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
+import IconoApp from '../../../compartido/componentes/icono_app/IconoApp';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import { subirImagenAdmin } from '../../../compartido/utilidades/apiCliente';
 import {
@@ -210,6 +211,10 @@ export default function EquipoEstilistas() {
           {enviando ? 'Guardando...' : 'Agregar'}
         </button>
       </form>
+      <Link className="equipo-estilistas__seguir" to={RUTAS_ADMIN.galeria}>
+        Seguir con la configuración: fotos de tus trabajos
+        <IconoApp nombre="flecha" />
+      </Link>
     </section>
   );
 }

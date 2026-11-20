@@ -5,7 +5,7 @@ import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositor
 import { suscripcionMarcaServicio } from './suscripcionMarcaServicio.js';
 import { PRECIO_MES_COP } from '../utilidades/suscripcionMarca.js';
 import { slugUnico } from '../utilidades/slug.js';
-import { email, requerido, validar } from '../utilidades/validador.js';
+import { email, requerido, telefono, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 
 export const DIAS_PRUEBA = 8;
@@ -25,22 +25,25 @@ export class RegistroMarcaServicio {
       { capitalizar: 'palabras' }
     );
     const adminNombre = texto(
-      datosEntrada.admin_nombre ?? datosEntrada.adminNombre,
+      datosEntrada.admin_nombre ?? datosEntrada.adminNombre ?? nombreComercial,
       { capitalizar: 'palabras' }
-    );
-    const adminCorreo = texto(datosEntrada.admin_correo ?? datosEntrada.adminCorreo).toLowerCase();
+    ) || nombreComercial;
+    const adminCorreo = texto(datosEntrada.admin_correo ?? datosEntrada.adminCorreo ?? '').toLowerCase();
     const adminContrasena = datosEntrada.admin_contrasena ?? datosEntrada.adminContrasena ?? '';
+    const whatsapp = String(datosEntrada.whatsapp ?? '').replace(/\D+/g, '');
+    const correoCuenta = adminCorreo || whatsapp;
 
     const errores = validar(
-      { nombreComercial, adminNombre, adminCorreo, adminContrasena },
+      { nombreComercial, adminNombre, adminContrasena, whatsapp, adminCorreo },
       {
         nombreComercial: (v) => requerido(v, 'nombre_comercial'),
         adminNombre: (v) => requerido(v, 'admin_nombre'),
-        adminCorreo: (v) => requerido(v, 'admin_correo') ?? email(v),
+        adminCorreo: (v) => (v ? email(v) : null),
         adminContrasena: (v) => (
           requerido(v, 'admin_contrasena')
           ?? (String(v).length >= 8 ? null : 'Minimo 8 caracteres.')
         ),
+        whatsapp: (v) => requerido(v, 'whatsapp') ?? telefono(v),
       }
     );
 
@@ -48,7 +51,7 @@ export class RegistroMarcaServicio {
       return { error: 'Revisa los datos del registro.', errores, codigoHttp: 422 };
     }
 
-    const correoExistente = await this.usuarioRepo.buscarPorCorreo(adminCorreo);
+    const correoExistente = await this.usuarioRepo.buscarPorCorreo(correoCuenta);
     if (correoExistente) {
       return { error: 'Ya existe una cuenta con ese correo.', codigoHttp: 409 };
     }
@@ -59,6 +62,8 @@ export class RegistroMarcaServicio {
       slug,
       planHabilitado: true,
       activa: true,
+      telefono: whatsapp,
+      whatsapp,
     });
     await this.marcaRepo.crearConfiguracionVisual(marcaId);
     await this.configRepo.actualizarConfiguracionJson(marcaId, {
@@ -69,7 +74,7 @@ export class RegistroMarcaServicio {
     await this.usuarioRepo.crear({
       marcaId,
       nombre: adminNombre,
-      correo: adminCorreo,
+      correo: correoCuenta,
       contrasenaHash,
       rol: 'admin',
     });
@@ -83,7 +88,7 @@ export class RegistroMarcaServicio {
         nombreComercial,
         slug,
       },
-      admin: { nombre: adminNombre, correo: adminCorreo },
+      admin: { nombre: adminNombre, correo: correoCuenta, whatsapp },
       prueba: {
         dias: DIAS_PRUEBA,
         venceEn: prueba.venceEn,

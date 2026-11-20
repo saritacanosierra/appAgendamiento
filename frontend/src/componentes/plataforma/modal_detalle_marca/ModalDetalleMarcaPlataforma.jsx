@@ -29,6 +29,12 @@ function EstadoBadge({ activa, planHabilitado, suscripcion }) {
   return <span className="modal-marca__badge modal-marca__badge--activa">Activa</span>;
 }
 
+function textoFechaCopia(iso) {
+  const fecha = new Date(iso);
+  if (Number.isNaN(fecha.getTime())) return 'Copia guardada';
+  return fecha.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
 function FilaDetalle({ etiqueta, valor, vacio = 'Sin dato' }) {
   return (
     <div className="modal-marca__fila">
@@ -49,11 +55,21 @@ export default function ModalDetalleMarcaPlataforma({
   onTogglePlan,
   eliminando = false,
   onEliminar,
+  copias = [],
+  cargandoCopias = false,
+  guardandoCopia = false,
+  restaurandoCopia = false,
+  onGuardarCopia,
+  onDescargarCopia,
+  onRestaurarCopia,
+  onSubirCopia,
 }) {
   const [confirmarBorrado, setConfirmarBorrado] = useState(false);
+  const [copiaConfirmada, setCopiaConfirmada] = useState(null);
 
   useEffect(() => {
     setConfirmarBorrado(false);
+    setCopiaConfirmada(null);
   }, [marca?.id]);
 
   if (!marca) return null;
@@ -152,6 +168,83 @@ export default function ModalDetalleMarcaPlataforma({
             </section>
 
             <section className="modal-marca__seccion">
+              <h3>Copia de esta empresa</h3>
+              <p className="modal-marca__copia-ayuda">
+                Cada semana se guarda sola una copia de esta empresa. También puedes guardarla ahora. Al restaurarla, las demás no cambian y esta vuelve a la fecha de la copia. Las fotos siguen en su archivo.
+              </p>
+              <button
+                type="button"
+                className="modal-marca__copia-guardar"
+                onClick={() => onGuardarCopia(marca)}
+                disabled={guardandoCopia || restaurandoCopia}
+              >
+                {guardandoCopia ? 'Guardando copia...' : 'Guardar copia de esta empresa'}
+              </button>
+              <label className="modal-marca__copia-subir">
+                Subir una copia
+                <input
+                  className="modal-marca__archivo"
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={(e) => {
+                    const archivo = e.target.files?.[0];
+                    e.target.value = '';
+                    if (archivo) onSubirCopia(archivo);
+                  }}
+                />
+              </label>
+              {cargandoCopias && <p className="modal-marca__cargando">Buscando copias...</p>}
+              {!cargandoCopias && copias.length === 0 && (
+                <p className="modal-marca__copia-vacia">Todavía no hay una copia de esta empresa.</p>
+              )}
+              {copias.length > 0 && (
+                <ul className="modal-marca__copias">
+                  {copias.map((copia) => (
+                    <li key={copia.archivo}>
+                      <p>
+                        {textoFechaCopia(copia.guardadaEn)}
+                        <span>
+                          {copia.origen === 'automatica' ? 'Copia automática' : 'Copia manual'}
+                          {' · '}
+                          {copia.clientes} clientas · {copia.citas} citas
+                        </span>
+                      </p>
+                      {copiaConfirmada === copia.archivo ? (
+                        <div className="modal-marca__copia-confirmar">
+                          <p>
+                            Se devuelve {marca.nombreComercial} a esta copia. Las demás empresas no se tocan. Las citas de esta empresa hechas después se reemplazan.
+                          </p>
+                          <div className="modal-marca__borrar-acciones">
+                            <button type="button" onClick={() => setCopiaConfirmada(null)} disabled={restaurandoCopia}>
+                              Cancelar
+                            </button>
+                            <button
+                              type="button"
+                              className="modal-marca__copia-restaurar"
+                              onClick={() => onRestaurarCopia(copia)}
+                              disabled={restaurandoCopia}
+                            >
+                              {restaurandoCopia ? 'Restaurando...' : 'Restaurar esta copia'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="modal-marca__copia-acciones">
+                          <button type="button" onClick={() => onDescargarCopia(copia)}>
+                            Descargar
+                          </button>
+                          <button type="button" onClick={() => setCopiaConfirmada(copia.archivo)}>
+                            Restaurar
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="modal-marca__seccion">
               <h3>Enlaces para el cliente</h3>
               <EnlacesEntregaMarca marca={marca} />
             </section>
@@ -178,7 +271,7 @@ export default function ModalDetalleMarcaPlataforma({
             {confirmarBorrado ? (
               <div className="modal-marca__borrar">
                 <p>
-                  Se elimina {marca.nombreComercial}, su agenda y el acceso de su dueña. No se puede deshacer.
+                  Se elimina {marca.nombreComercial}, su agenda y el acceso del propietario de la marca. No se puede deshacer.
                 </p>
                 <div className="modal-marca__borrar-acciones">
                   <button type="button" onClick={() => setConfirmarBorrado(false)} disabled={eliminando}>

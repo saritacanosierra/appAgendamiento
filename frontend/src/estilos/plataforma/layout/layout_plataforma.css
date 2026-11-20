@@ -60,5 +60,16 @@
 }
 
 .layout-plataforma__contenido {
+  min-width: 0;
   padding-block: var(--espacio-lg);
+}
+
+.layout-plataforma__condiciones {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  margin: 0 0 var(--espacio-md);
+  color: var(--color-texto-muted-superficie);
+  font-weight: 700;
+  text-decoration: none;
 }

@@ -9,6 +9,7 @@ import {
 } from '../../../compartido/componentes';
 import { useMarca } from '../../../aplicacion/proveedores/ProveedorMarca';
 import { obtenerConfirmacion } from '../../../modulos/reservas/servicios/reservasServicio';
+import { guardarTelefonoLocalMarca } from '../../../modulos/reservas/utilidades/credencialesMiCita';
 import { descargarArchivoIcs, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
 import { mensajeConfirmacionCita } from '../../../compartido/utilidades/enlaceWhatsapp';
@@ -35,6 +36,12 @@ export default function ConfirmacionReservaVista() {
       .catch((err) => setError(err.message))
       .finally(() => setCargando(false));
   }, [codigoReserva, slug, confirmacion]);
+
+  useEffect(() => {
+    const telefonoCliente = confirmacion?.cita?.cliente?.telefono;
+    if (!marca?.id || !telefonoCliente) return;
+    guardarTelefonoLocalMarca(marca.id, telefonoCliente);
+  }, [marca?.id, confirmacion]);
 
   if (cargando) return <Cargando mensaje="Cargando confirmacion..." />;
   if (error) return <MensajeError titulo="Reserva no encontrada" mensaje={error} />;

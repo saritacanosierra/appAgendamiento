@@ -137,6 +137,7 @@ export default function BlogAdminVista() {
         <p className="admin-aviso-carrusel">
           El blog es independiente del carrusel. Para fotos del inicio ve a{' '}
           <Link to={RUTAS_ADMIN.carruselInicio}>Carrusel</Link>.
+          {' '}Las publicaciones de la app salen en tu blog y no se pueden editar ni borrar.
         </p>
       )}
 
@@ -208,17 +209,22 @@ export default function BlogAdminVista() {
             <li className="blog-admin__vacio">No hay publicaciones.</li>
           ) : (
             publicaciones.map((pub) => (
-              <li key={pub.id} className="blog-admin__item">
+              <li key={`${pub.deLaApp ? 'app' : 'marca'}-${pub.id}`} className="blog-admin__item">
                 <div>
                   <strong>{pub.titulo}</strong>
                   <span className={`blog-admin__estado blog-admin__estado--${pub.estado}`}>
                     {pub.estado}
                   </span>
+                  {pub.deLaApp && <span className="blog-admin__meta">De la app</span>}
                   {pub.categoria && <span className="blog-admin__meta">{pub.categoria}</span>}
                 </div>
-                <BotonPrincipal variante="secundario" onClick={() => abrirEditar(pub)}>
-                  Editar
-                </BotonPrincipal>
+                {pub.deLaApp ? (
+                  <span className="blog-admin__fija">No se puede borrar</span>
+                ) : (
+                  <BotonPrincipal variante="secundario" onClick={() => abrirEditar(pub)}>
+                    Editar
+                  </BotonPrincipal>
+                )}
               </li>
             ))
           )}

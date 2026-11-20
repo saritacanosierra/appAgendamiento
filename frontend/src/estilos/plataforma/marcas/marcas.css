@@ -278,3 +278,77 @@
   color: var(--color-acento);
   margin-bottom: var(--espacio-md);
 }
+
+.marcas-plataforma__copias {
+  margin-top: var(--espacio-lg);
+  min-width: 0;
+}
+
+.marcas-plataforma__copias h3,
+.marcas-plataforma__copias p,
+.marcas-plataforma__copias strong,
+.marcas-plataforma__copias span {
+  overflow-wrap: anywhere;
+}
+
+.marcas-plataforma__copias h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.marcas-plataforma__copias > p {
+  margin: 0 0 var(--espacio-sm);
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.marcas-plataforma__copias ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.marcas-plataforma__copias li {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f7f5ff;
+}
+
+.marcas-plataforma__copias li > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.marcas-plataforma__copias span {
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+}
+
+.marcas-plataforma__copias button,
+.marcas-plataforma__copia-confirmar button {
+  min-height: 48px;
+  margin-top: 8px;
+  border: 1px solid #6e62c6;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f2022;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.marcas-plataforma__copias li > button,
+.marcas-plataforma__copia-confirmar button {
+  width: 100%;
+}
+
+.marcas-plataforma__copia-confirmar button:last-child {
+  background: #6e62c6;
+  color: #fff;
+}

@@ -18,7 +18,7 @@ function formatearFecha(valor) {
   });
 }
 
-export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, onCerrar }) {
+export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, deLaApp = false, onCerrar }) {
   const { imagenAbierta } = useVisorImagen();
   const refContenido = useRef(null);
   const [publicacion, setPublicacion] = useState(null);
@@ -38,7 +38,7 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
     setCargando(true);
     setError(null);
 
-    obtenerBlogPublico(marcaId, slugPublicacion)
+    obtenerBlogPublico(marcaId, slugPublicacion, deLaApp)
       .then((datos) => {
         if (!cancelado) setPublicacion(datos);
       })
@@ -55,10 +55,13 @@ export default function ModalBlogPublico({ abierto, marcaId, slugPublicacion, on
     return () => {
       cancelado = true;
     };
-  }, [abierto, marcaId, slugPublicacion]);
+  }, [abierto, marcaId, slugPublicacion, deLaApp]);
 
   useEffect(() => {
-    if (!publicacion?.id) return undefined;
+    if (!publicacion?.id || publicacion.deLaApp) {
+      setAnuncios([]);
+      return undefined;
+    }
     let cancelado = false;
     listarPublicidadBlog(publicacion.id)
       .then((lista) => {

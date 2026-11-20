@@ -13,6 +13,18 @@ export class ConfiguracionRepositorio {
     return filas[0] ?? null;
   }
 
+  async actualizarSlug(marcaId, slug) {
+    await pool.execute('UPDATE marcas SET slug = ? WHERE id = ?', [slug, marcaId]);
+  }
+
+  async slugOcupado(slug, marcaId) {
+    const [filas] = await pool.execute(
+      'SELECT id FROM marcas WHERE slug = ? AND id <> ? LIMIT 1',
+      [slug, marcaId]
+    );
+    return Boolean(filas[0]);
+  }
+
   async actualizarMarca(marcaId, datos) {
     await pool.execute(
       `UPDATE marcas

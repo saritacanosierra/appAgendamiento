@@ -10,6 +10,7 @@ import {
   obtenerDisponibilidad,
 } from '../../../modulos/reservas/servicios/reservasServicio';
 import { fechaHoyLocal, formatearFechaLegible, formatearHoraLegible } from '../../../modulos/reservas/utilidades/calendarioCliente';
+import { guardarTelefonoLocalMarca } from '../../../modulos/reservas/utilidades/credencialesMiCita';
 import {
   pasoParaErroresApi,
   validarDatosCliente,
@@ -322,6 +323,8 @@ export default function ReservarVista() {
         nombre: nombre.trim(),
         telefono: telefono.trim(),
       });
+
+      guardarTelefonoLocalMarca(marca.id, confirmacion.cita?.cliente?.telefono || telefono);
 
       navigate(RUTAS_PUBLICAS.confirmacion(slug, confirmacion.cita.codigo), {
         state: { confirmacion },

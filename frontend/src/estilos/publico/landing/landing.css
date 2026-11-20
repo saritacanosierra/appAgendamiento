@@ -160,17 +160,18 @@
 .landing__hero-escena {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   margin-top: 28px;
+  min-width: 0;
 }
 
 .landing__telefono--hero {
-  grid-column: 1 / -1;
-  justify-self: center;
-  border-radius: 32px;
+  width: min(100%, 280px);
+  margin: 0;
+  border-radius: 28px;
   box-shadow: 0 28px 50px rgba(42, 8, 40, 0.18);
 }
 
@@ -367,13 +368,11 @@
 }
 
 .landing__oficios {
-  display: flex;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
   width: 100%;
   min-width: 0;
-  overflow-x: auto;
-  padding-bottom: 8px;
 }
 
 .landing__telefono {
@@ -409,6 +408,144 @@
   color: var(--landing-suave);
   font-style: normal;
   font-size: 0.78rem;
+}
+
+.landing__telefono-paso {
+  margin: 10px 0 6px;
+  color: var(--landing-suave);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.landing__telefono-opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #f7f5ff;
+  min-width: 0;
+}
+
+.landing__telefono-opcion--activa {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--landing-marca);
+}
+
+.landing__telefono-opcion strong {
+  overflow-wrap: anywhere;
+}
+  color: var(--landing-suave);
+  font-size: 0.78rem;
+}
+
+.landing__telefono-horas {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.landing__telefono-horas span {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #f7f5ff;
+}
+
+.landing__telefono-horas .landing__telefono-hora--activa {
+  background: var(--landing-marca);
+  color: #fff;
+}
+
+.landing__telefono-confirmar {
+  margin: 12px 0 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--landing-marca);
+  color: #fff;
+  font-weight: 700;
+}
+
+.landing__telefono--compacta {
+  width: 100%;
+  box-shadow: none;
+}
+
+.landing__oficio {
+  width: 100%;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.landing__oficio h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.landing__oficio .landing__telefono-horas {
+  flex-wrap: wrap;
+}
+
+.landing__oficio .landing__telefono-horas span {
+  flex: 0 0 auto;
+  min-width: 72px;
+  min-height: 48px;
+  padding: 0 12px;
+}
+
+.landing__oficio .landing__telefono-opcion {
+  min-height: 48px;
+  justify-content: center;
+}
+
+.landing__oficio .landing__telefono-confirmar {
+  min-height: 48px;
+}
+
+.landing__burbuja {
+  width: min(100%, 280px);
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: #d9fdd3;
+  color: #111b21;
+}
+
+.landing__burbuja-canal,
+.landing__burbuja p,
+.landing__burbuja strong {
+  margin: 0;
+}
+
+.landing__burbuja-canal {
+  color: #027eb5;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.landing__burbuja strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.landing__burbuja-ella {
+  margin-top: 8px;
+  color: #3b4a54;
+  font-size: 0.85rem;
+}
+
+.landing__flotante--caja {
+  width: min(100%, 280px);
 }
 
 .landing__cifras {
@@ -448,6 +585,80 @@
 
 .landing__cifras .landing__cifras-lista li.landing__cifra--fuerte span {
   color: var(--landing-suave);
+}
+
+.landing__antes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.landing__antes article {
+  min-width: 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.landing__antes p,
+.landing__antes h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.landing__antes h3 {
+  margin: 4px 0 8px;
+}
+
+.landing__antes article:first-child {
+  background: #f7f5ff;
+}
+
+.landing__voces {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.landing__voces li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.landing__voz-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: #6e62c6;
+  color: #fff;
+  font-weight: 800;
+}
+
+.landing__voces blockquote,
+.landing__voces p,
+.landing__voces footer {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.landing__voces footer {
+  margin-top: 8px;
+  color: var(--landing-suave);
+  font-size: 0.9rem;
 }
 
 .landing__cifras-lista,
@@ -620,6 +831,16 @@
   margin: 10px 0 0;
   color: var(--landing-suave);
   font-size: 0.92rem;
+}
+
+.landing__nota a,
+.landing__pie a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  color: var(--landing-marca);
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .landing__precio-grande {
@@ -917,10 +1138,16 @@
 
   .landing__flotante--enlace,
   .landing__flotante--caja,
-  .landing__flotante--foto {
+  .landing__burbuja {
     position: absolute;
     z-index: 3;
     width: 190px;
+  }
+
+  .landing__burbuja {
+    right: 0;
+    bottom: 24px;
+    width: 220px;
   }
 
   .landing__flotante--enlace {
@@ -965,9 +1192,14 @@
 
   .landing__oficios {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     overflow: visible;
+  }
+
+  .landing__oficio {
+    flex: none;
+    width: 100%;
   }
 
   .landing__imagen--cuadrada {
@@ -975,8 +1207,12 @@
     width: 100%;
   }
 
+  .landing__antes,
+  .landing__voces,
   .landing__versus {
+    display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 
   .landing__faq {

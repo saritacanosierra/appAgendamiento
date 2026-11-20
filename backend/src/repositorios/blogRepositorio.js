@@ -93,4 +93,100 @@ export class BlogRepositorio {
       ]
     );
   }
+
+  async listarPublicadosPlataforma() {
+    const [filas] = await pool.execute(
+      `SELECT id, titulo, slug, imagen_destacada, extracto, categoria,
+              estado, fecha_publicacion, created_at
+       FROM publicaciones_blog_plataforma
+       WHERE estado = 'publicado'
+       ORDER BY fecha_publicacion DESC, created_at DESC`
+    );
+    return filas;
+  }
+
+  async listarPlataforma() {
+    const [filas] = await pool.execute(
+      `SELECT * FROM publicaciones_blog_plataforma
+       ORDER BY updated_at DESC`
+    );
+    return filas;
+  }
+
+  async buscarPlataformaPorId(id) {
+    const [filas] = await pool.execute(
+      `SELECT * FROM publicaciones_blog_plataforma WHERE id = ? LIMIT 1`,
+      [id]
+    );
+    return filas[0] ?? null;
+  }
+
+  async buscarPublicadoPlataformaPorSlug(slug) {
+    const [filas] = await pool.execute(
+      `SELECT * FROM publicaciones_blog_plataforma
+       WHERE slug = ? AND estado = 'publicado'
+       LIMIT 1`,
+      [slug]
+    );
+    return filas[0] ?? null;
+  }
+
+  async existeSlugPlataforma(slug, excluirId = null) {
+    const params = [slug];
+    let sql = `SELECT id FROM publicaciones_blog_plataforma WHERE slug = ?`;
+    if (excluirId) {
+      sql += ' AND id != ?';
+      params.push(excluirId);
+    }
+    sql += ' LIMIT 1';
+    const [filas] = await pool.execute(sql, params);
+    return Boolean(filas[0]);
+  }
+
+  async crearPlataforma(datos) {
+    const [resultado] = await pool.execute(
+      `INSERT INTO publicaciones_blog_plataforma
+       (titulo, slug, imagen_destacada, extracto, contenido, categoria, estado, fecha_publicacion)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        datos.titulo,
+        datos.slug,
+        datos.imagenDestacada ?? null,
+        datos.extracto ?? null,
+        datos.contenido,
+        datos.categoria ?? null,
+        datos.estado,
+        datos.fechaPublicacion ?? null,
+      ]
+    );
+    return resultado.insertId;
+  }
+
+  async actualizarPlataforma(id, datos) {
+    await pool.execute(
+      `UPDATE publicaciones_blog_plataforma
+       SET titulo = ?, slug = ?, imagen_destacada = ?, extracto = ?, contenido = ?,
+           categoria = ?, estado = ?, fecha_publicacion = ?
+       WHERE id = ?`,
+      [
+        datos.titulo,
+        datos.slug,
+        datos.imagenDestacada ?? null,
+        datos.extracto ?? null,
+        datos.contenido,
+        datos.categoria ?? null,
+        datos.estado,
+        datos.fechaPublicacion ?? null,
+        id,
+      ]
+    );
+  }
+
+  async eliminarPlataforma(id) {
+    const [resultado] = await pool.execute(
+      `DELETE FROM publicaciones_blog_plataforma WHERE id = ?`,
+      [id]
+    );
+    return resultado.affectedRows > 0;
+  }
 }

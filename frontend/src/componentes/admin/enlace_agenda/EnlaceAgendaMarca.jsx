@@ -25,11 +25,7 @@ export default function EnlaceAgendaMarca({ slug, nombre }) {
 
   return (
     <section className="enlace-agenda">
-      <p className="enlace-agenda__etiqueta">Enlace para tus clientas</p>
-      <h2>Comparte la agenda de {nombre || 'tu salon'}</h2>
-      <p className="enlace-agenda__ayuda">
-        Quien abra este enlace agenda, mira la galeria y consulta su cita. No necesita cuenta.
-      </p>
+      <p className="enlace-agenda__etiqueta">Agenda de {nombre || 'tu marca'}</p>
       <p className="enlace-agenda__url">{enlace}</p>
       <div className="enlace-agenda__acciones">
         <button type="button" className="enlace-agenda__copiar" onClick={copiar}>

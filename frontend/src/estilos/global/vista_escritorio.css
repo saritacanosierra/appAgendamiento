@@ -28,7 +28,8 @@
   .layout-admin,
   .layout-publico,
   .layout-plataforma,
-  .login-vista {
+  .login-vista,
+  .condiciones {
     width: 100%;
     max-width: var(--ancho-marco-escritorio);
     box-shadow:
@@ -103,7 +104,8 @@
   .layout-admin,
   .layout-publico,
   .layout-plataforma,
-  .login-vista {
+  .login-vista,
+  .condiciones {
     box-shadow: none;
   }
 

@@ -11,6 +11,16 @@
   padding-bottom: var(--espacio-lg);
 }
 
+.layout-publico__condiciones {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  margin-top: var(--espacio-lg);
+  color: var(--color-texto-muted-superficie);
+  font-weight: 700;
+  text-decoration: none;
+}
+
 @media (min-width: 768px) {
   .layout-publico {
     padding-bottom: calc(var(--altura-menu-movil) + var(--espacio-xl));

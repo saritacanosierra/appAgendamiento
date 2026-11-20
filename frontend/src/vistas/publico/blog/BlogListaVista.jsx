@@ -19,7 +19,7 @@ export default function BlogListaVista() {
   const [publicaciones, setPublicaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [slugAbierto, setSlugAbierto] = useState(null);
+  const [abierta, setAbierta] = useState(null);
 
   useEffect(() => {
     if (!marca?.id) return;
@@ -48,10 +48,10 @@ export default function BlogListaVista() {
       <div className="blog-lista__grid">
         {publicaciones.map((pub) => (
           <button
-            key={pub.id}
+            key={`${pub.deLaApp ? 'app' : 'marca'}-${pub.id}`}
             type="button"
             className="blog-lista__tarjeta"
-            onClick={() => setSlugAbierto(pub.slug)}
+            onClick={() => setAbierta({ slug: pub.slug, deLaApp: Boolean(pub.deLaApp) })}
           >
             {pub.imagenDestacada && (
               <ImagenAmpliable src={pub.imagenDestacada} alt={pub.titulo} className="blog-lista__imagen" />
@@ -67,10 +67,11 @@ export default function BlogListaVista() {
       </div>
 
       <ModalBlogPublico
-        abierto={Boolean(slugAbierto)}
+        abierto={Boolean(abierta)}
         marcaId={marca?.id}
-        slugPublicacion={slugAbierto}
-        onCerrar={() => setSlugAbierto(null)}
+        slugPublicacion={abierta?.slug}
+        deLaApp={Boolean(abierta?.deLaApp)}
+        onCerrar={() => setAbierta(null)}
       />
     </div>
   );

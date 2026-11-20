@@ -36,3 +36,21 @@ export async function actualizarAdmin(req, res) {
 export async function subirArchivo(req, res) {
   return respuestaExito(res, { ruta: req.rutaSubida }, 'Archivo subido', 201);
 }
+
+export async function obtenerPoliticaPrivacidad(req, res) {
+  const resultado = await configServicio.obtenerPoliticaPrivacidad(req.marcaId);
+  return respuestaExito(res, resultado.politica, 'Politica de privacidad');
+}
+
+export async function aceptarPoliticaPrivacidad(req, res) {
+  if (req.body?.deAcuerdo !== true) {
+    return respuestaError(res, 'Marca la casilla de acuerdo para continuar.', 422);
+  }
+
+  const resultado = await configServicio.aceptarPoliticaPrivacidad(req.marcaId, req.usuario);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  return respuestaExito(res, resultado.politica, 'Politica aceptada');
+}

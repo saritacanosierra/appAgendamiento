@@ -27,6 +27,12 @@ function Trabajos({ trabajos }) {
   );
 }
 
+function recortarPalabras(texto, limite = 24) {
+  const palabras = String(texto ?? '').trim().split(/\s+/).filter(Boolean);
+  if (palabras.length <= limite) return texto;
+  return `${palabras.slice(0, limite).join(' ')}…`;
+}
+
 function inicial(nombre) {
   return (nombre || '?').trim().charAt(0).toUpperCase();
 }
@@ -50,9 +56,13 @@ export default function PortafolioEquipo({ profesionales, slug, compacto = false
     const destacadas = (persona.habilidades ?? []).slice(0, 3);
     return (
       <Link className="portafolio-solo" to={RUTAS_PUBLICAS.equipo(slug)}>
-        <FotoProfesional profesional={persona} className="portafolio-solo__foto" />
+        <span className="portafolio-solo__marco">
+          <FotoProfesional profesional={persona} className="portafolio-solo__foto" />
+        </span>
         <span className="portafolio-solo__cuerpo">
-          {persona.descripcion && <span className="portafolio-solo__descripcion">{persona.descripcion}</span>}
+          {persona.descripcion && (
+            <span className="portafolio-solo__descripcion">{recortarPalabras(persona.descripcion)}</span>
+          )}
           {destacadas.length > 0 && (
             <span className="portafolio-solo__habilidades">
               {destacadas.map((habilidad) => (

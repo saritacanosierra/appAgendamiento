@@ -1,7 +1,7 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Link } from 'react-router-dom';
 import MenuPlataforma from '../../../compartido/componentes/menu_plataforma/MenuPlataforma';
 import { BotonPrincipal } from '../../../compartido/componentes';
-import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
+import { RUTAS_PLATAFORMA, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { useAuthPlataforma } from '../../proveedores/ProveedorAuth';
 import '../../../estilos/plataforma/layout/layout_plataforma.css';
 
@@ -28,6 +28,9 @@ export default function LayoutPlataforma() {
       </header>
       <main className="layout-plataforma__contenido contenedor-admin">
         <MenuPlataforma />
+        <Link className="layout-plataforma__condiciones" to={RUTAS_PUBLICAS.condiciones}>
+          Condiciones y acceso
+        </Link>
         <Outlet />
       </main>
     </div>

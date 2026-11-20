@@ -28,7 +28,10 @@ export default function BlogDetalleVista() {
   const refContenido = useRef(null);
 
   useEffect(() => {
-    if (!publicacion?.id) return undefined;
+    if (!publicacion?.id || publicacion.deLaApp) {
+      setAnuncios([]);
+      return undefined;
+    }
     let cancelado = false;
     listarPublicidadBlog(publicacion.id)
       .then((lista) => {

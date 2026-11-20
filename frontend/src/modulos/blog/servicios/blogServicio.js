@@ -11,9 +11,10 @@ export async function listarBlogPublico(marcaId) {
   return respuesta.datos;
 }
 
-export async function obtenerBlogPublico(marcaId, slug) {
+export async function obtenerBlogPublico(marcaId, slug, deLaApp = false) {
+  const origen = deLaApp ? '?origen=app' : '';
   const respuesta = await peticionPublica(
-    `/marcas/${marcaId}/blog/slug/${encodeURIComponent(slug)}`
+    `/marcas/${marcaId}/blog/slug/${encodeURIComponent(slug)}${origen}`
   );
   return respuesta.datos;
 }

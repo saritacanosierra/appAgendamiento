@@ -50,6 +50,10 @@ export default function InicioMarcaVista() {
       <CarruselMarca marca={marca} slug={slug} />
 
       <PortafolioEquipo profesionales={equipo} slug={slug} compacto />
+
+      <BotonPrincipal to="/" variante="secundario" anchoCompleto>
+        Conocer más acerca de la app
+      </BotonPrincipal>
     </div>
   );
 }

@@ -18,6 +18,13 @@ import {
   impersonarMarcaPlataforma,
   listarMarcasPlataforma,
   obtenerMarcaPlataforma,
+  listarCopiasMarca,
+  listarCopiasPlataforma,
+  guardarCopiaMarca,
+  subirCopiaMarca,
+  descargarCopiaMarca,
+  restaurarCopiaMarca,
+  restaurarCopiaDeMarca,
 } from '../../../modulos/plataforma/servicios/plataformaServicio';
 import ModalDetalleMarcaPlataforma from '../../../componentes/plataforma/modal_detalle_marca/ModalDetalleMarcaPlataforma';
 import '../../../estilos/plataforma/marcas/marcas.css';
@@ -64,10 +71,18 @@ export default function MarcasPlataformaVista() {
   const [marcaDetalle, setMarcaDetalle] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const [eliminando, setEliminando] = useState(false);
+  const [copias, setCopias] = useState([]);
+  const [cargandoCopias, setCargandoCopias] = useState(false);
+  const [guardandoCopia, setGuardandoCopia] = useState(false);
+  const [restaurandoCopia, setRestaurandoCopia] = useState(false);
+  const [copiasHuerfanas, setCopiasHuerfanas] = useState([]);
+  const [huerfanaConfirmada, setHuerfanaConfirmada] = useState(null);
 
   async function abrirDetalleMarca(marca) {
     setMarcaDetalle(marca);
     setCargandoDetalle(true);
+    setCopias([]);
+    setCargandoCopias(true);
     try {
       const fresca = await obtenerMarcaPlataforma(marca.id);
       setMarcaDetalle(fresca);
@@ -76,6 +91,22 @@ export default function MarcasPlataformaVista() {
     } finally {
       setCargandoDetalle(false);
     }
+    try {
+      setCopias(await listarCopiasMarca(marca.id));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCargandoCopias(false);
+    }
+  }
+
+  async function cargarCopiasHuerfanas() {
+    try {
+      const todas = await listarCopiasPlataforma();
+      setCopiasHuerfanas(todas.filter((copia) => !copia.existeMarca));
+    } catch {
+      setCopiasHuerfanas([]);
+    }
   }
 
   async function cargar() {
@@ -83,6 +114,7 @@ export default function MarcasPlataformaVista() {
     setError(null);
     try {
       setMarcas(await listarMarcasPlataforma());
+      await cargarCopiasHuerfanas();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -156,12 +188,92 @@ export default function MarcasPlataformaVista() {
     try {
       await eliminarMarcaPlataforma(marca.id);
       setMarcaDetalle(null);
-      setMensaje(`${marca.nombreComercial} fue eliminada.`);
+      setMensaje(`${marca.nombreComercial} fue eliminada. Si guardaste una copia, puedes volver a crearla sin tocar las demás.`);
       await cargar();
     } catch (err) {
       setError(err.message);
     } finally {
       setEliminando(false);
+    }
+  }
+
+  async function guardarCopia(marca) {
+    setGuardandoCopia(true);
+    setError(null);
+    try {
+      const copia = await guardarCopiaMarca(marca.id);
+      try {
+        await descargarCopiaMarca(copia.archivo, `${marca.slug}-copia.json`);
+      } catch {
+        // La copia ya quedó guardada aunque el navegador no descargue el archivo.
+      }
+      setCopias(await listarCopiasMarca(marca.id));
+      setMensaje(`Copia de ${marca.nombreComercial} guardada. Solo incluye esa empresa.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGuardandoCopia(false);
+    }
+  }
+
+  async function descargarCopia(copia) {
+    setError(null);
+    try {
+      await descargarCopiaMarca(copia.archivo, `${copia.slug}-copia.json`);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function restaurarCopia(copia) {
+    if (!marcaDetalle) return;
+    setRestaurandoCopia(true);
+    setError(null);
+    try {
+      const restauracion = await restaurarCopiaDeMarca(marcaDetalle.id, copia.archivo);
+      const fresca = await obtenerMarcaPlataforma(restauracion.marcaId);
+      setMarcaDetalle(fresca);
+      setCopias(await listarCopiasMarca(restauracion.marcaId));
+      setMensaje(`${restauracion.nombre} volvió a la copia: ${restauracion.clientes} clientas y ${restauracion.citas} citas. Las demás empresas no cambiaron.`);
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRestaurandoCopia(false);
+    }
+  }
+
+  async function subirCopia(archivo) {
+    setGuardandoCopia(true);
+    setError(null);
+    try {
+      const copia = await subirCopiaMarca(archivo);
+      if (!marcaDetalle || copia.marcaId !== marcaDetalle.id) {
+        setMensaje(`Esa copia es de ${copia.nombre}. Quedó guardada para esa empresa y no se aplicó aquí.`);
+        await cargarCopiasHuerfanas();
+        return;
+      }
+      setCopias(await listarCopiasMarca(marcaDetalle.id));
+      setMensaje(`Copia de ${copia.nombre} subida. Si la restauras, solo cambia esa empresa.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGuardandoCopia(false);
+    }
+  }
+
+  async function restaurarHuerfana(copia) {
+    setRestaurandoCopia(true);
+    setError(null);
+    try {
+      const restauracion = await restaurarCopiaMarca(copia.archivo);
+      setHuerfanaConfirmada(null);
+      setMensaje(`${restauracion.nombre} volvió a la copia: ${restauracion.clientes} clientas y ${restauracion.citas} citas. Las demás empresas no cambiaron.`);
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRestaurandoCopia(false);
     }
   }
 
@@ -313,6 +425,38 @@ export default function MarcasPlataformaVista() {
         )}
       </section>
 
+      {copiasHuerfanas.length > 0 && (
+        <section className="marcas-plataforma__copias">
+          <h3>Copias de empresas que ya no están</h3>
+          <p>Restaurar una de estas copias vuelve a crear solo esa empresa. Las demás no se tocan.</p>
+          <ul>
+            {copiasHuerfanas.map((copia) => (
+              <li key={copia.archivo}>
+                <div>
+                  <strong>{copia.nombre}</strong>
+                  <span>{copia.clientes} clientas · {copia.citas} citas</span>
+                </div>
+                {huerfanaConfirmada === copia.archivo ? (
+                  <div className="marcas-plataforma__copia-confirmar">
+                    <p>Se vuelve a crear {copia.nombre} con esta copia. Las demás empresas quedan igual.</p>
+                    <button type="button" onClick={() => setHuerfanaConfirmada(null)} disabled={restaurandoCopia}>
+                      Cancelar
+                    </button>
+                    <button type="button" onClick={() => restaurarHuerfana(copia)} disabled={restaurandoCopia}>
+                      {restaurandoCopia ? 'Restaurando...' : 'Restaurar esta empresa'}
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setHuerfanaConfirmada(copia.archivo)}>
+                    Restaurar
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <ModalDetalleMarcaPlataforma
         marca={marcaDetalle}
         abierto={Boolean(marcaDetalle)}
@@ -324,6 +468,14 @@ export default function MarcasPlataformaVista() {
         onTogglePlan={(marca) => toggleCampo(marca, 'plan')}
         eliminando={eliminando}
         onEliminar={eliminarMarca}
+        copias={copias}
+        cargandoCopias={cargandoCopias}
+        guardandoCopia={guardandoCopia}
+        restaurandoCopia={restaurandoCopia}
+        onGuardarCopia={guardarCopia}
+        onDescargarCopia={descargarCopia}
+        onRestaurarCopia={restaurarCopia}
+        onSubirCopia={subirCopia}
       />
     </div>
   );

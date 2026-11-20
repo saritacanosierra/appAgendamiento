@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
 import { RUTAS_ADMIN } from '../../../compartido/constantes';
@@ -41,6 +41,7 @@ const DIAS = [
 
 export default function ConfiguracionMarcaVista() {
   const { recargarSesion } = useAuth();
+  const navigate = useNavigate();
   const avisos = useAvisos();
   const [searchParams, setSearchParams] = useSearchParams();
   const { hash } = useLocation();
@@ -268,7 +269,7 @@ export default function ConfiguracionMarcaVista() {
     }
   }
 
-  async function manejarGuardar(e) {
+  async function manejarGuardar(e, destino) {
     e.preventDefault();
     setEnviando(true);
     setError(null);
@@ -304,7 +305,8 @@ export default function ConfiguracionMarcaVista() {
       setWhatsappTokenNuevo('');
       await recargarSesion();
       aplicarTemaMarca(actualizada);
-      avisos.exito('Configuración guardada. Los cambios de tu marca ya están activos.');
+      avisos.exito('Configuración guardada. La dirección y el resto de tu marca siguen ahí.');
+      if (destino) navigate(destino);
     } catch (err) {
       setModalMensaje({
         titulo: 'No se pudo guardar',
@@ -435,8 +437,17 @@ export default function ConfiguracionMarcaVista() {
 
         <section className="configuracion-marca__seccion" id="equipo">
           <h2>Equipo</h2>
-          <p className="configuracion-marca__hint">Foto, habilidades y mejores trabajos del portafolio.</p>
-          <BotonPrincipal to={RUTAS_ADMIN.equipo}>Editar portafolio del equipo</BotonPrincipal>
+          <p className="configuracion-marca__hint">
+            Primero se guarda la dirección y el resto de esta pantalla. Después sigues con las profesionales.
+          </p>
+          <BotonPrincipal
+            type="button"
+            anchoCompleto
+            deshabilitado={enviando}
+            onClick={(e) => manejarGuardar(e, RUTAS_ADMIN.equipo)}
+          >
+            {enviando ? 'Guardando...' : 'Guardar y seguir con las profesionales →'}
+          </BotonPrincipal>
         </section>
 
         <section className="configuracion-marca__seccion configuracion-marca__seccion--horarios">

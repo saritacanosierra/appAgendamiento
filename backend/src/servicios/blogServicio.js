@@ -20,7 +20,7 @@ export function mapearPublicacionPublica(fila) {
   };
 }
 
-export function mapearPublicacionAdmin(fila) {
+export function mapearPublicacionAdmin(fila, opciones = {}) {
   if (!fila) return null;
   return {
     ...mapearPublicacionPublica(fila),
@@ -28,7 +28,14 @@ export function mapearPublicacionAdmin(fila) {
     estado: fila.estado,
     createdAt: fila.created_at,
     updatedAt: fila.updated_at,
+    deLaApp: Boolean(opciones.deLaApp),
   };
+}
+
+function porFecha(a, b) {
+  const fa = new Date(a.fechaPublicacion || 0).getTime();
+  const fb = new Date(b.fechaPublicacion || 0).getTime();
+  return fb - fa;
 }
 
 export class BlogServicio {
@@ -37,19 +44,40 @@ export class BlogServicio {
   }
 
   async listarPublicos(marcaId) {
-    const filas = await this.blogRepo.listarPublicados(marcaId);
-    return filas.map(mapearPublicacionPublica);
+    const [propias, deLaApp] = await Promise.all([
+      this.blogRepo.listarPublicados(marcaId),
+      this.blogRepo.listarPublicadosPlataforma(),
+    ]);
+    return [
+      ...propias.map((fila) => mapearPublicacionPublica(fila)),
+      ...deLaApp.map((fila) => ({ ...mapearPublicacionPublica(fila), deLaApp: true })),
+    ].sort(porFecha);
   }
 
-  async obtenerPublicoPorSlug(marcaId, slug) {
+  async obtenerPublicoPorSlug(marcaId, slug, origenApp = false) {
+    if (origenApp) {
+      const deLaApp = await this.blogRepo.buscarPublicadoPlataformaPorSlug(slug);
+      if (!deLaApp) return { error: 'Publicacion no encontrada.', codigoHttp: 404 };
+      return { publicacion: mapearPublicacionAdmin(deLaApp, { deLaApp: true }) };
+    }
+
     const fila = await this.blogRepo.buscarPublicadoPorSlug(marcaId, slug);
-    if (!fila) return { error: 'Publicacion no encontrada.', codigoHttp: 404 };
-    return { publicacion: mapearPublicacionAdmin(fila) };
+    if (fila) return { publicacion: mapearPublicacionAdmin(fila) };
+
+    const deLaApp = await this.blogRepo.buscarPublicadoPlataformaPorSlug(slug);
+    if (!deLaApp) return { error: 'Publicacion no encontrada.', codigoHttp: 404 };
+    return { publicacion: mapearPublicacionAdmin(deLaApp, { deLaApp: true }) };
   }
 
   async listarAdmin(marcaId) {
-    const filas = await this.blogRepo.listarPorMarca(marcaId);
-    return filas.map(mapearPublicacionAdmin);
+    const [propias, deLaApp] = await Promise.all([
+      this.blogRepo.listarPorMarca(marcaId),
+      this.blogRepo.listarPublicadosPlataforma(),
+    ]);
+    return [
+      ...deLaApp.map((fila) => mapearPublicacionAdmin(fila, { deLaApp: true })),
+      ...propias.map((fila) => mapearPublicacionAdmin(fila)),
+    ];
   }
 
   async crearAdmin(marcaId, datos) {
@@ -73,7 +101,39 @@ export class BlogServicio {
     return { publicacion: mapearPublicacionAdmin(fila) };
   }
 
-  async parsearDatos(marcaId, datos, existente = null) {
+  async listarPlataforma() {
+    const filas = await this.blogRepo.listarPlataforma();
+    return filas.map((fila) => mapearPublicacionAdmin(fila, { deLaApp: true }));
+  }
+
+  async crearPlataforma(datos) {
+    const parsed = await this.parsearDatos(null, datos, null, 'plataforma');
+    if (parsed.error) return parsed;
+
+    const id = await this.blogRepo.crearPlataforma(parsed.datos);
+    const fila = await this.blogRepo.buscarPlataformaPorId(id);
+    return { publicacion: mapearPublicacionAdmin(fila, { deLaApp: true }) };
+  }
+
+  async actualizarPlataforma(id, datos) {
+    const existente = await this.blogRepo.buscarPlataformaPorId(id);
+    if (!existente) return { error: 'Publicacion no encontrada.', codigoHttp: 404 };
+
+    const parsed = await this.parsearDatos(null, datos, existente, 'plataforma');
+    if (parsed.error) return parsed;
+
+    await this.blogRepo.actualizarPlataforma(id, parsed.datos);
+    const fila = await this.blogRepo.buscarPlataformaPorId(id);
+    return { publicacion: mapearPublicacionAdmin(fila, { deLaApp: true }) };
+  }
+
+  async eliminarPlataforma(id) {
+    const borrada = await this.blogRepo.eliminarPlataforma(id);
+    if (!borrada) return { error: 'Publicacion no encontrada.', codigoHttp: 404 };
+    return { eliminada: true };
+  }
+
+  async parsearDatos(marcaId, datos, existente = null, ambito = 'marca') {
     const titulo = texto(datos.titulo ?? existente?.titulo, { capitalizar: 'inicio' });
     const contenido = datos.contenido ?? existente?.contenido ?? '';
     const extracto = datos.extracto !== undefined
@@ -100,20 +160,23 @@ export class BlogServicio {
       return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
     }
 
+    const excluirId = existente?.id ?? null;
+    const slugOcupado = async (candidato) => {
+      if (ambito === 'plataforma') return this.blogRepo.existeSlugPlataforma(candidato, excluirId);
+      const enMarca = await this.blogRepo.existeSlug(marcaId, candidato, excluirId);
+      if (enMarca) return true;
+      return this.blogRepo.existeSlugPlataforma(candidato);
+    };
+
     let slug = texto(datos.slug);
     if (!slug) {
       if (existente?.slug && (!datos.titulo || datos.titulo === existente.titulo)) {
         slug = existente.slug;
       } else {
-        slug = await slugUnico(titulo, (candidato) =>
-          this.blogRepo.existeSlug(marcaId, candidato, existente?.id ?? null)
-        );
+        slug = await slugUnico(titulo, slugOcupado);
       }
-    } else {
-      const ocupado = await this.blogRepo.existeSlug(marcaId, slug, existente?.id ?? null);
-      if (ocupado) {
-        return { error: 'El slug ya esta en uso.', codigoHttp: 409 };
-      }
+    } else if (await slugOcupado(slug)) {
+      return { error: 'El slug ya esta en uso.', codigoHttp: 409 };
     }
 
     let fechaPublicacion = existente?.fecha_publicacion ?? null;

@@ -1,6 +1,7 @@
 import { crearApp, entorno } from './app.js';
 import { iniciarProgramadorRecordatoriosWhatsapp } from './trabajos/programadorRecordatoriosWhatsapp.js';
 import { iniciarProgramadorSuscripciones } from './trabajos/programadorSuscripciones.js';
+import { iniciarProgramadorCopias } from './trabajos/programadorCopias.js';
 import { logger } from './utilidades/logger.js';
 import { almacenamientoS3Habilitado } from './servicios/almacenamientoArchivosServicio.js';
 
@@ -17,6 +18,7 @@ if (!esVercel) {
     }, 'API iniciada');
     iniciarProgramadorRecordatoriosWhatsapp();
     iniciarProgramadorSuscripciones();
+    iniciarProgramadorCopias();
   });
 }
 

@@ -131,6 +131,15 @@ export class ServicioServicio {
     const descripcion = datos.descripcion !== undefined
       ? texto(datos.descripcion) || null
       : existente?.descripcion ?? null;
+    if (descripcion) {
+      const palabras = descripcion.split(/\s+/).filter(Boolean);
+      if (palabras.length > 20) {
+        return {
+          error: 'La descripcion admite maximo 20 palabras.',
+          codigoHttp: 422,
+        };
+      }
+    }
     const tipoRaw = datos.tipo ?? existente?.tipo ?? 'marca';
     const tipo = tipoRaw === 'adicional' ? 'adicional' : 'marca';
     const duracionMinutos = datos.duracion_minutos ?? datos.duracionMinutos ?? existente?.duracion_minutos;

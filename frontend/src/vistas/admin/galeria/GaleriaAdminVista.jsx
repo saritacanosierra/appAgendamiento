@@ -6,6 +6,7 @@ import {
   Cargando,
   EstadoVacio,
   GaleriaFiltrosAcordeon,
+  IconoApp,
   ImagenAmpliable,
   InputTexto,
   MensajeError,
@@ -177,9 +178,9 @@ export default function GaleriaAdminVista() {
   }
 
   async function filtroParaGuardar(tipo, seleccionado, nuevo) {
+    if (seleccionado !== '__nueva') return seleccionado || null;
     const etiqueta = nuevo.trim();
-    if (!etiqueta) return seleccionado || null;
-
+    if (!etiqueta) return null;
     const item = await crearOpcionCatalogoGaleria({ tipo, etiqueta });
     return item?.valor ?? null;
   }
@@ -333,11 +334,11 @@ export default function GaleriaAdminVista() {
             )}
           </CampoFormulario>
           <div className="galeria-admin__fila">
-            <CampoFormulario etiqueta="Filtro" id="gal-categoria" ayuda="Es la categoría con la que tu clienta busca la foto.">
+            <CampoFormulario etiqueta="Filtro" id="gal-categoria" ayuda="Con este nombre tu clienta busca la foto.">
               <select
                 id="gal-categoria"
                 value={form.categoria}
-                onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+                onChange={(e) => setForm({ ...form, categoria: e.target.value, categoriaNueva: '' })}
               >
                 <option value="">Elegir un filtro</option>
                 {categoriasActivas.map((item) => (
@@ -345,22 +346,25 @@ export default function GaleriaAdminVista() {
                     {item.etiqueta}
                   </option>
                 ))}
+                <option value="__nueva">Crear un filtro</option>
               </select>
             </CampoFormulario>
-            <CampoFormulario etiqueta="O un filtro nuevo" id="gal-categoria-nueva" ayuda="Por ejemplo: Uñas, Color, Corte. Se guarda y queda en la lista.">
-              <InputTexto
-                id="gal-categoria-nueva"
-                capitalizar="palabras"
-                value={form.categoriaNueva}
-                onChange={(e) => setForm({ ...form, categoriaNueva: e.target.value })}
-                placeholder="Uñas"
-              />
-            </CampoFormulario>
+            {form.categoria === '__nueva' && (
+              <CampoFormulario etiqueta="Nombre del filtro" id="gal-categoria-nueva">
+                <InputTexto
+                  id="gal-categoria-nueva"
+                  capitalizar="palabras"
+                  value={form.categoriaNueva}
+                  onChange={(e) => setForm({ ...form, categoriaNueva: e.target.value })}
+                  placeholder="Uñas"
+                />
+              </CampoFormulario>
+            )}
             <CampoFormulario etiqueta="Temporada" id="gal-temporada">
               <select
                 id="gal-temporada"
                 value={form.temporada}
-                onChange={(e) => setForm({ ...form, temporada: e.target.value })}
+                onChange={(e) => setForm({ ...form, temporada: e.target.value, temporadaNueva: '' })}
               >
                 <option value="">Sin temporada</option>
                 {temporadasActivas.map((item) => (
@@ -368,33 +372,36 @@ export default function GaleriaAdminVista() {
                     {item.etiqueta}
                   </option>
                 ))}
+                <option value="__nueva">Crear una temporada</option>
               </select>
             </CampoFormulario>
-            <CampoFormulario etiqueta="O una temporada nueva" id="gal-temporada-nueva">
-              <InputTexto
-                id="gal-temporada-nueva"
-                capitalizar="palabras"
-                value={form.temporadaNueva}
-                onChange={(e) => setForm({ ...form, temporadaNueva: e.target.value })}
-                placeholder="Navidad"
-              />
-            </CampoFormulario>
-            <CampoFormulario etiqueta="Colores (separados por coma)" id="gal-colores">
+            {form.temporada === '__nueva' && (
+              <CampoFormulario etiqueta="Nombre de la temporada" id="gal-temporada-nueva">
+                <InputTexto
+                  id="gal-temporada-nueva"
+                  capitalizar="palabras"
+                  value={form.temporadaNueva}
+                  onChange={(e) => setForm({ ...form, temporadaNueva: e.target.value })}
+                  placeholder="Navidad"
+                />
+              </CampoFormulario>
+            )}
+            <CampoFormulario etiqueta="Colores" id="gal-colores" ayuda="Sepáralos con coma.">
               <InputTexto
                 id="gal-colores"
                 capitalizar="lista"
                 value={form.colores}
                 onChange={(e) => setForm({ ...form, colores: e.target.value })}
-                placeholder="rosa, blanco, nude"
+                placeholder="rosa, nude"
               />
             </CampoFormulario>
-            <CampoFormulario etiqueta="Estilista" id="gal-estilista" ayuda="Si eliges una profesional, esta foto sale en su portafolio como uno de sus mejores trabajos.">
+            <CampoFormulario etiqueta="Profesional" id="gal-estilista" ayuda="Si la eliges, la foto entra en su portafolio.">
               <select
                 id="gal-estilista"
                 value={form.estilistaId}
                 onChange={(e) => setForm({ ...form, estilistaId: e.target.value })}
               >
-                <option value="">Todo el salon</option>
+                <option value="">Todo el salón</option>
                 {estilistas.filter((item) => item.activo).map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.nombre}
@@ -402,6 +409,26 @@ export default function GaleriaAdminVista() {
                 ))}
               </select>
             </CampoFormulario>
+          </div>
+          <div className="galeria-admin__opciones">
+            <label className="galeria-admin__checkbox">
+              <input
+                id="gal-activo"
+                type="checkbox"
+                checked={form.activo}
+                onChange={(e) => setForm({ ...form, activo: e.target.checked })}
+              />
+              Visible
+            </label>
+            <label className="galeria-admin__checkbox">
+              <input
+                id="gal-tendencia"
+                type="checkbox"
+                checked={form.enTendencia}
+                onChange={(e) => setForm({ ...form, enTendencia: e.target.checked })}
+              />
+              En tendencia
+            </label>
             <CampoFormulario etiqueta="Orden" id="gal-orden">
               <input
                 id="gal-orden"
@@ -412,26 +439,6 @@ export default function GaleriaAdminVista() {
               />
             </CampoFormulario>
           </div>
-          <CampoFormulario etiqueta="Opciones" id="gal-opciones">
-            <label className="galeria-admin__checkbox">
-              <input
-                id="gal-activo"
-                type="checkbox"
-                checked={form.activo}
-                onChange={(e) => setForm({ ...form, activo: e.target.checked })}
-              />
-              Visible para tu clienta
-            </label>
-            <label className="galeria-admin__checkbox">
-              <input
-                id="gal-tendencia"
-                type="checkbox"
-                checked={form.enTendencia}
-                onChange={(e) => setForm({ ...form, enTendencia: e.target.checked })}
-              />
-              Marcar como en tendencia
-            </label>
-          </CampoFormulario>
           <BotonPrincipal
             tipo="submit"
             anchoCompleto
@@ -463,9 +470,18 @@ export default function GaleriaAdminVista() {
               <article key={diseno.id} className="galeria-admin__item">
                 <div className="galeria-admin__item-media">
                   <ImagenAmpliable src={diseno.imagenRuta} alt={diseno.titulo} />
+                  <div className="galeria-admin__item-acciones">
+                    <button type="button" className="galeria-admin__icono" aria-label={`Editar ${diseno.titulo}`} onClick={() => abrirEditar(diseno)}>
+                      <IconoApp nombre="editar" />
+                    </button>
+                    <button type="button" className="galeria-admin__icono galeria-admin__icono--peligro" aria-label={`Eliminar ${diseno.titulo}`} onClick={() => setDisenoAEliminar(diseno)}>
+                      <IconoApp nombre="eliminar" />
+                    </button>
+                  </div>
                   {diseno.enTendencia && (
-                    <span className="galeria-admin__tendencia">En tendencia</span>
+                    <span className="galeria-admin__tendencia">Tendencia</span>
                   )}
+                  {!diseno.activo && <span className="galeria-admin__oculta">Oculta</span>}
                 </div>
                 <div className="galeria-admin__item-info">
                   <strong>{diseno.titulo}</strong>
@@ -476,19 +492,10 @@ export default function GaleriaAdminVista() {
                       </span>
                     )}
                     {diseno.temporada && (
-                      <span className="galeria-admin__item-etiqueta galeria-admin__item-etiqueta--temp">
+                      <span className="galeria-admin__item-etiqueta">
                         {etiquetaDesdeCatalogo(diseno.temporada, catalogo)}
                       </span>
                     )}
-                  </div>
-                  {!diseno.activo && <span className="badge-fase">Inactivo</span>}
-                  <div className="galeria-admin__item-acciones">
-                    <BotonPrincipal variante="secundario" onClick={() => abrirEditar(diseno)}>
-                      Editar
-                    </BotonPrincipal>
-                    <BotonPrincipal variante="secundario" onClick={() => setDisenoAEliminar(diseno)}>
-                      Eliminar
-                    </BotonPrincipal>
                   </div>
                 </div>
               </article>
