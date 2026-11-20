@@ -35,7 +35,7 @@ export const GRUPOS_MENU_ADMIN = [
     titulo: 'Configuración',
     items: [
       { to: RUTAS_ADMIN.configuracionMarca, etiqueta: 'Mi marca', icono: 'config' },
-      { to: RUTAS_PUBLICAS.condiciones, etiqueta: 'Condiciones', icono: 'config' },
+      { to: `${RUTAS_PUBLICAS.condiciones}?volver=${encodeURIComponent(RUTAS_ADMIN.panel)}`, etiqueta: 'Condiciones', icono: 'config' },
     ],
   },
 ];

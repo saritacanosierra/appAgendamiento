@@ -1,11 +1,32 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
+import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
 import '../../../estilos/publico/condiciones/condiciones.css';
 
+function destinoVolver(valor) {
+  if (!valor || !valor.startsWith('/') || valor.startsWith('//')) return null;
+  const ruta = valor.split('?')[0];
+  if (ruta.startsWith('/m/') || ruta.startsWith('/admin/') || ruta.startsWith('/plataforma/')) return valor;
+  return null;
+}
+
 export default function CondicionesVista() {
+  const [params] = useSearchParams();
+  const { autenticadoMarca, autenticadoPlataforma, sesionMarca, sesionPlataforma } = useAuth();
+  const pedido = destinoVolver(params.get('volver'));
+  const cargando = sesionMarca.cargando || sesionPlataforma.cargando;
+  const volver = pedido
+    || (autenticadoMarca ? RUTAS_ADMIN.panel : null)
+    || (autenticadoPlataforma ? RUTAS_PLATAFORMA.panel : null)
+    || (cargando ? null : '/');
+  const textoVolver = volver === '/' ? 'Volver al inicio' : 'Volver al panel';
+
   return (
     <article className="condiciones">
       <div className="condiciones__ancho">
-        <Link className="condiciones__volver" to="/">Volver al inicio</Link>
+        {volver && (
+          <Link className="condiciones__volver" to={volver}>{textoVolver}</Link>
+        )}
         <h1>Condiciones y acceso</h1>
         <p>
           Aquí está cómo funciona la agenda, qué puede hacer cada persona y cómo se guarda la información de cada empresa.

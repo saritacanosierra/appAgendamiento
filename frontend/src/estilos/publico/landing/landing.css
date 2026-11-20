@@ -436,6 +436,8 @@
 .landing__telefono-opcion strong {
   overflow-wrap: anywhere;
 }
+
+.landing__telefono-opcion span {
   color: var(--landing-suave);
   font-size: 0.78rem;
 }

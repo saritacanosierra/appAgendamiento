@@ -28,7 +28,7 @@ export default function LayoutPlataforma() {
       </header>
       <main className="layout-plataforma__contenido contenedor-admin">
         <MenuPlataforma />
-        <Link className="layout-plataforma__condiciones" to={RUTAS_PUBLICAS.condiciones}>
+        <Link className="layout-plataforma__condiciones" to={`${RUTAS_PUBLICAS.condiciones}?volver=${encodeURIComponent(RUTAS_PLATAFORMA.panel)}`}>
           Condiciones y acceso
         </Link>
         <Outlet />
