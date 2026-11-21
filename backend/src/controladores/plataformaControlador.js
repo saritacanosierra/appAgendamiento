@@ -1,6 +1,7 @@
 import { plataformaServicio } from '../servicios/plataformaServicio.js';
 import { copiaMarcaServicio } from '../servicios/copiaMarcaServicio.js';
 import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.js';
+import { wompiServicio } from '../servicios/wompiServicio.js';
 import { reporteServicio } from '../servicios/reporteServicio.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 
@@ -184,4 +185,17 @@ export async function restaurarCopiaMarcaPlataforma(req, res) {
   const resultado = await copiaMarcaServicio.restaurar(req.params.archivo, forzada);
   if (resultado.error) return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
   return respuestaExito(res, resultado, 'Empresa restaurada');
+}
+
+export async function obtenerWompiPlataforma(_req, res) {
+  const datos = await wompiServicio.obtenerConfigPlataforma();
+  return respuestaExito(res, datos, 'Conexion Wompi');
+}
+
+export async function guardarWompiPlataforma(req, res) {
+  const resultado = await wompiServicio.guardarConfigPlataforma(req.body ?? {});
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+  return respuestaExito(res, resultado, 'Wompi guardado');
 }

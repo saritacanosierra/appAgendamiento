@@ -138,6 +138,8 @@ import {
   descargarCopiaMarcaPlataforma,
   eliminarCopiaMarcaPlataforma,
   restaurarCopiaMarcaPlataforma,
+  obtenerWompiPlataforma,
+  guardarWompiPlataforma,
 } from '../controladores/plataformaControlador.js';
 import {
   listarPublicidadPublica,
@@ -293,5 +295,7 @@ router.get('/plataforma/publicidad', listarPublicidadPlataforma);
 router.post('/plataforma/publicidad', crearPublicidadPlataforma);
 router.put('/plataforma/publicidad/:id', actualizarPublicidadPlataforma);
 router.post('/plataforma/subidas/publicidad', subidaImagenMiddleware('publicidad'), subirArchivo);
+router.get('/plataforma/wompi', obtenerWompiPlataforma);
+router.put('/plataforma/wompi', guardarWompiPlataforma);
 
 export default router;

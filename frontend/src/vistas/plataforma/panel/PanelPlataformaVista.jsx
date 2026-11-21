@@ -88,6 +88,7 @@ export default function PanelPlataformaVista() {
           <h3>Acciones rapidas</h3>
           <ul className="panel-plataforma__acciones">
             <li><Link to={RUTAS_PLATAFORMA.marcas}>Crear o administrar empresas</Link></li>
+            <li><Link to={RUTAS_PLATAFORMA.cobros}>Cuenta Wompi para cobros</Link></li>
             <li><Link to={RUTAS_PLATAFORMA.reportes}>Ver reportes globales</Link></li>
           </ul>
         </div>

@@ -39,6 +39,7 @@ import {
   ReportesPlataformaVista,
   PublicidadPlataformaVista,
   BlogPlataformaVista,
+  CobrosWompiVista,
 } from './vistasLazy';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../compartido/constantes';
 
@@ -107,6 +108,7 @@ export default function RutasApp() {
                 <Route path="reportes" element={<SuspenseCarga><ReportesPlataformaVista /></SuspenseCarga>} />
                 <Route path="publicidad" element={<SuspenseCarga><PublicidadPlataformaVista /></SuspenseCarga>} />
                 <Route path="blog" element={<SuspenseCarga><BlogPlataformaVista /></SuspenseCarga>} />
+                <Route path="cobros" element={<SuspenseCarga><CobrosWompiVista /></SuspenseCarga>} />
               </Route>
             </Route>
 

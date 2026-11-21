@@ -12,7 +12,7 @@ export async function obtenerPlanMarca(req, res) {
     plan: mapearEstadoSuscripcion(fila),
     precioMensual: PRECIO_MES_COP,
     planes: listarPlanesCobro(),
-    wompiConfigurado: wompiServicio.configurado(),
+    wompiConfigurado: await wompiServicio.configurado(),
   }, 'Plan de la marca');
 }
 

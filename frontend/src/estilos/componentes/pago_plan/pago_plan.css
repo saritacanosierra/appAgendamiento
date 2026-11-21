@@ -110,6 +110,11 @@
   background: #eef3f6;
 }
 
+.pago-plan__periodo:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
 .pago-plan__boton {
   min-height: 48px;
   border: none;

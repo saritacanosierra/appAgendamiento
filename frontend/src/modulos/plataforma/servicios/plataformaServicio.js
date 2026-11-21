@@ -7,6 +7,19 @@ export async function obtenerResumenPlataforma() {
   return respuesta.datos;
 }
 
+export async function obtenerWompiPlataforma() {
+  const respuesta = await peticionPlataforma('/plataforma/wompi');
+  return respuesta.datos;
+}
+
+export async function guardarWompiPlataforma(datos) {
+  const respuesta = await peticionPlataforma('/plataforma/wompi', {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
 export async function listarMarcasPlataforma() {
   const respuesta = await peticionPlataforma('/plataforma/marcas');
   return respuesta.datos.marcas;

@@ -1,7 +1,15 @@
 import crypto from 'crypto';
 import { PagoWompiRepositorio } from '../repositorios/pagoWompiRepositorio.js';
+import { ConfiguracionPlataformaRepositorio } from '../repositorios/plataformaRepositorio.js';
 import { suscripcionMarcaServicio } from './suscripcionMarcaServicio.js';
 import { precioPlanCop, listarPlanesCobro } from '../utilidades/suscripcionMarca.js';
+import {
+  CLAVES_WOMPI,
+  resolverSecretoEventos,
+  textoWompi,
+  urlEventosWompi,
+  validarLlavesWompi,
+} from '../utilidades/wompiConfig.js';
 
 const MONEDA = 'COP';
 
@@ -25,19 +33,86 @@ export function firmaEventoWompi(evento, secreto) {
     .digest('hex');
 }
 
+export { urlEventosWompi, CLAVES_WOMPI };
+
 export class WompiServicio {
   constructor(deps = {}) {
     this.pagos = deps.pagos ?? new PagoWompiRepositorio();
     this.suscripcion = deps.suscripcion ?? suscripcionMarcaServicio;
+    this.config = deps.config ?? new ConfiguracionPlataformaRepositorio();
     this.entorno = deps.entorno ?? process.env;
   }
 
-  configurado() {
-    return Boolean(this.entorno.WOMPI_LLAVE_PUBLICA && this.entorno.WOMPI_SECRETO_INTEGRIDAD);
+  async #valor(claveBd, claveEnv) {
+    const guardado = textoWompi(await this.config.obtener(claveBd));
+    if (guardado) return { valor: guardado, fuente: 'plataforma' };
+    const entorno = textoWompi(this.entorno[claveEnv]);
+    if (entorno) return { valor: entorno, fuente: 'entorno' };
+    return { valor: '', fuente: 'ninguna' };
+  }
+
+  async leerCredenciales() {
+    const [publica, integridad, eventos] = await Promise.all([
+      this.#valor(CLAVES_WOMPI.llavePublica, 'WOMPI_LLAVE_PUBLICA'),
+      this.#valor(CLAVES_WOMPI.secretoIntegridad, 'WOMPI_SECRETO_INTEGRIDAD'),
+      this.#valor(CLAVES_WOMPI.secretoEventos, 'WOMPI_SECRETO_EVENTOS'),
+    ]);
+    return {
+      publicKey: publica.valor,
+      secretoIntegridad: integridad.valor,
+      secretoEventos: eventos.valor,
+      fuentes: {
+        llavePublica: publica.fuente,
+        secretoIntegridad: integridad.fuente,
+        secretoEventos: eventos.fuente,
+      },
+    };
+  }
+
+  async configurado() {
+    const credenciales = await this.leerCredenciales();
+    return Boolean(credenciales.publicKey && credenciales.secretoIntegridad);
+  }
+
+  async obtenerConfigPlataforma() {
+    const credenciales = await this.leerCredenciales();
+    return {
+      listo: Boolean(credenciales.publicKey && credenciales.secretoIntegridad),
+      eventosListos: Boolean(credenciales.secretoEventos),
+      llavePublica: credenciales.publicKey,
+      secretoIntegridadGuardado: Boolean(credenciales.secretoIntegridad),
+      secretoEventosGuardado: Boolean(credenciales.secretoEventos),
+      urlEventos: urlEventosWompi(this.entorno),
+      planes: listarPlanesCobro(),
+    };
+  }
+
+  async guardarConfigPlataforma(datos = {}) {
+    const actual = await this.leerCredenciales();
+    const validado = validarLlavesWompi({
+      llavePublica: datos.llave_publica ?? datos.llavePublica,
+      secretoIntegridadNuevo: datos.secreto_integridad ?? datos.secretoIntegridad,
+      secretoIntegridadActual: actual.secretoIntegridad,
+    });
+    if (validado.error) return validado;
+
+    const secretoEventos = resolverSecretoEventos(
+      datos.secreto_eventos ?? datos.secretoEventos,
+      actual.secretoEventos
+    );
+
+    await this.config.guardar(CLAVES_WOMPI.llavePublica, validado.llavePublica);
+    await this.config.guardar(CLAVES_WOMPI.secretoIntegridad, validado.secretoIntegridad);
+    if (secretoEventos) {
+      await this.config.guardar(CLAVES_WOMPI.secretoEventos, secretoEventos);
+    }
+
+    return this.obtenerConfigPlataforma();
   }
 
   async crearIntento(marcaId, planTipo) {
-    if (!this.configurado()) {
+    const credenciales = await this.leerCredenciales();
+    if (!credenciales.publicKey || !credenciales.secretoIntegridad) {
       return {
         error: 'Wompi aun no esta configurado en el servidor.',
         codigoHttp: 503,
@@ -61,13 +136,13 @@ export class WompiServicio {
       referencia,
       montoCentavos,
       moneda: MONEDA,
-      secreto: this.entorno.WOMPI_SECRETO_INTEGRIDAD,
+      secreto: credenciales.secretoIntegridad,
     });
 
     const frontend = (this.entorno.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
 
     return {
-      publicKey: this.entorno.WOMPI_LLAVE_PUBLICA,
+      publicKey: credenciales.publicKey,
       referencia,
       moneda: MONEDA,
       montoCentavos,
@@ -79,7 +154,8 @@ export class WompiServicio {
   }
 
   async confirmarEvento(evento) {
-    const secreto = this.entorno.WOMPI_SECRETO_EVENTOS;
+    const credenciales = await this.leerCredenciales();
+    const secreto = credenciales.secretoEventos;
     if (!secreto) {
       return { error: 'Falta el secreto de eventos de Wompi.', codigoHttp: 503 };
     }

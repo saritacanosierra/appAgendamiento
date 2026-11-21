@@ -117,3 +117,9 @@ Opciones cuando haya >3 marcas o >1 instancia:
 - Export JSON de Pino a archivo rotado con `logrotate`
 
 No es obligatorio para el piloto inicial.
+
+---
+
+## 7. Cobros Wompi
+
+Las llaves del comercio se cargan en `/plataforma/cobros` (tabla `configuracion_plataforma`). También se aceptan `WOMPI_*` en el entorno de Render como respaldo. En Wompi, la URL de eventos debe ser `{PUBLIC_URL_BASE}/api/webhooks/wompi`.
