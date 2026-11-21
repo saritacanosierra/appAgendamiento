@@ -31,10 +31,11 @@ export class RegistroMarcaServicio {
     const adminCorreo = texto(datosEntrada.admin_correo ?? datosEntrada.adminCorreo ?? '').toLowerCase();
     const adminContrasena = datosEntrada.admin_contrasena ?? datosEntrada.adminContrasena ?? '';
     const whatsapp = String(datosEntrada.whatsapp ?? '').replace(/\D+/g, '');
+    const codigoPais = String(datosEntrada.codigo_pais ?? datosEntrada.codigoPais ?? '').replace(/\D+/g, '');
     const correoCuenta = adminCorreo || whatsapp;
 
     const errores = validar(
-      { nombreComercial, adminNombre, adminContrasena, whatsapp, adminCorreo },
+      { nombreComercial, adminNombre, adminContrasena, whatsapp, adminCorreo, codigoPais },
       {
         nombreComercial: (v) => requerido(v, 'nombre_comercial'),
         adminNombre: (v) => requerido(v, 'admin_nombre'),
@@ -44,6 +45,9 @@ export class RegistroMarcaServicio {
           ?? (String(v).length >= 8 ? null : 'Minimo 8 caracteres.')
         ),
         whatsapp: (v) => requerido(v, 'whatsapp') ?? telefono(v),
+        codigoPais: (v) => (
+          /^\d{1,3}$/.test(v) ? null : 'Elige el indicativo del pais.'
+        ),
       }
     );
 
@@ -67,7 +71,7 @@ export class RegistroMarcaServicio {
     });
     await this.marcaRepo.crearConfiguracionVisual(marcaId);
     await this.configRepo.actualizarConfiguracionJson(marcaId, {
-      whatsapp_api: { codigo_pais: '57', habilitado: false },
+      whatsapp_api: { codigo_pais: codigoPais, habilitado: false },
     });
 
     const contrasenaHash = await bcrypt.hash(String(adminContrasena), 10);

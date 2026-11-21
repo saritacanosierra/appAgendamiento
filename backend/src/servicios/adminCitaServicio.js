@@ -203,6 +203,11 @@ export class AdminCitaServicio {
       }
 
       const cita = mapearCitaAdmin(await this.citaRepo.buscarPorId(marcaId, citaId));
+
+      if (estado === 'confirmada') {
+        await this.avisarConfirmacionWhatsapp(marcaId, cita);
+      }
+
       return { cita };
     } catch (err) {
       await conexion.rollback();
@@ -289,12 +294,36 @@ export class AdminCitaServicio {
       await conexion.commit();
 
       const cita = mapearCitaAdmin(await this.citaRepo.buscarPorId(marcaId, citaId));
+
+      if (citaActual.estado !== 'confirmada' && estado === 'confirmada') {
+        await this.avisarConfirmacionWhatsapp(marcaId, cita);
+      }
+
       return { cita };
     } catch (err) {
       await conexion.rollback();
       throw err;
     } finally {
       conexion.release();
+    }
+  }
+
+  async avisarConfirmacionWhatsapp(marcaId, cita) {
+    try {
+      const marca = await this.marcaRepo.buscarPorIdCompleto(marcaId);
+      const { notificarCitaConfirmada } = await import('./whatsappServicio.js');
+      await notificarCitaConfirmada({
+        marcaId,
+        telefono: cita?.cliente?.telefono,
+        nombreMarca: marca?.nombre_comercial ?? 'tu cita',
+        slug: marca?.slug ?? '',
+        servicioNombre: cita?.servicio?.nombre ?? 'Servicio',
+        fecha: cita?.fecha,
+        horaInicio: cita?.horaInicio,
+        codigo: cita?.codigo,
+      });
+    } catch {
+      // La cita ya quedo confirmada
     }
   }
 

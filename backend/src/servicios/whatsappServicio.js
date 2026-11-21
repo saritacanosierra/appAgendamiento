@@ -1,17 +1,18 @@
 const API_VERSION = process.env.WHATSAPP_API_VERSION ?? 'v21.0';
 
-function normalizarTelefonoWhatsApp(telefono, codigoPais = '52') {
+function normalizarTelefonoWhatsApp(telefono, codigoPais = '') {
   const digitos = String(telefono ?? '').replace(/\D+/g, '');
   if (!digitos) return null;
 
-  const prefijo = codigoPais || '52';
-  if (digitos.startsWith(prefijo)) {
+  const prefijo = String(codigoPais ?? '').replace(/\D+/g, '');
+  if (prefijo && digitos.startsWith(prefijo) && digitos.length > prefijo.length) {
     return digitos;
   }
-  if (digitos.length === 10) {
+  if (prefijo && digitos.length === 10) {
     return `${prefijo}${digitos}`;
   }
-  return digitos;
+  if (digitos.length > 10) return digitos;
+  return null;
 }
 
 function simularEnvio(credenciales, destino, cuerpo) {
@@ -36,11 +37,12 @@ export class WhatsappServicio {
   }
 
   async enviarTexto({ telefono, mensaje, credenciales }) {
-    const codigoPais = credenciales?.codigoPais ?? '52';
+    const codigoPais = credenciales?.codigoPais ?? '';
     const destino = normalizarTelefonoWhatsApp(telefono, codigoPais);
 
     if (!destino) {
-      return { omitido: true, motivo: 'sin_telefono' };
+      const tieneDigitos = String(telefono ?? '').replace(/\D+/g, '').length > 0;
+      return { omitido: true, motivo: tieneDigitos ? 'sin_indicativo' : 'sin_telefono' };
     }
     if (!mensaje?.trim()) {
       return { omitido: true, motivo: 'sin_mensaje' };
@@ -109,11 +111,12 @@ export class WhatsappServicio {
     parametrosCuerpo = [],
     credenciales,
   }) {
-    const codigoPais = credenciales?.codigoPais ?? '52';
+    const codigoPais = credenciales?.codigoPais ?? '';
     const destino = normalizarTelefonoWhatsApp(telefono, codigoPais);
 
     if (!destino) {
-      return { omitido: true, motivo: 'sin_telefono' };
+      const tieneDigitos = String(telefono ?? '').replace(/\D+/g, '').length > 0;
+      return { omitido: true, motivo: tieneDigitos ? 'sin_indicativo' : 'sin_telefono' };
     }
 
     if (!this.credencialesListas(credenciales)) {
@@ -216,3 +219,48 @@ export class WhatsappServicio {
 }
 
 export const whatsappServicio = new WhatsappServicio();
+
+/**
+ * Avisa a la clienta cuando la cita pasa a confirmada.
+ * No interrumpe la agenda si Meta o la configuracion fallan.
+ */
+export async function notificarCitaConfirmada({
+  marcaId,
+  telefono,
+  nombreMarca,
+  slug,
+  servicioNombre,
+  fecha,
+  horaInicio,
+  codigo,
+}) {
+  const { logger } = await import('../utilidades/logger.js');
+
+  try {
+    const { whatsappMarcaServicio } = await import('./whatsappMarcaServicio.js');
+    const credenciales = await whatsappMarcaServicio.obtenerCredenciales(marcaId);
+    const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+    const urlConfirmacion = slug && codigo
+      ? `${frontendUrl}/m/${slug}/confirmacion/${codigo}`
+      : '';
+    const mensajeConfirmacion = `Tu cita en ${nombreMarca} quedo confirmada para el ${fecha} a las ${horaInicio}. Servicio: ${servicioNombre}.`;
+
+    const resultado = await whatsappServicio.enviarConfirmacionReserva({
+      confirmacion: {
+        mensajeConfirmacion,
+        cita: { codigo, cliente: { telefono } },
+      },
+      urlConfirmacion,
+      credenciales,
+    });
+
+    if (resultado?.omitido) {
+      logger.warn({ marcaId, motivo: resultado.motivo }, 'whatsapp confirmacion omitida');
+    }
+
+    return resultado;
+  } catch (err) {
+    logger.error({ err, marcaId }, 'whatsapp confirmacion fallo');
+    return { omitido: true, motivo: 'error' };
+  }
+}

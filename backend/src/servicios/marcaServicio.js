@@ -8,7 +8,7 @@ import { cacheLecturasPublicas } from '../utilidades/cacheLecturas.js';
 function codigoPaisWhatsapp(configuracionJson) {
   const config = parsearJsonCampo(configuracionJson, {});
   const codigo = String(config?.whatsapp_api?.codigo_pais ?? '').replace(/\D+/g, '');
-  return codigo || '52';
+  return codigo || '';
 }
 
 export function mapearMarcaPublica(fila) {

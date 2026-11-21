@@ -111,6 +111,24 @@ export class SolicitudReagendamientoServicio {
       }
 
       try {
+        const { notificarCitaConfirmada } = await import('./whatsappServicio.js');
+        const { MarcaRepositorio } = await import('../repositorios/index.js');
+        const marca = await new MarcaRepositorio().buscarPorIdCompleto(marcaId);
+        await notificarCitaConfirmada({
+          marcaId,
+          telefono: solicitud.cliente_telefono,
+          nombreMarca: marca?.nombre_comercial ?? 'tu cita',
+          slug: marca?.slug ?? '',
+          servicioNombre: solicitud.servicio_nombre,
+          fecha,
+          horaInicio,
+          codigo: solicitud.codigo_confirmacion,
+        });
+      } catch {
+        // WhatsApp no bloquea el reagendamiento
+      }
+
+      try {
         const { googleCalendarServicio } = await import('./googleCalendarServicio.js');
         await googleCalendarServicio.sincronizarCita(marcaId, {
           fecha,

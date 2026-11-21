@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
-import { RUTAS_ADMIN } from '../../../compartido/constantes';
+import { INDICATIVOS_PAIS, RUTAS_ADMIN } from '../../../compartido/constantes';
 import {
   BotonPrincipal,
   CampoFormulario,
@@ -290,7 +290,7 @@ export default function ConfiguracionMarcaVista() {
       horarios: config.horarios,
       whatsapp_api_habilitado: config.whatsappApi?.habilitado ?? false,
       whatsapp_phone_number_id: config.whatsappApi?.phoneNumberId ?? '',
-      whatsapp_codigo_pais: config.whatsappApi?.codigoPais ?? '52',
+      whatsapp_codigo_pais: config.whatsappApi?.codigoPais ?? '',
       whatsapp_plantilla_recordatorio: config.whatsappApi?.plantillaRecordatorio ?? '',
       whatsapp_plantilla_idioma: config.whatsappApi?.plantillaIdioma ?? 'es_MX',
     };
@@ -409,7 +409,7 @@ export default function ConfiguracionMarcaVista() {
             />
             <p className="configuracion-marca__hint">
               Con este numero las clientas pueden escribirte por WhatsApp (enlace wa.me) sin configurar token de Meta.
-              El enlace usa el codigo de pais de abajo: Colombia 57, Mexico 52. Si el prefijo no corresponde, WhatsApp dice que el numero no existe.
+              El enlace usa el indicativo que elijas abajo. Si no corresponde al pais del numero, WhatsApp dice que no existe.
               Para mensajes automaticos al reservar o recordatorios, usa la seccion de abajo.
             </p>
           </CampoFormulario>
@@ -659,13 +659,26 @@ export default function ConfiguracionMarcaVista() {
             />
           </CampoFormulario>
 
-          <CampoFormulario etiqueta="Codigo de pais" id="cfg-wa-pais">
-            <input
+          <CampoFormulario etiqueta="Indicativo" id="cfg-wa-pais" requerido>
+            <select
               id="cfg-wa-pais"
-              value={config.whatsappApi?.codigoPais ?? '52'}
-              onChange={(e) => actualizarWhatsappApi('codigoPais', e.target.value.replace(/\D+/g, ''))}
-              placeholder="57"
-            />
+              value={config.whatsappApi?.codigoPais ?? ''}
+              onChange={(e) => actualizarWhatsappApi('codigoPais', e.target.value)}
+              required
+            >
+              <option value="">Elige el país</option>
+              {INDICATIVOS_PAIS.map((pais) => (
+                <option key={pais.codigo} value={pais.codigo}>
+                  {pais.nombre} +{pais.codigo}
+                </option>
+              ))}
+              {config.whatsappApi?.codigoPais
+                && !INDICATIVOS_PAIS.some((pais) => pais.codigo === config.whatsappApi.codigoPais) && (
+                <option value={config.whatsappApi.codigoPais}>
+                  +{config.whatsappApi.codigoPais}
+                </option>
+              )}
+            </select>
           </CampoFormulario>
 
           <CampoFormulario etiqueta="Plantilla recordatorio (opcional)" id="cfg-wa-plantilla">

@@ -4,7 +4,7 @@ Integracion con la **WhatsApp Cloud API** de Meta. **Cada marca** usa su propio 
 
 ## Sin token (contacto manual)
 
-Si solo quieres que las clientas te escriban por WhatsApp **sin configurar Meta**, basta con el campo **WhatsApp (contacto)** en Admin → Mi marca. La web muestra un boton que abre `wa.me` con el numero de esa marca y un mensaje prellenado. No requiere API ni token. El enlace usa el **codigo de pais** de la marca: un celular de 10 digitos en Colombia debe llevar `57`. Si queda en `52`, WhatsApp busca un numero de Mexico y avisa que no existe.
+Si solo quieres que las clientas te escriban por WhatsApp **sin configurar Meta**, basta con el campo **WhatsApp (contacto)** en Admin → Mi marca. La web muestra un boton que abre `wa.me` con el numero de esa marca y un mensaje prellenado. No requiere API ni token. El enlace usa el **indicativo** que la marca elige en su configuracion. Un celular de 10 digitos se completa con ese prefijo. Si el indicativo no es el del pais del numero, WhatsApp avisa que no existe.
 
 Vistas con boton wa.me: inicio de marca, hub de citas, confirmacion de reserva y Mi cita. Desde Mi cita el texto va en varias lineas e incluye el nombre y el celular de la clienta, ademas del servicio, la fecha y el codigo.
 
@@ -24,7 +24,7 @@ En **Admin → Mi marca → WhatsApp Business**:
 | WhatsApp (contacto) | Numero publico que ven las clientas en la web |
 | Phone Number ID | ID tecnico en WhatsApp Manager (Meta) |
 | Token de acceso | Bearer token de la app Meta de **esa marca** |
-| Codigo de pais | Prefijo internacional (Mexico: `52`) |
+| Indicativo | Prefijo que elige la marca (Colombia +57, Mexico +52, etc.). No va fijo en el codigo |
 | Plantilla recordatorio | Nombre de plantilla aprobada (opcional, recomendado en produccion) |
 
 Variables globales en `backend/.env` (solo comportamiento del recordatorio, no el numero):
@@ -36,6 +36,10 @@ WHATSAPP_RECORDATORIO_HORAS=4
 WHATSAPP_RECORDATORIO_VENTANA_MIN=10
 WHATSAPP_RECORDATORIO_INTERVALO_MIN=5
 ```
+
+## Confirmacion de la cita
+
+Cuando la administradora confirma una cita pendiente (o crea una cita ya confirmada), la API envia el aviso al WhatsApp de la clienta: fecha, hora, servicio y codigo. Si Meta o las credenciales fallan, la cita queda confirmada igual y el error queda en el log.
 
 ## Flujo de numeros
 

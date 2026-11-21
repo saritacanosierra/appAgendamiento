@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CampoFormulario, InputTexto } from '../../../compartido/componentes';
-import { RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
+import { INDICATIVOS_PAIS, RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { registrarSalon } from '../../../modulos/registro/servicios/registroServicio';
 import '../../../estilos/publico/landing/landing.css';
@@ -11,6 +11,7 @@ const DESCRIPCION_SEO = 'Tus clientas reservan solas con tu enlace. 8 días grat
 
 const VACIO = {
   nombre_comercial: '',
+  codigo_pais: '',
   whatsapp: '',
   admin_contrasena: '',
 };
@@ -240,6 +241,7 @@ export default function LandingVista() {
     try {
       const datos = await registrarSalon({
         nombre_comercial: form.nombre_comercial,
+        codigo_pais: form.codigo_pais,
         whatsapp: form.whatsapp,
         admin_contrasena: form.admin_contrasena,
         admin_nombre: form.nombre_comercial,
@@ -539,6 +541,21 @@ export default function LandingVista() {
                     onChange={(e) => actualizar('nombre_comercial', e.target.value)}
                     required
                   />
+                </CampoFormulario>
+                <CampoFormulario etiqueta="Indicativo" id="reg-indicativo" requerido>
+                  <select
+                    id="reg-indicativo"
+                    value={form.codigo_pais}
+                    onChange={(e) => actualizar('codigo_pais', e.target.value)}
+                    required
+                  >
+                    <option value="">Elige el país</option>
+                    {INDICATIVOS_PAIS.map((pais) => (
+                      <option key={pais.codigo} value={pais.codigo}>
+                        {pais.nombre} +{pais.codigo}
+                      </option>
+                    ))}
+                  </select>
                 </CampoFormulario>
                 <CampoFormulario etiqueta="Tu número de WhatsApp" id="reg-whatsapp" requerido>
                   <input

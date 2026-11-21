@@ -74,6 +74,24 @@ export const CANCELADA_POR_ETIQUETAS = {
   cliente: 'Cliente',
 };
 
+export const INDICATIVOS_PAIS = [
+  { codigo: '57', nombre: 'Colombia' },
+  { codigo: '52', nombre: 'México' },
+  { codigo: '1', nombre: 'Estados Unidos y Canadá' },
+  { codigo: '54', nombre: 'Argentina' },
+  { codigo: '56', nombre: 'Chile' },
+  { codigo: '51', nombre: 'Perú' },
+  { codigo: '58', nombre: 'Venezuela' },
+  { codigo: '593', nombre: 'Ecuador' },
+  { codigo: '507', nombre: 'Panamá' },
+  { codigo: '506', nombre: 'Costa Rica' },
+  { codigo: '502', nombre: 'Guatemala' },
+  { codigo: '503', nombre: 'El Salvador' },
+  { codigo: '504', nombre: 'Honduras' },
+  { codigo: '505', nombre: 'Nicaragua' },
+  { codigo: '34', nombre: 'España' },
+];
+
 export const VARIABLES_MARCA_DEFECTO = {
   colorPrincipal: '#C2185B',
   colorSecundario: '#F8BBD0',

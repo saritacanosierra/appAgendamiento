@@ -9,7 +9,7 @@ function normalizarConfigWhatsapp(raw = {}) {
     habilitado: Boolean(raw.habilitado),
     phoneNumberId: texto(raw.phone_number_id ?? raw.phoneNumberId) || null,
     token: texto(raw.token) || null,
-    codigoPais: texto(raw.codigo_pais ?? raw.codigoPais) || '52',
+    codigoPais: texto(raw.codigo_pais ?? raw.codigoPais) || '',
     plantillaRecordatorio: texto(raw.plantilla_recordatorio ?? raw.plantillaRecordatorio) || null,
     plantillaIdioma: texto(raw.plantilla_idioma ?? raw.plantillaIdioma) || 'es_MX',
   };
@@ -20,7 +20,7 @@ function aJsonWhatsapp(config) {
     habilitado: Boolean(config.habilitado),
     phone_number_id: config.phoneNumberId || null,
     token: config.token || null,
-    codigo_pais: config.codigoPais || '52',
+    codigo_pais: config.codigoPais || '',
     plantilla_recordatorio: config.plantillaRecordatorio || null,
     plantilla_idioma: config.plantillaIdioma || 'es_MX',
   };

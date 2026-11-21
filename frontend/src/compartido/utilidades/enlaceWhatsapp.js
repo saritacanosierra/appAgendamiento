@@ -1,17 +1,16 @@
-const CODIGO_PAIS_DEFECTO = '52';
-
-export function normalizarTelefonoWhatsapp(telefono, codigoPais = CODIGO_PAIS_DEFECTO) {
+export function normalizarTelefonoWhatsapp(telefono, codigoPais = '') {
   const digitos = String(telefono ?? '').replace(/\D+/g, '');
   if (!digitos) return null;
 
-  const prefijo = String(codigoPais || CODIGO_PAIS_DEFECTO).replace(/\D+/g, '');
-  if (prefijo && digitos.startsWith(prefijo)) {
+  const prefijo = String(codigoPais ?? '').replace(/\D+/g, '');
+  if (prefijo && digitos.startsWith(prefijo) && digitos.length > prefijo.length) {
     return digitos;
   }
-  if (digitos.length === 10) {
+  if (prefijo && digitos.length === 10) {
     return `${prefijo}${digitos}`;
   }
-  return digitos;
+  if (digitos.length > 10) return digitos;
+  return null;
 }
 
 export function construirEnlaceWhatsapp(telefono, opciones = {}) {

@@ -37,7 +37,7 @@ function whatsappApiDesdeFila(fila) {
     habilitado: Boolean(wa.habilitado),
     phoneNumberId: wa.phone_number_id ?? null,
     tokenConfigurado: Boolean(wa.token),
-    codigoPais: wa.codigo_pais ?? '52',
+    codigoPais: wa.codigo_pais ?? '',
     plantillaRecordatorio: wa.plantilla_recordatorio ?? null,
     plantillaIdioma: wa.plantilla_idioma ?? 'es_MX',
     configurado: Boolean(wa.habilitado && wa.phone_number_id && wa.token),
