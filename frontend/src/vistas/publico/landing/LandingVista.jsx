@@ -17,80 +17,46 @@ const VACIO = {
 };
 
 const PASOS = [
-  {
-    titulo: 'Crea tu cuenta en el formulario de abajo',
-    texto: 'Escribes el negocio, tu WhatsApp y una contraseña. Entras al panel y dejas el primer servicio. No piden tarjeta.',
-  },
-  {
-    titulo: 'Tu marca',
-    texto: 'Entras al panel. Abres «Tu marca» y guardas logo, colores y los días que atiendes. El WhatsApp ya quedó en el registro.',
-  },
-  {
-    titulo: 'Tus servicios',
-    texto: 'Creas cada servicio con su nombre, cuánto dura y el precio. Sin esto, tu clienta no tiene qué reservar.',
-  },
-  {
-    titulo: 'Quién atiende',
-    texto: 'Agregas a cada profesional. Si trabajas sola, escribes tu nombre. Así ella elige con quién.',
-  },
-  {
-    titulo: 'Fotos de tus trabajos',
-    texto: 'Subes las fotos a la galería. Tu clienta las ve en el celular y puede elegir el diseño.',
-  },
-  {
-    titulo: 'El enlace para tu clienta',
-    texto: 'Pulsas «Copiar enlace» y lo pegas en WhatsApp. Ella abre tuagenda.com/m/tu-negocio, elige hora y reserva. No crea cuenta.',
-  },
+  { titulo: 'Tu cuenta', texto: 'Negocio, WhatsApp y contraseña. Sin tarjeta.' },
+  { titulo: 'Tu marca', texto: 'Logo, colores y los días que atiendes.' },
+  { titulo: 'Tus servicios', texto: 'Nombre, duración y precio.' },
+  { titulo: 'Quién atiende', texto: 'Tu nombre, o el de cada profesional.' },
+  { titulo: 'Tus fotos', texto: 'Ella elige el diseño desde el celular.' },
+  { titulo: 'Tu enlace', texto: 'Lo copias a WhatsApp. Ella reserva. No crea cuenta.' },
 ];
 
 const VENTAJAS = [
-  { titulo: 'Tu marca al 100%', texto: 'Logo, colores y un enlace con el nombre exacto de tu negocio.' },
-  { titulo: 'Galería de trabajos', texto: 'La clienta elige el diseño y queda ligado directamente a su cita.' },
-  { titulo: 'Aviso a tu WhatsApp', texto: 'Llega a tu número con el nombre, el servicio y el código de reserva.' },
-  { titulo: 'Cada profesional', texto: 'Cada quien tiene su agenda. La clienta elige con quién atenderse.' },
-  { titulo: 'Sin fricción', texto: 'Sin contraseñas ni registros. Reservan desde el navegador del celular.' },
-  { titulo: 'Precio cerrado', texto: '$25.000 al mes, hagas 10 citas o 200. Lo que cobras se queda contigo.' },
+  { titulo: 'Tu marca', texto: 'Logo, colores y tu enlace.' },
+  { titulo: 'Galería', texto: 'Ella elige el diseño de la cita.' },
+  { titulo: 'WhatsApp', texto: 'Te llega el nombre, el servicio y la hora.' },
+  { titulo: 'Precio fijo', texto: '$25.000 al mes. Lo que cobras es tuyo.' },
 ];
 
 const VOCES = [
   {
     inicial: 'AR',
-    cita: 'Recuperé 4 horas semanales que perdía contestando chats.',
-    quien: 'Andrea R., Uñas en Medellín',
-  },
-  {
-    inicial: 'CV',
-    cita: 'Mis clientas reservan de madrugada y en la mañana ya tengo el día lleno.',
-    quien: 'Camila V., Estética facial',
+    cita: 'Recuperé las horas que perdía contestando chats.',
+    quien: 'Andrea R., uñas',
   },
   {
     inicial: 'MG',
-    cita: 'Por $25.000 al mes me ahorro lo que otras apps me cobraban en comisiones por cada cita.',
-    quien: 'Mariana G., Uñas semipermanentes',
-  },
-  {
-    inicial: 'LM',
-    cita: 'El link en Instagram cambió todo: menos preguntas de precios y más reservas firmes.',
-    quien: 'Laura M., Centro de estética',
+    cita: 'Por $25.000 al mes dejé de pagar comisión por cada cita.',
+    quien: 'Mariana G., semipermanente',
   },
 ];
 
 const PREGUNTAS = [
   {
-    pregunta: '¿Para qué negocios es?',
-    respuesta: 'Para estudios y profesionales de uñas y estética que hoy coordinan citas por WhatsApp y quieren su propia agenda.',
+    pregunta: '¿Para quién es?',
+    respuesta: 'Para quien hoy agenda uñas o estética por WhatsApp.',
   },
   {
-    pregunta: '¿Cuánto cuesta después de la prueba?',
-    respuesta: 'El mes vale $25.000. El trimestre $90.000, el semestre $180.000 y el año $360.000, con Wompi. No hay comisión por cada reserva.',
+    pregunta: '¿Cuánto cuesta?',
+    respuesta: '8 días gratis y luego desde $25.000 al mes, sin comisión. Si se acaba el tiempo, ellas pausan. Tus citas siguen guardadas.',
   },
   {
-    pregunta: '¿Mis clientas tienen que registrarse o descargar algo?',
-    respuesta: 'No. Abren tu enlace, eligen servicio, hora y profesional desde el navegador del celular.',
-  },
-  {
-    pregunta: '¿Qué pasa cuando terminan los 8 días?',
-    respuesta: 'Activas el plan con Wompi: mes $25.000, trimestre $90.000, semestre $180.000 o año $360.000. Tus clientas siguen reservando. La prueba es una sola vez. Si se acaba el tiempo que pagaste, ellas no agendan y tú entras al panel a pagar de nuevo. Tus citas y fotos siguen guardadas.',
+    pregunta: '¿Ellas se registran?',
+    respuesta: 'No. Abren tu enlace y reservan.',
   },
 ];
 
@@ -281,10 +247,9 @@ export default function LandingVista() {
           <div className="landing__ancho landing__hero-grid">
             <div className="landing__hero-copia">
               <p className="landing__etiqueta">Para estudios de uñas y estética</p>
-              <h1>Llena tus días de citas, no de mensajes interminables en WhatsApp.</h1>
+              <h1>Llena tus días de citas, no de mensajes.</h1>
               <p className="landing__bajada">
-                Envía tu enlace único en tu bio o chat. Tus clientas eligen servicio, día y hora en 15 segundos,
-                y tú recibes la reserva confirmada directo en tu WhatsApp.
+                Pegas tu enlace. Ellas eligen la hora. Tú recibes la cita en WhatsApp.
               </p>
               <div className="landing__hero-acciones">
                 <a className="landing__cta" href="#registro">Crear mi agenda gratis ahora</a>
@@ -339,50 +304,20 @@ export default function LandingVista() {
           </ul>
         </section>
 
-        <section className="landing__bloque landing__entra" id="puertas">
-          <div className="landing__ancho">
-            <p className="landing__etiqueta">Dos puertas</p>
-            <h2>Tú personalizas la marca. Tu clienta solo abre un enlace.</h2>
-            <div className="landing__puertas">
-              <article className="landing__puerta">
-                <p className="landing__puerta-rol">Propietario de la marca</p>
-                <h3>Entras al panel para dejarla a tu gusto.</h3>
-                <ul>
-                  <li>Nombre, logo y colores de tu negocio.</li>
-                  <li>Servicios, precios, equipo y horarios.</li>
-                  <li>Galería de trabajos y el aviso a tu WhatsApp.</li>
-                </ul>
-                <p className="landing__puerta-nota">Esta puerta es solo tuya, con tu WhatsApp o tu correo, y tu contraseña.</p>
-              </article>
-              <article className="landing__puerta">
-                <p className="landing__puerta-rol">Tu clienta</p>
-                <h3>No se registra. Le compartes este enlace.</h3>
-                <p className="landing__enlace-muestra">tuagenda.com/m/tu-negocio</p>
-                <ul>
-                  <li>Lo copias en el panel y lo envías por WhatsApp o Instagram.</li>
-                  <li>Ella elige servicio, hora y profesional desde el celular.</li>
-                  <li>Tú recibes el aviso con su nombre y la cita.</li>
-                </ul>
-                <p className="landing__puerta-nota">Ese enlace es lo único que ve tu clienta.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
         <section className="landing__bloque landing__entra" id="problema">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Antes y después</p>
-            <h2>Deja de ser recepcionista en tu propio negocio.</h2>
+            <h2>Menos chat. Más citas.</h2>
             <div className="landing__antes">
               <article>
                 <p>Antes</p>
-                <h3>Sin una agenda propia</h3>
-                <p>Respondiendo «¿qué horas tienes?» a las 11 PM, cruzando horarios en libreta y perdiendo clientas que no esperan 20 minutos por respuesta.</p>
+                <h3>«¿Qué horas tienes?»</h3>
+                <p>A las 11 de la noche, con la libreta abierta.</p>
               </article>
               <article>
                 <p>Después</p>
-                <h3>Con Agenda</h3>
-                <p>Un solo link en tu perfil. Agenda abierta 24/7, recordatorios automáticos y cero citas olvidadas mientras tú atiendes.</p>
+                <h3>Un enlace</h3>
+                <p>Ellas reservan. Tú atiendes.</p>
               </article>
             </div>
           </div>
@@ -391,10 +326,7 @@ export default function LandingVista() {
         <section className="landing__bloque landing__bloque--violeta landing__entra" id="como">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Cómo funciona</p>
-            <h2>Si acabas de inscribirte, haz esto en orden.</h2>
-            <p className="landing__bajada">
-              El 1 es este formulario. Del 2 al 6 los haces en tu panel, en el mismo orden. El enlace es lo único que ve tu clienta.
-            </p>
+            <h2>Seis pasos, en este orden.</h2>
             <ol className="landing__pasos">
               {PASOS.map((paso, indice) => (
                 <li key={paso.titulo}>
@@ -412,7 +344,7 @@ export default function LandingVista() {
         <section className="landing__bloque landing__entra" id="ventajas">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Beneficios</p>
-            <h2>Todo lo que tu negocio necesita, en el celular.</h2>
+            <h2>Lo que te queda a la mano.</h2>
             <ul className="landing__tarjetas">
               {VENTAJAS.map((ventaja) => (
                 <li key={ventaja.titulo}>
@@ -427,10 +359,7 @@ export default function LandingVista() {
         <section className="landing__bloque landing__bloque--rosa landing__entra" id="oficios">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Tu oficio</p>
-            <h2>La misma pantalla, para uñas tradicionales y semipermanentes.</h2>
-            <p className="landing__bajada">
-              La clienta ve los dos tipos y elige el que quiere. Es un ejemplo de la pantalla, no una reseña.
-            </p>
+            <h2>Así elige tu clienta.</h2>
             <div className="landing__oficios">
               {OFICIOS.map((oficio) => (
                 <article className="landing__oficio" key={oficio.titulo}>
@@ -453,10 +382,10 @@ export default function LandingVista() {
               </div>
               <div>
                 <p className="landing__etiqueta">Precio</p>
-                <h2>Una tarifa plana que protege lo que cobras.</h2>
+                <h2>Un solo precio.</h2>
                 <p className="landing__precio-grande">$25.000 al mes</p>
                 <p className="landing__bajada">
-                  Sin porcentaje sobre el servicio. El mes sigue en $25.000. El trimestre cuesta $90.000, el semestre $180.000 y el año $360.000.
+                  Sin comisión. Trimestre $90.000, semestre $180.000, año $360.000.
                 </p>
                 <a className="landing__cta" href="#registro">Probar 8 días gratis</a>
               </div>
@@ -467,7 +396,7 @@ export default function LandingVista() {
         <section className="landing__bloque landing__bloque--violeta landing__entra" id="comparacion">
           <div className="landing__ancho">
             <p className="landing__etiqueta">Quienes ya agendan así</p>
-            <h2>Lo que cambia cuando el enlace trabaja por ti.</h2>
+            <h2>Quienes ya lo usan.</h2>
             <ul className="landing__voces">
               {VOCES.map((voz) => (
                 <li key={voz.inicial}>
@@ -504,12 +433,7 @@ export default function LandingVista() {
             <div>
               <p className="landing__etiqueta">Empieza hoy</p>
               <h2>Crea tu cuenta gratis.</h2>
-              <p className="landing__bajada">Tres datos. En el panel eliges el oficio, el enlace y el primer servicio.</p>
-              <ul className="landing__alta">
-                <li>El negocio da el nombre de tu enlace.</li>
-                <li>El WhatsApp es tu ingreso y el aviso de cada cita.</li>
-                <li>La contraseña abre el panel.</li>
-              </ul>
+              <p className="landing__bajada">Negocio, WhatsApp y contraseña.</p>
               <p className="landing__entrar">
                 ¿Ya tienes cuenta? <Link to={RUTAS_ADMIN.login}>Entrar al panel</Link>
               </p>
@@ -517,10 +441,9 @@ export default function LandingVista() {
 
             {creado ? (
               <div className="landing__listo">
-                <h3>Paso 1 listo. Sigue con el paso 2.</h3>
+                <h3>Listo. Sigue con tu marca.</h3>
                 <p>
                   {creado.marca.nombreComercial} tiene {creado.prueba.dias} días gratis, hasta {creado.prueba.venceEn}.
-                  En el panel, el paso 2 es tu marca: logo, colores y horarios. El WhatsApp ya quedó guardado.
                 </p>
                 <Link className="landing__cta landing__cta--ancho" to={RUTAS_ADMIN.configuracionMarca}>
                   Ir al paso 2: tu marca
@@ -598,7 +521,7 @@ export default function LandingVista() {
       <footer className="landing__pie">
         <div className="landing__ancho">
           <strong>Agenda</strong>
-          <p>Uñas y estética. 8 días gratis y luego $25.000 al mes con Wompi.</p>
+          <p>8 días gratis. Luego $25.000 al mes.</p>
           <Link to={RUTAS_PUBLICAS.condiciones}>Condiciones y acceso</Link>
         </div>
       </footer>

@@ -344,11 +344,42 @@
 }
 
 .marcas-plataforma__copias li > button,
-.marcas-plataforma__copia-confirmar button {
+.marcas-plataforma__copia-confirmar button,
+.marcas-plataforma__copia-acciones > button:first-child {
   width: 100%;
+}
+
+.marcas-plataforma__copia-acciones {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.marcas-plataforma__copia-acciones > button:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.marcas-plataforma__copia-papelera {
+  width: 48px;
+  min-width: 48px;
+  margin-top: 8px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-color: #c62828;
+  color: #c62828;
 }
 
 .marcas-plataforma__copia-confirmar button:last-child {
   background: #6e62c6;
+  color: #fff;
+}
+
+.marcas-plataforma__copia-confirmar--peligro button:last-child {
+  background: #c62828;
+  border-color: #c62828;
   color: #fff;
 }

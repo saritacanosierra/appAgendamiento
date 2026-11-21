@@ -39,6 +39,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--espacio-md);
+  min-width: 0;
+}
+
+.reservar-vista__sin-servicios {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
 }
 
 .reservar-vista__cita {

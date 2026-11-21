@@ -124,6 +124,20 @@
   font-style: italic;
 }
 
+.clientes-vista__premio {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 0 1rem;
+  border: 1px solid var(--color-principal);
+  border-radius: 999px;
+  background: var(--color-superficie);
+  color: var(--color-texto-superficie);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .clientes-vista__form-acciones {
   display: flex;
   flex-wrap: wrap;

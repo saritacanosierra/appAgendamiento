@@ -12,6 +12,7 @@ import {
   actualizarCliente,
   crearCliente,
   desactivarCliente,
+  entregarPremioCliente,
   listarClientes,
 } from '../../../modulos/clientes/servicios/clientesServicio';
 import '../../../estilos/admin/clientes/clientes.css';
@@ -32,7 +33,9 @@ export default function ClientesVista() {
   const [enviando, setEnviando] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [clienteAEliminar, setClienteAEliminar] = useState(null);
+  const [premioAEntregar, setPremioAEntregar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const [entregandoPremio, setEntregandoPremio] = useState(false);
   const [form, setForm] = useState(FORM_VACIO);
 
   async function cargar(q = busqueda) {
@@ -106,6 +109,22 @@ export default function ClientesVista() {
     }
   }
 
+  async function confirmarPremio() {
+    if (!premioAEntregar) return;
+    setEntregandoPremio(true);
+    setError(null);
+    try {
+      await entregarPremioCliente(premioAEntregar.id);
+      setPremioAEntregar(null);
+      await cargar();
+    } catch (err) {
+      setError(err.message);
+      setPremioAEntregar(null);
+    } finally {
+      setEntregandoPremio(false);
+    }
+  }
+
   async function confirmarEliminar() {
     if (!clienteAEliminar) return;
 
@@ -128,6 +147,20 @@ export default function ClientesVista() {
 
   return (
     <div className="clientes-vista">
+      <ModalConfirmacion
+        abierto={Boolean(premioAEntregar)}
+        titulo="Premio entregado"
+        mensaje={
+          premioAEntregar
+            ? `Se marca el premio de ${premioAEntregar.nombre} como entregado. El conteo para el siguiente descuento vuelve a empezar. Sus ${premioAEntregar.premio?.puntosTotales ?? 0} puntos de todos los servicios se quedan.`
+            : ''
+        }
+        textoConfirmar={entregandoPremio ? 'Guardando...' : 'Premio entregado'}
+        textoCancelar="Cancelar"
+        onConfirmar={confirmarPremio}
+        onCancelar={() => !entregandoPremio && setPremioAEntregar(null)}
+      />
+
       <ModalConfirmacion
         abierto={Boolean(clienteAEliminar)}
         titulo="Eliminar cliente"
@@ -221,6 +254,29 @@ export default function ClientesVista() {
                   <span>{c.telefono}</span>
                   {c.correo && <span>{c.correo}</span>}
                   {c.notas && <span className="clientes-vista__item-notas">{c.notas}</span>}
+                  {c.premio && (
+                    <span>
+                      {c.premio.puntosTotales} puntos en total
+                      {c.premio.activo
+                        ? ` · ${c.premio.puntosDisponibles} para el próximo premio${
+                          c.premio.premioPendiente
+                            ? ` · ${c.premio.premioPendiente.porcentaje}% en la cita`
+                            : c.premio.alcanza
+                              ? ` · ya puede usar ${c.premio.porcentaje}%`
+                              : ` · faltan ${Math.max(0, c.premio.puntosNecesarios - c.premio.puntosDisponibles)} para ${c.premio.porcentaje}%`
+                        }`
+                        : ''}
+                    </span>
+                  )}
+                  {(c.premio?.alcanza || c.premio?.premioPendiente) && (
+                    <button
+                      type="button"
+                      className="clientes-vista__premio"
+                      onClick={() => setPremioAEntregar(c)}
+                    >
+                      Premio entregado
+                    </button>
+                  )}
                 </div>
                 <div className="clientes-vista__item-acciones">
                   <button

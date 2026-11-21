@@ -144,6 +144,11 @@ const MIGRACIONES = [
     nombre: 'Blogs de la app en cada marca',
     ejecutar: (c) => ejecutarArchivoSql(c, '023_blog_plataforma.sql'),
   },
+  {
+    id: '024_premios_puntos',
+    nombre: 'Premio por puntos de la clienta',
+    ejecutar: (c) => ejecutarArchivoSql(c, '024_premios_puntos.sql'),
+  },
 ];
 
 async function main() {

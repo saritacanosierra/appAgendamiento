@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Cargando,
+  FiltroServicios,
   HorariosDisponiblesDia,
   TarjetaServicio,
+  filtrarServiciosPorTexto,
 } from '../../../compartido/componentes';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { obtenerServiciosPublicos } from '../../../modulos/publico_marca/servicios/marcaServicio';
@@ -19,6 +21,7 @@ export default function ContenidoHubCitas({ marca }) {
   const navigate = useNavigate();
   const horarioRef = useRef(null);
   const [servicios, setServicios] = useState([]);
+  const [filtro, setFiltro] = useState('');
   const [servicioElegido, setServicioElegido] = useState(null);
   const [cargandoServicios, setCargandoServicios] = useState(false);
 
@@ -91,20 +94,27 @@ export default function ContenidoHubCitas({ marca }) {
     );
   }
 
+  const visibles = filtrarServiciosPorTexto(servicios, filtro);
+
   return (
     <section className="citas-hub__servicios">
       <h2>Elige un servicio</h2>
-      <div className="citas-hub__lista-servicios">
-        {servicios.map((servicio) => (
-          <TarjetaServicio
-            key={servicio.id}
-            servicio={servicio}
-            textoAccion="Agendar"
-            accionAncha
-            onSeleccionar={elegirServicio}
-          />
-        ))}
-      </div>
+      <FiltroServicios id="citas-filtro-servicios" valor={filtro} onChange={setFiltro} />
+      {visibles.length === 0 ? (
+        <p className="citas-hub__vacio">Ningún servicio coincide con «{filtro.trim()}».</p>
+      ) : (
+        <div className="citas-hub__lista-servicios">
+          {visibles.map((servicio) => (
+            <TarjetaServicio
+              key={servicio.id}
+              servicio={servicio}
+              textoAccion="Agendar"
+              accionAncha
+              onSeleccionar={elegirServicio}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

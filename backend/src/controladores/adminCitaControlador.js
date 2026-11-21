@@ -92,6 +92,18 @@ export async function actualizarCliente(req, res) {
   return respuestaExito(res, resultado.cliente, 'Cliente actualizado');
 }
 
+export async function entregarPremioCliente(req, res) {
+  const clienteId = entero(req.params.id);
+  if (!clienteId) return respuestaError(res, 'ID invalido.', 422);
+
+  const resultado = await clienteServicio.entregarPremio(req.marcaId, clienteId);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+
+  return respuestaExito(res, resultado.cliente, 'Premio entregado');
+}
+
 export async function desactivarCliente(req, res) {
   const clienteId = entero(req.params.id);
   if (!clienteId) return respuestaError(res, 'ID invalido.', 422);

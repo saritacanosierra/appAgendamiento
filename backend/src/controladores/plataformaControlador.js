@@ -172,6 +172,12 @@ export async function descargarCopiaMarcaPlataforma(req, res) {
   });
 }
 
+export async function eliminarCopiaMarcaPlataforma(req, res) {
+  const resultado = await copiaMarcaServicio.eliminar(req.params.archivo);
+  if (resultado.error) return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  return respuestaExito(res, resultado, 'Copia eliminada');
+}
+
 export async function restaurarCopiaMarcaPlataforma(req, res) {
   const forzada = req.params.id ? idMarca(req.params.id) : null;
   if (req.params.id && !forzada) return respuestaError(res, 'Marca no encontrada.', 404);

@@ -68,6 +68,7 @@ export default function CondicionesVista() {
             <li>Crear, revisar y, si hace falta, eliminar una empresa.</li>
             <li>Entrar al panel de una empresa sin mezclar esa sesión con la de plataforma.</li>
             <li>Guardar y restaurar la copia de una empresa. Esa acción no escribe en las demás.</li>
+            <li>Borrar la copia de una empresa que ya no está. Esa copia no vuelve.</li>
           </ul>
         </section>
 

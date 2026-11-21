@@ -23,6 +23,7 @@ import {
   guardarCopiaMarca,
   subirCopiaMarca,
   descargarCopiaMarca,
+  eliminarCopiaPlataforma,
   restaurarCopiaMarca,
   restaurarCopiaDeMarca,
 } from '../../../modulos/plataforma/servicios/plataformaServicio';
@@ -76,7 +77,8 @@ export default function MarcasPlataformaVista() {
   const [guardandoCopia, setGuardandoCopia] = useState(false);
   const [restaurandoCopia, setRestaurandoCopia] = useState(false);
   const [copiasHuerfanas, setCopiasHuerfanas] = useState([]);
-  const [huerfanaConfirmada, setHuerfanaConfirmada] = useState(null);
+  const [huerfanaPendiente, setHuerfanaPendiente] = useState(null);
+  const [eliminandoCopia, setEliminandoCopia] = useState(false);
 
   async function abrirDetalleMarca(marca) {
     setMarcaDetalle(marca);
@@ -262,12 +264,27 @@ export default function MarcasPlataformaVista() {
     }
   }
 
+  async function eliminarHuerfana(copia) {
+    setEliminandoCopia(true);
+    setError(null);
+    try {
+      await eliminarCopiaPlataforma(copia.archivo);
+      setHuerfanaPendiente(null);
+      setMensaje(`La copia de ${copia.nombre} se eliminó. Ya no se puede restaurar.`);
+      await cargarCopiasHuerfanas();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEliminandoCopia(false);
+    }
+  }
+
   async function restaurarHuerfana(copia) {
     setRestaurandoCopia(true);
     setError(null);
     try {
       const restauracion = await restaurarCopiaMarca(copia.archivo);
-      setHuerfanaConfirmada(null);
+      setHuerfanaPendiente(null);
       setMensaje(`${restauracion.nombre} volvió a la copia: ${restauracion.clientes} clientas y ${restauracion.citas} citas. Las demás empresas no cambiaron.`);
       await cargar();
     } catch (err) {
@@ -428,31 +445,56 @@ export default function MarcasPlataformaVista() {
       {copiasHuerfanas.length > 0 && (
         <section className="marcas-plataforma__copias">
           <h3>Copias de empresas que ya no están</h3>
-          <p>Restaurar una de estas copias vuelve a crear solo esa empresa. Las demás no se tocan.</p>
+          <p>Restaurar vuelve a crear solo esa empresa. La papelera borra la copia y ya no se puede recuperar.</p>
           <ul>
-            {copiasHuerfanas.map((copia) => (
-              <li key={copia.archivo}>
-                <div>
-                  <strong>{copia.nombre}</strong>
-                  <span>{copia.clientes} clientas · {copia.citas} citas</span>
-                </div>
-                {huerfanaConfirmada === copia.archivo ? (
-                  <div className="marcas-plataforma__copia-confirmar">
-                    <p>Se vuelve a crear {copia.nombre} con esta copia. Las demás empresas quedan igual.</p>
-                    <button type="button" onClick={() => setHuerfanaConfirmada(null)} disabled={restaurandoCopia}>
-                      Cancelar
-                    </button>
-                    <button type="button" onClick={() => restaurarHuerfana(copia)} disabled={restaurandoCopia}>
-                      {restaurandoCopia ? 'Restaurando...' : 'Restaurar esta empresa'}
-                    </button>
+            {copiasHuerfanas.map((copia) => {
+              const pendiente = huerfanaPendiente?.archivo === copia.archivo ? huerfanaPendiente.accion : null;
+              const ocupada = restaurandoCopia || eliminandoCopia;
+              return (
+                <li key={copia.archivo}>
+                  <div>
+                    <strong>{copia.nombre}</strong>
+                    <span>{copia.clientes} clientas · {copia.citas} citas</span>
                   </div>
-                ) : (
-                  <button type="button" onClick={() => setHuerfanaConfirmada(copia.archivo)}>
-                    Restaurar
-                  </button>
-                )}
-              </li>
-            ))}
+                  {pendiente === 'restaurar' ? (
+                    <div className="marcas-plataforma__copia-confirmar">
+                      <p>Se vuelve a crear {copia.nombre} con esta copia. Las demás empresas quedan igual.</p>
+                      <button type="button" onClick={() => setHuerfanaPendiente(null)} disabled={ocupada}>
+                        Cancelar
+                      </button>
+                      <button type="button" onClick={() => restaurarHuerfana(copia)} disabled={ocupada}>
+                        {restaurandoCopia ? 'Restaurando...' : 'Restaurar esta empresa'}
+                      </button>
+                    </div>
+                  ) : pendiente === 'eliminar' ? (
+                    <div className="marcas-plataforma__copia-confirmar marcas-plataforma__copia-confirmar--peligro">
+                      <p>Se borra la copia de {copia.nombre}. Esa empresa ya no se puede volver a crear desde aquí.</p>
+                      <button type="button" onClick={() => setHuerfanaPendiente(null)} disabled={ocupada}>
+                        Cancelar
+                      </button>
+                      <button type="button" onClick={() => eliminarHuerfana(copia)} disabled={ocupada}>
+                        {eliminandoCopia ? 'Eliminando...' : 'Eliminar esta copia'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="marcas-plataforma__copia-acciones">
+                      <button type="button" onClick={() => setHuerfanaPendiente({ archivo: copia.archivo, accion: 'restaurar' })}>
+                        Restaurar
+                      </button>
+                      <button
+                        type="button"
+                        className="marcas-plataforma__copia-papelera"
+                        onClick={() => setHuerfanaPendiente({ archivo: copia.archivo, accion: 'eliminar' })}
+                        aria-label={`Eliminar la copia de ${copia.nombre}`}
+                        title="Eliminar esta copia"
+                      >
+                        <IconoApp nombre="eliminar" tamano="md" />
+                      </button>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

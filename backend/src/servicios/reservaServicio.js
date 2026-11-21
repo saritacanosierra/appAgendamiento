@@ -9,6 +9,7 @@ import {
   parsearJsonCampo,
 } from '../repositorios/index.js';
 import { ClientePerfilServicio } from './clientePerfilServicio.js';
+import { premioPuntosServicio } from './premioPuntosServicio.js';
 import { CalendarioServicio } from './calendarioServicio.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
 import { sincronizarFavoritosDesdeDisenosCita } from '../utilidades/sincronizarFavoritoDisenoGaleria.js';
@@ -331,6 +332,11 @@ export class ReservaServicio {
         // WhatsApp no bloquea la reserva
       }
 
+      const premio = await premioPuntosServicio.reservarSiAlcanza(marcaId, clienteId, citaId);
+      if (premio) {
+        confirmacion.cita.descuentoPremio = premioPuntosServicio.descuentoDe(servicio.precio, premio);
+      }
+
       return { confirmacion };
     } catch (err) {
       await conexion.rollback();
@@ -344,7 +350,7 @@ export class ReservaServicio {
     const fila = await this.reservaRepo.buscarPorCodigo(codigo);
     if (!fila || !slug || String(fila.marca_slug) !== String(slug)) return null;
 
-    return this.armarConfirmacion({
+    const confirmacion = this.armarConfirmacion({
       id: fila.id,
       codigoConfirmacion: fila.codigo_confirmacion,
       fecha: fila.fecha instanceof Date
@@ -372,6 +378,11 @@ export class ReservaServicio {
       },
       estilistaNombre: fila.estilista_nombre ?? null,
     });
+    const premio = await premioPuntosServicio.porCita(fila.marca_id, fila.id);
+    if (premio) {
+      confirmacion.cita.descuentoPremio = premioPuntosServicio.descuentoDe(fila.precio, premio);
+    }
+    return confirmacion;
   }
 
   armarConfirmacion({ id, codigoConfirmacion, fecha, horaInicio, horaFin, estado, servicio, marca, cliente, estilistaNombre = null }) {
@@ -582,6 +593,13 @@ export class ReservaServicio {
       citas.map((c) => c.id)
     );
     const perfil = await this.clientePerfil.obtenerPerfil(marcaId, cliente.id);
+    const citaPremio = perfil.premio?.premioPendiente?.citaId;
+    if (citaPremio) {
+      for (const cita of citas) {
+        if (Number(cita.id) !== Number(citaPremio)) continue;
+        cita.descuentoPremio = premioPuntosServicio.descuentoDe(cita.servicio.precio, perfil.premio.premioPendiente);
+      }
+    }
 
     return {
       cliente: {
@@ -590,6 +608,7 @@ export class ReservaServicio {
         telefono: cliente.telefono,
         correo: cliente.correo,
         puntos: perfil.puntos,
+        premio: perfil.premio,
         totalFavoritos: perfil.totalFavoritos,
         serviciosCompletados: perfil.serviciosCompletados,
       },
@@ -657,6 +676,8 @@ export class ReservaServicio {
     } finally {
       conexion.release();
     }
+
+    await premioPuntosServicio.liberarCita(fila.marca_id, fila.id);
 
     try {
       const { notificacionServicio } = await import('./notificacionServicio.js');

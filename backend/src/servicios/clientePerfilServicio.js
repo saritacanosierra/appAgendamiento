@@ -10,6 +10,7 @@ import { MarcaRepositorio } from '../repositorios/index.js';
 import { requerido, telefono as validarTelefono, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
 import { resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
+import { premioPuntosServicio } from './premioPuntosServicio.js';
 
 const TIPOS_FAVORITO = ['servicio', 'diseno_galeria'];
 
@@ -71,17 +72,17 @@ export class ClientePerfilServicio {
   }
 
   async obtenerPerfil(marcaId, clienteId) {
-    const [puntos, totalFavoritos, serviciosCompletados, favoritosFilas] = await Promise.all([
-      this.favoritosRepo.calcularPuntosCliente(marcaId, clienteId),
+    const [totalFavoritos, favoritosFilas, premio] = await Promise.all([
       this.favoritosRepo.contarPorCliente(marcaId, clienteId),
-      this.favoritosRepo.contarServiciosCompletados(marcaId, clienteId),
       this.favoritosRepo.listarPorCliente(marcaId, clienteId),
+      premioPuntosServicio.resumen(marcaId, clienteId),
     ]);
 
     return {
-      puntos,
+      puntos: premio.puntosTotales,
+      premio,
       totalFavoritos,
-      serviciosCompletados,
+      serviciosCompletados: premio.serviciosCompletados,
       favoritos: favoritosFilas.map(mapearFavorito),
     };
   }

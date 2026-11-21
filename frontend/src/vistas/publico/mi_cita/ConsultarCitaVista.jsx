@@ -62,7 +62,7 @@ function ResumenPerfilCliente({ cliente }) {
       <div className="mi-cita__stats">
         <article className="mi-cita__stat tarjeta-app">
           <IconoApp nombre="puntos" tamano="lg" className="mi-cita__stat-icono" />
-          <span className="mi-cita__stat-etiqueta">Puntos</span>
+          <span className="mi-cita__stat-etiqueta">Puntos de siempre</span>
           <strong className="mi-cita__stat-valor">{formatearPuntos(cliente.puntos)}</strong>
           {cliente.serviciosCompletados > 0 && (
             <span className="mi-cita__stat-detalle">
@@ -70,6 +70,15 @@ function ResumenPerfilCliente({ cliente }) {
               {cliente.serviciosCompletados === 1
                 ? 'servicio completado'
                 : 'servicios completados'}
+            </span>
+          )}
+          {cliente.premio?.activo && (
+            <span className="mi-cita__stat-detalle">
+              {cliente.premio.premioPendiente
+                ? `${cliente.premio.premioPendiente.porcentaje}% en tu próxima cita. Al entregarlo, el conteo empieza de nuevo.`
+                : cliente.premio.alcanza
+                  ? `Ya puedes usar ${cliente.premio.porcentaje}% en tu próxima cita.`
+                  : `${formatearPuntos(cliente.premio.puntosDisponibles)} de ${formatearPuntos(cliente.premio.puntosNecesarios)} para ${cliente.premio.porcentaje}% de descuento.`}
             </span>
           )}
         </article>
@@ -81,7 +90,7 @@ function ResumenPerfilCliente({ cliente }) {
         </article>
       </div>
 
-      {cliente.puntos === 0 && (
+      {cliente.puntos === 0 && !cliente.premio?.activo && (
         <p className="mi-cita__puntos-info">
           Ganas 10 puntos por cada servicio que completes con nosotros.
         </p>
@@ -323,7 +332,11 @@ function TarjetaCitaCliente({
           <dt>Fecha y hora</dt>
           <dd>{cita.fecha} · {formatearHoraLegible(cita.horaInicio)}</dd>
           <dt>Precio</dt>
-          <dd>{formatearPrecio(cita.servicio.precio)}</dd>
+          <dd>
+            {cita.descuentoPremio
+              ? `${formatearPrecio(cita.descuentoPremio.precio)} · ${cita.descuentoPremio.porcentaje}% de premio`
+              : formatearPrecio(cita.servicio.precio)}
+          </dd>
           <dt>Cliente</dt>
           <dd>{cita.cliente.nombre}</dd>
         </dl>

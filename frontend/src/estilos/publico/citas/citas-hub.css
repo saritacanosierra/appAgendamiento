@@ -105,12 +105,22 @@
   cursor: pointer;
 }
 
+.citas-hub__servicios {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .citas-hub__servicios h2 {
   font-size: var(--tamano-texto-lg);
   font-weight: 700;
   margin: 0 0 var(--espacio-md);
   color: var(--color-texto);
   letter-spacing: -0.02em;
+}
+
+.citas-hub__servicios .campo-formulario {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .citas-hub__lista-servicios {

@@ -38,6 +38,7 @@ import {
   listarClientes,
   crearCliente,
   actualizarCliente,
+  entregarPremioCliente,
   desactivarCliente,
 } from '../controladores/adminCitaControlador.js';
 import {
@@ -135,6 +136,7 @@ import {
   guardarCopiaMarcaPlataforma,
   subirCopiaMarcaPlataforma,
   descargarCopiaMarcaPlataforma,
+  eliminarCopiaMarcaPlataforma,
   restaurarCopiaMarcaPlataforma,
 } from '../controladores/plataformaControlador.js';
 import {
@@ -212,6 +214,7 @@ router.put('/admin/solicitudes-reagendamiento/:id/rechazar', rechazarSolicitudRe
 router.get('/admin/clientes', listarClientes);
 router.post('/admin/clientes', crearCliente);
 router.put('/admin/clientes/:id', actualizarCliente);
+router.post('/admin/clientes/:id/premio', entregarPremioCliente);
 router.delete('/admin/clientes/:id', desactivarCliente);
 router.get('/admin/servicios', listarServiciosAdmin);
 router.get('/admin/estilistas', listarEstilistasAdmin);
@@ -278,6 +281,7 @@ router.post('/plataforma/marcas/:id/copias/:archivo/restaurar', restaurarCopiaMa
 router.get('/plataforma/copias', listarCopiasPlataforma);
 router.post('/plataforma/copias', subidaCopiaMarca, subirCopiaMarcaPlataforma);
 router.get('/plataforma/copias/:archivo', descargarCopiaMarcaPlataforma);
+router.delete('/plataforma/copias/:archivo', eliminarCopiaMarcaPlataforma);
 router.post('/plataforma/copias/:archivo/restaurar', restaurarCopiaMarcaPlataforma);
 router.get('/plataforma/blog', listarBlogPlataforma);
 router.post('/plataforma/blog', crearBlogPlataforma);

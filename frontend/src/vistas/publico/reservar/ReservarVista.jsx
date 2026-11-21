@@ -20,11 +20,13 @@ import {
   CampoFormulario,
   Cargando,
   EncabezadoMarca,
+  FiltroServicios,
   HorariosDisponiblesDia,
   InputTexto,
   MensajeError,
   ModalMensaje,
   TarjetaServicio,
+  filtrarServiciosPorTexto,
 } from '../../../compartido/componentes';
 import { RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { formatearPrecio } from '../../../compartido/utilidades/temaMarca';
@@ -106,6 +108,7 @@ export default function ReservarVista() {
 
   const [paso, setPaso] = useState(0);
   const [servicios, setServicios] = useState([]);
+  const [filtroServicios, setFiltroServicios] = useState('');
   const [estilistas, setEstilistas] = useState([]);
   const [disenos, setDisenos] = useState([]);
   const [servicio, setServicio] = useState(null);
@@ -347,6 +350,8 @@ export default function ReservarVista() {
 
   if (cargandoMarca) return <Cargando />;
 
+  const serviciosVisibles = filtrarServiciosPorTexto(servicios, filtroServicios);
+
   return (
     <div className="reservar-vista">
       <ModalMensaje
@@ -387,11 +392,22 @@ export default function ReservarVista() {
         <section className="reservar-vista__seccion tarjeta-app">
           <h2>Elige un servicio</h2>
           {cargandoServicios && <Cargando mensaje="Cargando servicios..." />}
-          <div className="reservar-vista__lista">
-            {servicios.map((s) => (
-              <TarjetaServicio key={s.id} servicio={s} onSeleccionar={seleccionarServicio} />
-            ))}
-          </div>
+          {!cargandoServicios && servicios.length > 0 && (
+            <FiltroServicios
+              id="reservar-filtro-servicios"
+              valor={filtroServicios}
+              onChange={setFiltroServicios}
+            />
+          )}
+          {!cargandoServicios && servicios.length > 0 && serviciosVisibles.length === 0 ? (
+            <p className="reservar-vista__sin-servicios">Ningún servicio coincide con «{filtroServicios.trim()}».</p>
+          ) : (
+            <div className="reservar-vista__lista">
+              {serviciosVisibles.map((s) => (
+                <TarjetaServicio key={s.id} servicio={s} onSeleccionar={seleccionarServicio} />
+              ))}
+            </div>
+          )}
           <PruebaSocialGaleria disenos={disenos} titulo="Trabajos reales del salon" />
         </section>
       )}

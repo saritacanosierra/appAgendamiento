@@ -293,6 +293,8 @@ export default function ConfiguracionMarcaVista() {
       whatsapp_codigo_pais: config.whatsappApi?.codigoPais ?? '',
       whatsapp_plantilla_recordatorio: config.whatsappApi?.plantillaRecordatorio ?? '',
       whatsapp_plantilla_idioma: config.whatsappApi?.plantillaIdioma ?? 'es_MX',
+      premio_puntos_necesarios: config.premioPuntos?.puntosNecesarios ?? '',
+      premio_porcentaje: config.premioPuntos?.porcentaje ?? '',
     };
 
     if (whatsappTokenNuevo.trim()) {
@@ -617,6 +619,48 @@ export default function ConfiguracionMarcaVista() {
               </BotonPrincipal>
             </>
           )}
+        </section>
+
+        <section className="configuracion-marca__seccion">
+          <h2>Premio por puntos</h2>
+          <p className="configuracion-marca__hint">
+            Cada servicio completado suma 10 puntos. Cuando la clienta llega a esta cantidad, la próxima cita tiene el descuento. Al marcar el premio como entregado, el conteo para el siguiente empieza de nuevo. El total de puntos de todos sus servicios se queda.
+          </p>
+          <CampoFormulario etiqueta="Puntos para el premio" id="cfg-premio-puntos">
+            <input
+              id="cfg-premio-puntos"
+              type="number"
+              min="1"
+              inputMode="numeric"
+              value={config.premioPuntos?.puntosNecesarios ?? ''}
+              onChange={(e) => setConfig({
+                ...config,
+                premioPuntos: {
+                  ...config.premioPuntos,
+                  puntosNecesarios: e.target.value,
+                },
+              })}
+              placeholder="Por ejemplo, 100"
+            />
+          </CampoFormulario>
+          <CampoFormulario etiqueta="Porcentaje de descuento" id="cfg-premio-porcentaje">
+            <input
+              id="cfg-premio-porcentaje"
+              type="number"
+              min="1"
+              max="100"
+              inputMode="numeric"
+              value={config.premioPuntos?.porcentaje ?? ''}
+              onChange={(e) => setConfig({
+                ...config,
+                premioPuntos: {
+                  ...config.premioPuntos,
+                  porcentaje: e.target.value,
+                },
+              })}
+              placeholder="Por ejemplo, 15"
+            />
+          </CampoFormulario>
         </section>
 
         <section className="configuracion-marca__seccion">

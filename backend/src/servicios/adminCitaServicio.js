@@ -18,6 +18,7 @@ import {
 import { esFechaValida, esHoraValida } from '../utilidades/fechaHora.js';
 import { requerido, telefono, email, validar } from '../utilidades/validador.js';
 import { texto, entero } from '../utilidades/sanitizador.js';
+import { premioPuntosServicio } from './premioPuntosServicio.js';
 import { normalizarHora, sumarMinutosAHora, nombreDiaDesdeFecha, normalizarHorariosMarca, horarioPermitidoParaCita } from '../utilidades/horarios.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 
@@ -202,6 +203,8 @@ export class AdminCitaServicio {
         // Sync opcional
       }
 
+      await premioPuntosServicio.reservarSiAlcanza(marcaId, idCliente, citaId);
+
       const cita = mapearCitaAdmin(await this.citaRepo.buscarPorId(marcaId, citaId));
 
       if (estado === 'confirmada') {
@@ -293,6 +296,10 @@ export class AdminCitaServicio {
 
       await conexion.commit();
 
+      if (citaActual.estado !== 'cancelada' && estado === 'cancelada') {
+        await premioPuntosServicio.liberarCita(marcaId, citaId);
+      }
+
       const cita = mapearCitaAdmin(await this.citaRepo.buscarPorId(marcaId, citaId));
 
       if (citaActual.estado !== 'confirmada' && estado === 'confirmada') {
@@ -347,7 +354,17 @@ export class AdminClienteServicio {
 
   async listar(marcaId, busqueda = '') {
     const filas = await this.clienteRepo.listarPorMarca(marcaId, busqueda);
-    return filas.map(mapearClienteAdmin);
+    return premioPuntosServicio.resumenesParaLista(marcaId, filas.map(mapearClienteAdmin));
+  }
+
+  async entregarPremio(marcaId, clienteId) {
+    const existente = await this.clienteRepo.buscarPorId(marcaId, clienteId);
+    if (!existente) return { error: 'Cliente no encontrado.', codigoHttp: 404 };
+    const resultado = await premioPuntosServicio.entregar(marcaId, clienteId);
+    if (resultado.error) return resultado;
+    const cliente = mapearClienteAdmin(existente);
+    cliente.premio = resultado.premio;
+    return { cliente };
   }
 
   async crear(marcaId, datos) {

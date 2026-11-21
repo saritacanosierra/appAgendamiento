@@ -173,6 +173,11 @@ export async function subirCopiaMarca(archivo) {
   return respuesta.datos.copia;
 }
 
+export async function eliminarCopiaPlataforma(archivo) {
+  const respuesta = await peticionPlataforma(`/plataforma/copias/${archivo}`, { method: 'DELETE' });
+  return respuesta.datos;
+}
+
 export async function restaurarCopiaMarca(archivo) {
   const respuesta = await peticionPlataforma(`/plataforma/copias/${archivo}/restaurar`, { method: 'POST' });
   return respuesta.datos.restauracion;

@@ -21,6 +21,7 @@ const TABLAS = [
   'citas',
   'solicitudes_reagendamiento',
   'cliente_favoritos',
+  'premios_puntos',
   'cita_disenos_galeria',
   'selecciones_galeria_telefono',
   'profesional_excepciones',
@@ -32,6 +33,7 @@ const BORRADO = [
   'selecciones_galeria_telefono',
   'solicitudes_reagendamiento',
   'cliente_favoritos',
+  'premios_puntos',
   'profesional_excepciones',
   'citas',
   'notificaciones',
@@ -473,6 +475,19 @@ export class CopiaMarcaRepositorio {
           : null,
       });
       mapas.citas.set(idPrevio(fila), nuevoId);
+    }
+
+    for (const fila of filasDe(documento, 'premios_puntos')) {
+      const clienteId = mapas.clientes.get(Number(fila.cliente_id));
+      if (!clienteId) continue;
+      const citaId = fila.cita_id ? mapas.citas.get(Number(fila.cita_id)) ?? null : null;
+      if (fila.cita_id && !citaId) continue;
+      await insertar(conexion, 'premios_puntos', columnas.premios_puntos, fila, {
+        marca_id: destinoId,
+        cliente_id: clienteId,
+        cita_id: citaId,
+        pendiente_cliente: fila.estado === 'pendiente' ? clienteId : null,
+      });
     }
 
     for (const fila of filasDe(documento, 'solicitudes_reagendamiento')) {

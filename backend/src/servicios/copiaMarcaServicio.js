@@ -97,6 +97,29 @@ export class CopiaMarcaServicio {
     return this.#ruta(archivo);
   }
 
+  async eliminar(archivo) {
+    const ruta = this.#ruta(archivo);
+    const marcaId = this.#marcaDelArchivo(archivo);
+    if (!ruta || !marcaId) return { error: 'Copia no encontrada.', codigoHttp: 404 };
+
+    try {
+      await fs.access(ruta);
+    } catch {
+      return { error: 'Copia no encontrada.', codigoHttp: 404 };
+    }
+
+    const existen = await this.repo.idsExistentes([marcaId]);
+    if (existen.has(marcaId)) {
+      return {
+        error: 'Esta copia es de una empresa que sigue en la plataforma. No se borró.',
+        codigoHttp: 409,
+      };
+    }
+
+    await fs.unlink(ruta);
+    return { eliminada: true, archivo };
+  }
+
   async restaurar(archivo, marcaIdForzada = null) {
     const ruta = this.#ruta(archivo);
     if (!ruta) return { error: 'Copia no encontrada.', codigoHttp: 404 };
@@ -218,6 +241,13 @@ export class CopiaMarcaServicio {
       }
     }
     return documentos;
+  }
+
+  #marcaDelArchivo(archivo) {
+    const coincidencia = String(archivo ?? '').match(/^copia-(\d+)-\d+\.json$/);
+    const marcaId = Number(coincidencia?.[1]);
+    if (!Number.isInteger(marcaId) || marcaId <= 0) return null;
+    return marcaId;
   }
 
   #ruta(archivo) {

@@ -10,6 +10,8 @@ import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilida
 import { requerido, validar } from '../utilidades/validador.js';
 import { texto } from '../utilidades/sanitizador.js';
 import { generarSlug } from '../utilidades/slug.js';
+import { validarPremioConfig } from '../utilidades/premioPuntos.js';
+import { premioPuntosServicio } from './premioPuntosServicio.js';
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 const VERSION_POLITICA_PRIVACIDAD = 1;
@@ -61,7 +63,19 @@ function incluyeDatosWhatsappApi(datos) {
   ].some((clave) => datos[clave] !== undefined);
 }
 
-export function mapearConfiguracionAdmin(fila) {
+export function premioDesdeFila(fila) {
+  const config = parsearJsonCampo(fila?.configuracion_json, {});
+  const premio = config.premio_puntos;
+  if (!premio || typeof premio !== 'object') {
+    return { puntosNecesarios: '', porcentaje: '' };
+  }
+  return {
+    puntosNecesarios: premio.puntos_necesarios ?? '',
+    porcentaje: premio.porcentaje ?? '',
+  };
+}
+
+function mapearConfiguracionAdmin(fila) {
   if (!fila) return null;
 
   return {
@@ -81,6 +95,7 @@ export function mapearConfiguracionAdmin(fila) {
     ciudad: fila.ciudad ?? null,
     horarios: normalizarHorariosMarca(parsearJsonCampo(fila.horarios_json, {})),
     whatsappApi: whatsappApiDesdeFila(fila),
+    premioPuntos: premioDesdeFila(fila),
   };
 }
 
@@ -151,6 +166,15 @@ export class ConfiguracionMarcaServicio {
       return { error: 'Datos invalidos.', errores, codigoHttp: 422 };
     }
 
+    const traePremio = datos.premio_puntos_necesarios !== undefined || datos.premioPuntosNecesarios !== undefined;
+    if (traePremio) {
+      const premio = validarPremioConfig(
+        datos.premio_puntos_necesarios ?? datos.premioPuntosNecesarios,
+        datos.premio_porcentaje ?? datos.premioPorcentaje
+      );
+      if (premio.error) return { error: premio.error, codigoHttp: 422 };
+    }
+
     if (nombreComercial && nombreComercial !== actual.nombre_comercial) {
       await this.usuarioRepo.actualizarNombreAdmins(marcaId, nombreComercial);
     }
@@ -176,6 +200,11 @@ export class ConfiguracionMarcaServicio {
 
     if (incluyeDatosWhatsappApi(datos)) {
       await whatsappMarcaServicio.guardarConfigAdmin(marcaId, datos);
+    }
+
+    if (traePremio) {
+      const premioGuardado = await premioPuntosServicio.guardarConfig(marcaId, datos);
+      if (premioGuardado.error) return premioGuardado;
     }
 
     if (datos.slug) {

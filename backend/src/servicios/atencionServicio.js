@@ -5,6 +5,8 @@ import { adjuntarDisenosGaleriaACitas } from '../utilidades/adjuntarDisenosGaler
 import { mapearCitaAdmin } from '../utilidades/mapeadorCitas.js';
 import { esFechaValida } from '../utilidades/fechaHora.js';
 import { entero, texto } from '../utilidades/sanitizador.js';
+import { premioPuntosServicio } from './premioPuntosServicio.js';
+import { precioConDescuento } from '../utilidades/premioPuntos.js';
 
 function monto(valor) {
   if (valor === null || valor === undefined || valor === '') return 0;
@@ -86,6 +88,12 @@ export class AtencionServicio {
       this.seleccionRepo
     );
 
+    const premios = await Promise.all(citas.map((cita) => premioPuntosServicio.porCita(marcaId, cita.id)));
+    citas.forEach((cita, indice) => {
+      const premio = premios[indice];
+      if (premio) cita.descuentoPremio = { porcentaje: Number(premio.porcentaje) };
+    });
+
     const pendientes = citas.filter((c) => ['pendiente', 'confirmada'].includes(c.estado));
     const atendidas = citas.filter((c) => c.estado === 'completada' && c.facturacion.confirmadaPrestacion);
 
@@ -127,7 +135,9 @@ export class AtencionServicio {
     const extras = await resolverExtras(marcaId, datos.extras, this.servicioRepo);
     const precioAdicional = extras.reduce((sum, e) => sum + e.monto, 0);
     const precioBase = Number(cita.precio);
-    const precioFinal = precioBase + precioAdicional;
+    const premio = await premioPuntosServicio.porCita(marcaId, citaId);
+    const bruto = precioBase + precioAdicional;
+    const precioFinal = premio ? precioConDescuento(bruto, premio.porcentaje) : bruto;
     const notasInternas = texto(datos.notas_internas ?? datos.notasInternas) || null;
 
     const conexion = await pool.getConnection();

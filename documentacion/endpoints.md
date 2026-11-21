@@ -48,7 +48,8 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | POST | `/api/admin/citas` | Si | Crear cita manual |
 | PUT | `/api/admin/citas/{id}` | Si | Actualizar cita (estado, horario, notas) |
 | DELETE | `/api/admin/citas/{id}` | Si | Cancelar cita |
-| GET | `/api/admin/clientes` | Si | Listar clientes (`?busqueda=`) |
+| GET | `/api/admin/clientes` | Si | Listar clientes (`?busqueda=`). Cada una trae sus puntos totales y los que faltan para el premio |
+| POST | `/api/admin/clientes/{id}/premio` | Si | Marca el premio como entregado. Reinicia el conteo del descuento y conserva el total de puntos |
 | POST | `/api/admin/clientes` | Si | Registrar cliente |
 | POST | `/api/reservas/actualizar-celular` | No | Cambia el celular de la clienta y conserva citas, favoritos y disenos (`telefono_actual`, `telefono_nuevo`, `marca_id`) |
 
@@ -121,6 +122,7 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | GET | `/api/plataforma/copias` | Si, superadmin | Lista las copias guardadas. Sirve para volver a crear una empresa que ya no está |
 | POST | `/api/plataforma/copias` | Si, superadmin | Recibe el JSON de una sola empresa y lo guarda, sin restaurar |
 | GET | `/api/plataforma/copias/{archivo}` | Si, superadmin | Descarga esa copia |
+| DELETE | `/api/plataforma/copias/{archivo}` | Si, superadmin | Borra la copia de una empresa que ya no está. Si la empresa sigue en la plataforma, no se borra |
 | POST | `/api/plataforma/copias/{archivo}/restaurar` | Si, superadmin | Restaura la empresa que está dentro del archivo. Si ya no existe y su enlace está libre, la vuelve a crear |
 | GET | `/api/plataforma/publicidad` | Si, superadmin | Campanas, con tipo imagen o enlace y sus publicaciones |
 | POST | `/api/plataforma/publicidad` | Si, superadmin | Crear anuncio |
@@ -146,7 +148,7 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | DELETE | `/api/admin/galeria/{id}` | Si | Elimina el diseno de la marca. Las elecciones de las clientas de esa foto se borran con ella |
 | GET | `/api/admin/configuracion-marca` | Si | Configuracion editable |
 | GET | `/api/admin/puesta-en-marcha` | Si | Si la marca ya tiene logo o contacto, servicios, equipo y fotos. No trae las listas |
-| PUT | `/api/admin/configuracion-marca` | Si | Guardar colores, contacto, horarios |
+| PUT | `/api/admin/configuracion-marca` | Si | Guardar colores, contacto, horarios y el premio por puntos (`premio_puntos_necesarios`, `premio_porcentaje`) |
 | GET | `/api/admin/politica-privacidad` | Si | Si el propietario ya marco de acuerdo la politica vigente |
 | POST | `/api/admin/politica-privacidad` | Si | El propietario de la marca marca de acuerdo. Body: `{ "deAcuerdo": true }`. Staff recibe 403 |
 | POST | `/api/admin/subidas/{galeria\|blog\|logos}` | Si | Subir imagen (multipart, campo `archivo`) |

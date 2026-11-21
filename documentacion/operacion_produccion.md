@@ -65,7 +65,7 @@ En `/plataforma`, abre la empresa y usa **Guardar copia de esta empresa**. Esa c
 
 Mientras la API está encendida, cada empresa recibe sola una copia automática si la anterior tiene 7 días o más. Se conservan las últimas 8 automáticas y las últimas 8 hechas a mano. El texto para la clienta y la dueña está en `/condiciones`.
 
-Si la empresa ya no existe, la sección **Copias de empresas que ya no están** la vuelve a crear cuando su enlace sigue libre. Si otra empresa usa ese enlace, no se cambia nada.
+Si la empresa ya no existe, la sección **Copias de empresas que ya no están** la vuelve a crear cuando su enlace sigue libre. Si otra empresa usa ese enlace, no se cambia nada. La papelera de esa sección borra solo el archivo de la copia; la empresa ya no se puede volver a crear desde ahí.
 
 La copia guarda los datos, no los archivos de las fotos. Hay que guardar una copia antes de la pérdida: una copia posterior no reconstruye lo que ya se borró.
 

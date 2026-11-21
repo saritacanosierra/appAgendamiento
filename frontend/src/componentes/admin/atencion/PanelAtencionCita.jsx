@@ -25,6 +25,7 @@ export default function PanelAtencionCita({
   precioBase,
   totalExtras,
   precioTotal,
+  porcentajePremio = 0,
   notas,
   enviando,
   onTiempoManualFocus,
@@ -261,6 +262,12 @@ export default function PanelAtencionCita({
             <span>Adicionales</span>
             <strong>{formatearPrecio(totalExtras)}</strong>
           </p>
+          {porcentajePremio > 0 && (
+            <p className="atencion-vista__totales-fila">
+              <span>Premio de puntos</span>
+              <strong>{porcentajePremio}%</strong>
+            </p>
+          )}
           <p className="atencion-vista__totales-fila atencion-vista__totales-fila--total">
             <span>Total a facturar</span>
             <strong>{formatearPrecio(precioTotal)}</strong>

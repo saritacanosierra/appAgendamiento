@@ -80,7 +80,11 @@ export default function ConfirmacionReservaVista() {
         <dt>Fecha y hora</dt>
         <dd>{cita.fecha} · {formatearHoraLegible(cita.horaInicio)}</dd>
         <dt>Precio</dt>
-        <dd>{formatearPrecio(cita.servicio.precio)}</dd>
+        <dd>
+          {cita.descuentoPremio
+            ? `${formatearPrecio(cita.descuentoPremio.precio)} · ${cita.descuentoPremio.porcentaje}% de premio`
+            : formatearPrecio(cita.servicio.precio)}
+        </dd>
         {cita.marca.direccion && (
           <>
             <dt>Ubicacion</dt>

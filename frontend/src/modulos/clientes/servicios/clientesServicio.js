@@ -22,6 +22,11 @@ export async function actualizarCliente(id, datos) {
   return respuesta.datos;
 }
 
+export async function entregarPremioCliente(id) {
+  const respuesta = await peticionAdmin(`/admin/clientes/${id}/premio`, { method: 'POST' });
+  return respuesta.datos;
+}
+
 export async function desactivarCliente(id) {
   const respuesta = await peticionAdmin(`/admin/clientes/${id}`, {
     method: 'DELETE',

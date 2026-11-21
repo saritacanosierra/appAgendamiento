@@ -67,9 +67,13 @@ export default function AtencionVista() {
   const progresoAnillo = `${Math.min(100, (cronometro.segundos / 3600) * 100)}%`;
   const cronometroPausado = !cronometro.activo && cronometro.segundos > 0;
   const precioBase = citaSeleccionada?.servicio?.precio ?? 0;
+  const porcentajePremio = Number(citaSeleccionada?.descuentoPremio?.porcentaje ?? 0);
   const extrasManuales = extras.filter((extra) => !extra.servicioId);
   const totalExtras = extras.reduce((sum, e) => sum + (Number(e.monto) || 0), 0);
-  const precioTotal = precioBase + totalExtras;
+  const precioBruto = precioBase + totalExtras;
+  const precioTotal = porcentajePremio > 0
+    ? Math.max(0, Math.round((precioBruto * (100 - porcentajePremio)) / 100))
+    : precioBruto;
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -282,6 +286,7 @@ export default function AtencionVista() {
         precioBase={precioBase}
         totalExtras={totalExtras}
         precioTotal={precioTotal}
+        porcentajePremio={porcentajePremio}
         notas={notas}
         enviando={enviando}
         onTiempoManualFocus={() => {
