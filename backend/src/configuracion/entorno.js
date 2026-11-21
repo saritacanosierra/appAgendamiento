@@ -37,10 +37,20 @@ export const baseDatos = {
     : {}),
 };
 
-export const corsOrigenes = (process.env.CORS_ORIGENES ?? 'http://localhost:5173')
+const origenesAgenda = [
+  'https://ritualnails.store',
+  'https://www.ritualnails.store',
+];
+
+const origenesConfigurados = (process.env.CORS_ORIGENES ?? 'http://localhost:5173')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
+
+export const corsOrigenes = [
+  ...origenesConfigurados,
+  ...origenesAgenda.filter((origen) => !origenesConfigurados.includes(origen)),
+];
 
 /** local = disco en backend/subidas; s3 = bucket S3 o R2 (API compatible). */
 export const almacenamientoImagenes = {

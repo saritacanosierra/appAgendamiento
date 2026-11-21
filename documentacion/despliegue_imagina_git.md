@@ -28,17 +28,18 @@ git push origin main
 
 ## 4. Verificar
 
-- Abre `https://agenda.tudominio.com/`
+- Abre `https://ritualnails.store/`
+- `https://agenda.nuncajamasropa.com/admin/` responde 301 hacia `https://ritualnails.store/admin/` (misma ruta).
 - Los assets deben cargar como `/assets/...` (sin prefijo `/agenda/`).
 - Rutas como `/admin/` deben funcionar (`.htaccess` incluido).
-- Superadmin: `https://agenda.tudominio.com/plataforma/` (requiere `VITE_PLATAFORMA_HABILITADA=true` en build y `PLATAFORMA_HABILITADA=true` en Render).
+- Superadmin: `https://ritualnails.store/plataforma/` (requiere `VITE_PLATAFORMA_HABILITADA=true` en build y `PLATAFORMA_HABILITADA=true` en Render).
 
 ## 5. Variables en Render (backend)
 
 ```env
 PLATAFORMA_HABILITADA=true
-CORS_ORIGENES=https://agenda.nuncajamasropa.com
-FRONTEND_URL=https://agenda.nuncajamasropa.com
+CORS_ORIGENES=https://ritualnails.store,https://agenda.nuncajamasropa.com
+FRONTEND_URL=https://ritualnails.store
 ```
 
 ### Google Calendar (OAuth)

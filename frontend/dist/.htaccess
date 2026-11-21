@@ -1,7 +1,15 @@
-# SPA React — subdominio apunta directo a esta carpeta (Apache / cPanel)
+# SPA React — el dominio de la agenda es ritualnails.store (Apache / cPanel)
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # El dominio anterior conserva la ruta (/admin/, /m/..., consulta y ancla).
+  RewriteCond %{HTTP_HOST} ^(www\.)?agenda\.nuncajamasropa\.com$ [NC]
+  RewriteRule ^ https://ritualnails.store%{REQUEST_URI} [R=301,L]
+
+  RewriteCond %{HTTP_HOST} ^www\.ritualnails\.store$ [NC]
+  RewriteRule ^ https://ritualnails.store%{REQUEST_URI} [R=301,L]
+
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

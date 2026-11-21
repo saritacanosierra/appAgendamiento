@@ -77,10 +77,12 @@ function usarCuentaRegresiva(venceEn) {
   const horas = Math.floor((total % 86400) / 3600);
   const minutos = Math.floor((total % 3600) / 60);
   const segundos = total % 60;
-  const reloj = [horas, minutos, segundos].map((n) => String(n).padStart(2, '0')).join(':');
-  const detalle = dias === 1 ? 'Falta 1 día' : `Faltan ${dias} días`;
+  const relojHora = [horas, minutos, segundos].map((n) => String(n).padStart(2, '0')).join(':');
+  const reloj = dias > 0
+    ? `${dias} ${dias === 1 ? 'día' : 'días'} ${relojHora}`
+    : relojHora;
 
-  return { reloj, detalle, fecha: `Termina el ${fecha}` };
+  return { reloj, detalle: null, fecha: `Termina el ${fecha}` };
 }
 
 export default function PagoPlanMarca({ variante = 'muro' }) {
@@ -174,7 +176,7 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
           <h2>{titulo}</h2>
           {cuenta && (
             <p className="pago-plan__cuenta" aria-live="polite">
-              <span>{cuenta.detalle}</span>
+              {cuenta.detalle && <span>{cuenta.detalle}</span>}
               <strong>{cuenta.reloj}</strong>
               <span>{cuenta.fecha}</span>
             </p>
