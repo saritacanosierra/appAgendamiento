@@ -60,6 +60,7 @@ export const RUTAS_PLATAFORMA = {
   publicidad: conBarraFinal('/plataforma/publicidad'),
   blog: conBarraFinal('/plataforma/blog'),
   cobros: conBarraFinal('/plataforma/cobros'),
+  correo: conBarraFinal('/plataforma/correo'),
   perfil: conBarraFinal('/plataforma/perfil'),
   editarMarca: (id) => conBarraFinal(`/plataforma/marcas/${id}`),
 };

@@ -100,3 +100,6 @@ export const CobrosWompiVista = lazy(
 export const PerfilPlataformaVista = lazy(
   () => import('../../vistas/plataforma/perfil/PerfilPlataformaVista')
 );
+export const CorreoPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/correo/CorreoPlataformaVista')
+);

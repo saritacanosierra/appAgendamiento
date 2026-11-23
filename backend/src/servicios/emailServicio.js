@@ -9,7 +9,7 @@ import {
   valoresPlantillaCita,
 } from '../utilidades/plantillaNotificacion.js';
 
-function smtpConfigurado() {
+function smtpEnvConfigurado() {
   return Boolean(
     process.env.SMTP_HOST
     && process.env.SMTP_USUARIO
@@ -17,19 +17,11 @@ function smtpConfigurado() {
   );
 }
 
-function crearTransportePlataforma() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PUERTO ?? 587),
-    secure: process.env.SMTP_SEGURO === '1',
-    auth: {
-      user: process.env.SMTP_USUARIO,
-      pass: process.env.SMTP_CONTRASENA,
-    },
-  });
+function smtpDesdeObjeto(smtp) {
+  return Boolean(smtp?.host && smtp?.usuario && smtp?.contrasena);
 }
 
-function crearTransporteMarca(smtp) {
+function crearTransporte(smtp) {
   return nodemailer.createTransport({
     host: smtp.host,
     port: Number(smtp.puerto ?? 587),
@@ -41,22 +33,52 @@ function crearTransporteMarca(smtp) {
   });
 }
 
+function smtpDesdeEntorno() {
+  if (!smtpEnvConfigurado()) return null;
+  return {
+    host: process.env.SMTP_HOST,
+    puerto: Number(process.env.SMTP_PUERTO ?? 587),
+    seguro: process.env.SMTP_SEGURO === '1',
+    usuario: process.env.SMTP_USUARIO,
+    contrasena: process.env.SMTP_CONTRASENA,
+    remitente: process.env.EMAIL_REMITENTE || process.env.SMTP_USUARIO,
+  };
+}
+
 export class EmailServicio {
+  /** Sync: solo entorno. Preferir estaHabilitadoAsync en flujos nuevos. */
   estaHabilitado() {
-    return smtpConfigurado();
+    return smtpEnvConfigurado();
+  }
+
+  async resolverSmtpPlataforma() {
+    try {
+      const { correoPlataformaServicio } = await import('./correoPlataformaServicio.js');
+      const credenciales = await correoPlataformaServicio.leerCredenciales();
+      if (smtpDesdeObjeto(credenciales)) return credenciales;
+    } catch {
+      // Si falla la BD, cae al .env
+    }
+    return smtpDesdeEntorno();
+  }
+
+  async estaHabilitadoAsync() {
+    const smtp = await this.resolverSmtpPlataforma();
+    return smtpDesdeObjeto(smtp);
   }
 
   async enviar({ para, asunto, texto, html, transporte, remitente }) {
     if (!para) return { omitido: true, motivo: 'sin_destinatario' };
     if (!transporte) {
-      if (!smtpConfigurado()) {
+      const smtp = await this.resolverSmtpPlataforma();
+      if (!smtpDesdeObjeto(smtp)) {
         if (process.env.NODE_ENV !== 'produccion') {
           console.info('[email] SMTP no configurado — mensaje simulado:', { para, asunto });
         }
         return { omitido: true, motivo: 'smtp_no_configurado' };
       }
-      transporte = crearTransportePlataforma();
-      remitente = remitente || process.env.EMAIL_REMITENTE || process.env.SMTP_USUARIO;
+      transporte = crearTransporte(smtp);
+      remitente = remitente || smtp.remitente || smtp.usuario;
     }
 
     await transporte.sendMail({
@@ -72,16 +94,16 @@ export class EmailServicio {
 
   async enviarConSmtpMarca({ para, asunto, texto, html, smtp }) {
     if (!para) return { omitido: true, motivo: 'sin_destinatario' };
-    if (!smtp?.host || !smtp?.usuario || !smtp?.contrasena) {
+    if (!smtpDesdeObjeto(smtp)) {
       return { omitido: true, motivo: 'smtp_no_configurado' };
     }
 
-    const transporte = crearTransporteMarca(smtp);
-    const remitente = smtp.remitente || smtp.usuario;
+    const transporte = crearTransporte(smtp);
+    const de = smtp.remitente || smtp.usuario;
 
     try {
       await transporte.sendMail({
-        from: remitente,
+        from: de,
         to: para,
         subject: asunto,
         text: texto,

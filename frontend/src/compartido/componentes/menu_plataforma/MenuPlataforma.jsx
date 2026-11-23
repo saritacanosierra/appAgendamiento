@@ -8,6 +8,7 @@ const enlaces = [
   { to: RUTAS_PLATAFORMA.marcas, etiqueta: 'Mis marcas', icono: 'marcas' },
   { to: RUTAS_PLATAFORMA.reportes, etiqueta: 'Reportes', icono: 'reportes' },
   { to: RUTAS_PLATAFORMA.cobros, etiqueta: 'Wompi', icono: 'config' },
+  { to: RUTAS_PLATAFORMA.correo, etiqueta: 'Correo', icono: 'config' },
   { to: RUTAS_PLATAFORMA.blog, etiqueta: 'Blog', icono: 'blog' },
   { to: RUTAS_PLATAFORMA.publicidad, etiqueta: 'Publicidad', icono: 'blog' },
   { to: RUTAS_PLATAFORMA.perfil, etiqueta: 'Mi perfil', icono: 'clientes' },

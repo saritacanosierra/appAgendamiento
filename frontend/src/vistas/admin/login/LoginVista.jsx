@@ -312,7 +312,9 @@ export default function LoginVista({ modo = 'marca' }) {
             </button>
           </header>
           <p className="login-recuperar__ayuda">
-            Escribe el correo y el celular de tu marca. Solo si coinciden enviamos a ese correo el enlace para cambiar la contraseña. Si no coinciden, no enviamos nada.
+            {modoActivo === 'plataforma'
+              ? 'Escribe el correo del superadmin y el celular de recuperación configurado en Correo de la plataforma. Solo si coinciden enviamos el enlace.'
+              : 'Escribe el correo y el celular de tu marca. Solo si coinciden enviamos a ese correo el enlace para cambiar la contraseña. Si no coinciden, no enviamos nada.'}
           </p>
           <form className="login-vista__formulario" onSubmit={pedirRecuperacion}>
             <CampoFormulario
@@ -333,11 +335,15 @@ export default function LoginVista({ modo = 'marca' }) {
               />
             </CampoFormulario>
             <CampoFormulario
-              etiqueta="Celular de la marca"
+              etiqueta={modoActivo === 'plataforma'
+                ? 'Celular de recuperación'
+                : 'Celular de la marca'}
               id="celular-recuperar"
               requerido
               error={erroresModal.celular}
-              ayuda="El mismo WhatsApp registrado en tu marca."
+              ayuda={modoActivo === 'plataforma'
+                ? 'El que guardaste en Plataforma → Correo.'
+                : 'El mismo WhatsApp registrado en tu marca.'}
             >
               <input
                 id="celular-recuperar"

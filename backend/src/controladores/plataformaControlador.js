@@ -4,8 +4,10 @@ import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.
 import { wompiServicio } from '../servicios/wompiServicio.js';
 import { reporteServicio } from '../servicios/reporteServicio.js';
 import { authServicio } from './autenticacionControlador.js';
+import { correoPlataformaServicio } from '../servicios/correoPlataformaServicio.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
 import { registrarAuditoria } from '../utilidades/auditoria.js';
+import { texto } from '../utilidades/sanitizador.js';
 
 export async function listarMarcasPlataforma(req, res) {
   const marcas = await plataformaServicio.listarMarcas();
@@ -239,4 +241,27 @@ export async function actualizarPerfilPlataforma(req, res) {
     },
     resultado.mensaje
   );
+}
+
+export async function obtenerCorreoPlataforma(_req, res) {
+  const datos = await correoPlataformaServicio.obtenerEstadoAdmin();
+  return respuestaExito(res, datos, 'Correo de plataforma');
+}
+
+export async function guardarCorreoPlataforma(req, res) {
+  const resultado = await correoPlataformaServicio.guardarConfigAdmin(req.body ?? {});
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400, resultado.errores);
+  }
+  registrarAuditoria('correo_plataforma_guardado', { usuarioId: req.usuario.id });
+  return respuestaExito(res, resultado, 'Correo de plataforma guardado');
+}
+
+export async function probarCorreoPlataforma(req, res) {
+  const correo = texto(req.body?.correo ?? req.body?.para);
+  const resultado = await correoPlataformaServicio.probarEnvio(correo);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
+  }
+  return respuestaExito(res, resultado, resultado.mensaje || 'Correo de prueba enviado');
 }

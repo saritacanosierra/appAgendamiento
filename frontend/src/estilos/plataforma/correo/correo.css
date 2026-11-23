@@ -1,0 +1,115 @@
+.correo-plataforma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-lg);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.correo-plataforma__cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  min-width: 0;
+}
+
+.correo-plataforma__cabecera h1 {
+  margin: 0;
+}
+
+.correo-plataforma__cabecera p {
+  margin: 0;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.45;
+}
+
+.correo-plataforma__estado {
+  align-self: flex-start;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-borde);
+  background: #fff;
+  font-weight: 700;
+}
+
+.correo-plataforma__estado--listo {
+  border-color: color-mix(in srgb, #2e7d32 40%, var(--color-borde));
+  background: color-mix(in srgb, #2e7d32 10%, #fff);
+  color: #1b5e20;
+}
+
+.correo-plataforma__aviso {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff4e5;
+  color: #7a4b00;
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.4;
+}
+
+.correo-plataforma__btn-guia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px dashed color-mix(in srgb, var(--color-principal) 45%, var(--color-borde));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-principal) 8%, #fff);
+  color: var(--color-acento-superficie, var(--color-principal));
+  font: inherit;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.correo-plataforma__formulario,
+.correo-plataforma__prueba {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.correo-plataforma__prueba {
+  padding: var(--espacio-md);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+}
+
+.correo-plataforma__prueba h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.correo-plataforma__avanzado {
+  margin: 0;
+  padding: var(--espacio-sm) var(--espacio-md);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-secundario) 18%, #fff);
+}
+
+.correo-plataforma__avanzado summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.correo-plataforma__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  font-size: var(--tamano-texto-sm);
+}

@@ -7,6 +7,27 @@ export async function obtenerResumenPlataforma() {
   return respuesta.datos;
 }
 
+export async function obtenerCorreoPlataforma() {
+  const respuesta = await peticionPlataforma('/plataforma/correo');
+  return respuesta.datos;
+}
+
+export async function guardarCorreoPlataforma(datos) {
+  const respuesta = await peticionPlataforma('/plataforma/correo', {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
+export async function probarCorreoPlataforma(correo) {
+  const respuesta = await peticionPlataforma('/plataforma/correo/probar', {
+    method: 'POST',
+    body: JSON.stringify({ correo }),
+  });
+  return respuesta.datos;
+}
+
 export async function obtenerPerfilPlataforma() {
   const respuesta = await peticionPlataforma('/plataforma/perfil');
   return respuesta.datos;

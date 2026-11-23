@@ -146,6 +146,9 @@ import {
   guardarWompiPlataforma,
   obtenerPerfilPlataforma,
   actualizarPerfilPlataforma,
+  obtenerCorreoPlataforma,
+  guardarCorreoPlataforma,
+  probarCorreoPlataforma,
 } from '../controladores/plataformaControlador.js';
 import {
   listarPublicidadPublica,
@@ -307,5 +310,8 @@ router.get('/plataforma/wompi', obtenerWompiPlataforma);
 router.put('/plataforma/wompi', guardarWompiPlataforma);
 router.get('/plataforma/perfil', obtenerPerfilPlataforma);
 router.put('/plataforma/perfil', actualizarPerfilPlataforma);
+router.get('/plataforma/correo', obtenerCorreoPlataforma);
+router.put('/plataforma/correo', guardarCorreoPlataforma);
+router.post('/plataforma/correo/probar', probarCorreoPlataforma);
 
 export default router;

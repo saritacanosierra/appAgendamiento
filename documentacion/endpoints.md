@@ -34,6 +34,9 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | PUT | `/api/plataforma/wompi` | Si, superadmin | Guarda llave publica y secretos en `configuracion_plataforma`. Body: `llave_publica`, `secreto_integridad` (vacio = no cambia), `secreto_eventos` (vacio = no cambia) |
 | GET | `/api/plataforma/perfil` | Si, superadmin | Nombre, correo y rol del administrador de plataforma autenticado |
 | PUT | `/api/plataforma/perfil` | Si, superadmin | Actualiza nombre y/o correo. Para cambiar contraseña: `contrasena_actual` + `contrasena_nueva` (min. 8). Cierra otras sesiones |
+| GET | `/api/plataforma/correo` | Si, superadmin | Estado SMTP de plataforma (host, usuario, remitente, celular recuperación; no devuelve la contraseña) |
+| PUT | `/api/plataforma/correo` | Si, superadmin | Guarda SMTP para recuperar contraseña. Body: `host`, `puerto`, `seguro`, `usuario`, `contrasena` (vacío = no cambia), `remitente`, `celular_recuperacion` |
+| POST | `/api/plataforma/correo/probar` | Si, superadmin | Envía un correo de prueba. Body: `correo` |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
 | POST | `/api/auth/recuperar-contrasena` | No | Solo si el `correo` y el `celular` son de la misma cuenta envia a ese correo un enlace de un solo uso (1 hora) para cambiar la contrasena. La respuesta no incluye el enlace ni cambia la contrasena. Si no coinciden, no envia nada. Body: `correo`, `celular`, `contexto` (`marca` o `plataforma`) |
 | POST | `/api/auth/restablecer-contrasena` | No | Guarda la contraseña nueva con el `token` del enlace. Minimo 8 caracteres. Cierra las sesiones abiertas de esa cuenta |
@@ -199,7 +202,7 @@ La marca elige canales en Admin → Mi marca → Confirmacion de citas (`notific
 
 Al crear una reserva publica, la respuesta incluye `avisos` (`resultados`, `contactarDirecto`, `contacto`). Si un canal falla, la cita sigue activa y se pide contacto directo.
 
-El SMTP de plataforma (`SMTP_*` / `EMAIL_REMITENTE`) queda para recuperacion de contraseña del panel, no para avisos de cita.
+El SMTP de plataforma (panel `/plataforma/correo`, claves `smtp_*` en BD, con fallback a `SMTP_*` / `EMAIL_REMITENTE` del .env) queda para recuperacion de contraseña del panel, no para avisos de cita.
 
 Guia WhatsApp: `documentacion/whatsapp.md`.
 

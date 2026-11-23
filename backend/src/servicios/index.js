@@ -332,7 +332,10 @@ export class AutenticacionServicio {
   }
 
   async solicitarRecuperacion(correo, celular, contexto) {
-    if (!this.correoServicio.estaHabilitado()) {
+    const smtpListo = typeof this.correoServicio.estaHabilitadoAsync === 'function'
+      ? await this.correoServicio.estaHabilitadoAsync()
+      : this.correoServicio.estaHabilitado();
+    if (!smtpListo) {
       return {
         error: 'No enviamos el correo: falta conectar el buzon. La contrasena no cambio.',
         codigoHttp: 503,
@@ -349,7 +352,11 @@ export class AutenticacionServicio {
     }
 
     let coincide = false;
-    if (usuario.marca_id) {
+    if (contexto === 'plataforma') {
+      const { correoPlataformaServicio } = await import('./correoPlataformaServicio.js');
+      const celularPlataforma = await correoPlataformaServicio.obtenerCelularRecuperacion();
+      coincide = celularCoincide(celular, celularPlataforma);
+    } else if (usuario.marca_id) {
       const marca = await this.marcaRepo.buscarPorIdCompleto(usuario.marca_id);
       coincide = celularCoincide(celular, marca?.telefono) || celularCoincide(celular, marca?.whatsapp);
     }
