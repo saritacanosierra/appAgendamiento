@@ -41,6 +41,34 @@ const DIAS = [
   { id: 'domingo', etiqueta: 'Domingo' },
 ];
 
+const SECCIONES_INICIALES = new Set(['identidad']);
+
+function AcordeonSeccion({
+  id,
+  titulo,
+  abierta,
+  onToggle,
+  className = '',
+  children,
+}) {
+  return (
+    <details
+      id={id}
+      className={`configuracion-marca__acordeon ${className}`.trim()}
+      open={abierta}
+      onToggle={(evento) => onToggle(id, evento.currentTarget.open)}
+    >
+      <summary className="configuracion-marca__acordeon-cabecera">
+        <span className="configuracion-marca__acordeon-titulo">{titulo}</span>
+        <span className="configuracion-marca__acordeon-indicador" aria-hidden="true" />
+      </summary>
+      <div className="configuracion-marca__acordeon-cuerpo">
+        {children}
+      </div>
+    </details>
+  );
+}
+
 export default function ConfiguracionMarcaVista() {
   const { recargarSesion } = useAuth();
   const navigate = useNavigate();
@@ -62,6 +90,25 @@ export default function ConfiguracionMarcaVista() {
   const [subiendoLogo, setSubiendoLogo] = useState(false);
   const [error, setError] = useState(null);
   const [modalMensaje, setModalMensaje] = useState(null);
+  const [seccionesAbiertas, setSeccionesAbiertas] = useState(() => new Set(SECCIONES_INICIALES));
+
+  function alternarSeccion(id, abierta) {
+    setSeccionesAbiertas((previas) => {
+      const siguientes = new Set(previas);
+      if (abierta) siguientes.add(id);
+      else siguientes.delete(id);
+      return siguientes;
+    });
+  }
+
+  function abrirSeccion(id) {
+    setSeccionesAbiertas((previas) => {
+      if (previas.has(id)) return previas;
+      const siguientes = new Set(previas);
+      siguientes.add(id);
+      return siguientes;
+    });
+  }
 
   async function cargar() {
     setCargando(true);
@@ -106,9 +153,14 @@ export default function ConfiguracionMarcaVista() {
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (cargando || !config || hash !== '#google-calendar') return;
-    const seccion = document.getElementById('google-calendar');
-    seccion?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (cargando || !config || !hash) return;
+    const id = hash.replace(/^#/, '');
+    if (!id) return;
+    abrirSeccion(id);
+    const temporizador = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+    return () => window.clearTimeout(temporizador);
   }, [cargando, config, hash]);
 
   function actualizarCampo(campo, valor) {
@@ -411,15 +463,19 @@ export default function ConfiguracionMarcaVista() {
       <AyudaPasoTienda paso="marca" />
       <h1>Mi marca — perfil e identidad</h1>
       <p className="configuracion-marca__intro">
-        Personaliza nombre, colores, contacto, horarios y conecta el Google Calendar de tu empresa.
-        Para las fotos del carrusel del inicio, usa la sección Carrusel del menú.
+        Toca cada sección para abrirla. Así no tienes que bajar toda la pantalla de un tirón.
+        Para las fotos del inicio, usa Carrusel en el menú.
       </p>
 
       {error && <MensajeError mensaje={error} />}
 
       <form className="configuracion-marca__formulario" onSubmit={manejarGuardar}>
-        <section className="configuracion-marca__seccion">
-          <h2>Identidad</h2>
+        <AcordeonSeccion
+          id="identidad"
+          titulo="Identidad"
+          abierta={seccionesAbiertas.has('identidad')}
+          onToggle={alternarSeccion}
+        >
           <CampoFormulario etiqueta="Nombre comercial" id="cfg-nombre" requerido>
             <InputTexto
               id="cfg-nombre"
@@ -444,10 +500,14 @@ export default function ConfiguracionMarcaVista() {
               <ImagenAmpliable src={config.logo} alt="Logo de la marca" className="configuracion-marca__logo" />
             )}
           </CampoFormulario>
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion">
-          <h2>Colores</h2>
+        <AcordeonSeccion
+          id="colores"
+          titulo="Colores"
+          abierta={seccionesAbiertas.has('colores')}
+          onToggle={alternarSeccion}
+        >
           <div className="configuracion-marca__colores">
             {[
               ['colorPrincipal', 'Principal'],
@@ -465,10 +525,14 @@ export default function ConfiguracionMarcaVista() {
               </CampoFormulario>
             ))}
           </div>
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion">
-          <h2>Contacto</h2>
+        <AcordeonSeccion
+          id="contacto"
+          titulo="Contacto"
+          abierta={seccionesAbiertas.has('contacto')}
+          onToggle={alternarSeccion}
+        >
           <CampoFormulario etiqueta="Telefono" id="cfg-tel">
             <input
               id="cfg-tel"
@@ -509,10 +573,14 @@ export default function ConfiguracionMarcaVista() {
               placeholder="Bogota"
             />
           </CampoFormulario>
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion" id="equipo">
-          <h2>Equipo</h2>
+        <AcordeonSeccion
+          id="equipo"
+          titulo="Equipo"
+          abierta={seccionesAbiertas.has('equipo')}
+          onToggle={alternarSeccion}
+        >
           <p className="configuracion-marca__hint">
             Primero se guarda la dirección y el resto de esta pantalla. Después sigues con las profesionales.
           </p>
@@ -524,17 +592,18 @@ export default function ConfiguracionMarcaVista() {
           >
             {enviando ? 'Guardando...' : 'Guardar y seguir con las profesionales →'}
           </BotonPrincipal>
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion configuracion-marca__seccion--horarios">
-          <div className="configuracion-marca__seccion-cabecera">
-            <div>
-              <h2>Horarios</h2>
-              <p className="configuracion-marca__hint">
-                Activa los días que atiendes y define apertura, cierre y descansos (ej. comida).
-              </p>
-            </div>
-          </div>
+        <AcordeonSeccion
+          id="horarios"
+          titulo="Horarios"
+          abierta={seccionesAbiertas.has('horarios')}
+          onToggle={alternarSeccion}
+          className="configuracion-marca__acordeon--horarios"
+        >
+          <p className="configuracion-marca__hint configuracion-marca__hint--bloque">
+            Activa los días que atiendes y define apertura, cierre y descansos (ej. comida).
+          </p>
 
           <div className="configuracion-marca__horarios">
             {DIAS.map(({ id: dia, etiqueta }) => {
@@ -636,10 +705,15 @@ export default function ConfiguracionMarcaVista() {
               );
             })}
           </div>
-        </section>
+        </AcordeonSeccion>
 
-        <section id="google-calendar" className="configuracion-marca__seccion configuracion-marca__seccion--destacada">
-          <h2>Google Calendar</h2>
+        <AcordeonSeccion
+          id="google-calendar"
+          titulo="Google Calendar"
+          abierta={seccionesAbiertas.has('google-calendar')}
+          onToggle={alternarSeccion}
+          className="configuracion-marca__acordeon--destacada"
+        >
           <p className="configuracion-marca__hint">
             No pegas un enlace manual: autorizas la cuenta de Google de tu empresa y las citas nuevas
             se registran solas en ese calendario.
@@ -693,10 +767,14 @@ export default function ConfiguracionMarcaVista() {
               </BotonPrincipal>
             </>
           )}
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion">
-          <h2>Premio por puntos</h2>
+        <AcordeonSeccion
+          id="premio-puntos"
+          titulo="Premio por puntos"
+          abierta={seccionesAbiertas.has('premio-puntos')}
+          onToggle={alternarSeccion}
+        >
           <p className="configuracion-marca__hint">
             Cada servicio completado suma 10 puntos. Cuando la clienta llega a esta cantidad, la próxima cita tiene el descuento. Al marcar el premio como entregado, el conteo para el siguiente empieza de nuevo. El total de puntos de todos sus servicios se queda.
           </p>
@@ -735,10 +813,14 @@ export default function ConfiguracionMarcaVista() {
               placeholder="Por ejemplo, 15"
             />
           </CampoFormulario>
-        </section>
+        </AcordeonSeccion>
 
-        <section className="configuracion-marca__seccion" id="confirmacion-citas">
-          <h2>Confirmación de citas</h2>
+        <AcordeonSeccion
+          id="confirmacion-citas"
+          titulo="Confirmación de citas"
+          abierta={seccionesAbiertas.has('confirmacion-citas')}
+          onToggle={alternarSeccion}
+        >
           <p className="configuracion-marca__hint">
             Elige WhatsApp, correo o ambos. Si un aviso falla, la cita sigue activa y se pide
             comunicarse directamente con la marca.
@@ -1014,7 +1096,7 @@ export default function ConfiguracionMarcaVista() {
               </BotonPrincipal>
             </div>
           </div>
-        </section>
+        </AcordeonSeccion>
 
         <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>
           {enviando ? 'Guardando...' : 'Guardar configuracion'}
