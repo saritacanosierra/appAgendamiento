@@ -49,7 +49,7 @@ describe('WhatsappServicio', () => {
     const resultado = await servicio.enviarTexto({
       telefono: '5512345678',
       mensaje: 'Prueba',
-      credenciales: { marcaId: 1, configurado: false },
+      credenciales: { marcaId: 1, configurado: false, codigoPais: '52' },
     });
     assert.equal(resultado.omitido, true);
     assert.equal(resultado.motivo, 'whatsapp_marca_no_configurado');

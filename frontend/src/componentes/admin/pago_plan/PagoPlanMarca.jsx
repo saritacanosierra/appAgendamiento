@@ -64,7 +64,7 @@ function finDeLaPrueba(venceEn) {
   return new Date(anio, mes - 1, dia, 23, 59, 59);
 }
 
-function usarCuentaRegresiva(venceEn) {
+function useCuentaRegresiva(venceEn) {
   const [ahora, setAhora] = useState(() => Date.now());
 
   useEffect(() => {
@@ -146,7 +146,7 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
     }
   }
 
-  const cuenta = usarCuentaRegresiva(plan?.prueba ? plan.venceEn : null);
+  const cuenta = useCuentaRegresiva(plan?.prueba ? plan.venceEn : null);
   const puedeMinimizar = variante === 'aviso';
   const titulo = plan?.vencido
     ? 'Hay que pagar para seguir usando la agenda'

@@ -98,7 +98,7 @@ function fijarMeta(nombre, contenido, propiedad = false) {
   };
 }
 
-function usarSeoLanding() {
+function useSeoLanding() {
   useEffect(() => {
     const tituloPrevio = document.title;
     const restaurar = [
@@ -194,7 +194,7 @@ export default function LandingVista() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState(null);
   const [creado, setCreado] = useState(null);
-  usarSeoLanding();
+  useSeoLanding();
 
   function actualizar(campo, valor) {
     setForm((actual) => ({ ...actual, [campo]: valor }));
