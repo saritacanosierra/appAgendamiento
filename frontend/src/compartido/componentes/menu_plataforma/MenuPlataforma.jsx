@@ -10,6 +10,7 @@ const enlaces = [
   { to: RUTAS_PLATAFORMA.cobros, etiqueta: 'Wompi', icono: 'config' },
   { to: RUTAS_PLATAFORMA.blog, etiqueta: 'Blog', icono: 'blog' },
   { to: RUTAS_PLATAFORMA.publicidad, etiqueta: 'Publicidad', icono: 'blog' },
+  { to: RUTAS_PLATAFORMA.perfil, etiqueta: 'Mi perfil', icono: 'clientes' },
 ];
 
 export default function MenuPlataforma() {

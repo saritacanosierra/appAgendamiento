@@ -32,6 +32,8 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro; el panel envia un formulario GET a `https://checkout.wompi.co/p/`. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Opcional `redirect_url` al panel admin. Tambien si el plan ya vencio |
 | GET | `/api/plataforma/wompi` | Si, superadmin | Estado de la cuenta Wompi (listo, llave publica, si hay secretos, URL de eventos). Los secretos no se devuelven |
 | PUT | `/api/plataforma/wompi` | Si, superadmin | Guarda llave publica y secretos en `configuracion_plataforma`. Body: `llave_publica`, `secreto_integridad` (vacio = no cambia), `secreto_eventos` (vacio = no cambia) |
+| GET | `/api/plataforma/perfil` | Si, superadmin | Nombre, correo y rol del administrador de plataforma autenticado |
+| PUT | `/api/plataforma/perfil` | Si, superadmin | Actualiza nombre y/o correo. Para cambiar contraseña: `contrasena_actual` + `contrasena_nueva` (min. 8). Cierra otras sesiones |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
 | POST | `/api/auth/recuperar-contrasena` | No | Solo si el `correo` y el `celular` son de la misma cuenta envia a ese correo un enlace de un solo uso (1 hora) para cambiar la contrasena. La respuesta no incluye el enlace ni cambia la contrasena. Si no coinciden, no envia nada. Body: `correo`, `celular`, `contexto` (`marca` o `plataforma`) |
 | POST | `/api/auth/restablecer-contrasena` | No | Guarda la contraseña nueva con el `token` del enlace. Minimo 8 caracteres. Cierra las sesiones abiertas de esa cuenta |

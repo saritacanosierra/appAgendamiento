@@ -11,6 +11,7 @@ import { entorno } from '../configuracion/entorno.js';
 import { mapearMarcaPublica } from './marcaServicio.js';
 import { planSePuedePagar, verificarMarcaOperativa } from '../utilidades/marcaOperativa.js';
 import { mapearEstadoSuscripcion } from '../utilidades/suscripcionMarca.js';
+import { email as validarEmail } from '../utilidades/validador.js';
 
 const HORAS_EXPIRACION = Number(process.env.TOKEN_EXPIRACION_HORAS ?? 168);
 const HORAS_ROTACION = Number(process.env.TOKEN_ROTACION_HORAS ?? 24);
@@ -225,6 +226,109 @@ export class AutenticacionServicio {
 
   async hashContrasena(contrasena) {
     return bcrypt.hash(contrasena, 10);
+  }
+
+  mapearUsuarioPublico(usuario) {
+    return {
+      id: usuario.id,
+      marcaId: usuario.marca_id ?? null,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      rol: usuario.rol,
+    };
+  }
+
+  async obtenerPerfil(usuarioId) {
+    const usuario = await this.usuarioRepo.buscarPorId(usuarioId);
+    if (!usuario) {
+      return { error: 'Usuario no encontrado.', codigoHttp: 404 };
+    }
+    return { usuario: this.mapearUsuarioPublico(usuario) };
+  }
+
+  /**
+   * Actualiza nombre/correo del usuario autenticado.
+   * Si envia contrasenaNueva, exige contrasenaActual y cierra otras sesiones.
+   */
+  async actualizarPerfil(usuarioId, datos, tokenActual = null) {
+    const usuario = await this.usuarioRepo.buscarPorIdConHash(usuarioId);
+    if (!usuario) {
+      return { error: 'Usuario no encontrado.', codigoHttp: 404 };
+    }
+
+    const nombre = String(datos.nombre ?? usuario.nombre).trim();
+    const correo = String(datos.correo ?? usuario.correo).trim().toLowerCase();
+    const contrasenaActual = datos.contrasenaActual ?? datos.contrasena_actual ?? '';
+    const contrasenaNueva = datos.contrasenaNueva ?? datos.contrasena_nueva ?? '';
+    const errores = {};
+
+    if (!nombre || nombre.length < 2) {
+      errores.nombre = 'Escribe tu nombre (minimo 2 caracteres).';
+    } else if (nombre.length > 120) {
+      errores.nombre = 'El nombre no puede superar 120 caracteres.';
+    }
+
+    if (!correo) {
+      errores.correo = 'El correo es obligatorio.';
+    } else {
+      const errorCorreo = validarEmail(correo);
+      if (errorCorreo) errores.correo = errorCorreo;
+    }
+
+    const cambiaContrasena = String(contrasenaNueva).length > 0;
+    if (cambiaContrasena) {
+      if (String(contrasenaNueva).length < 8) {
+        errores.contrasena_nueva = 'La contrasena nueva debe tener al menos 8 caracteres.';
+      }
+      if (!contrasenaActual) {
+        errores.contrasena_actual = 'Escribe tu contrasena actual.';
+      }
+    }
+
+    if (Object.keys(errores).length > 0) {
+      return { error: 'Revisa los campos indicados.', errores, codigoHttp: 422 };
+    }
+
+    if (correo !== String(usuario.correo).toLowerCase()) {
+      const ocupado = await this.usuarioRepo.correoEnUsoPorOtro(correo, usuarioId);
+      if (ocupado) {
+        return {
+          error: 'Ese correo ya esta en uso.',
+          errores: { correo: 'Elige otro correo.' },
+          codigoHttp: 409,
+        };
+      }
+    }
+
+    if (cambiaContrasena) {
+      const ok = await bcrypt.compare(contrasenaActual, usuario.contrasena_hash);
+      if (!ok) {
+        return {
+          error: 'La contrasena actual no es correcta.',
+          errores: { contrasena_actual: 'No coincide.' },
+          codigoHttp: 422,
+        };
+      }
+      const hash = await this.hashContrasena(contrasenaNueva);
+      await this.usuarioRepo.actualizarContrasena(usuarioId, hash);
+      if (tokenActual) {
+        const tokenHash = this.seguridad.hashToken(tokenActual);
+        await this.tokenRepo.revocarPorUsuarioExcepto(usuarioId, tokenHash);
+      } else {
+        await this.tokenRepo.revocarPorUsuario(usuarioId);
+      }
+    }
+
+    await this.usuarioRepo.actualizarPerfil(usuarioId, { nombre, correo });
+    const actualizado = await this.usuarioRepo.buscarPorId(usuarioId);
+
+    return {
+      usuario: this.mapearUsuarioPublico(actualizado),
+      contrasenaActualizada: cambiaContrasena,
+      mensaje: cambiaContrasena
+        ? 'Perfil y contrasena actualizados. Otras sesiones se cerraron.'
+        : 'Perfil actualizado.',
+    };
   }
 
   async solicitarRecuperacion(correo, celular, contexto) {

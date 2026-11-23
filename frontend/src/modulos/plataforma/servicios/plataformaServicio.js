@@ -7,6 +7,19 @@ export async function obtenerResumenPlataforma() {
   return respuesta.datos;
 }
 
+export async function obtenerPerfilPlataforma() {
+  const respuesta = await peticionPlataforma('/plataforma/perfil');
+  return respuesta.datos;
+}
+
+export async function actualizarPerfilPlataforma(datos) {
+  const respuesta = await peticionPlataforma('/plataforma/perfil', {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
 export async function obtenerWompiPlataforma() {
   const respuesta = await peticionPlataforma('/plataforma/wompi');
   return respuesta.datos;

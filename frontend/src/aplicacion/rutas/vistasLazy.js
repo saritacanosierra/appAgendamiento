@@ -97,3 +97,6 @@ export const BlogPlataformaVista = lazy(
 export const CobrosWompiVista = lazy(
   () => import('../../vistas/plataforma/cobros/CobrosWompiVista')
 );
+export const PerfilPlataformaVista = lazy(
+  () => import('../../vistas/plataforma/perfil/PerfilPlataformaVista')
+);

@@ -176,6 +176,32 @@ export class UsuarioRepositorio {
     return filas[0] ?? null;
   }
 
+  async buscarPorIdConHash(id) {
+    const [filas] = await pool.execute(
+      `SELECT id, marca_id, nombre, correo, rol, activo, contrasena_hash
+       FROM usuarios WHERE id = ? AND activo = 1 LIMIT 1`,
+      [id]
+    );
+    return filas[0] ?? null;
+  }
+
+  async correoEnUsoPorOtro(correo, exceptoUsuarioId) {
+    const [filas] = await pool.execute(
+      `SELECT id FROM usuarios
+       WHERE correo = ? AND id != ? AND activo = 1
+       LIMIT 1`,
+      [correo, exceptoUsuarioId]
+    );
+    return Boolean(filas[0]);
+  }
+
+  async actualizarPerfil(usuarioId, { nombre, correo }) {
+    await pool.execute(
+      'UPDATE usuarios SET nombre = ?, correo = ? WHERE id = ? AND activo = 1',
+      [nombre, correo, usuarioId]
+    );
+  }
+
   async actualizarUltimoAcceso(id) {
     await pool.execute(
       'UPDATE usuarios SET ultimo_acceso_at = NOW() WHERE id = ?',
@@ -253,6 +279,15 @@ export class TokenRepositorio {
     await pool.execute(
       'UPDATE tokens_sesion SET revocado = 1 WHERE usuario_id = ? AND revocado = 0',
       [usuarioId]
+    );
+  }
+
+  async revocarPorUsuarioExcepto(usuarioId, tokenHashActual) {
+    await pool.execute(
+      `UPDATE tokens_sesion
+       SET revocado = 1
+       WHERE usuario_id = ? AND revocado = 0 AND token_hash != ?`,
+      [usuarioId, tokenHashActual]
     );
   }
 

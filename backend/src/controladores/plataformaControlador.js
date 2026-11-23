@@ -3,7 +3,9 @@ import { copiaMarcaServicio } from '../servicios/copiaMarcaServicio.js';
 import { suscripcionMarcaServicio } from '../servicios/suscripcionMarcaServicio.js';
 import { wompiServicio } from '../servicios/wompiServicio.js';
 import { reporteServicio } from '../servicios/reporteServicio.js';
+import { authServicio } from './autenticacionControlador.js';
 import { respuestaExito, respuestaError } from '../utilidades/respuestaJson.js';
+import { registrarAuditoria } from '../utilidades/auditoria.js';
 
 export async function listarMarcasPlataforma(req, res) {
   const marcas = await plataformaServicio.listarMarcas();
@@ -198,4 +200,43 @@ export async function guardarWompiPlataforma(req, res) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);
   }
   return respuestaExito(res, resultado, 'Wompi guardado');
+}
+
+export async function obtenerPerfilPlataforma(req, res) {
+  const resultado = await authServicio.obtenerPerfil(req.usuario.id);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
+  }
+  return respuestaExito(res, { usuario: resultado.usuario }, 'Perfil de plataforma');
+}
+
+export async function actualizarPerfilPlataforma(req, res) {
+  const resultado = await authServicio.actualizarPerfil(
+    req.usuario.id,
+    req.body ?? {},
+    req.token
+  );
+
+  if (resultado.error) {
+    return respuestaError(
+      res,
+      resultado.error,
+      resultado.codigoHttp ?? 400,
+      resultado.errores ?? null
+    );
+  }
+
+  registrarAuditoria('perfil_plataforma_actualizado', {
+    usuarioId: req.usuario.id,
+    contrasenaActualizada: resultado.contrasenaActualizada,
+  });
+
+  return respuestaExito(
+    res,
+    {
+      usuario: resultado.usuario,
+      contrasenaActualizada: Boolean(resultado.contrasenaActualizada),
+    },
+    resultado.mensaje
+  );
 }
