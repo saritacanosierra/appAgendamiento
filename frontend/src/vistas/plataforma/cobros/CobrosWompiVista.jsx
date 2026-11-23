@@ -80,9 +80,10 @@ export default function CobrosWompiVista() {
     <div className="cobros-wompi">
       <header className="cobros-wompi__cabecera">
         <div>
-          <h1>Cobros Wompi</h1>
+          <h1>Cuenta Wompi</h1>
           <p>
-            Aquí pones la cuenta del comercio. Es la misma para todas las marcas.
+            Aquí quien administra la plataforma guarda las llaves del comercio.
+            Con eso las marcas pueden elegir un periodo y pagar la suscripción.
             Los secretos no se muestran otra vez: si no los cambias, déjalos en blanco.
           </p>
         </div>
