@@ -6,7 +6,7 @@ import './estilos/global/responsive.css';
 import './estilos/global/vista_escritorio.css';
 
 if (typeof window !== 'undefined') {
-  window.__AGENDA_BUILD__ = '2026-11-23-cdn2';
+  window.__AGENDA_BUILD__ = '2026-11-23-resend';
 }
 
 createRoot(document.getElementById('root')).render(

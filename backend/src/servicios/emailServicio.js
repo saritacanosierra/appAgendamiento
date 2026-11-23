@@ -17,6 +17,58 @@ function smtpEnvConfigurado() {
   );
 }
 
+function resendEnvConfigurado() {
+  return Boolean(String(process.env.RESEND_API_KEY || '').trim());
+}
+
+async function enviarViaResend({ apiKey, para, asunto, texto, html, remitente }) {
+  const clave = String(apiKey || '').trim();
+  if (!clave) {
+    return { omitido: true, motivo: 'resend_no_configurado' };
+  }
+
+  const de = String(remitente || '').trim() || 'Agenda <onboarding@resend.dev>';
+  const controlador = new AbortController();
+  const temporizador = setTimeout(() => controlador.abort(), 15_000);
+
+  try {
+    const respuesta = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      signal: controlador.signal,
+      headers: {
+        Authorization: `Bearer ${clave}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: de,
+        to: [para],
+        subject: asunto,
+        text: texto,
+        html: html || undefined,
+      }),
+    });
+
+    const cuerpo = await respuesta.json().catch(() => ({}));
+    if (!respuesta.ok) {
+      const detalle = cuerpo?.message || cuerpo?.error || `HTTP ${respuesta.status}`;
+      return {
+        error: true,
+        motivo: String(detalle).includes('domain')
+          ? `${detalle} — En pruebas usa remitente: Agenda <onboarding@resend.dev>`
+          : String(detalle),
+      };
+    }
+    return { enviado: true, proveedor: 'resend', id: cuerpo?.id };
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      return { error: true, motivo: 'timeout Resend' };
+    }
+    return { error: true, motivo: err?.message || 'error Resend' };
+  } finally {
+    clearTimeout(temporizador);
+  }
+}
+
 function smtpDesdeObjeto(smtp) {
   return Boolean(smtp?.host && smtp?.usuario && smtp?.contrasena);
 }
@@ -101,37 +153,77 @@ function smtpDesdeEntorno() {
 export class EmailServicio {
   /** Sync: solo entorno. Preferir estaHabilitadoAsync en flujos nuevos. */
   estaHabilitado() {
-    return smtpEnvConfigurado();
+    return resendEnvConfigurado() || smtpEnvConfigurado();
+  }
+
+  async resolverCredencialesPlataforma() {
+    try {
+      const { correoPlataformaServicio } = await import('./correoPlataformaServicio.js');
+      return await correoPlataformaServicio.leerCredenciales();
+    } catch {
+      return {
+        ...smtpDesdeEntorno(),
+        resendApiKey: String(process.env.RESEND_API_KEY || '').trim(),
+        proveedor: resendEnvConfigurado()
+          ? 'resend'
+          : (smtpEnvConfigurado() ? 'smtp' : 'ninguno'),
+      };
+    }
   }
 
   async resolverSmtpPlataforma() {
-    try {
-      const { correoPlataformaServicio } = await import('./correoPlataformaServicio.js');
-      const credenciales = await correoPlataformaServicio.leerCredenciales();
-      if (smtpDesdeObjeto(credenciales)) return credenciales;
-    } catch {
-      // Si falla la BD, cae al .env
-    }
+    const cred = await this.resolverCredencialesPlataforma();
+    if (smtpDesdeObjeto(cred)) return cred;
     return smtpDesdeEntorno();
   }
 
   async estaHabilitadoAsync() {
-    const smtp = await this.resolverSmtpPlataforma();
-    return smtpDesdeObjeto(smtp);
+    const cred = await this.resolverCredencialesPlataforma();
+    return Boolean(cred?.resendApiKey) || smtpDesdeObjeto(cred);
+  }
+
+  async enviarPlataforma({ para, asunto, texto, html, credenciales }) {
+    if (!para) return { omitido: true, motivo: 'sin_destinatario' };
+    const cred = credenciales || await this.resolverCredencialesPlataforma();
+
+    if (cred?.resendApiKey) {
+      let de = normalizarRemitente(cred.remitente, cred.usuario)
+        || 'Agenda <onboarding@resend.dev>';
+      // Sin dominio verificado en Resend, Gmail como "from" falla.
+      if (/@gmail\.com|>\s*$/i.test(de) && /gmail\.com|googlemail\.com/i.test(de)) {
+        de = 'Agenda <onboarding@resend.dev>';
+      }
+      if (!de.includes('@')) de = 'Agenda <onboarding@resend.dev>';
+      return enviarViaResend({
+        apiKey: cred.resendApiKey,
+        para,
+        asunto,
+        texto,
+        html,
+        remitente: de,
+      });
+    }
+
+    if (!smtpDesdeObjeto(cred)) {
+      if (process.env.NODE_ENV !== 'produccion') {
+        console.info('[email] sin Resend ni SMTP — mensaje simulado:', { para, asunto });
+      }
+      return { omitido: true, motivo: 'smtp_no_configurado' };
+    }
+
+    return this.enviarConSmtpMarca({
+      para,
+      asunto,
+      texto,
+      html,
+      smtp: cred,
+    });
   }
 
   async enviar({ para, asunto, texto, html, transporte, remitente }) {
     if (!para) return { omitido: true, motivo: 'sin_destinatario' };
     if (!transporte) {
-      const smtp = await this.resolverSmtpPlataforma();
-      if (!smtpDesdeObjeto(smtp)) {
-        if (process.env.NODE_ENV !== 'produccion') {
-          console.info('[email] SMTP no configurado — mensaje simulado:', { para, asunto });
-        }
-        return { omitido: true, motivo: 'smtp_no_configurado' };
-      }
-      transporte = crearTransporte(smtp);
-      remitente = normalizarRemitente(remitente || smtp.remitente, smtp.usuario);
+      return this.enviarPlataforma({ para, asunto, texto, html });
     }
 
     try {
