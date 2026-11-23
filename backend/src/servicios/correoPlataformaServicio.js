@@ -83,20 +83,31 @@ export class CorreoPlataformaServicio {
 
   async guardarConfigAdmin(datos = {}) {
     const actual = await this.leerCredenciales();
-    let host = texto(datos.host ?? datos.smtp_host ?? actual.host);
+    // '' del frontend no debe pisar el valor ya guardado / del .env
+    const tomar = (entrante, previo) => {
+      const v = texto(entrante);
+      return v || previo;
+    };
+    let host = tomar(datos.host ?? datos.smtp_host, actual.host);
     const puerto = Number(datos.puerto ?? datos.smtp_puerto ?? actual.puerto) || 587;
     const seguro = Boolean(datos.seguro ?? datos.smtp_seguro ?? actual.seguro);
-    let usuario = texto(datos.usuario ?? datos.smtp_usuario ?? actual.usuario).toLowerCase();
+    let usuario = tomar(datos.usuario ?? datos.smtp_usuario, actual.usuario).toLowerCase();
     // Typo frecuente: gmial.com → gmail.com
     if (usuario.endsWith('@gmial.com')) {
       usuario = `${usuario.slice(0, -'@gmial.com'.length)}@gmail.com`;
     }
-    let remitente = texto(datos.remitente ?? datos.smtp_remitente ?? actual.remitente) || usuario;
+    // No usar texto(): quita <correo> del formato "Nombre <correo@x.com>"
+    const remitenteCrudo = String(datos.remitente ?? datos.smtp_remitente ?? '').trim();
+    let remitente = remitenteCrudo || actual.remitente || usuario;
     if (remitente && !remitente.includes('@') && usuario) {
       remitente = `${remitente} <${usuario}>`;
     }
-    const celular = texto(datos.celular_recuperacion ?? datos.celularRecuperacion ?? actual.celularRecuperacion)
-      .replace(/\D+/g, '');
+    const celularEntrante = datos.celular_recuperacion ?? datos.celularRecuperacion;
+    const celular = String(
+      celularEntrante === undefined || celularEntrante === null
+        ? (actual.celularRecuperacion || '')
+        : texto(celularEntrante)
+    ).replace(/\D+/g, '');
     const contrasenaNueva = String(
       datos.contrasena ?? datos.smtp_contrasena ?? datos.contrasena_nueva ?? ''
     ).trim();

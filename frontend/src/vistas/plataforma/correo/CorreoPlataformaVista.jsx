@@ -146,7 +146,7 @@ export default function CorreoPlataformaVista() {
     setProbando(true);
     setError(null);
     const ac = new AbortController();
-    const temporizador = setTimeout(() => ac.abort(), 25_000);
+    const temporizador = setTimeout(() => ac.abort(), 20_000);
     try {
       await probarCorreoPlataforma(destino, { signal: ac.signal });
       setModalMensaje({
@@ -156,9 +156,12 @@ export default function CorreoPlataformaVista() {
       });
     } catch (err) {
       const abortado = err?.name === 'AbortError' || ac.signal.aborted;
+      const red = /failed to fetch|networkerror|err_failed|cors|bad gateway|502/i.test(
+        `${err?.message || ''} ${err?.codigoHttp || ''}`
+      );
       setError(
-        abortado
-          ? 'El envío tardó demasiado. Suele ser el SMTP bloqueado en el servidor o la contraseña de aplicación mal puesta.'
+        abortado || red
+          ? 'El servidor no pudo hablar con Gmail (SMTP bloqueado o caído). Revisa la contraseña de aplicación en Render o usa un correo tipo Resend/SendGrid.'
           : (err.message || 'No se pudo enviar la prueba.')
       );
     } finally {

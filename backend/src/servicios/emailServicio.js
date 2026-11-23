@@ -62,11 +62,28 @@ function crearTransporte(smtp) {
       user: smtp.usuario,
       pass: smtp.contrasena,
     },
-    // Render / firewalls a veces bloquean SMTP: sin esto la petición cuelga minutos.
-    connectionTimeout: 12_000,
-    greetingTimeout: 12_000,
-    socketTimeout: 20_000,
+    // Corto a propósito: si Render corta a ~30s sin CORS, el navegador solo ve "CORS".
+    connectionTimeout: 8_000,
+    greetingTimeout: 8_000,
+    socketTimeout: 12_000,
   });
+}
+
+async function enviarConTope(transporte, mail, ms = 15_000) {
+  let temporizador;
+  try {
+    return await Promise.race([
+      transporte.sendMail(mail),
+      new Promise((_, reject) => {
+        temporizador = setTimeout(
+          () => reject(new Error('timeout SMTP')),
+          ms
+        );
+      }),
+    ]);
+  } finally {
+    if (temporizador) clearTimeout(temporizador);
+  }
 }
 
 function smtpDesdeEntorno() {
@@ -118,7 +135,7 @@ export class EmailServicio {
     }
 
     try {
-      await transporte.sendMail({
+      await enviarConTope(transporte, {
         from: remitente,
         to: para,
         subject: asunto,
@@ -145,7 +162,7 @@ export class EmailServicio {
     const de = normalizarRemitente(smtp.remitente, smtp.usuario);
 
     try {
-      await transporte.sendMail({
+      await enviarConTope(transporte, {
         from: de,
         to: para,
         subject: asunto,
