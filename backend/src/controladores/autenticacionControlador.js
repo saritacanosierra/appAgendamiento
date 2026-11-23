@@ -99,6 +99,46 @@ export async function me(req, res) {
   }, 'Sesion activa');
 }
 
+export async function obtenerPerfilAdmin(req, res) {
+  const resultado = await authServicio.obtenerPerfil(req.usuario.id);
+  if (resultado.error) {
+    return respuestaError(res, resultado.error, resultado.codigoHttp ?? 404);
+  }
+  return respuestaExito(res, { usuario: resultado.usuario }, 'Perfil del administrador');
+}
+
+export async function actualizarPerfilAdmin(req, res) {
+  const resultado = await authServicio.actualizarPerfil(
+    req.usuario.id,
+    req.body ?? {},
+    req.token
+  );
+
+  if (resultado.error) {
+    return respuestaError(
+      res,
+      resultado.error,
+      resultado.codigoHttp ?? 400,
+      resultado.errores ?? null
+    );
+  }
+
+  registrarAuditoria('perfil_admin_marca_actualizado', {
+    usuarioId: req.usuario.id,
+    marcaId: req.usuario.marca_id ?? req.usuario.marcaId ?? null,
+    contrasenaActualizada: resultado.contrasenaActualizada,
+  });
+
+  return respuestaExito(
+    res,
+    {
+      usuario: resultado.usuario,
+      contrasenaActualizada: Boolean(resultado.contrasenaActualizada),
+    },
+    resultado.mensaje
+  );
+}
+
 export async function rotarToken(req, res) {
   const token = extraerToken(req);
   const resultado = await authServicio.rotarToken(token);

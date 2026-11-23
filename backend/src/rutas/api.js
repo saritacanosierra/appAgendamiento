@@ -1,7 +1,16 @@
 import { Router } from 'express';
 import { estado } from '../controladores/estadoControlador.js';
 import { obtenerPorSlug } from '../controladores/marcaControlador.js';
-import { login, logout, me, rotarToken, recuperarContrasena, restablecerContrasena } from '../controladores/autenticacionControlador.js';
+import {
+  login,
+  logout,
+  me,
+  rotarToken,
+  recuperarContrasena,
+  restablecerContrasena,
+  obtenerPerfilAdmin,
+  actualizarPerfilAdmin,
+} from '../controladores/autenticacionControlador.js';
 import { registrarMarcaPublica } from '../controladores/registroControlador.js';
 import {
   crearPagoWompi,
@@ -249,6 +258,8 @@ router.delete('/admin/galeria/catalogo/:id', eliminarGaleriaCatalogoAdmin);
 router.get('/admin/carrusel-inicio', listarCarruselAdmin);
 router.post('/admin/carrusel-inicio', crearCarruselAdmin);
 router.put('/admin/carrusel-inicio/:id', actualizarCarruselAdmin);
+router.get('/admin/perfil', obtenerPerfilAdmin);
+router.put('/admin/perfil', actualizarPerfilAdmin);
 router.get('/admin/configuracion-marca', obtenerConfiguracionAdmin);
 router.get('/admin/puesta-en-marcha', resumenArranque);
 router.put('/admin/configuracion-marca', actualizarConfiguracionAdmin);

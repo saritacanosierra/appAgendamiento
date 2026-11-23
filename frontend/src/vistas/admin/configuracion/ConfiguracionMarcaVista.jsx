@@ -30,6 +30,7 @@ import {
 import AcordeonSeccion from '../../../componentes/admin/configuracion/AcordeonSeccion';
 import GuiasIntegracionModales from '../../../componentes/admin/configuracion/GuiasIntegracionModales';
 import SeccionAvisosReservar from '../../../componentes/admin/configuracion/SeccionAvisosReservar';
+import SeccionCuentaAdmin from '../../../componentes/admin/configuracion/SeccionCuentaAdmin';
 import { AyudaPasoTienda } from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
@@ -66,7 +67,7 @@ export default function ConfiguracionMarcaVista() {
   const [error, setError] = useState(null);
   const [modalMensaje, setModalMensaje] = useState(null);
   const [guiaAbierta, setGuiaAbierta] = useState(null);
-  const [seccionAbierta, setSeccionAbierta] = useState('identidad');
+  const [seccionAbierta, setSeccionAbierta] = useState('cuenta-admin');
 
   function abrirSeccion(id) {
     setSeccionAbierta((actual) => (actual === id ? null : id));
@@ -434,10 +435,18 @@ export default function ConfiguracionMarcaVista() {
       <h1>Mi marca — perfil e identidad</h1>
       <p className="configuracion-marca__intro">
         Solo se abre una sección a la vez. Pulsa <strong>Abrir</strong> en la que necesites.
+        Empieza por <strong>Mi cuenta</strong> si quieres cambiar tu correo o contraseña.
         Para las fotos del inicio, usa Carrusel en el menú.
       </p>
 
       {error && <MensajeError mensaje={error} />}
+
+      <SeccionCuentaAdmin
+        abierta={seccionAbierta === 'cuenta-admin'}
+        onAbrir={abrirSeccion}
+        onGuardado={recargarSesion}
+        onMensaje={setModalMensaje}
+      />
 
       <form className="configuracion-marca__formulario" onSubmit={manejarGuardar}>
         <AcordeonSeccion

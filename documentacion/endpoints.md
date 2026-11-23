@@ -153,6 +153,8 @@ Tambien puede enviarse `nombre` + `telefono` en lugar de `cliente_id` para crear
 | POST | `/api/admin/galeria` | Si | Crear diseno |
 | PUT | `/api/admin/galeria/{id}` | Si | Actualizar diseno |
 | DELETE | `/api/admin/galeria/{id}` | Si | Elimina el diseno de la marca. Las elecciones de las clientas de esa foto se borran con ella |
+| GET | `/api/admin/perfil` | Si, marca | Nombre, correo y rol del admin/staff autenticado |
+| PUT | `/api/admin/perfil` | Si, marca | Actualiza nombre y/o correo. Contraseña: `contrasena_actual` + `contrasena_nueva` (min. 8). Cierra otras sesiones |
 | GET | `/api/admin/configuracion-marca` | Si | Configuracion editable |
 | GET | `/api/admin/puesta-en-marcha` | Si | Si la marca ya tiene logo o contacto, servicios, equipo y fotos. No trae las listas |
 | PUT | `/api/admin/configuracion-marca` | Si | Guardar colores, contacto, horarios y el premio por puntos (`premio_puntos_necesarios`, `premio_porcentaje`) |

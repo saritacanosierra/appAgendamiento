@@ -1,5 +1,18 @@
 import { peticionAdmin } from '../../../compartido/utilidades/apiCliente';
 
+export async function obtenerPerfilAdminMarca() {
+  const respuesta = await peticionAdmin('/admin/perfil');
+  return respuesta.datos;
+}
+
+export async function actualizarPerfilAdminMarca(datos) {
+  const respuesta = await peticionAdmin('/admin/perfil', {
+    method: 'PUT',
+    body: JSON.stringify(datos),
+  });
+  return respuesta.datos;
+}
+
 export async function obtenerPuestaEnMarcha() {
   const respuesta = await peticionAdmin('/admin/puesta-en-marcha');
   return respuesta.datos;

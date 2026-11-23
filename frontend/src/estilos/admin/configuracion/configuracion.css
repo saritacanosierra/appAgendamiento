@@ -22,11 +22,25 @@
   font-size: var(--tamano-texto-sm);
 }
 
-.configuracion-marca__formulario {
+.configuracion-marca__formulario,
+.configuracion-marca__cuenta {
   display: flex;
   flex-direction: column;
   gap: var(--espacio-lg);
   padding-bottom: var(--espacio-md);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.configuracion-marca__cuenta {
+  gap: var(--espacio-md);
+  padding-bottom: 0;
+}
+
+.configuracion-marca__subtitulo {
+  margin: var(--espacio-sm) 0 0;
+  font-size: 1rem;
 }
 
 .configuracion-marca__formulario > .boton-principal--completo {
