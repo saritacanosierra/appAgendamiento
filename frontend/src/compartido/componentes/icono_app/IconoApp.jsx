@@ -196,6 +196,14 @@ const ICONOS = {
       <circle cx="12" cy="12" r="3" />
     </svg>
   ),
+  'ojo-cerrado': (p) => (
+    <svg {...propsSvg} {...p}>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+      <path d="M9.9 5.1A10.3 10.3 0 0 1 12 5c6.5 0 10 7 10 7a18.4 18.4 0 0 1-2.4 3.4" />
+      <path d="M6.1 6.1C3.7 7.9 2 12 2 12s3.5 7 10 7a10.4 10.4 0 0 0 4.2-.9" />
+    </svg>
+  ),
   instalar: (p) => (
     <svg {...propsSvg} {...p}>
       <rect x="7" y="2.5" width="10" height="17" rx="2" />

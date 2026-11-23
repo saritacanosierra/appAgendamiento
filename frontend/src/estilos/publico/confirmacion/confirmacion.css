@@ -68,6 +68,37 @@
   color: var(--color-acento);
 }
 
+.confirmacion-reserva__sigue {
+  margin: 0;
+  font-size: var(--tamano-texto-sm);
+  color: var(--color-texto-muted);
+}
+
+.confirmacion-reserva__aviso {
+  width: 100%;
+  min-width: 0;
+  padding: var(--espacio-lg);
+  border-radius: var(--radio-borde-lg);
+  border: 1px solid #e4d3b0;
+  background: #f8f1e4;
+  color: #1c2430;
+}
+
+.confirmacion-reserva__aviso h2 {
+  margin: 0 0 var(--espacio-sm);
+  font-size: 1.05rem;
+}
+
+.confirmacion-reserva__aviso p,
+.confirmacion-reserva__aviso ul {
+  margin: 0 0 var(--espacio-sm);
+  font-size: var(--tamano-texto-sm);
+}
+
+.confirmacion-reserva__aviso ul {
+  padding-left: 1.1rem;
+}
+
 .confirmacion-reserva__calendario {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CampoFormulario, InputTexto } from '../../../compartido/componentes';
+import { CampoContrasena, CampoFormulario, InputTexto } from '../../../compartido/componentes';
 import { INDICATIVOS_PAIS, RUTAS_ADMIN, RUTAS_PUBLICAS } from '../../../compartido/constantes';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { registrarSalon } from '../../../modulos/registro/servicios/registroServicio';
@@ -492,14 +492,19 @@ export default function LandingVista() {
                     required
                   />
                 </CampoFormulario>
-                <CampoFormulario etiqueta="Contraseña" id="reg-pass" requerido>
-                  <input
+                <CampoFormulario
+                  etiqueta="Contraseña"
+                  id="reg-pass"
+                  requerido
+                  ayuda="Mínimo 8 caracteres. Con ella entras al panel de tu marca."
+                >
+                  <CampoContrasena
                     id="reg-pass"
-                    type="password"
                     autoComplete="new-password"
                     minLength={8}
                     value={form.admin_contrasena}
                     onChange={(e) => actualizar('admin_contrasena', e.target.value)}
+                    placeholder="Crea tu contraseña"
                     required
                   />
                 </CampoFormulario>

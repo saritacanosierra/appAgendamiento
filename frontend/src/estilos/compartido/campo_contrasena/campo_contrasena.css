@@ -1,0 +1,61 @@
+.campo-contrasena {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.campo-contrasena input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.875rem 3.25rem 0.875rem 1rem;
+  border: 1.5px solid var(--color-input-borde);
+  border-radius: var(--radio-borde);
+  background: var(--color-input-fondo);
+  color: var(--color-input-texto);
+  box-shadow: var(--sombra-suave);
+}
+
+.campo-contrasena input::placeholder {
+  color: var(--color-texto-muted-superficie);
+  opacity: 0.85;
+}
+
+.campo-contrasena input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-principal) 35%, transparent);
+  outline-offset: 2px;
+  border-color: var(--color-acento-superficie);
+}
+
+.campo-formulario--error .campo-contrasena input {
+  border-color: var(--color-error);
+}
+
+.campo-contrasena__ojito {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radio-borde);
+  background: transparent;
+  color: var(--color-texto-muted-superficie);
+  cursor: pointer;
+}
+
+.campo-contrasena__ojito:hover,
+.campo-contrasena__ojito:focus-visible {
+  color: var(--color-texto-superficie);
+}
+
+.campo-contrasena__ojito:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-principal) 35%, transparent);
+  outline-offset: 1px;
+}

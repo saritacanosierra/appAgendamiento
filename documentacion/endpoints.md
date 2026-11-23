@@ -184,17 +184,22 @@ Respuesta `429` si se supera el limite.
 - El frontend guarda el nuevo token automaticamente.
 - Renovacion manual: `POST /api/auth/rotar` con el token actual.
 
-### Email de confirmacion
+### Avisos de confirmacion (correo y/o WhatsApp)
 
-Variables SMTP en `backend/.env`: `SMTP_HOST`, `SMTP_PUERTO`, `SMTP_USUARIO`, `SMTP_CONTRASENA`, `EMAIL_REMITENTE`.
+La marca elige canales en Admin → Mi marca → Confirmacion de citas (`notificaciones_cita` + `correo_smtp` + `whatsapp_api` en `configuracion_json`).
 
-Si SMTP no esta configurado, la reserva funciona igual; en desarrollo se registra un mensaje simulado en consola.
+| Metodo | Ruta | Auth | Descripcion |
+|--------|------|------|-------------|
+| GET | `/api/admin/integraciones/correo` | Si, marca | Estado de canales y SMTP (sin devolver la contraseña) |
+| POST | `/api/admin/integraciones/correo/probar` | Si, marca | Body `{ correo }` — prueba el SMTP del propietario |
+| GET | `/api/admin/integraciones/whatsapp` | Si, marca | Estado WhatsApp de la marca |
+| POST | `/api/admin/integraciones/whatsapp/probar` | Si, marca | Body `{ telefono }` |
 
-### WhatsApp de confirmacion
+Al crear una reserva publica, la respuesta incluye `avisos` (`resultados`, `contactarDirecto`, `contacto`). Si un canal falla, la cita sigue activa y se pide contacto directo.
 
-Variables en `backend/.env`: `WHATSAPP_HABILITADO=1`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_CODIGO_PAIS`.
+El SMTP de plataforma (`SMTP_*` / `EMAIL_REMITENTE`) queda para recuperacion de contraseña del panel, no para avisos de cita.
 
-Guia: `documentacion/whatsapp.md`. Verificar: `npm run verificar:whatsapp`.
+Guia WhatsApp: `documentacion/whatsapp.md`.
 
 ### Optimizacion de imagenes
 

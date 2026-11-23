@@ -108,6 +108,10 @@ import {
   obtenerEstadoWhatsappMarca,
   probarWhatsappMarca,
 } from '../controladores/whatsappControlador.js';
+import {
+  obtenerEstadoCorreoMarca,
+  probarCorreoMarca,
+} from '../controladores/correoMarcaControlador.js';
 import { obtenerReporte } from '../controladores/reporteControlador.js';
 import {
   listarCitasAtencion,
@@ -256,6 +260,8 @@ router.post('/admin/integraciones/google/probar', probarGoogle);
 router.delete('/admin/integraciones/google', desconectarGoogle);
 router.get('/admin/integraciones/whatsapp', obtenerEstadoWhatsappMarca);
 router.post('/admin/integraciones/whatsapp/probar', probarWhatsappMarca);
+router.get('/admin/integraciones/correo', obtenerEstadoCorreoMarca);
+router.post('/admin/integraciones/correo/probar', probarCorreoMarca);
 router.post('/admin/subidas/galeria', subidaImagenMiddleware('galeria'), subirArchivo);
 router.post('/admin/subidas/blog', subidaImagenMiddleware('blog'), subirArchivo);
 router.post('/admin/subidas/logos', subidaImagenMiddleware('logos'), subirArchivo);

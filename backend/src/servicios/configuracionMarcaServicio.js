@@ -4,6 +4,11 @@ import {
   mapearWhatsappApiAdmin,
   whatsappMarcaServicio,
 } from './whatsappMarcaServicio.js';
+import {
+  correoMarcaServicio,
+  incluyeDatosNotificaciones,
+  mapearNotificacionesAdmin,
+} from './correoMarcaServicio.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
 import { normalizarHorariosMarca } from '../utilidades/horarios.js';
 import { normalizarRutaMediaAlmacenamiento, resolverRutaMedia } from '../utilidades/resolverRutaMedia.js';
@@ -12,6 +17,7 @@ import { texto } from '../utilidades/sanitizador.js';
 import { generarSlug } from '../utilidades/slug.js';
 import { validarPremioConfig } from '../utilidades/premioPuntos.js';
 import { premioPuntosServicio } from './premioPuntosServicio.js';
+import { PLANTILLA_WHATSAPP_CONFIRMACION } from '../utilidades/plantillaNotificacion.js';
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 const VERSION_POLITICA_PRIVACIDAD = 1;
@@ -42,7 +48,40 @@ function whatsappApiDesdeFila(fila) {
     codigoPais: wa.codigo_pais ?? '',
     plantillaRecordatorio: wa.plantilla_recordatorio ?? null,
     plantillaIdioma: wa.plantilla_idioma ?? 'es_MX',
+    plantillaConfirmacion: wa.plantilla_confirmacion ?? PLANTILLA_WHATSAPP_CONFIRMACION,
     configurado: Boolean(wa.habilitado && wa.phone_number_id && wa.token),
+  });
+}
+
+function notificacionesDesdeFila(fila) {
+  if (!fila) return null;
+  const config = parsearJsonCampo(fila.configuracion_json, {});
+  const canalesRaw = config.notificaciones_cita;
+  const smtp = config.correo_smtp ?? {};
+  const wa = config.whatsapp_api ?? {};
+  const canales = {
+    whatsapp: canalesRaw == null ? Boolean(wa.habilitado) : Boolean(canalesRaw.whatsapp),
+    correo: Boolean(canalesRaw?.correo),
+  };
+  const listo = Boolean(smtp.host && smtp.usuario && smtp.contrasena && (smtp.remitente || smtp.usuario));
+  return mapearNotificacionesAdmin({
+    canales,
+    correo: {
+      host: smtp.host || '',
+      puerto: Number(smtp.puerto ?? 587) || 587,
+      seguro: Boolean(smtp.seguro),
+      usuario: smtp.usuario || '',
+      contrasenaConfigurada: Boolean(smtp.contrasena),
+      remitente: smtp.remitente || smtp.usuario || '',
+      modoPlantilla: smtp.modo_plantilla === 'html' ? 'html' : 'texto',
+      asunto: smtp.asunto || '',
+      cuerpoTexto: smtp.cuerpo_texto || '',
+      cuerpoHtml: smtp.cuerpo_html || '',
+      listo,
+      mensaje: listo
+        ? 'Los avisos de correo saldran desde el buzon de esta marca.'
+        : 'Pega el SMTP de tu correo (Gmail u Outlook) para enviar sin costo extra.',
+    },
   });
 }
 
@@ -60,6 +99,8 @@ function incluyeDatosWhatsappApi(datos) {
     'whatsappPlantillaRecordatorio',
     'whatsapp_plantilla_idioma',
     'whatsappPlantillaIdioma',
+    'whatsapp_plantilla_confirmacion',
+    'whatsappPlantillaConfirmacion',
   ].some((clave) => datos[clave] !== undefined);
 }
 
@@ -95,6 +136,7 @@ function mapearConfiguracionAdmin(fila) {
     ciudad: fila.ciudad ?? null,
     horarios: normalizarHorariosMarca(parsearJsonCampo(fila.horarios_json, {})),
     whatsappApi: whatsappApiDesdeFila(fila),
+    notificaciones: notificacionesDesdeFila(fila),
     premioPuntos: premioDesdeFila(fila),
   };
 }
@@ -200,6 +242,10 @@ export class ConfiguracionMarcaServicio {
 
     if (incluyeDatosWhatsappApi(datos)) {
       await whatsappMarcaServicio.guardarConfigAdmin(marcaId, datos);
+    }
+
+    if (incluyeDatosNotificaciones(datos)) {
+      await correoMarcaServicio.guardarConfigAdmin(marcaId, datos);
     }
 
     if (traePremio) {

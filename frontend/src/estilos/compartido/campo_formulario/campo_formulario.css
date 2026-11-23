@@ -24,6 +24,10 @@
   box-shadow: var(--sombra-suave);
 }
 
+.campo-formulario .campo-contrasena input {
+  padding-right: 3.25rem;
+}
+
 .campo-formulario input::placeholder,
 .campo-formulario textarea::placeholder {
   color: var(--color-texto-muted-superficie);

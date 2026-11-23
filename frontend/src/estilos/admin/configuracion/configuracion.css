@@ -103,6 +103,48 @@
   margin-bottom: var(--espacio-md);
 }
 
+.configuracion-marca__bloque-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-sm);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: var(--espacio-md);
+  padding: var(--espacio-md);
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: var(--color-superficie);
+}
+
+.configuracion-marca__bloque-aviso h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.configuracion-marca__guia {
+  margin: 0 0 var(--espacio-sm);
+  padding: var(--espacio-sm) var(--espacio-md);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-secundario) 18%, #fff);
+}
+
+.configuracion-marca__guia summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.configuracion-marca__guia ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-texto-muted-superficie);
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.5;
+}
+
 .configuracion-marca__seccion-cabecera {
   margin-bottom: var(--espacio-lg);
 }

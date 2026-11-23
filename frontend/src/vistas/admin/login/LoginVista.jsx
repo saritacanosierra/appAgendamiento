@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { BotonPrincipal, CampoFormulario, Cargando, MensajeError } from '../../../compartido/componentes';
+import { BotonPrincipal, CampoContrasena, CampoFormulario, Cargando, MensajeError } from '../../../compartido/componentes';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
 import { PLATAFORMA_HABILITADA } from '../../../compartido/configuracion/entornoApp';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
@@ -16,7 +16,7 @@ const MODOS = {
     id: 'plataforma',
     titulo: 'Administrador de plataforma',
     descripcion: 'Crea y gestiona varias marcas (DaniSpa, AlejaNails, etc.)',
-    correoDemo: 'saritacanosierra@gmail.com',
+    placeholderCorreo: 'Tu correo de administrador',
     destinoDefecto: RUTAS_PLATAFORMA.marcas,
     urlLogin: RUTAS_PLATAFORMA.login,
     rolEsperado: 'superadmin',
@@ -25,7 +25,7 @@ const MODOS = {
     id: 'marca',
     titulo: 'Panel de tu marca',
     descripcion: 'Este acceso es para propietarios. Aquí gestionas tus gastos, tus citas y el contenido de tu marca.',
-    correoDemo: 'admin@lunanails.test',
+    placeholderCorreo: 'Tu WhatsApp o correo',
     destinoDefecto: RUTAS_ADMIN.panel,
     urlLogin: RUTAS_ADMIN.login,
     rolEsperado: 'marca',
@@ -76,7 +76,7 @@ export default function LoginVista({ modo = 'marca' }) {
     ? sesionPlataforma.usuario
     : sesionMarca.usuario;
 
-  const [correo, setCorreo] = useState(config.correoDemo);
+  const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [cerrandoSesion, setCerrandoSesion] = useState(false);
@@ -90,13 +90,13 @@ export default function LoginVista({ modo = 'marca' }) {
   const [avisoRecuperacion, setAvisoRecuperacion] = useState('');
 
   useEffect(() => {
-    setCorreo(config.correoDemo);
+    setCorreo('');
     setContrasena('');
     setError(null);
     setErroresCampo({});
     setAvisoRecuperacion('');
     setModalRecuperar(false);
-  }, [modoActivo, config.correoDemo]);
+  }, [modoActivo]);
 
   useEffect(() => {
     if (!modalRecuperar) return undefined;
@@ -238,24 +238,32 @@ export default function LoginVista({ modo = 'marca' }) {
         {error && <MensajeError titulo="Error de acceso" mensaje={error} />}
 
         <form className="login-vista__formulario" onSubmit={manejarSubmit}>
-          <CampoFormulario etiqueta={config.id === 'marca' ? 'WhatsApp o correo' : 'Correo'} id="correo" requerido error={erroresCampo.correo}>
+          <CampoFormulario
+            etiqueta={config.id === 'marca' ? 'WhatsApp o correo' : 'Correo'}
+            id="correo"
+            requerido
+            error={erroresCampo.correo}
+            ayuda={config.id === 'marca'
+              ? 'Usa el WhatsApp o el correo con el que creaste tu marca.'
+              : 'Usa el correo de quien administra la plataforma.'}
+          >
             <input
               id="correo"
               type={config.id === 'marca' ? 'text' : 'email'}
               inputMode={config.id === 'marca' ? 'text' : 'email'}
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
-              placeholder={config.id === 'marca' ? '3001234567 o tu correo' : config.correoDemo}
+              placeholder={config.placeholderCorreo}
               autoComplete="username"
               required
             />
           </CampoFormulario>
-          <CampoFormulario etiqueta="Contrasena" id="contrasena" requerido error={erroresCampo.contrasena}>
-            <input
+          <CampoFormulario etiqueta="Contraseña" id="contrasena" requerido error={erroresCampo.contrasena}>
+            <CampoContrasena
               id="contrasena"
-              type="password"
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}
+              placeholder="Escribe tu contraseña"
               autoComplete="current-password"
               required
             />
@@ -305,17 +313,30 @@ export default function LoginVista({ modo = 'marca' }) {
             Escribe el correo y el celular de tu marca. Solo si coinciden enviamos a ese correo el enlace para cambiar la contraseña. Si no coinciden, no enviamos nada.
           </p>
           <form className="login-vista__formulario" onSubmit={pedirRecuperacion}>
-            <CampoFormulario etiqueta="Correo" id="correo-recuperar" requerido error={erroresModal.correo}>
+            <CampoFormulario
+              etiqueta="Correo de tu cuenta"
+              id="correo-recuperar"
+              requerido
+              error={erroresModal.correo}
+              ayuda="El correo donde quieres recibir el enlace."
+            >
               <input
                 id="correo-recuperar"
                 type="email"
                 value={correoRecuperar}
                 onChange={(e) => setCorreoRecuperar(e.target.value)}
+                placeholder="Tu correo"
                 autoComplete="email"
                 required
               />
             </CampoFormulario>
-            <CampoFormulario etiqueta="Celular" id="celular-recuperar" requerido error={erroresModal.celular}>
+            <CampoFormulario
+              etiqueta="Celular de la marca"
+              id="celular-recuperar"
+              requerido
+              error={erroresModal.celular}
+              ayuda="El mismo WhatsApp registrado en tu marca."
+            >
               <input
                 id="celular-recuperar"
                 type="tel"
@@ -323,7 +344,7 @@ export default function LoginVista({ modo = 'marca' }) {
                 onChange={(e) => setCelularRecuperar(e.target.value)}
                 autoComplete="tel"
                 inputMode="tel"
-                placeholder="300 123 4567"
+                placeholder="Ejemplo: 3001234567"
                 required
               />
             </CampoFormulario>

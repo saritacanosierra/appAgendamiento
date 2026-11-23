@@ -6,6 +6,7 @@ export { default as SelectorFecha } from './selector_fecha/SelectorFecha';
 export { default as SelectorHora } from './selector_hora/SelectorHora';
 export { default as HorariosDisponiblesDia } from './horarios_disponibles_dia/HorariosDisponiblesDia';
 export { default as CampoFormulario } from './campo_formulario/CampoFormulario';
+export { default as CampoContrasena } from './campo_contrasena/CampoContrasena';
 export { default as FiltroServicios, filtrarServiciosPorTexto } from './filtro_servicios/FiltroServicios';
 export { default as InputTexto } from './input_texto/InputTexto';
 export { default as TextareaTexto } from './textarea_texto/TextareaTexto';
