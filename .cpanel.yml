@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    # ritualnails.store → public_html/agenda (NO agenda_git)
+    - export DEPLOYPATH=/home/sites/35a/7/7e32400eb8/public_html/agenda
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -Rf frontend/dist/. $DEPLOYPATH/
