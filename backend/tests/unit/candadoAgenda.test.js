@@ -50,4 +50,46 @@ describe('candadoAgenda', () => {
       (err) => err.codigoHttp === 503
     );
   });
+
+  it('serializa dos adquisiciones del mismo dia/estilista', async () => {
+    let ocupado = false;
+    let maxConcurrentes = 0;
+    let concurrentes = 0;
+
+    function crearConexion() {
+      return {
+        execute: async (sql) => {
+          if (sql.includes('INSERT IGNORE')) return [{ affectedRows: 1 }];
+          if (sql.includes('FOR UPDATE')) {
+            while (ocupado) {
+              await new Promise((r) => setTimeout(r, 5));
+            }
+            ocupado = true;
+            concurrentes += 1;
+            maxConcurrentes = Math.max(maxConcurrentes, concurrentes);
+            await new Promise((r) => setTimeout(r, 25));
+            concurrentes -= 1;
+            ocupado = false;
+            return [[{ id: 1 }]];
+          }
+          throw new Error(`SQL inesperado: ${sql}`);
+        },
+      };
+    }
+
+    await Promise.all([
+      adquirirCandadoAgendaDia(crearConexion(), {
+        marcaId: 1,
+        fecha: '2030-02-01',
+        estilistaId: 4,
+      }),
+      adquirirCandadoAgendaDia(crearConexion(), {
+        marcaId: 1,
+        fecha: '2030-02-01',
+        estilistaId: 4,
+      }),
+    ]);
+
+    assert.equal(maxConcurrentes, 1);
+  });
 });

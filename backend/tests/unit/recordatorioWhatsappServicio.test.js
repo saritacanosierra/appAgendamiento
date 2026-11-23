@@ -2,10 +2,19 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { RecordatorioWhatsappServicio } from '../../src/servicios/recordatorioWhatsappServicio.js';
 
-function filaCandidata(opciones = {}) {
-  const inicio = new Date(Date.now() + 4 * 60 * 60 * 1000);
-  const fecha = inicio.toISOString().slice(0, 10);
+function fechaHoraLocal(msDesdeAhora) {
+  const inicio = new Date(Date.now() + msDesdeAhora);
+  const fecha = [
+    inicio.getFullYear(),
+    String(inicio.getMonth() + 1).padStart(2, '0'),
+    String(inicio.getDate()).padStart(2, '0'),
+  ].join('-');
   const hora = `${String(inicio.getHours()).padStart(2, '0')}:${String(inicio.getMinutes()).padStart(2, '0')}`;
+  return { fecha, hora };
+}
+
+function filaCandidata(opciones = {}) {
+  const { fecha, hora } = fechaHoraLocal(4 * 60 * 60 * 1000);
 
   return {
     id: opciones.id ?? 99,
@@ -64,7 +73,7 @@ describe('RecordatorioWhatsappServicio', () => {
     const resultado = await servicio.procesarPendientes({
       habilitado: true,
       horasAntes: 4,
-      ventanaMinutos: 30,
+      ventanaMinutos: 60,
     });
 
     assert.equal(resultado.revisadas, 1);

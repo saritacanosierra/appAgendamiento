@@ -82,7 +82,7 @@
 |---|------|------|------------|
 | 1 | Estructura frontend / backend / BD | **8.5** | Capas claras; convenciones documentadas |
 | 2 | Seguridad | **7.8** | helmet, request ID, Redis opcional, aislamiento multi-marca |
-| 3 | Tests automatizados | **6.5** | 15 unit/HTTP + 4 integración + 5 E2E; bajo volumen |
+| 3 | Tests automatizados | **7.5** | Unit/HTTP ampliados (avisos, cache, rate limit, candado, reservas); + integración/E2E |
 | 4 | Errores y logging | **8.0** | Pino JSON, middleware HTTP, `LimiteError` React |
 | 5 | Configuración y despliegue | **8.0** | Runbook VPS, S3/R2, CI 2 jobs; Vercel parcial |
 | 6 | Documentación | **8.5** | Runbook, checklists, README, guías integraciones |

@@ -4,7 +4,7 @@ import { whatsappMarcaServicio } from './whatsappMarcaServicio.js';
 import { whatsappServicio } from './whatsappServicio.js';
 import { motivoAvisoLegible } from '../utilidades/plantillaNotificacion.js';
 
-function normalizarResultado(canal, resultado) {
+export function normalizarResultadoAviso(canal, resultado) {
   if (!resultado) {
     return { canal, estado: 'error', motivo: 'No se pudo enviar el aviso.', motivoCodigo: 'error' };
   }
@@ -30,29 +30,37 @@ function normalizarResultado(canal, resultado) {
 }
 
 export class AvisosConfirmacionServicio {
+  constructor(deps = {}) {
+    this.correoMarca = deps.correoMarca ?? correoMarcaServicio;
+    this.whatsappMarca = deps.whatsappMarca ?? whatsappMarcaServicio;
+    this.whatsapp = deps.whatsapp ?? whatsappServicio;
+    this.email = deps.email ?? emailServicio;
+    this.registrarFallo = deps.registrarFallo ?? null;
+  }
+
   async enviarTrasReserva({ marcaId, confirmacion, urlConfirmacion }) {
-    const canales = await correoMarcaServicio.leerCanales(marcaId);
+    const canales = await this.correoMarca.leerCanales(marcaId);
     const resultados = [];
     const marca = confirmacion?.cita?.marca ?? {};
 
     if (canales.whatsapp) {
       try {
-        const credenciales = await whatsappMarcaServicio.obtenerCredenciales(marcaId);
+        const credenciales = await this.whatsappMarca.obtenerCredenciales(marcaId);
         if (!credenciales.configurado) {
-          resultados.push(normalizarResultado('whatsapp', {
+          resultados.push(normalizarResultadoAviso('whatsapp', {
             omitido: true,
             motivo: 'whatsapp_marca_no_configurado',
           }));
         } else {
-          const resultado = await whatsappServicio.enviarConfirmacionReserva({
+          const resultado = await this.whatsapp.enviarConfirmacionReserva({
             confirmacion,
             urlConfirmacion,
             credenciales,
           });
-          resultados.push(normalizarResultado('whatsapp', resultado));
+          resultados.push(normalizarResultadoAviso('whatsapp', resultado));
         }
       } catch (err) {
-        resultados.push(normalizarResultado('whatsapp', {
+        resultados.push(normalizarResultadoAviso('whatsapp', {
           error: true,
           motivo: err?.message || 'error',
         }));
@@ -61,22 +69,22 @@ export class AvisosConfirmacionServicio {
 
     if (canales.correo) {
       try {
-        const credenciales = await correoMarcaServicio.obtenerCredencialesEnvio(marcaId);
+        const credenciales = await this.correoMarca.obtenerCredencialesEnvio(marcaId);
         if (!credenciales.listo) {
-          resultados.push(normalizarResultado('correo', {
+          resultados.push(normalizarResultadoAviso('correo', {
             omitido: true,
             motivo: 'smtp_no_configurado',
           }));
         } else {
-          const resultado = await emailServicio.enviarConfirmacionReservaMarca({
+          const resultado = await this.email.enviarConfirmacionReservaMarca({
             confirmacion,
             urlConfirmacion,
             smtp: credenciales.smtp,
           });
-          resultados.push(normalizarResultado('correo', resultado));
+          resultados.push(normalizarResultadoAviso('correo', resultado));
         }
       } catch (err) {
-        resultados.push(normalizarResultado('correo', {
+        resultados.push(normalizarResultadoAviso('correo', {
           error: true,
           motivo: err?.message || 'error',
         }));
@@ -90,16 +98,24 @@ export class AvisosConfirmacionServicio {
 
     if (fallos.length > 0) {
       try {
-        const { notificacionServicio } = await import('./notificacionServicio.js');
-        const detalle = fallos.map((f) => `${f.canal}: ${f.motivo}`).join(' · ');
-        await notificacionServicio.registrar({
-          marcaId,
-          tipo: 'aviso_confirmacion_fallido',
-          titulo: 'No se pudo avisar a la clienta',
-          mensaje: `La cita sigue activa. ${detalle}. Indicale comunicarse directamente.`,
-          referenciaTipo: 'cita',
-          referenciaId: confirmacion?.cita?.id ?? null,
-        });
+        if (this.registrarFallo) {
+          await this.registrarFallo({
+            marcaId,
+            confirmacion,
+            fallos,
+          });
+        } else {
+          const { notificacionServicio } = await import('./notificacionServicio.js');
+          const detalle = fallos.map((f) => `${f.canal}: ${f.motivo}`).join(' · ');
+          await notificacionServicio.registrar({
+            marcaId,
+            tipo: 'aviso_confirmacion_fallido',
+            titulo: 'No se pudo avisar a la clienta',
+            mensaje: `La cita sigue activa. ${detalle}. Indicale comunicarse directamente.`,
+            referenciaTipo: 'cita',
+            referenciaId: confirmacion?.cita?.id ?? null,
+          });
+        }
       } catch {
         // La notificacion interna no debe tumbar la reserva.
       }
