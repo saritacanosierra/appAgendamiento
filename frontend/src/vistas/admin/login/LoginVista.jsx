@@ -16,7 +16,7 @@ const MODOS = {
     id: 'plataforma',
     titulo: 'Administrador de plataforma',
     descripcion: 'Crea y gestiona varias marcas (DaniSpa, AlejaNails, etc.)',
-    placeholderCorreo: 'Tu correo de administrador',
+    placeholderCorreo: 'Escribe tu correo',
     destinoDefecto: RUTAS_PLATAFORMA.marcas,
     urlLogin: RUTAS_PLATAFORMA.login,
     rolEsperado: 'superadmin',
@@ -25,7 +25,7 @@ const MODOS = {
     id: 'marca',
     titulo: 'Panel de tu marca',
     descripcion: 'Este acceso es para propietarios. Aquí gestionas tus gastos, tus citas y el contenido de tu marca.',
-    placeholderCorreo: 'Tu WhatsApp o correo',
+    placeholderCorreo: 'Escribe tu WhatsApp o correo',
     destinoDefecto: RUTAS_ADMIN.panel,
     urlLogin: RUTAS_ADMIN.login,
     rolEsperado: 'marca',
@@ -237,34 +237,36 @@ export default function LoginVista({ modo = 'marca' }) {
 
         {error && <MensajeError titulo="Error de acceso" mensaje={error} />}
 
-        <form className="login-vista__formulario" onSubmit={manejarSubmit}>
+        <form className="login-vista__formulario" onSubmit={manejarSubmit} autoComplete="off">
           <CampoFormulario
             etiqueta={config.id === 'marca' ? 'WhatsApp o correo' : 'Correo'}
             id="correo"
             requerido
             error={erroresCampo.correo}
             ayuda={config.id === 'marca'
-              ? 'Usa el WhatsApp o el correo con el que creaste tu marca.'
-              : 'Usa el correo de quien administra la plataforma.'}
+              ? 'Escribe el WhatsApp o el correo con el que creaste tu marca (el campo empieza vacío).'
+              : 'Escribe el correo de quien administra la plataforma (el campo empieza vacío).'}
           >
             <input
               id="correo"
+              name="acceso-correo"
               type={config.id === 'marca' ? 'text' : 'email'}
               inputMode={config.id === 'marca' ? 'text' : 'email'}
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
               placeholder={config.placeholderCorreo}
-              autoComplete="username"
+              autoComplete="off"
               required
             />
           </CampoFormulario>
           <CampoFormulario etiqueta="Contraseña" id="contrasena" requerido error={erroresCampo.contrasena}>
             <CampoContrasena
               id="contrasena"
+              name="acceso-contrasena"
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}
               placeholder="Escribe tu contraseña"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
             />
           </CampoFormulario>

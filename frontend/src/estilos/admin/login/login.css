@@ -135,6 +135,13 @@
   text-align: left;
 }
 
+.login-vista__formulario input::placeholder,
+.login-vista__formulario .campo-contrasena input::placeholder {
+  color: #9a9aa3;
+  opacity: 1;
+  font-weight: 400;
+}
+
 .login-vista__recuperar {
   display: flex;
   align-items: center;

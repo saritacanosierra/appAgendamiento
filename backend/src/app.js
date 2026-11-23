@@ -30,11 +30,12 @@ export function crearApp() {
 
   app.use(cors({
     origin: (origen, callback) => {
+      // Sin Error: si se lanza, Express responde 500 sin cabeceras CORS y el navegador oculta la causa.
       if (!origen || corsOrigenes.includes(origen)) {
         callback(null, true);
-      } else {
-        callback(new Error('Origen no permitido por CORS'));
+        return;
       }
+      callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

@@ -38,9 +38,11 @@ git push origin main
 
 ```env
 PLATAFORMA_HABILITADA=true
-CORS_ORIGENES=https://ritualnails.store,https://agenda.nuncajamasropa.com
+CORS_ORIGENES=https://ritualnails.store,http://ritualnails.store,https://www.ritualnails.store,http://www.ritualnails.store,https://agenda.nuncajamasropa.com,http://agenda.nuncajamasropa.com
 FRONTEND_URL=https://ritualnails.store
 ```
+
+El backend también incluye esos orígenes por defecto. Si abres el sitio por `http://` (sin SSL) y Render aún no tiene el deploy, el login falla por CORS; preferible forzar HTTPS en Imagina (AutoSSL + redirección en `.htaccess`).
 
 ### Google Calendar (OAuth)
 
