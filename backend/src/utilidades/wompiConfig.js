@@ -26,10 +26,43 @@ export function validarLlavesWompi({ llavePublica, secretoIntegridadNuevo, secre
   if (!integridad) {
     return { error: 'Falta el secreto de integridad.', codigoHttp: 422 };
   }
+
+  const publicaProd = publica.startsWith('pub_prod_');
+  const publicaTest = publica.startsWith('pub_test_');
+  const integridadProd = integridad.startsWith('prod_integrity_');
+  const integridadTest = integridad.startsWith('test_integrity_');
+  if ((publicaProd && integridadTest) || (publicaTest && integridadProd)) {
+    return {
+      error: 'La llave pública y el secreto de integridad deben ser del mismo ambiente (prod o test).',
+      codigoHttp: 422,
+    };
+  }
+  if ((publicaProd || publicaTest) && !integridadProd && !integridadTest) {
+    return {
+      error: 'El secreto de integridad debe empezar por prod_integrity_ o test_integrity_.',
+      codigoHttp: 422,
+    };
+  }
+
   return {
     llavePublica: publica,
     secretoIntegridad: integridad,
   };
+}
+
+/** Solo acepta retorno al panel admin por http(s). */
+export function redirectPagoWompi(candidato, fallback) {
+  const texto = textoWompi(candidato);
+  if (!texto) return fallback;
+  try {
+    const url = new URL(texto);
+    if (!['http:', 'https:'].includes(url.protocol)) return fallback;
+    if (!url.pathname.startsWith('/admin')) return fallback;
+    const ruta = url.pathname.endsWith('/') ? url.pathname : `${url.pathname}/`;
+    return `${url.origin}${ruta}${url.search}`;
+  } catch {
+    return fallback;
+  }
 }
 
 export function resolverSecretoEventos(nuevo, actual) {

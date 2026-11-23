@@ -19,7 +19,10 @@ export async function obtenerPlanMarca(req, res) {
 export async function crearPagoWompi(req, res) {
   const resultado = await wompiServicio.crearIntento(
     req.marcaId,
-    req.body?.plan_tipo ?? req.body?.planTipo
+    req.body?.plan_tipo ?? req.body?.planTipo,
+    {
+      redirect_url: req.body?.redirect_url ?? req.body?.redirectUrl,
+    }
   );
   if (resultado.error) {
     return respuestaError(res, resultado.error, resultado.codigoHttp ?? 400);

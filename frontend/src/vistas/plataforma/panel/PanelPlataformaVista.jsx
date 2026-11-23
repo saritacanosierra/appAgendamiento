@@ -5,12 +5,14 @@ import { RUTAS_PLATAFORMA } from '../../../compartido/constantes';
 import {
   listarMarcasPlataforma,
   obtenerResumenPlataforma,
+  obtenerWompiPlataforma,
 } from '../../../modulos/plataforma/servicios/plataformaServicio';
 import '../../../estilos/plataforma/panel/panel.css';
 
 export default function PanelPlataformaVista() {
   const [resumen, setResumen] = useState(null);
   const [marcas, setMarcas] = useState([]);
+  const [wompi, setWompi] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,12 +20,14 @@ export default function PanelPlataformaVista() {
     setCargando(true);
     setError(null);
     try {
-      const [datosResumen, listaMarcas] = await Promise.all([
+      const [datosResumen, listaMarcas, datosWompi] = await Promise.all([
         obtenerResumenPlataforma(),
         listarMarcasPlataforma(),
+        obtenerWompiPlataforma(),
       ]);
       setResumen(datosResumen);
       setMarcas(listaMarcas);
+      setWompi(datosWompi);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,12 +87,29 @@ export default function PanelPlataformaVista() {
         </article>
       </section>
 
+      <section
+        className={`panel-plataforma__wompi${wompi?.listo ? ' panel-plataforma__wompi--listo' : ''}`}
+      >
+        <div className="panel-plataforma__wompi-texto">
+          <p className="panel-plataforma__wompi-etiqueta">Cobros de suscripción</p>
+          <h3>Cuenta Wompi</h3>
+          <p>
+            {wompi?.listo
+              ? 'La cuenta está lista. Las marcas ya pueden elegir un periodo y pagar.'
+              : 'Aquí se guarda la cuenta del comercio. Sin estas llaves ninguna marca puede pagar su plan.'}
+          </p>
+        </div>
+        <BotonPrincipal to={RUTAS_PLATAFORMA.cobros}>
+          {wompi?.listo ? 'Revisar Wompi' : 'Configurar Wompi'}
+        </BotonPrincipal>
+      </section>
+
       <section className="panel-plataforma__bloques">
         <div className="panel-plataforma__bloque">
           <h3>Acciones rapidas</h3>
           <ul className="panel-plataforma__acciones">
             <li><Link to={RUTAS_PLATAFORMA.marcas}>Crear o administrar empresas</Link></li>
-            <li><Link to={RUTAS_PLATAFORMA.cobros}>Cuenta Wompi para cobros</Link></li>
+            <li><Link to={RUTAS_PLATAFORMA.cobros}>Configurar cuenta Wompi</Link></li>
             <li><Link to={RUTAS_PLATAFORMA.reportes}>Ver reportes globales</Link></li>
           </ul>
         </div>

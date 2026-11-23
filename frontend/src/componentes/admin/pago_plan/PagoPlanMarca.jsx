@@ -18,7 +18,7 @@ function pesos(valor) {
 function textoErrorCobro(err) {
   const texto = String(err?.message ?? '');
   if (/no esta configurado|no está configurado/i.test(texto)) {
-    return 'El cobro con Wompi se activa cuando en /plataforma/cobros guardan la cuenta del comercio.';
+    return 'Todavía no se puede pagar: quien administra la plataforma debe guardar la cuenta de Wompi.';
   }
   return texto || 'No se pudo abrir la pasarela de pago.';
 }
@@ -27,18 +27,33 @@ function abrirPasarelaWompi(datos) {
   if (!datos?.publicKey || !datos?.referencia || !datos?.integridad || !datos?.montoCentavos) {
     throw new Error('Wompi no devolvió los datos del cobro.');
   }
-  const partes = [
-    ['public-key', datos.publicKey],
-    ['currency', datos.moneda || 'COP'],
-    ['amount-in-cents', datos.montoCentavos],
-    ['reference', datos.referencia],
-    ['signature:integrity', datos.integridad],
-  ];
-  if (datos.redirectUrl) partes.push(['redirect-url', datos.redirectUrl]);
-  const consulta = partes
-    .map(([nombre, valor]) => `${encodeURIComponent(nombre).replace(/%3A/gi, ':')}=${encodeURIComponent(valor)}`)
-    .join('&');
-  window.location.assign(`${PASARELA_WOMPI}?${consulta}`);
+
+  // Wompi documenta el Web Checkout como formulario GET, no como URL armada a mano.
+  const form = document.createElement('form');
+  form.method = 'GET';
+  form.action = PASARELA_WOMPI;
+  form.acceptCharset = 'UTF-8';
+  form.style.display = 'none';
+
+  const campos = {
+    'public-key': datos.publicKey,
+    currency: datos.moneda || 'COP',
+    'amount-in-cents': String(datos.montoCentavos),
+    reference: datos.referencia,
+    'signature:integrity': datos.integridad,
+  };
+  if (datos.redirectUrl) campos['redirect-url'] = datos.redirectUrl;
+
+  Object.entries(campos).forEach(([nombre, valor]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = nombre;
+    input.value = valor;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 const CLAVE_AVISO_ABIERTO = 'pago-plan-aviso-abierto';
@@ -49,7 +64,7 @@ function finDeLaPrueba(venceEn) {
   return new Date(anio, mes - 1, dia, 23, 59, 59);
 }
 
-function usarCuentaRegresiva(venceEn) {
+function useCuentaRegresiva(venceEn) {
   const [ahora, setAhora] = useState(() => Date.now());
 
   useEffect(() => {
@@ -91,6 +106,7 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
   const [planes, setPlanes] = useState(PLANES_BASE);
   const [tipo, setTipo] = useState('mensual');
   const [wompiListo, setWompiListo] = useState(false);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [pagando, setPagando] = useState(false);
   const [avisoAbierto, setAvisoAbierto] = useState(() => {
@@ -105,20 +121,24 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
         if (Array.isArray(datos.planes) && datos.planes.length > 0) setPlanes(datos.planes);
         setWompiListo(Boolean(datos.wompiConfigurado));
       })
-      .catch((err) => setError(err.message));
+      .catch((err) => setError(err.message))
+      .finally(() => setCargando(false));
   }, []);
 
   const elegido = planes.find((item) => item.tipo === tipo) ?? planes[0];
 
-  async function pagar(planTipo) {
-    if (pagando) return;
-    const tipoElegido = planTipo || elegido?.tipo;
-    if (!tipoElegido) return;
-    setTipo(tipoElegido);
+  async function pagar() {
+    if (pagando || !elegido?.tipo) return;
+    if (!wompiListo) {
+      setError('Todavía no se puede pagar: quien administra la plataforma debe guardar la cuenta de Wompi.');
+      return;
+    }
     setPagando(true);
     setError(null);
     try {
-      const datos = await crearPagoWompi(tipoElegido);
+      const datos = await crearPagoWompi(elegido.tipo, {
+        redirectUrl: `${window.location.origin}/admin/panel/`,
+      });
       abrirPasarelaWompi(datos);
     } catch (err) {
       setError(textoErrorCobro(err));
@@ -126,7 +146,7 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
     }
   }
 
-  const cuenta = usarCuentaRegresiva(plan?.prueba ? plan.venceEn : null);
+  const cuenta = useCuentaRegresiva(plan?.prueba ? plan.venceEn : null);
   const puedeMinimizar = variante === 'aviso';
   const titulo = plan?.vencido
     ? 'Hay que pagar para seguir usando la agenda'
@@ -163,14 +183,14 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
             aria-expanded={avisoAbierto}
             onClick={alternarAviso}
           >
-            {avisoAbierto ? 'Minimizar' : 'Mostrar'}
+            {avisoAbierto ? 'Ocultar precios' : 'Elegir plan'}
           </button>
         )}
       </div>
       {(!puedeMinimizar || avisoAbierto) && (
       <>
       <p>
-        La prueba gratis es una sola vez, 8 días. Elige un periodo y se abre la pasarela de Wompi para pagar ese valor.
+        La prueba gratis es una sola vez, 8 días. Toca el periodo que quieres y luego el botón de pagar para abrir Wompi.
       </p>
       <p>
         Si se acaba el tiempo, las citas, fotos y clientas siguen guardadas. La agenda se pausa hasta el nuevo pago.
@@ -181,27 +201,39 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
             key={opcion.tipo}
             type="button"
             role="radio"
-            aria-checked={opcion.tipo === elegido.tipo}
-            className={opcion.tipo === elegido.tipo
+            aria-checked={opcion.tipo === elegido?.tipo}
+            className={opcion.tipo === elegido?.tipo
               ? 'pago-plan__periodo pago-plan__periodo--activo'
               : 'pago-plan__periodo'}
-            onClick={() => pagar(opcion.tipo)}
-            disabled={pagando}
+            onClick={() => {
+              setTipo(opcion.tipo);
+              setError(null);
+            }}
+            disabled={pagando || cargando}
           >
             <span>{opcion.etiqueta}</span>
             <strong>${pesos(opcion.precio)}</strong>
           </button>
         ))}
       </div>
-      {error && <p className="pago-plan__error">{error}</p>}
-      <button type="button" className="pago-plan__boton" onClick={() => pagar(elegido.tipo)} disabled={pagando || !elegido}>
-        {pagando ? 'Abriendo Wompi...' : `Pagar $${pesos(elegido?.precio)} con Wompi`}
-      </button>
-      {!wompiListo && !error && (
+      {error && <p className="pago-plan__error" role="alert">{error}</p>}
+      {!wompiListo && !cargando && (
         <p className="pago-plan__aviso">
-          Si la pasarela no abre, en /plataforma/cobros todavía falta guardar la cuenta de Wompi.
+          El cobro se activa cuando quien administra la plataforma guarda la cuenta de Wompi.
         </p>
       )}
+      <button
+        type="button"
+        className="pago-plan__boton"
+        onClick={pagar}
+        disabled={pagando || cargando || !elegido || !wompiListo}
+      >
+        {pagando
+          ? 'Abriendo Wompi...'
+          : !wompiListo
+            ? 'Pago aún no disponible'
+            : `Pagar ${elegido?.etiqueta?.toLowerCase() ?? ''} $${pesos(elegido?.precio)} con Wompi`}
+      </button>
       </>
       )}
     </section>

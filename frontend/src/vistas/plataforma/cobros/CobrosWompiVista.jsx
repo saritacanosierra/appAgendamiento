@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BotonPrincipal, CampoFormulario, Cargando, MensajeError } from '../../../compartido/componentes';
+import { BotonPrincipal, CampoContrasena, CampoFormulario, Cargando, MensajeError } from '../../../compartido/componentes';
 import {
   guardarWompiPlataforma,
   obtenerWompiPlataforma,
@@ -80,9 +80,10 @@ export default function CobrosWompiVista() {
     <div className="cobros-wompi">
       <header className="cobros-wompi__cabecera">
         <div>
-          <h1>Cobros Wompi</h1>
+          <h1>Cuenta Wompi</h1>
           <p>
-            Aquí pones la cuenta del comercio. Es la misma para todas las marcas.
+            Aquí quien administra la plataforma guarda las llaves del comercio.
+            Con eso las marcas pueden elegir un periodo y pagar la suscripción.
             Los secretos no se muestran otra vez: si no los cambias, déjalos en blanco.
           </p>
         </div>
@@ -121,12 +122,11 @@ export default function CobrosWompiVista() {
           id="wompi-secreto-integridad"
           requerido={!estado?.secretoIntegridadGuardado}
         >
-          <input
+          <CampoContrasena
             id="wompi-secreto-integridad"
-            type="password"
             value={formulario.secretoIntegridad}
             onChange={(e) => cambiar('secretoIntegridad', e.target.value)}
-            placeholder={estado?.secretoIntegridadGuardado ? '••••••••' : ''}
+            placeholder={estado?.secretoIntegridadGuardado ? 'Déjalo vacío para no cambiarlo' : 'prod_integrity_... o test_integrity_...'}
             autoComplete="new-password"
             required={!estado?.secretoIntegridadGuardado}
           />
@@ -137,12 +137,11 @@ export default function CobrosWompiVista() {
             : 'Secreto de eventos'}
           id="wompi-secreto-eventos"
         >
-          <input
+          <CampoContrasena
             id="wompi-secreto-eventos"
-            type="password"
             value={formulario.secretoEventos}
             onChange={(e) => cambiar('secretoEventos', e.target.value)}
-            placeholder={estado?.secretoEventosGuardado ? '••••••••' : ''}
+            placeholder={estado?.secretoEventosGuardado ? 'Déjalo vacío para no cambiarlo' : 'Pégalo desde el panel de Wompi'}
             autoComplete="new-password"
           />
         </CampoFormulario>
