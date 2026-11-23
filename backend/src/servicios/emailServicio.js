@@ -21,6 +21,38 @@ function smtpDesdeObjeto(smtp) {
   return Boolean(smtp?.host && smtp?.usuario && smtp?.contrasena);
 }
 
+function mensajeErrorSmtp(err) {
+  const raw = String(err?.message || err || 'error');
+  const bajo = raw.toLowerCase();
+  if (
+    bajo.includes('timeout')
+    || bajo.includes('timed out')
+    || bajo.includes('etimedout')
+    || bajo.includes('econnrefused')
+    || bajo.includes('enotfound')
+    || bajo.includes('blocked')
+  ) {
+    return (
+      'No se pudo conectar al correo SMTP (tiempo agotado o bloqueado). '
+      + 'En Render el puerto 587/465 a veces está cerrado: revisa la contraseña de aplicación '
+      + 'o usa un proveedor de correo (Resend, SendGrid, Mailgun).'
+    );
+  }
+  if (bajo.includes('invalid login') || bajo.includes('authentication') || bajo.includes('535')) {
+    return 'Gmail rechazó el usuario o la contraseña de aplicación. Genera una nueva en Google.';
+  }
+  return raw;
+}
+
+function normalizarRemitente(remitente, usuario) {
+  const de = String(remitente ?? '').trim();
+  const cuenta = String(usuario ?? '').trim();
+  if (!de) return cuenta;
+  if (de.includes('@')) return de;
+  // Solo nombre (ej. "Agendaapp") → "Agendaapp <correo@gmail.com>"
+  return cuenta ? `${de} <${cuenta}>` : de;
+}
+
 function crearTransporte(smtp) {
   return nodemailer.createTransport({
     host: smtp.host,
@@ -30,6 +62,10 @@ function crearTransporte(smtp) {
       user: smtp.usuario,
       pass: smtp.contrasena,
     },
+    // Render / firewalls a veces bloquean SMTP: sin esto la petición cuelga minutos.
+    connectionTimeout: 12_000,
+    greetingTimeout: 12_000,
+    socketTimeout: 20_000,
   });
 }
 
@@ -78,18 +114,25 @@ export class EmailServicio {
         return { omitido: true, motivo: 'smtp_no_configurado' };
       }
       transporte = crearTransporte(smtp);
-      remitente = remitente || smtp.remitente || smtp.usuario;
+      remitente = normalizarRemitente(remitente || smtp.remitente, smtp.usuario);
     }
 
-    await transporte.sendMail({
-      from: remitente,
-      to: para,
-      subject: asunto,
-      text: texto,
-      html,
-    });
-
-    return { enviado: true };
+    try {
+      await transporte.sendMail({
+        from: remitente,
+        to: para,
+        subject: asunto,
+        text: texto,
+        html,
+      });
+      return { enviado: true };
+    } catch (err) {
+      const motivo = mensajeErrorSmtp(err);
+      if (process.env.NODE_ENV !== 'produccion') {
+        console.warn('[email] envio fallido:', motivo);
+      }
+      return { error: true, motivo };
+    }
   }
 
   async enviarConSmtpMarca({ para, asunto, texto, html, smtp }) {
@@ -99,7 +142,7 @@ export class EmailServicio {
     }
 
     const transporte = crearTransporte(smtp);
-    const de = smtp.remitente || smtp.usuario;
+    const de = normalizarRemitente(smtp.remitente, smtp.usuario);
 
     try {
       await transporte.sendMail({
@@ -113,7 +156,7 @@ export class EmailServicio {
     } catch (err) {
       return {
         error: true,
-        motivo: err?.message || 'error',
+        motivo: mensajeErrorSmtp(err),
       };
     }
   }

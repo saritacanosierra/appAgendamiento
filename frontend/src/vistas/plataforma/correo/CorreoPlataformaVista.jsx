@@ -16,7 +16,7 @@ import {
 import '../../../estilos/plataforma/correo/correo.css';
 
 const VACIO = {
-  host: '',
+  host: 'smtp.gmail.com',
   puerto: 587,
   seguro: false,
   usuario: '',
@@ -25,6 +25,14 @@ const VACIO = {
   celularRecuperacion: '',
   correoPrueba: '',
 };
+
+function corregirCorreoGmail(valor) {
+  const limpio = String(valor ?? '').trim().toLowerCase();
+  if (limpio.endsWith('@gmial.com')) {
+    return `${limpio.slice(0, -'@gmial.com'.length)}@gmail.com`;
+  }
+  return String(valor ?? '').trim();
+}
 
 export default function CorreoPlataformaVista() {
   const [estado, setEstado] = useState(null);
@@ -82,12 +90,20 @@ export default function CorreoPlataformaVista() {
     setGuardando(true);
     setError(null);
     setErroresCampo({});
+    const usuario = corregirCorreoGmail(formulario.usuario);
+    const host = formulario.host.trim()
+      || (usuario.endsWith('@gmail.com') || usuario.endsWith('@googlemail.com')
+        ? 'smtp.gmail.com'
+        : '');
+    if (usuario !== formulario.usuario) {
+      setFormulario((actual) => ({ ...actual, usuario, host: host || actual.host }));
+    }
     try {
       const datos = await guardarCorreoPlataforma({
-        host: formulario.host,
+        host,
         puerto: formulario.puerto,
         seguro: formulario.seguro,
-        usuario: formulario.usuario,
+        usuario,
         contrasena: formulario.contrasena,
         remitente: formulario.remitente,
         celular_recuperacion: formulario.celularRecuperacion,
@@ -119,18 +135,34 @@ export default function CorreoPlataformaVista() {
   }
 
   async function probar() {
+    const destino = corregirCorreoGmail(formulario.correoPrueba);
+    if (!destino || !destino.includes('@')) {
+      setError('Escribe un correo de prueba válido (ej. tu@gmail.com).');
+      return;
+    }
+    if (destino !== formulario.correoPrueba) {
+      setFormulario((actual) => ({ ...actual, correoPrueba: destino }));
+    }
     setProbando(true);
     setError(null);
+    const ac = new AbortController();
+    const temporizador = setTimeout(() => ac.abort(), 25_000);
     try {
-      await probarCorreoPlataforma(formulario.correoPrueba.trim());
+      await probarCorreoPlataforma(destino, { signal: ac.signal });
       setModalMensaje({
         titulo: 'Prueba enviada',
-        mensaje: `Revisa la bandeja de ${formulario.correoPrueba.trim()}.`,
+        mensaje: `Revisa la bandeja de ${destino} (y spam).`,
         variante: 'exito',
       });
     } catch (err) {
-      setError(err.message);
+      const abortado = err?.name === 'AbortError' || ac.signal.aborted;
+      setError(
+        abortado
+          ? 'El envío tardó demasiado. Suele ser el SMTP bloqueado en el servidor o la contraseña de aplicación mal puesta.'
+          : (err.message || 'No se pudo enviar la prueba.')
+      );
     } finally {
+      clearTimeout(temporizador);
       setProbando(false);
     }
   }
@@ -269,7 +301,11 @@ export default function CorreoPlataformaVista() {
           />
         </CampoFormulario>
 
-        <details className="correo-plataforma__avanzado">
+        {erroresCampo.host && (
+          <p className="correo-plataforma__error-host">{erroresCampo.host}</p>
+        )}
+
+        <details className="correo-plataforma__avanzado" open={Boolean(erroresCampo.host) || undefined}>
           <summary>Ajustes avanzados (host y puerto)</summary>
           <CampoFormulario etiqueta="Host SMTP" id="plat-smtp-host" error={erroresCampo.host}>
             <input

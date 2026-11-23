@@ -16,7 +16,21 @@
   RewriteRule ^ https://ritualnails.store%{REQUEST_URI} [R=301,L]
 
   RewriteRule ^index\.html$ - [L]
+
+  # Si falta un asset, 404 real (no index.html). Evita que la CDN cachee
+  # text/html en URLs .js y rompa el MIME type del navegador.
+  RewriteRule ^assets/ - [L]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|svg|png|jpg|jpeg|webp|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "^(index\.html|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
 </IfModule>

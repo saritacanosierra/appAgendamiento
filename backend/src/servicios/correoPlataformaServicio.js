@@ -83,11 +83,18 @@ export class CorreoPlataformaServicio {
 
   async guardarConfigAdmin(datos = {}) {
     const actual = await this.leerCredenciales();
-    const host = texto(datos.host ?? datos.smtp_host ?? actual.host);
+    let host = texto(datos.host ?? datos.smtp_host ?? actual.host);
     const puerto = Number(datos.puerto ?? datos.smtp_puerto ?? actual.puerto) || 587;
     const seguro = Boolean(datos.seguro ?? datos.smtp_seguro ?? actual.seguro);
-    const usuario = texto(datos.usuario ?? datos.smtp_usuario ?? actual.usuario).toLowerCase();
-    const remitente = texto(datos.remitente ?? datos.smtp_remitente ?? actual.remitente) || usuario;
+    let usuario = texto(datos.usuario ?? datos.smtp_usuario ?? actual.usuario).toLowerCase();
+    // Typo frecuente: gmial.com → gmail.com
+    if (usuario.endsWith('@gmial.com')) {
+      usuario = `${usuario.slice(0, -'@gmial.com'.length)}@gmail.com`;
+    }
+    let remitente = texto(datos.remitente ?? datos.smtp_remitente ?? actual.remitente) || usuario;
+    if (remitente && !remitente.includes('@') && usuario) {
+      remitente = `${remitente} <${usuario}>`;
+    }
     const celular = texto(datos.celular_recuperacion ?? datos.celularRecuperacion ?? actual.celularRecuperacion)
       .replace(/\D+/g, '');
     const contrasenaNueva = String(
@@ -95,9 +102,16 @@ export class CorreoPlataformaServicio {
     ).trim();
     const contrasena = contrasenaNueva || actual.contrasena;
 
+    // Si no pusieron host y el buzón es Gmail, asumimos el SMTP de Google.
+    if (!host && (usuario.endsWith('@gmail.com') || usuario.endsWith('@googlemail.com'))) {
+      host = 'smtp.gmail.com';
+    }
+
     const errores = {};
-    if (!host) errores.host = 'Indica el host SMTP (ej. smtp.gmail.com).';
-    if (!usuario || validarEmail(usuario)) errores.usuario = 'Correo SMTP invalido.';
+    if (!host) errores.host = 'Pulsa "Usar Gmail" o indica el host SMTP (ej. smtp.gmail.com).';
+    if (!usuario || validarEmail(usuario)) {
+      errores.usuario = 'Correo SMTP invalido. Revisa que diga gmail.com (no gmial).';
+    }
     if (!contrasena) errores.contrasena = 'Indica la contrasena de aplicacion.';
     if (celular && validarTelefono(celular)) {
       errores.celular_recuperacion = 'Celular de recuperacion invalido (min. 10 digitos).';

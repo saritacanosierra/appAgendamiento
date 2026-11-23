@@ -113,3 +113,13 @@
   min-height: 48px;
   font-size: var(--tamano-texto-sm);
 }
+
+.correo-plataforma__error-host {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fdecea;
+  color: #b71c1c;
+  font-size: var(--tamano-texto-sm);
+  line-height: 1.4;
+}

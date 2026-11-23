@@ -20,10 +20,11 @@ export async function guardarCorreoPlataforma(datos) {
   return respuesta.datos;
 }
 
-export async function probarCorreoPlataforma(correo) {
+export async function probarCorreoPlataforma(correo, opciones = {}) {
   const respuesta = await peticionPlataforma('/plataforma/correo/probar', {
     method: 'POST',
     body: JSON.stringify({ correo }),
+    signal: opciones.signal,
   });
   return respuesta.datos;
 }
