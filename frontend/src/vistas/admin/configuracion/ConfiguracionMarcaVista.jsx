@@ -2,16 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../aplicacion/proveedores/ProveedorAuth';
 import { useAvisos } from '../../../aplicacion/proveedores/ProveedorAvisos';
-import { INDICATIVOS_PAIS, RUTAS_ADMIN } from '../../../compartido/constantes';
+import { RUTAS_ADMIN } from '../../../compartido/constantes';
 import {
   BotonPrincipal,
-  CampoContrasena,
   CampoFormulario,
   Cargando,
   ImagenAmpliable,
   InputTexto,
   MensajeError,
-  ModalGuia,
   ModalMensaje,
   TextareaTexto,
 } from '../../../compartido/componentes';
@@ -29,6 +27,9 @@ import {
   probarCorreoMarca,
   probarWhatsappMarca,
 } from '../../../modulos/configuracion_marca/servicios/integracionesServicio';
+import AcordeonSeccion from '../../../componentes/admin/configuracion/AcordeonSeccion';
+import GuiasIntegracionModales from '../../../componentes/admin/configuracion/GuiasIntegracionModales';
+import SeccionAvisosReservar from '../../../componentes/admin/configuracion/SeccionAvisosReservar';
 import { AyudaPasoTienda } from '../../../componentes/admin/guia_personalizacion/GuiaPersonalizacion';
 import '../../../estilos/admin/configuracion/configuracion.css';
 
@@ -42,44 +43,6 @@ const DIAS = [
   { id: 'domingo', etiqueta: 'Domingo' },
 ];
 
-function AcordeonSeccion({
-  id,
-  titulo,
-  resumen = '',
-  abierta,
-  onAbrir,
-  className = '',
-  children,
-}) {
-  return (
-    <section
-      id={id}
-      className={`configuracion-marca__acordeon ${abierta ? 'configuracion-marca__acordeon--abierta' : ''} ${className}`.trim()}
-    >
-      <button
-        type="button"
-        className="configuracion-marca__acordeon-cabecera"
-        aria-expanded={abierta}
-        onClick={() => onAbrir(id)}
-      >
-        <span className="configuracion-marca__acordeon-textos">
-          <span className="configuracion-marca__acordeon-titulo">{titulo}</span>
-          {resumen ? (
-            <span className="configuracion-marca__acordeon-resumen">{resumen}</span>
-          ) : null}
-        </span>
-        <span className="configuracion-marca__acordeon-accion">
-          {abierta ? 'Cerrar' : 'Abrir'}
-        </span>
-      </button>
-      {abierta ? (
-        <div className="configuracion-marca__acordeon-cuerpo">
-          {children}
-        </div>
-      ) : null}
-    </section>
-  );
-}
 
 export default function ConfiguracionMarcaVista() {
   const { recargarSesion } = useAuth();
@@ -465,129 +428,7 @@ export default function ConfiguracionMarcaVista() {
         onCerrar={() => setModalMensaje(null)}
       />
 
-      <ModalGuia
-        abierto={guiaAbierta === 'whatsapp'}
-        titulo="Cómo sacar los datos de WhatsApp"
-        onCerrar={() => setGuiaAbierta(null)}
-      >
-        <p className="modal-guia__que-es">
-          <strong>¿Para qué sirve?</strong>
-          Esto no es el número público de Contacto (wa.me). Es la API de Meta
-          para que la agenda envíe sola el mensaje de confirmación al celular de la clienta.
-        </p>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">1. Ten una cuenta Business de Meta</h3>
-          <ol>
-            <li>Entra a Meta Business Suite o WhatsApp Manager con la cuenta del negocio.</li>
-            <li>Activa WhatsApp Business Platform (API) para ese número.</li>
-          </ol>
-          <a
-            className="modal-guia__enlace"
-            href="https://business.facebook.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Abrir Meta Business
-          </a>
-        </section>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">2. Copia el Phone Number ID</h3>
-          <ol>
-            <li>En WhatsApp Manager abre el número que vas a usar.</li>
-            <li>Busca el campo <strong>Phone number ID</strong> (o ID del número).</li>
-            <li>Cópialo completo: es un número largo, no el celular 300…</li>
-          </ol>
-          <p className="modal-guia__dato">
-            Ejemplo de cómo se ve: <code>123456789012345</code>
-          </p>
-        </section>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">3. Genera el token</h3>
-          <ol>
-            <li>Entra a Meta for Developers → tu app → WhatsApp → API Setup.</li>
-            <li>Crea un token de acceso (mejor permanente / de sistema).</li>
-            <li>Pégalo en el campo Token de esta pantalla y guárdalo.</li>
-          </ol>
-          <a
-            className="modal-guia__enlace"
-            href="https://developers.facebook.com/apps/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Abrir Meta Developers
-          </a>
-        </section>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">4. País y prueba</h3>
-          <ul>
-            <li>Elige el país del número de WhatsApp Business.</li>
-            <li>Guarda la configuración.</li>
-            <li>Escribe tu celular y pulsa Probar WhatsApp.</li>
-          </ul>
-        </section>
-      </ModalGuia>
-
-      <ModalGuia
-        abierto={guiaAbierta === 'correo'}
-        titulo="Cómo sacar los datos del correo (SMTP)"
-        onCerrar={() => setGuiaAbierta(null)}
-      >
-        <p className="modal-guia__que-es">
-          <strong>¿Qué es SMTP?</strong>
-          Es el “servicio de envío” de tu correo. La agenda no tiene buzón propio:
-          usa tu Gmail (u otro) para mandar el aviso de la cita. Los datos los da
-          tu proveedor de correo, no esta app.
-        </p>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">Si usas Gmail (recomendado)</h3>
-          <ol>
-            <li>Pulsa <strong>Usar Gmail</strong> en esta pantalla (rellena host y puerto).</li>
-            <li>
-              En Google activa la verificación en 2 pasos:
-              Cuenta Google → Seguridad.
-            </li>
-            <li>
-              Crea una <strong>contraseña de aplicación</strong>
-              (Seguridad → Contraseñas de aplicaciones → Correo / Otro).
-            </li>
-            <li>Google te da 16 letras. Esa es la “Contraseña SMTP”, no tu clave normal.</li>
-            <li>En Usuario pon tu Gmail. En Remitente: Nombre &lt;tu@gmail.com&gt;.</li>
-            <li>Guarda y prueba enviándote un correo.</li>
-          </ol>
-          <a
-            className="modal-guia__enlace"
-            href="https://myaccount.google.com/apppasswords"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Abrir contraseñas de aplicaciones de Google
-          </a>
-          <p className="modal-guia__dato">
-            Host: <code>smtp.gmail.com</code>
-            {' · '}
-            Puerto: <code>587</code>
-            {' · '}
-            SSL 465: apagado
-          </p>
-        </section>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">Qué va en cada campo</h3>
-          <ul>
-            <li><strong>Host SMTP:</strong> dirección del servidor de envío (Gmail: smtp.gmail.com).</li>
-            <li><strong>Puerto:</strong> casi siempre 587; algunos usan 465 con SSL.</li>
-            <li><strong>Usuario:</strong> tu dirección de correo completa.</li>
-            <li><strong>Contraseña SMTP:</strong> en Gmail, la de aplicación de 16 letras.</li>
-            <li><strong>Remitente:</strong> el nombre que verá la clienta en el “De:”.</li>
-          </ul>
-        </section>
-        <section className="modal-guia__paso">
-          <h3 className="modal-guia__paso-titulo">Si no es Gmail</h3>
-          <p>
-            Host y puerto te los da tu hosting o Outlook/Hotmail.
-            Busca “configuración SMTP” en su ayuda y pégalos en Ajustes avanzados.
-          </p>
-        </section>
-      </ModalGuia>
+      <GuiasIntegracionModales guiaAbierta={guiaAbierta} onCerrar={() => setGuiaAbierta(null)} />
 
       <AyudaPasoTienda paso="marca" />
       <h1>Mi marca — perfil e identidad</h1>
@@ -951,345 +792,28 @@ export default function ConfiguracionMarcaVista() {
           </CampoFormulario>
         </AcordeonSeccion>
 
-        <AcordeonSeccion
-          id="confirmacion-citas"
-          titulo="8. Avisos al reservar"
-          resumen="WhatsApp automático y/o correo"
+        <SeccionAvisosReservar
           abierta={seccionAbierta === 'confirmacion-citas'}
           onAbrir={abrirSeccion}
-        >
-          <p className="configuracion-marca__paso-intro">
-            Cuando una clienta reserva, puedes avisarle por WhatsApp, por correo, o por los dos.
-            Si el aviso no sale, la cita igual queda guardada.
-          </p>
-
-          <div className="configuracion-marca__canal">
-            <div className="configuracion-marca__canal-cabecera">
-              <div>
-                <h3>WhatsApp automático</h3>
-                <p>Mensaje al celular de la clienta (necesitas cuenta Business de Meta).</p>
-              </div>
-              <label className="configuracion-marca__horario-toggle configuracion-marca__whatsapp-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(config.notificaciones?.canales?.whatsapp)}
-                  onChange={(e) => {
-                    const activo = e.target.checked;
-                    actualizarNotificaciones('whatsapp', activo);
-                    actualizarWhatsappApi('habilitado', activo);
-                  }}
-                />
-                <span className="configuracion-marca__horario-switch" aria-hidden="true" />
-                <span>{config.notificaciones?.canales?.whatsapp ? 'Encendido' : 'Apagado'}</span>
-              </label>
-            </div>
-
-            <button
-              type="button"
-              className="configuracion-marca__btn-guia"
-              onClick={() => setGuiaAbierta('whatsapp')}
-            >
-              ¿De dónde salen estos datos?
-            </button>
-
-            {config.notificaciones?.canales?.whatsapp ? (
-              <div className="configuracion-marca__pasos">
-                <ol className="configuracion-marca__pasos-lista">
-                  <li>En Meta Business / WhatsApp Manager copia el <strong>Phone Number ID</strong>.</li>
-                  <li>En Meta Developers genera un <strong>token</strong> permanente.</li>
-                  <li>Pégalos abajo, elige el país, guarda y prueba con tu celular.</li>
-                </ol>
-
-                <CampoFormulario
-                  etiqueta="1. Phone Number ID"
-                  id="cfg-wa-phone-id"
-                  ayuda="Es un número largo de Meta. No es el celular de tu negocio."
-                >
-                  <input
-                    id="cfg-wa-phone-id"
-                    value={config.whatsappApi?.phoneNumberId ?? ''}
-                    onChange={(e) => actualizarWhatsappApi('phoneNumberId', e.target.value)}
-                    placeholder="Ejemplo: 123456789012345"
-                  />
-                </CampoFormulario>
-
-                <CampoFormulario
-                  etiqueta={config.whatsappApi?.tokenConfigurado
-                    ? '2. Token (déjalo vacío si no lo cambias)'
-                    : '2. Token de Meta'}
-                  id="cfg-wa-token"
-                >
-                  <CampoContrasena
-                    id="cfg-wa-token"
-                    value={whatsappTokenNuevo}
-                    onChange={(e) => setWhatsappTokenNuevo(e.target.value)}
-                    placeholder={config.whatsappApi?.tokenConfigurado
-                      ? 'Déjalo vacío para no cambiarlo'
-                      : 'Pega aquí el token'}
-                    autoComplete="new-password"
-                  />
-                </CampoFormulario>
-
-                <CampoFormulario etiqueta="3. País del número" id="cfg-wa-pais">
-                  <select
-                    id="cfg-wa-pais"
-                    value={config.whatsappApi?.codigoPais ?? ''}
-                    onChange={(e) => actualizarWhatsappApi('codigoPais', e.target.value)}
-                  >
-                    <option value="">Elige el país</option>
-                    {INDICATIVOS_PAIS.map((pais) => (
-                      <option key={pais.codigo} value={pais.codigo}>
-                        {pais.nombre} +{pais.codigo}
-                      </option>
-                    ))}
-                    {config.whatsappApi?.codigoPais
-                      && !INDICATIVOS_PAIS.some((pais) => pais.codigo === config.whatsappApi.codigoPais) && (
-                      <option value={config.whatsappApi.codigoPais}>
-                        +{config.whatsappApi.codigoPais}
-                      </option>
-                    )}
-                  </select>
-                </CampoFormulario>
-
-                <details className="configuracion-marca__guia">
-                  <summary>Texto del mensaje (opcional)</summary>
-                  <CampoFormulario
-                    etiqueta="Mensaje de confirmación"
-                    id="cfg-wa-confirmacion"
-                    ayuda="Puedes usar {{nombre}}, {{marca}}, {{servicio}}, {{fecha}}, {{hora}}, {{codigo}}, {{url_confirmacion}}"
-                  >
-                    <TextareaTexto
-                      id="cfg-wa-confirmacion"
-                      value={config.whatsappApi?.plantillaConfirmacion ?? ''}
-                      onChange={(e) => actualizarWhatsappApi('plantillaConfirmacion', e.target.value)}
-                      rows={4}
-                    />
-                  </CampoFormulario>
-                  <CampoFormulario etiqueta="Plantilla recordatorio Meta (opcional)" id="cfg-wa-plantilla">
-                    <input
-                      id="cfg-wa-plantilla"
-                      value={config.whatsappApi?.plantillaRecordatorio ?? ''}
-                      onChange={(e) => actualizarWhatsappApi('plantillaRecordatorio', e.target.value)}
-                      placeholder="recordatorio_cita"
-                    />
-                  </CampoFormulario>
-                </details>
-
-                {config.whatsappApi?.configurado ? (
-                  <p className="configuracion-marca__google-ok">
-                    Listo. Los avisos saldrán al WhatsApp de la clienta.
-                  </p>
-                ) : (
-                  <p className="configuracion-marca__aviso-falta">
-                    Falta guardar el ID, el token y el país. Luego pulsa Guardar y prueba.
-                  </p>
-                )}
-
-                <div className="configuracion-marca__prueba">
-                  <CampoFormulario etiqueta="Tu celular para probar" id="cfg-wa-prueba">
-                    <input
-                      id="cfg-wa-prueba"
-                      value={telefonoPruebaWhatsapp}
-                      onChange={(e) => setTelefonoPruebaWhatsapp(e.target.value)}
-                      placeholder="Ejemplo: 3001234567"
-                    />
-                  </CampoFormulario>
-                  <BotonPrincipal
-                    type="button"
-                    variante="secundario"
-                    onClick={probarWhatsapp}
-                    deshabilitado={probandoWhatsapp || !config.whatsappApi?.configurado}
-                  >
-                    {probandoWhatsapp ? 'Enviando...' : 'Probar WhatsApp'}
-                  </BotonPrincipal>
-                </div>
-              </div>
-            ) : (
-              <p className="configuracion-marca__hint">
-                Déjalo apagado si solo quieres el número público de Contacto (wa.me). Enciéndelo solo si ya tienes Meta Business API.
-              </p>
-            )}
-          </div>
-
-          <div className="configuracion-marca__canal">
-            <div className="configuracion-marca__canal-cabecera">
-              <div>
-                <h3>Correo automático</h3>
-                <p>Sale gratis desde tu propio Gmail u otro correo.</p>
-              </div>
-              <label className="configuracion-marca__horario-toggle configuracion-marca__whatsapp-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(config.notificaciones?.canales?.correo)}
-                  onChange={(e) => actualizarNotificaciones('correo', e.target.checked)}
-                />
-                <span className="configuracion-marca__horario-switch" aria-hidden="true" />
-                <span>{config.notificaciones?.canales?.correo ? 'Encendido' : 'Apagado'}</span>
-              </label>
-            </div>
-
-            <button
-              type="button"
-              className="configuracion-marca__btn-guia"
-              onClick={() => setGuiaAbierta('correo')}
-            >
-              ¿Qué es SMTP y de dónde salen estos datos?
-            </button>
-
-            {config.notificaciones?.canales?.correo ? (
-              <div className="configuracion-marca__pasos">
-                <ol className="configuracion-marca__pasos-lista">
-                  <li>Si usas Gmail, pulsa <strong>Usar Gmail</strong> y crea una contraseña de aplicación en Google.</li>
-                  <li>Escribe tu correo y esa contraseña (no la normal de Gmail).</li>
-                  <li>Guarda y prueba enviándote un mensaje.</li>
-                </ol>
-
-                <BotonPrincipal type="button" variante="secundario" onClick={aplicarGmailRapido}>
-                  Usar Gmail (rellena host y puerto)
-                </BotonPrincipal>
-
-                <CampoFormulario etiqueta="1. Correo que envía" id="cfg-smtp-usuario">
-                  <input
-                    id="cfg-smtp-usuario"
-                    value={config.notificaciones?.correo?.usuario ?? ''}
-                    onChange={(e) => actualizarCorreoSmtp('usuario', e.target.value)}
-                    placeholder="tunegocio@gmail.com"
-                    autoComplete="off"
-                  />
-                </CampoFormulario>
-
-                <CampoFormulario
-                  etiqueta={config.notificaciones?.correo?.contrasenaConfigurada
-                    ? '2. Contraseña de aplicación (vacío = no cambiar)'
-                    : '2. Contraseña de aplicación'}
-                  id="cfg-smtp-pass"
-                  ayuda="En Gmail: Cuenta Google → Seguridad → Contraseñas de aplicaciones."
-                >
-                  <CampoContrasena
-                    id="cfg-smtp-pass"
-                    value={correoSmtpContrasenaNueva}
-                    onChange={(e) => setCorreoSmtpContrasenaNueva(e.target.value)}
-                    placeholder={config.notificaciones?.correo?.contrasenaConfigurada
-                      ? 'Déjala vacía para no cambiarla'
-                      : 'La de 16 letras de Google'}
-                    autoComplete="new-password"
-                  />
-                </CampoFormulario>
-
-                <CampoFormulario etiqueta="3. Nombre que verá la clienta" id="cfg-smtp-remitente">
-                  <input
-                    id="cfg-smtp-remitente"
-                    value={config.notificaciones?.correo?.remitente ?? ''}
-                    onChange={(e) => actualizarCorreoSmtp('remitente', e.target.value)}
-                    placeholder="Beauty Nails <tunegocio@gmail.com>"
-                  />
-                </CampoFormulario>
-
-                <details className="configuracion-marca__guia">
-                  <summary>Ajustes avanzados (solo si no es Gmail)</summary>
-                  <CampoFormulario etiqueta="Host SMTP" id="cfg-smtp-host">
-                    <input
-                      id="cfg-smtp-host"
-                      value={config.notificaciones?.correo?.host ?? ''}
-                      onChange={(e) => actualizarCorreoSmtp('host', e.target.value)}
-                      placeholder="smtp.gmail.com"
-                      autoComplete="off"
-                    />
-                  </CampoFormulario>
-                  <CampoFormulario etiqueta="Puerto" id="cfg-smtp-puerto">
-                    <input
-                      id="cfg-smtp-puerto"
-                      type="number"
-                      inputMode="numeric"
-                      value={config.notificaciones?.correo?.puerto ?? 587}
-                      onChange={(e) => actualizarCorreoSmtp('puerto', Number(e.target.value) || 587)}
-                      placeholder="587"
-                    />
-                  </CampoFormulario>
-                  <label className="configuracion-marca__horario-toggle configuracion-marca__whatsapp-toggle">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(config.notificaciones?.correo?.seguro)}
-                      onChange={(e) => actualizarCorreoSmtp('seguro', e.target.checked)}
-                    />
-                    <span className="configuracion-marca__horario-switch" aria-hidden="true" />
-                    <span>Puerto seguro 465 (SSL)</span>
-                  </label>
-                  <CampoFormulario etiqueta="Asunto" id="cfg-smtp-asunto">
-                    <input
-                      id="cfg-smtp-asunto"
-                      value={config.notificaciones?.correo?.asunto ?? ''}
-                      onChange={(e) => actualizarCorreoSmtp('asunto', e.target.value)}
-                      placeholder="Confirmacion de cita — {{marca}}"
-                    />
-                  </CampoFormulario>
-                  <CampoFormulario etiqueta="Tipo de mensaje" id="cfg-smtp-modo">
-                    <select
-                      id="cfg-smtp-modo"
-                      value={config.notificaciones?.correo?.modoPlantilla ?? 'texto'}
-                      onChange={(e) => actualizarCorreoSmtp('modoPlantilla', e.target.value)}
-                    >
-                      <option value="texto">Solo texto</option>
-                      <option value="html">HTML con botón</option>
-                    </select>
-                  </CampoFormulario>
-                  <CampoFormulario etiqueta="Cuerpo en texto" id="cfg-smtp-texto">
-                    <TextareaTexto
-                      id="cfg-smtp-texto"
-                      value={config.notificaciones?.correo?.cuerpoTexto ?? ''}
-                      onChange={(e) => actualizarCorreoSmtp('cuerpoTexto', e.target.value)}
-                      rows={5}
-                    />
-                  </CampoFormulario>
-                  {(config.notificaciones?.correo?.modoPlantilla ?? 'texto') === 'html' && (
-                    <CampoFormulario etiqueta="Cuerpo HTML" id="cfg-smtp-html">
-                      <TextareaTexto
-                        id="cfg-smtp-html"
-                        value={config.notificaciones?.correo?.cuerpoHtml ?? ''}
-                        onChange={(e) => actualizarCorreoSmtp('cuerpoHtml', e.target.value)}
-                        rows={8}
-                      />
-                    </CampoFormulario>
-                  )}
-                </details>
-
-                {config.notificaciones?.correo?.listo ? (
-                  <p className="configuracion-marca__google-ok">
-                    Correo listo para enviar avisos.
-                  </p>
-                ) : (
-                  <p className="configuracion-marca__aviso-falta">
-                    Falta correo, contraseña de aplicación y host. Usa el botón de Gmail si aplica.
-                  </p>
-                )}
-
-                <div className="configuracion-marca__prueba">
-                  <CampoFormulario etiqueta="Tu correo para probar" id="cfg-smtp-prueba">
-                    <input
-                      id="cfg-smtp-prueba"
-                      type="email"
-                      value={correoPrueba}
-                      onChange={(e) => setCorreoPrueba(e.target.value)}
-                      placeholder="El tuyo, para ver si llega"
-                    />
-                  </CampoFormulario>
-                  <BotonPrincipal
-                    type="button"
-                    variante="secundario"
-                    onClick={probarCorreo}
-                    deshabilitado={probandoCorreo || !config.notificaciones?.correo?.listo}
-                  >
-                    {probandoCorreo ? 'Enviando...' : 'Probar correo'}
-                  </BotonPrincipal>
-                </div>
-              </div>
-            ) : (
-              <p className="configuracion-marca__hint">
-                Enciéndelo solo si quieres que la clienta reciba un correo al reservar.
-              </p>
-            )}
-          </div>
-        </AcordeonSeccion>
+          config={config}
+          actualizarNotificaciones={actualizarNotificaciones}
+          actualizarWhatsappApi={actualizarWhatsappApi}
+          actualizarCorreoSmtp={actualizarCorreoSmtp}
+          aplicarGmailRapido={aplicarGmailRapido}
+          whatsappTokenNuevo={whatsappTokenNuevo}
+          setWhatsappTokenNuevo={setWhatsappTokenNuevo}
+          correoSmtpContrasenaNueva={correoSmtpContrasenaNueva}
+          setCorreoSmtpContrasenaNueva={setCorreoSmtpContrasenaNueva}
+          telefonoPruebaWhatsapp={telefonoPruebaWhatsapp}
+          setTelefonoPruebaWhatsapp={setTelefonoPruebaWhatsapp}
+          correoPrueba={correoPrueba}
+          setCorreoPrueba={setCorreoPrueba}
+          probarWhatsapp={probarWhatsapp}
+          probarCorreo={probarCorreo}
+          probandoWhatsapp={probandoWhatsapp}
+          probandoCorreo={probandoCorreo}
+          onAbrirGuia={setGuiaAbierta}
+        />
 
         <BotonPrincipal tipo="submit" anchoCompleto deshabilitado={enviando}>
           {enviando ? 'Guardando...' : 'Guardar configuracion'}

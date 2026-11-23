@@ -1,34 +1,7 @@
-import { createClient } from 'redis';
 import { logger } from './logger.js';
+import { marcarRedisCaido, obtenerClienteRedis } from './clienteRedis.js';
 
 const registrosMemoria = new Map();
-let clienteRedis;
-let redisDisponible = false;
-let redisIntentado = false;
-
-async function obtenerRedis() {
-  const url = process.env.REDIS_URL?.trim();
-  if (!url) return null;
-
-  if (!redisIntentado) {
-    redisIntentado = true;
-    try {
-      clienteRedis = createClient({ url });
-      clienteRedis.on('error', (err) => {
-        logger.warn({ err }, 'Redis rate limit desconectado');
-        redisDisponible = false;
-      });
-      await clienteRedis.connect();
-      redisDisponible = true;
-      logger.info('Rate limit usando Redis');
-    } catch (err) {
-      logger.warn({ err }, 'Redis no disponible; rate limit en memoria');
-      redisDisponible = false;
-    }
-  }
-
-  return redisDisponible ? clienteRedis : null;
-}
 
 function podarMemoria(ahora) {
   if (registrosMemoria.size < 200) return;
@@ -61,13 +34,13 @@ async function incrementarRedis(cliente, clave, ventanaMs) {
 
 /** Incrementa contador por clave; usa Redis si REDIS_URL esta configurado. */
 export async function incrementarContadorTasa(clave, ventanaMs) {
-  const redis = await obtenerRedis();
+  const redis = await obtenerClienteRedis();
   if (redis) {
     try {
       return await incrementarRedis(redis, clave, ventanaMs);
     } catch (err) {
       logger.warn({ err, clave }, 'Fallo Redis; fallback a memoria');
-      redisDisponible = false;
+      marcarRedisCaido();
     }
   }
   return incrementarMemoria(clave, ventanaMs);

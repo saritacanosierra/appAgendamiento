@@ -21,6 +21,7 @@ import { texto, entero } from '../utilidades/sanitizador.js';
 import { premioPuntosServicio } from './premioPuntosServicio.js';
 import { normalizarHora, sumarMinutosAHora, nombreDiaDesdeFecha, normalizarHorariosMarca, horarioPermitidoParaCita } from '../utilidades/horarios.js';
 import { parsearJsonCampo } from '../utilidades/mapeador.js';
+import { adquirirCandadoAgendaDia } from '../utilidades/candadoAgenda.js';
 
 const ESTADOS_VALIDOS = ['pendiente', 'confirmada', 'cancelada', 'completada'];
 const CANCELADA_POR_VALIDOS = ['admin', 'cliente'];
@@ -145,6 +146,12 @@ export class AdminCitaServicio {
     try {
       await conexion.beginTransaction();
 
+      await adquirirCandadoAgendaDia(conexion, {
+        marcaId,
+        fecha,
+        estilistaId: null,
+      });
+
       const solapa = await this.citaRepo.existeSolapamiento(
         conexion,
         marcaId,
@@ -214,6 +221,9 @@ export class AdminCitaServicio {
       return { cita };
     } catch (err) {
       await conexion.rollback();
+      if (err?.codigoHttp) {
+        return { error: err.message, codigoHttp: err.codigoHttp };
+      }
       throw err;
     } finally {
       conexion.release();
@@ -270,13 +280,20 @@ export class AdminCitaServicio {
       await conexion.beginTransaction();
 
       if (estado !== 'cancelada') {
+        await adquirirCandadoAgendaDia(conexion, {
+          marcaId,
+          fecha,
+          estilistaId: citaActual.estilista_id,
+        });
+
         const solapa = await this.citaRepo.existeSolapamiento(
           conexion,
           marcaId,
           fecha,
           horaInicio,
           horaFin,
-          citaId
+          citaId,
+          citaActual.estilista_id
         );
 
         if (solapa) {
@@ -309,6 +326,9 @@ export class AdminCitaServicio {
       return { cita };
     } catch (err) {
       await conexion.rollback();
+      if (err?.codigoHttp) {
+        return { error: err.message, codigoHttp: err.codigoHttp };
+      }
       throw err;
     } finally {
       conexion.release();

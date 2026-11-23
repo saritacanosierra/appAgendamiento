@@ -33,6 +33,7 @@ import {
   puedeCancelarCitaPublica,
   ANTELACION_MINIMA_CLIENTE_HORAS,
 } from '../utilidades/horarios.js';
+import { adquirirCandadoAgendaDia } from '../utilidades/candadoAgenda.js';
 
 export class ReservaServicio {
   constructor(deps = {}) {
@@ -209,6 +210,12 @@ export class ReservaServicio {
     try {
       await conexion.beginTransaction();
 
+      await adquirirCandadoAgendaDia(conexion, {
+        marcaId,
+        fecha,
+        estilistaId: estilistaResuelto.estilistaId,
+      });
+
       const haySolapamiento = await this.reservaRepo.existeSolapamiento(
         conexion,
         marcaId,
@@ -337,6 +344,9 @@ export class ReservaServicio {
       return { confirmacion, avisos };
     } catch (err) {
       await conexion.rollback();
+      if (err?.codigoHttp) {
+        return { error: err.message, codigoHttp: err.codigoHttp };
+      }
       throw err;
     } finally {
       conexion.release();
@@ -749,13 +759,20 @@ export class ReservaServicio {
     try {
       await conexion.beginTransaction();
 
+      await adquirirCandadoAgendaDia(conexion, {
+        marcaId: fila.marca_id,
+        fecha,
+        estilistaId: fila.estilista_id,
+      });
+
       const solapa = await this.reservaRepo.existeSolapamiento(
         conexion,
         fila.marca_id,
         fecha,
         horaInicio,
         horaFin,
-        fila.id
+        fila.id,
+        fila.estilista_id
       );
 
       if (solapa) {
@@ -802,6 +819,9 @@ export class ReservaServicio {
       };
     } catch (err) {
       await conexion.rollback();
+      if (err?.codigoHttp) {
+        return { error: err.message, codigoHttp: err.codigoHttp };
+      }
       throw err;
     } finally {
       conexion.release();

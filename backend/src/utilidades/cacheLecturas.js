@@ -1,15 +1,44 @@
+import { logger } from './logger.js';
+import { marcarRedisCaido, obtenerClienteRedis } from './clienteRedis.js';
+
 /**
- * Cache corta en memoria para lecturas publicas que se repiten.
+ * Cache corta para lecturas publicas que se repiten.
  * La clave incluye el slug o el marca_id: dos tiendas no comparten entrada.
  * No guarda horarios: esos cambian con cada reserva.
+ * Con REDIS_URL comparte cache entre instancias.
  */
-export function crearCache({ ttlMs = 15_000, max = 400 } = {}) {
+export function crearCache({ ttlMs = 15_000, max = 400, prefijo = 'cache:pub' } = {}) {
   const mapa = new Map();
 
   function recortar() {
     while (mapa.size > max) {
       const primero = mapa.keys().next().value;
       mapa.delete(primero);
+    }
+  }
+
+  async function desdeRedis(claveCompleta) {
+    const redis = await obtenerClienteRedis();
+    if (!redis) return null;
+    try {
+      const crudo = await redis.get(claveCompleta);
+      if (!crudo) return null;
+      return JSON.parse(crudo);
+    } catch (err) {
+      logger.warn({ err, clave: claveCompleta }, 'Cache Redis lectura fallida');
+      marcarRedisCaido();
+      return null;
+    }
+  }
+
+  async function aRedis(claveCompleta, valor) {
+    const redis = await obtenerClienteRedis();
+    if (!redis) return;
+    try {
+      await redis.set(claveCompleta, JSON.stringify(valor), { PX: ttlMs });
+    } catch (err) {
+      logger.warn({ err, clave: claveCompleta }, 'Cache Redis escritura fallida');
+      marcarRedisCaido();
     }
   }
 
@@ -26,12 +55,19 @@ export function crearCache({ ttlMs = 15_000, max = 400 } = {}) {
 
       if (previo?.pendiente) return previo.pendiente;
 
+      const claveRedis = `${prefijo}:${clave}`;
+
       const pendiente = Promise.resolve()
-        .then(cargar)
-        .then((valor) => {
+        .then(() => desdeRedis(claveRedis))
+        .then((cacheado) => {
+          if (cacheado !== null && cacheado !== undefined) return cacheado;
+          return Promise.resolve().then(cargar);
+        })
+        .then(async (valor) => {
           mapa.delete(clave);
           mapa.set(clave, { valor, vence: Date.now() + ttlMs });
           recortar();
+          await aRedis(claveRedis, valor);
           return valor;
         })
         .catch((error) => {

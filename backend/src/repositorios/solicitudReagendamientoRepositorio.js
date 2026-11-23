@@ -25,7 +25,7 @@ export class SolicitudReagendamientoRepositorio {
   async buscarPorId(marcaId, id) {
     const [filas] = await pool.execute(
       `SELECT sr.*,
-              c.codigo_confirmacion, c.estado AS cita_estado,
+              c.codigo_confirmacion, c.estado AS cita_estado, c.estilista_id,
               cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono,
               s.nombre AS servicio_nombre, s.duracion_minutos
        FROM solicitudes_reagendamiento sr

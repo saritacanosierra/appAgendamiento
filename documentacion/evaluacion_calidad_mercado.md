@@ -1,8 +1,7 @@
 # Evaluación de calidad — appAgendamiento
 
-**Fecha:** 24 de junio de 2026 (evaluación integral post-hardening + Semana 4 + UI escritorio)  
-**Commit de referencia:** `b576863` — Semana 4 (E2E, CI MySQL, helmet, Redis) + marco tablet en escritorio  
-**Alcance:** profesionalismo, buenas prácticas, código limpio, anti-spaghetti y readiness para despliegue  
+**Fecha:** 23 de noviembre de 2026 (candados de agenda + Redis compartido + split Mi marca)  
+**Alcance:** profesionalismo, alto flujo, código limpio y readiness de producción  
 **Proyecto:** `appAgendamiento` — SaaS multi-marca (React + Node + MySQL)
 
 ---
@@ -11,21 +10,21 @@
 
 | Dimensión | Nota (1–10) | Escala 0–100 |
 |-----------|-------------|--------------|
-| **Producto funcional** | **7.8** | 78 |
-| **Calidad de código (sin spaghetti)** | **8.0** | 80 |
+| **Producto funcional** | **8.2** | 82 |
+| **Calidad de código (sin spaghetti)** | **8.3** | 83 |
 | **Profesionalismo visual / UX** | **8.7** | 87 |
-| **Buenas prácticas de ingeniería** | **7.8** | 78 |
-| **Listo para desplegar (VPS piloto)** | **8.5** | 85 |
-| **Listo para escala comercial masiva** | **6.5** | 65 |
+| **Buenas prácticas de ingeniería** | **8.4** | 84 |
+| **Listo para desplegar (VPS piloto)** | **8.8** | 88 |
+| **Listo para escala / alto flujo** | **8.0** | 80 |
 
-### **Promedio ponderado actual: ~8.1 / 10 (81 %)**
+### **Promedio ponderado actual: ~8.5 / 10 (85 %)**
 
-| Evolución | Antes (inicio hardening) | Ahora |
-|-----------|--------------------------|-------|
-| Readiness comercial | 6.3 | **8.1** |
-| Veredicto | Listo con reservas | **Listo para piloto comercial en VPS** |
+| Evolución | Jun 2026 | Nov 2026 |
+|-----------|----------|----------|
+| Readiness comercial | 8.1 | **8.5** |
+| Alto flujo (código) | 6.5 | **8.0** (requiere `REDIS_URL` + VPS en ops) |
 
-**En una frase:** producto **profesional y desplegable para piloto**, con arquitectura sana. El camino al 100 % pasa más por **operar en producción con clientes reales** y **profundizar tests/observabilidad** que por reescribir la app.
+**En una frase:** arquitectura lista para alto flujo **en código** (candado de agenda, Redis para rate limit/cache, fail-soft). El 10/10 operativo exige VPS + Redis + APM + piloto real — no más reescritura.
 
 ---
 

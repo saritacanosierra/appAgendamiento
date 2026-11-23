@@ -41,7 +41,7 @@ export class ReservaRepositorio {
       params.push(excluirId);
     }
 
-    sql += ' LIMIT 1';
+    sql += ' LIMIT 1 FOR UPDATE';
     const [filas] = await conexion.execute(sql, params);
     return filas.length > 0;
   }

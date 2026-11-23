@@ -202,7 +202,7 @@ Variables:
 | Variable | Uso |
 |----------|-----|
 | `LOG_NIVEL` | `info` en produccion; `debug` en desarrollo |
-| `REDIS_URL` | Rate limit distribuido si hay varias instancias API |
+| `REDIS_URL` | **Requerido** en alto flujo / multi-instancia: rate limit + cache lecturas públicas |
 
 Alertas basicas: monitorizar `/api/estado` (`operativa: false`) y errores 5xx en logs.
 

@@ -19,6 +19,8 @@ Usar antes de desplegar o al dar de alta una marca en produccion.
 | `ALMACENAMIENTO_IMAGENES` | `s3` en prod con CDN; `local` solo en VPS con backups |
 | `S3_*` | Bucket, credenciales y URL publica si usa object storage |
 | `LOG_NIVEL` | `info` en produccion; evitar `debug`/`trace` en prod |
+| `REDIS_URL` | **Obligatorio** si hay mas de un proceso Node o alto flujo (`redis://…`) |
+| `DB_POOL` | Opcional; por defecto 20 conexiones |
 
 ## Frontend (`frontend/.env`)
 

@@ -3,6 +3,7 @@ import {
   ReservaRepositorio,
   SolicitudReagendamientoRepositorio,
 } from '../repositorios/index.js';
+import { adquirirCandadoAgendaDia } from '../utilidades/candadoAgenda.js';
 import { normalizarHora } from '../utilidades/horarios.js';
 
 function formatearFecha(valor) {
@@ -70,13 +71,20 @@ export class SolicitudReagendamientoServicio {
     try {
       await conexion.beginTransaction();
 
+      await adquirirCandadoAgendaDia(conexion, {
+        marcaId,
+        fecha,
+        estilistaId: solicitud.estilista_id,
+      });
+
       const solapa = await this.reservaRepo.existeSolapamiento(
         conexion,
         marcaId,
         fecha,
         horaInicio,
         horaFin,
-        solicitud.cita_id
+        solicitud.cita_id,
+        solicitud.estilista_id
       );
 
       if (solapa) {
@@ -146,6 +154,9 @@ export class SolicitudReagendamientoServicio {
       return { solicitud: mapearSolicitudReagendamiento(actualizada) };
     } catch (err) {
       await conexion.rollback();
+      if (err?.codigoHttp) {
+        return { error: err.message, codigoHttp: err.codigoHttp };
+      }
       throw err;
     } finally {
       conexion.release();
