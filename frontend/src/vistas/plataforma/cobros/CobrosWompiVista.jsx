@@ -127,7 +127,7 @@ export default function CobrosWompiVista() {
             type="password"
             value={formulario.secretoIntegridad}
             onChange={(e) => cambiar('secretoIntegridad', e.target.value)}
-            placeholder={estado?.secretoIntegridadGuardado ? '••••••••' : ''}
+            placeholder={estado?.secretoIntegridadGuardado ? '••••••••' : 'prod_integrity_... o test_integrity_...'}
             autoComplete="new-password"
             required={!estado?.secretoIntegridadGuardado}
           />

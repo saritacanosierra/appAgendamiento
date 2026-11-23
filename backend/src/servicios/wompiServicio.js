@@ -7,6 +7,7 @@ import {
   CLAVES_WOMPI,
   resolverSecretoEventos,
   textoWompi,
+  redirectPagoWompi,
   urlEventosWompi,
   validarLlavesWompi,
 } from '../utilidades/wompiConfig.js';
@@ -110,7 +111,7 @@ export class WompiServicio {
     return this.obtenerConfigPlataforma();
   }
 
-  async crearIntento(marcaId, planTipo) {
+  async crearIntento(marcaId, planTipo, opciones = {}) {
     const credenciales = await this.leerCredenciales();
     if (!credenciales.publicKey || !credenciales.secretoIntegridad) {
       return {
@@ -140,6 +141,10 @@ export class WompiServicio {
     });
 
     const frontend = (this.entorno.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+    const redirectUrl = redirectPagoWompi(
+      opciones.redirect_url ?? opciones.redirectUrl,
+      `${frontend}/admin/panel/`
+    );
 
     return {
       publicKey: credenciales.publicKey,
@@ -149,7 +154,7 @@ export class WompiServicio {
       planTipo: tipoOk.tipo,
       precio,
       integridad,
-      redirectUrl: `${frontend}/admin/panel/`,
+      redirectUrl,
     };
   }
 

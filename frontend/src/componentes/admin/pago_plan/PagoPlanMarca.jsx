@@ -27,18 +27,33 @@ function abrirPasarelaWompi(datos) {
   if (!datos?.publicKey || !datos?.referencia || !datos?.integridad || !datos?.montoCentavos) {
     throw new Error('Wompi no devolvió los datos del cobro.');
   }
-  const partes = [
-    ['public-key', datos.publicKey],
-    ['currency', datos.moneda || 'COP'],
-    ['amount-in-cents', datos.montoCentavos],
-    ['reference', datos.referencia],
-    ['signature:integrity', datos.integridad],
-  ];
-  if (datos.redirectUrl) partes.push(['redirect-url', datos.redirectUrl]);
-  const consulta = partes
-    .map(([nombre, valor]) => `${encodeURIComponent(nombre).replace(/%3A/gi, ':')}=${encodeURIComponent(valor)}`)
-    .join('&');
-  window.location.assign(`${PASARELA_WOMPI}?${consulta}`);
+
+  // Wompi documenta el Web Checkout como formulario GET, no como URL armada a mano.
+  const form = document.createElement('form');
+  form.method = 'GET';
+  form.action = PASARELA_WOMPI;
+  form.acceptCharset = 'UTF-8';
+  form.style.display = 'none';
+
+  const campos = {
+    'public-key': datos.publicKey,
+    currency: datos.moneda || 'COP',
+    'amount-in-cents': String(datos.montoCentavos),
+    reference: datos.referencia,
+    'signature:integrity': datos.integridad,
+  };
+  if (datos.redirectUrl) campos['redirect-url'] = datos.redirectUrl;
+
+  Object.entries(campos).forEach(([nombre, valor]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = nombre;
+    input.value = valor;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 const CLAVE_AVISO_ABIERTO = 'pago-plan-aviso-abierto';
@@ -121,7 +136,9 @@ export default function PagoPlanMarca({ variante = 'muro' }) {
     setPagando(true);
     setError(null);
     try {
-      const datos = await crearPagoWompi(elegido.tipo);
+      const datos = await crearPagoWompi(elegido.tipo, {
+        redirectUrl: `${window.location.origin}/admin/panel/`,
+      });
       abrirPasarelaWompi(datos);
     } catch (err) {
       setError(textoErrorCobro(err));

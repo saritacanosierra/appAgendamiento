@@ -29,7 +29,7 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis |
 | POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago del periodo elegido y abre la agenda. No borra datos |
 | GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, los cuatro periodos y si Wompi esta listo |
-| POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro y la pantalla abre `https://checkout.wompi.co/p/` con esa firma. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Tambien si el plan ya vencio |
+| POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro; el panel envia un formulario GET a `https://checkout.wompi.co/p/`. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Opcional `redirect_url` al panel admin. Tambien si el plan ya vencio |
 | GET | `/api/plataforma/wompi` | Si, superadmin | Estado de la cuenta Wompi (listo, llave publica, si hay secretos, URL de eventos). Los secretos no se devuelven |
 | PUT | `/api/plataforma/wompi` | Si, superadmin | Guarda llave publica y secretos en `configuracion_plataforma`. Body: `llave_publica`, `secreto_integridad` (vacio = no cambia), `secreto_eventos` (vacio = no cambia) |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
