@@ -17,6 +17,7 @@ export { default as MenuAdmin } from './menu_admin/MenuAdmin';
 export { default as EstadoCita } from './estado_cita/EstadoCita';
 export { default as ModalConfirmacion } from './modal_confirmacion/ModalConfirmacion';
 export { default as ModalMensaje } from './modal_mensaje/ModalMensaje';
+export { default as ModalGuia } from './modal_guia/ModalGuia';
 export { default as Cargando } from './cargando/Cargando';
 export { default as MensajeError } from './mensaje_error/MensajeError';
 export { default as ImagenAmpliable } from './imagen_ampliable/ImagenAmpliable';

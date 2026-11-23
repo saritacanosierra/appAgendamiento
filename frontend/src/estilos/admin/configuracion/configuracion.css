@@ -187,6 +187,27 @@
   line-height: 1.4;
 }
 
+.configuracion-marca__btn-guia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px dashed color-mix(in srgb, var(--color-principal) 45%, var(--color-borde));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-principal) 8%, #fff);
+  color: var(--color-acento-superficie, var(--color-principal));
+  font: inherit;
+  font-size: var(--tamano-texto-sm);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
 .configuracion-marca__pasos {
   display: flex;
   flex-direction: column;
