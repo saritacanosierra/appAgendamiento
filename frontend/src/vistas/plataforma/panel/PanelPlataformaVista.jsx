@@ -110,6 +110,8 @@ export default function PanelPlataformaVista() {
           <ul className="panel-plataforma__acciones">
             <li><Link to={RUTAS_PLATAFORMA.marcas}>Crear o administrar empresas</Link></li>
             <li><Link to={RUTAS_PLATAFORMA.cobros}>Configurar cuenta Wompi</Link></li>
+            <li><Link to={RUTAS_PLATAFORMA.correo}>Correo SMTP (recuperar contraseña)</Link></li>
+            <li><Link to={RUTAS_PLATAFORMA.perfil}>Mi perfil y cambiar contraseña</Link></li>
             <li><Link to={RUTAS_PLATAFORMA.reportes}>Ver reportes globales</Link></li>
           </ul>
         </div>
