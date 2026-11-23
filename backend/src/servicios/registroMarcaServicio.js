@@ -32,14 +32,13 @@ export class RegistroMarcaServicio {
     const adminContrasena = datosEntrada.admin_contrasena ?? datosEntrada.adminContrasena ?? '';
     const whatsapp = String(datosEntrada.whatsapp ?? '').replace(/\D+/g, '');
     const codigoPais = String(datosEntrada.codigo_pais ?? datosEntrada.codigoPais ?? '').replace(/\D+/g, '');
-    const correoCuenta = adminCorreo || whatsapp;
 
     const errores = validar(
       { nombreComercial, adminNombre, adminContrasena, whatsapp, adminCorreo, codigoPais },
       {
         nombreComercial: (v) => requerido(v, 'nombre_comercial'),
         adminNombre: (v) => requerido(v, 'admin_nombre'),
-        adminCorreo: (v) => (v ? email(v) : null),
+        adminCorreo: (v) => requerido(v, 'admin_correo') ?? email(v),
         adminContrasena: (v) => (
           requerido(v, 'admin_contrasena')
           ?? (String(v).length >= 8 ? null : 'Minimo 8 caracteres.')
@@ -55,7 +54,7 @@ export class RegistroMarcaServicio {
       return { error: 'Revisa los datos del registro.', errores, codigoHttp: 422 };
     }
 
-    const correoExistente = await this.usuarioRepo.buscarPorCorreo(correoCuenta);
+    const correoExistente = await this.usuarioRepo.buscarPorCorreo(adminCorreo);
     if (correoExistente) {
       return { error: 'Ya existe una cuenta con ese correo.', codigoHttp: 409 };
     }
@@ -78,7 +77,7 @@ export class RegistroMarcaServicio {
     await this.usuarioRepo.crear({
       marcaId,
       nombre: adminNombre,
-      correo: correoCuenta,
+      correo: adminCorreo,
       contrasenaHash,
       rol: 'admin',
     });
@@ -92,7 +91,7 @@ export class RegistroMarcaServicio {
         nombreComercial,
         slug,
       },
-      admin: { nombre: adminNombre, correo: correoCuenta, whatsapp },
+      admin: { nombre: adminNombre, correo: adminCorreo, whatsapp },
       prueba: {
         dias: DIAS_PRUEBA,
         venceEn: prueba.venceEn,

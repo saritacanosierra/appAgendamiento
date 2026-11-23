@@ -13,11 +13,12 @@ const VACIO = {
   nombre_comercial: '',
   codigo_pais: '',
   whatsapp: '',
+  admin_correo: '',
   admin_contrasena: '',
 };
 
 const PASOS = [
-  { titulo: 'Tu cuenta', texto: 'Negocio, WhatsApp y contraseña. Sin tarjeta.' },
+  { titulo: 'Tu cuenta', texto: 'Negocio, correo, WhatsApp y contraseña. Sin tarjeta.' },
   { titulo: 'Tu marca', texto: 'Logo, colores y los días que atiendes.' },
   { titulo: 'Tus servicios', texto: 'Nombre, duración y precio.' },
   { titulo: 'Quién atiende', texto: 'Tu nombre, o el de cada profesional.' },
@@ -209,12 +210,16 @@ export default function LandingVista() {
         nombre_comercial: form.nombre_comercial,
         codigo_pais: form.codigo_pais,
         whatsapp: form.whatsapp,
+        admin_correo: form.admin_correo.trim().toLowerCase(),
         admin_contrasena: form.admin_contrasena,
         admin_nombre: form.nombre_comercial,
       });
       setCreado(datos);
-      const ingreso = String(form.whatsapp).replace(/\D+/g, '');
-      await iniciarSesion(ingreso, form.admin_contrasena, 'marca');
+      await iniciarSesion(
+        form.admin_correo.trim().toLowerCase(),
+        form.admin_contrasena,
+        'marca'
+      );
       navigate(RUTAS_ADMIN.panel);
     } catch (err) {
       setError(err.message);
@@ -433,7 +438,7 @@ export default function LandingVista() {
             <div>
               <p className="landing__etiqueta">Empieza hoy</p>
               <h2>Crea tu cuenta gratis.</h2>
-              <p className="landing__bajada">Negocio, WhatsApp y contraseña.</p>
+              <p className="landing__bajada">Negocio, correo, WhatsApp y contraseña.</p>
               <p className="landing__entrar">
                 ¿Ya tienes cuenta? <Link to={RUTAS_ADMIN.login}>Entrar al panel</Link>
               </p>
@@ -465,6 +470,22 @@ export default function LandingVista() {
                     required
                   />
                 </CampoFormulario>
+                <CampoFormulario
+                  etiqueta="Tu correo"
+                  id="reg-correo"
+                  requerido
+                  ayuda="Con este correo entras al panel y recuperas la contraseña."
+                >
+                  <input
+                    id="reg-correo"
+                    type="email"
+                    autoComplete="email"
+                    value={form.admin_correo}
+                    placeholder="tu@correo.com"
+                    onChange={(e) => actualizar('admin_correo', e.target.value)}
+                    required
+                  />
+                </CampoFormulario>
                 <CampoFormulario etiqueta="Indicativo" id="reg-indicativo" requerido>
                   <select
                     id="reg-indicativo"
@@ -480,7 +501,12 @@ export default function LandingVista() {
                     ))}
                   </select>
                 </CampoFormulario>
-                <CampoFormulario etiqueta="Tu número de WhatsApp" id="reg-whatsapp" requerido>
+                <CampoFormulario
+                  etiqueta="Tu número de WhatsApp"
+                  id="reg-whatsapp"
+                  requerido
+                  ayuda="Ahí te llegan las citas y también sirve para recuperar la contraseña."
+                >
                   <input
                     id="reg-whatsapp"
                     type="tel"
@@ -513,7 +539,7 @@ export default function LandingVista() {
                   {enviando ? 'Creando...' : 'Activar mis 8 días gratis'}
                 </button>
                 <p className="landing__nota">
-                  Sin tarjeta. Entras con este WhatsApp y esta contraseña.
+                  Sin tarjeta. Entras con este correo y esta contraseña.
                   {' '}
                   <Link to={RUTAS_PUBLICAS.condiciones}>Condiciones y acceso</Link>
                 </p>

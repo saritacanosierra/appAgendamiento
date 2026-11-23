@@ -244,7 +244,7 @@ export default function LoginVista({ modo = 'marca' }) {
             requerido
             error={erroresCampo.correo}
             ayuda={config.id === 'marca'
-              ? 'Escribe el WhatsApp o el correo con el que creaste tu marca (el campo empieza vacío).'
+              ? 'Usa el correo con el que registraste la marca (también sirve el WhatsApp si te registraste solo con número).'
               : 'Escribe el correo de quien administra la plataforma (el campo empieza vacío).'}
           >
             <input

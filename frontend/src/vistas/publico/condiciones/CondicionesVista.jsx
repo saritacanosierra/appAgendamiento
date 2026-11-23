@@ -57,7 +57,8 @@ export default function CondicionesVista() {
           <ul>
             <li>Gestionar la agenda, las clientas, los servicios, la galería, el blog, el equipo y los datos de su marca.</li>
             <li>No ve las clientas, las citas ni las fotos de otra empresa.</li>
-            <li>Entra con el WhatsApp y la contraseña del registro. Si la cuenta es anterior, también entra con su correo.</li>
+            <li>Entra con el correo y la contraseña del registro. Si la cuenta es anterior y solo tenía WhatsApp, también puede entrar con ese número.</li>
+            <li>Para recuperar la contraseña necesita el correo de la cuenta y el WhatsApp de la marca.</li>
             <li>Los primeros 8 días son gratis, una sola vez por cuenta. Después el periodo se paga con Wompi. Los precios están en la página de inicio.</li>
           </ul>
         </section>

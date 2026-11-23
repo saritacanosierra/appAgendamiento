@@ -26,7 +26,7 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | GET | `/api/marcas/{marca_id}/portafolio` | No | Profesionales activas con foto, descripcion, habilidades y hasta 6 trabajos. Si solo hay una, el inicio muestra un boton Portafolio |
 | POST | `/api/reservas` | No | Crear reserva publica |
 | GET | `/api/reservas/confirmacion/{codigo}?slug=` | No | Detalle de esa tienda + calendario ICS. Sin slug, o con slug de otra tienda, responde 404 |
-| POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis |
+| POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis. Body: `nombre_comercial`, `admin_correo` (obligatorio, para entrar y recuperar clave), `whatsapp`, `codigo_pais`, `admin_contrasena` (min. 8). Opcional `admin_nombre` |
 | POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago del periodo elegido y abre la agenda. No borra datos |
 | GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, los cuatro periodos y si Wompi esta listo |
 | POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro; el panel envia un formulario GET a `https://checkout.wompi.co/p/`. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Opcional `redirect_url` al panel admin. Tambien si el plan ya vencio |
