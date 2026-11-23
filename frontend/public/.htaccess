@@ -3,6 +3,11 @@
   RewriteEngine On
   RewriteBase /
 
+  # Forzar HTTPS: sin esto el origen http:// choca con CORS del API en Render.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
   # El dominio anterior conserva la ruta (/admin/, /m/..., consulta y ancla).
   RewriteCond %{HTTP_HOST} ^(www\.)?agenda\.nuncajamasropa\.com$ [NC]
   RewriteRule ^ https://ritualnails.store%{REQUEST_URI} [R=301,L]

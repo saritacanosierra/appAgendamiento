@@ -17,15 +17,20 @@ Vistas con boton wa.me: inicio de marca, hub de citas, confirmacion de reserva y
 
 ## Configuracion (Admin de cada marca)
 
-En **Admin → Mi marca → WhatsApp Business**:
+En **Admin → Mi marca → Confirmacion de citas**:
 
 | Campo | Descripcion |
 |-------|-------------|
+| Avisar por WhatsApp / Correo | Canales independientes; se pueden activar ambos |
 | WhatsApp (contacto) | Numero publico que ven las clientas en la web |
 | Phone Number ID | ID tecnico en WhatsApp Manager (Meta) |
 | Token de acceso | Bearer token de la app Meta de **esa marca** |
 | Indicativo | Prefijo que elige la marca (Colombia +57, Mexico +52, etc.). No va fijo en el codigo |
+| Mensaje de confirmacion | Texto con variables `{{nombre}}`, `{{marca}}`, `{{servicio}}`, `{{fecha}}`, `{{hora}}`, `{{codigo}}`, `{{url_confirmacion}}` |
 | Plantilla recordatorio | Nombre de plantilla aprobada (opcional, recomendado en produccion) |
+| SMTP del propietario | Host, puerto, usuario, contraseña y plantilla texto/HTML del buzon propio (sin costo de plataforma) |
+
+Si el aviso automatico falla, la cita **sigue activa**, se muestra el motivo y se indica comunicarse directamente con la marca.
 
 Variables globales en `backend/.env` (solo comportamiento del recordatorio, no el numero):
 

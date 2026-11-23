@@ -39,7 +39,11 @@ export const baseDatos = {
 
 const origenesAgenda = [
   'https://ritualnails.store',
+  'http://ritualnails.store',
   'https://www.ritualnails.store',
+  'http://www.ritualnails.store',
+  'https://agenda.nuncajamasropa.com',
+  'http://agenda.nuncajamasropa.com',
 ];
 
 const origenesConfigurados = (process.env.CORS_ORIGENES ?? 'http://localhost:5173')

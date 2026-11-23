@@ -38,3 +38,16 @@ export async function probarWhatsappMarca(telefono) {
   });
   return respuesta.datos;
 }
+
+export async function obtenerEstadoCorreoMarca() {
+  const respuesta = await peticionAdmin('/admin/integraciones/correo');
+  return respuesta.datos;
+}
+
+export async function probarCorreoMarca(correo) {
+  const respuesta = await peticionAdmin('/admin/integraciones/correo/probar', {
+    method: 'POST',
+    body: JSON.stringify({ correo }),
+  });
+  return respuesta.datos;
+}

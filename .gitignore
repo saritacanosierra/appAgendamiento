@@ -30,3 +30,6 @@ backend/almacen/copias/**
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Paquetes locales de subida
+*.zip

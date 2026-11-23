@@ -304,32 +304,29 @@ export class ReservaServicio {
         estilistaNombre: estilistaResuelto.estilista?.nombre ?? null,
       });
 
+      let avisos = null;
       try {
-        const { emailServicio } = await import('./emailServicio.js');
+        const { avisosConfirmacionServicio } = await import('./avisosConfirmacionServicio.js');
         const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
         const slug = marca.slug ?? '';
         const urlConfirmacion = `${frontendUrl}/m/${slug}/confirmacion/${codigoConfirmacion}`;
-        await emailServicio.enviarConfirmacionReserva({
+        avisos = await avisosConfirmacionServicio.enviarTrasReserva({
+          marcaId,
           confirmacion,
           urlConfirmacion,
         });
       } catch {
-        // Email no bloquea la reserva
-      }
-
-      try {
-        const { whatsappServicio } = await import('./whatsappServicio.js');
-        const { whatsappMarcaServicio } = await import('./whatsappMarcaServicio.js');
-        const credenciales = await whatsappMarcaServicio.obtenerCredenciales(marcaId);
-        const frontendUrl = (process.env.FRONTEND_URL ?? 'http://localhost:5173').replace(/\/$/, '');
-        const slug = marca.slug ?? '';
-        await whatsappServicio.enviarConfirmacionReserva({
-          confirmacion,
-          urlConfirmacion: `${frontendUrl}/m/${slug}/confirmacion/${codigoConfirmacion}`,
-          credenciales,
-        });
-      } catch {
-        // WhatsApp no bloquea la reserva
+        // Los avisos no bloquean la reserva
+        avisos = {
+          resultados: [],
+          contactarDirecto: true,
+          contacto: {
+            whatsapp: marca.whatsapp ?? null,
+            telefono: marca.telefono ?? null,
+            nombreComercial: marca.nombre_comercial ?? marca.nombreComercial ?? null,
+            mensaje: 'Tu cita sigue activa. Comunícate directamente con la marca para confirmar los detalles.',
+          },
+        };
       }
 
       const premio = await premioPuntosServicio.reservarSiAlcanza(marcaId, clienteId, citaId);
@@ -337,7 +334,7 @@ export class ReservaServicio {
         confirmacion.cita.descuentoPremio = premioPuntosServicio.descuentoDe(servicio.precio, premio);
       }
 
-      return { confirmacion };
+      return { confirmacion, avisos };
     } catch (err) {
       await conexion.rollback();
       throw err;

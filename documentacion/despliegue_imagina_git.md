@@ -1,46 +1,54 @@
 # Despliegue frontend en Imagina Colombia (Git)
 
-## Subdominio dedicado (ej. agenda.tudominio.com)
+## Carpetas (no confundirlas)
 
-Si el subdominio apunta **directamente** a `public_html/agenda/`, el build debe usar `base: '/'` (ya configurado en `vite.config.js`).
+| Carpeta | Para qué |
+|---------|----------|
+| `public_html/agenda_git` | Copia del repositorio (Git Version Control). Ahí haces pull. |
+| `public_html/agenda` | Sitio que abre `ritualnails.store`. Solo archivos del build. |
 
-## 1. Compilar
+El dominio **no** debe apuntar a `agenda_git`. Raíz del documento: `public_html/agenda`.
+
+## Flujo correcto (solo Git)
+
+### 1. En tu PC
 
 ```bash
 npm run build:imagina
-```
-
-La URL de la API en producción está en `frontend/.env.production` (`VITE_API_URL`).
-
-## 2. Subir `dist` con Git
-
-```bash
-git add frontend/dist
-git commit -m "subiendo carpeta dist compilada"
+git add frontend/dist .cpanel.yml
+git commit -m "Publicar build de Imagina"
 git push origin main
 ```
 
-## 3. En cPanel / Imagina
+La URL de la API está en `frontend/.env.production` (`VITE_API_URL`).
 
-**Opción A — Git pull:** mueve el contenido de `frontend/dist/` a la raíz del sitio (`public_html/agenda/`).
+### 2. En cPanel → Git Version Control
 
-**Opción B — FTP/manual:** limpia `public_html/agenda/` y sube solo el contenido interno de `frontend/dist/` (`index.html`, `assets/`, `.htaccess`, etc.).
+1. Abre el repositorio `agenda_git`.
+2. Rama remota: **`main`** (no `master`).
+3. **Pull or Update** / Actualizar desde remoto.
+4. **Deploy HEAD Commit** / Desplegar.
 
-## 4. Verificar
+Eso ejecuta `.cpanel.yml`, que copia `frontend/dist/` → `public_html/agenda/`.
 
-- Abre `https://ritualnails.store/`
-- `https://agenda.nuncajamasropa.com/admin/` responde 301 hacia `https://ritualnails.store/admin/` (misma ruta).
-- Los assets deben cargar como `/assets/...` (sin prefijo `/agenda/`).
-- Rutas como `/admin/` deben funcionar (`.htaccess` incluido).
-- Superadmin: `https://ritualnails.store/plataforma/` (requiere `VITE_PLATAFORMA_HABILITADA=true` en build y `PLATAFORMA_HABILITADA=true` en Render).
+Sin el paso **Deploy**, el pull solo actualiza el código en `agenda_git` y `ritualnails.store` sigue con la web vieja.
 
-## 5. Variables en Render (backend)
+### 3. Verificar
+
+- https://ritualnails.store/ (Ctrl+F5)
+- Login vacío con guía “Escribe tu WhatsApp o correo”
+- Assets en `/assets/...` (sin prefijo `/agenda/`)
+- Superadmin: https://ritualnails.store/plataforma/ (`VITE_PLATAFORMA_HABILITADA=true` en build y `PLATAFORMA_HABILITADA=true` en Render)
+
+## Variables en Render (backend)
 
 ```env
 PLATAFORMA_HABILITADA=true
-CORS_ORIGENES=https://ritualnails.store,https://agenda.nuncajamasropa.com
+CORS_ORIGENES=https://ritualnails.store,http://ritualnails.store,https://www.ritualnails.store,http://www.ritualnails.store,https://agenda.nuncajamasropa.com,http://agenda.nuncajamasropa.com
 FRONTEND_URL=https://ritualnails.store
 ```
+
+El backend incluye esos orígenes por defecto. Preferible HTTPS (AutoSSL + redirección en `.htaccess` del dist).
 
 ### Google Calendar (OAuth)
 
@@ -54,15 +62,10 @@ GOOGLE_REDIRECT_URI=https://appagendamiento.onrender.com/api/integraciones/googl
 
 URI autorizada en Google Cloud debe coincidir con `GOOGLE_REDIRECT_URI`.
 
-Tras el redeploy, cada marca conecta su calendario en **Admin → Mi marca → Google Calendar**  
-(o acceso directo: `/admin/configuracion-marca/#google-calendar`).
+Tras el redeploy, cada marca conecta su calendario en **Admin → Mi marca → Google Calendar**.
 
-## Nota: subcarpeta `/agenda/` en dominio principal
+## Si el Deploy falla
 
-Si en el futuro sirves desde `https://tudominio.com/agenda/` (no subdominio), compila con:
-
-```bash
-cd frontend && vite build --base /agenda/
-```
-
-y ajusta el `.htaccess` con `RewriteBase /agenda/`.
+- Error `pathspec 'master'`: en cPanel cambia la rama a `main`.
+- El sitio no cambia tras el pull: falta pulsar **Deploy HEAD Commit**.
+- Raíz del dominio mal puesta: Administrar dominios → `ritualnails.store` → `public_html/agenda`.

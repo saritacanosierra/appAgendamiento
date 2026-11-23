@@ -47,7 +47,10 @@ export async function crearReserva(req, res) {
     codigo: resultado.confirmacion?.cita?.codigoConfirmacion,
   });
 
-  return respuestaExito(res, resultado.confirmacion, 'Reserva creada', 201);
+  return respuestaExito(res, {
+    ...resultado.confirmacion,
+    avisos: resultado.avisos ?? null,
+  }, 'Reserva creada', 201);
 }
 
 export async function obtenerConfirmacion(req, res) {

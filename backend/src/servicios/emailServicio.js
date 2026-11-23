@@ -1,4 +1,13 @@
 import nodemailer from 'nodemailer';
+import {
+  PLANTILLA_CORREO_ASUNTO,
+  PLANTILLA_CORREO_HTML,
+  PLANTILLA_CORREO_TEXTO,
+  escaparHtml,
+  renderPlantillaHtml,
+  renderPlantillaTexto,
+  valoresPlantillaCita,
+} from '../utilidades/plantillaNotificacion.js';
 
 function smtpConfigurado() {
   return Boolean(
@@ -8,7 +17,7 @@ function smtpConfigurado() {
   );
 }
 
-function crearTransporte() {
+function crearTransportePlataforma() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PUERTO ?? 587),
@@ -20,22 +29,35 @@ function crearTransporte() {
   });
 }
 
+function crearTransporteMarca(smtp) {
+  return nodemailer.createTransport({
+    host: smtp.host,
+    port: Number(smtp.puerto ?? 587),
+    secure: Boolean(smtp.seguro),
+    auth: {
+      user: smtp.usuario,
+      pass: smtp.contrasena,
+    },
+  });
+}
+
 export class EmailServicio {
   estaHabilitado() {
     return smtpConfigurado();
   }
 
-  async enviar({ para, asunto, texto, html }) {
+  async enviar({ para, asunto, texto, html, transporte, remitente }) {
     if (!para) return { omitido: true, motivo: 'sin_destinatario' };
-    if (!smtpConfigurado()) {
-      if (process.env.NODE_ENV !== 'produccion') {
-        console.info('[email] SMTP no configurado — mensaje simulado:', { para, asunto });
+    if (!transporte) {
+      if (!smtpConfigurado()) {
+        if (process.env.NODE_ENV !== 'produccion') {
+          console.info('[email] SMTP no configurado — mensaje simulado:', { para, asunto });
+        }
+        return { omitido: true, motivo: 'smtp_no_configurado' };
       }
-      return { omitido: true, motivo: 'smtp_no_configurado' };
+      transporte = crearTransportePlataforma();
+      remitente = remitente || process.env.EMAIL_REMITENTE || process.env.SMTP_USUARIO;
     }
-
-    const transporte = crearTransporte();
-    const remitente = process.env.EMAIL_REMITENTE ?? process.env.SMTP_USUARIO;
 
     await transporte.sendMail({
       from: remitente,
@@ -48,6 +70,82 @@ export class EmailServicio {
     return { enviado: true };
   }
 
+  async enviarConSmtpMarca({ para, asunto, texto, html, smtp }) {
+    if (!para) return { omitido: true, motivo: 'sin_destinatario' };
+    if (!smtp?.host || !smtp?.usuario || !smtp?.contrasena) {
+      return { omitido: true, motivo: 'smtp_no_configurado' };
+    }
+
+    const transporte = crearTransporteMarca(smtp);
+    const remitente = smtp.remitente || smtp.usuario;
+
+    try {
+      await transporte.sendMail({
+        from: remitente,
+        to: para,
+        subject: asunto,
+        text: texto,
+        html,
+      });
+      return { enviado: true };
+    } catch (err) {
+      return {
+        error: true,
+        motivo: err?.message || 'error',
+      };
+    }
+  }
+
+  armarConfirmacionDesdePlantilla({ confirmacion, urlConfirmacion, smtp }) {
+    const { cita, mensajeConfirmacion } = confirmacion;
+    const valores = valoresPlantillaCita({
+      nombre: cita.cliente?.nombre,
+      servicio: cita.servicio?.nombre,
+      fecha: cita.fecha,
+      hora: cita.horaInicio,
+      codigo: cita.codigo,
+      urlConfirmacion,
+      marca: cita.marca?.nombreComercial,
+    });
+
+    const modo = smtp?.modoPlantilla === 'html' ? 'html' : 'texto';
+    const asunto = renderPlantillaTexto(smtp?.asunto || PLANTILLA_CORREO_ASUNTO, valores);
+    const texto = renderPlantillaTexto(
+      smtp?.cuerpoTexto || mensajeConfirmacion || PLANTILLA_CORREO_TEXTO,
+      valores
+    );
+    const html = modo === 'html'
+      ? renderPlantillaHtml(smtp?.cuerpoHtml || PLANTILLA_CORREO_HTML, valores)
+      : undefined;
+
+    return { asunto, texto, html };
+  }
+
+  async enviarConfirmacionReservaMarca({ confirmacion, urlConfirmacion, smtp }) {
+    const { cita } = confirmacion;
+    if (!cita.cliente?.correo) {
+      return { omitido: true, motivo: 'cliente_sin_correo' };
+    }
+    if (!smtp) {
+      return { omitido: true, motivo: 'smtp_no_configurado' };
+    }
+
+    const { asunto, texto, html } = this.armarConfirmacionDesdePlantilla({
+      confirmacion,
+      urlConfirmacion,
+      smtp,
+    });
+
+    return this.enviarConSmtpMarca({
+      para: cita.cliente.correo,
+      asunto,
+      texto,
+      html,
+      smtp,
+    });
+  }
+
+  /** @deprecated Preferir SMTP de la marca para confirmaciones de cita. */
   async enviarConfirmacionReserva({ confirmacion, urlConfirmacion }) {
     const { cita, mensajeConfirmacion } = confirmacion;
     if (!cita.cliente.correo) {
@@ -64,15 +162,15 @@ export class EmailServicio {
     ].filter(Boolean).join('\n');
 
     const html = `
-      <p>Hola <strong>${cita.cliente.nombre}</strong>,</p>
-      <p>${mensajeConfirmacion}</p>
+      <p>Hola <strong>${escaparHtml(cita.cliente.nombre)}</strong>,</p>
+      <p>${escaparHtml(mensajeConfirmacion)}</p>
       <ul>
-        <li><strong>Servicio:</strong> ${cita.servicio.nombre}</li>
-        <li><strong>Fecha:</strong> ${cita.fecha}</li>
-        <li><strong>Hora:</strong> ${cita.horaInicio}</li>
-        <li><strong>Codigo:</strong> ${cita.codigo}</li>
+        <li><strong>Servicio:</strong> ${escaparHtml(cita.servicio.nombre)}</li>
+        <li><strong>Fecha:</strong> ${escaparHtml(cita.fecha)}</li>
+        <li><strong>Hora:</strong> ${escaparHtml(cita.horaInicio)}</li>
+        <li><strong>Codigo:</strong> ${escaparHtml(cita.codigo)}</li>
       </ul>
-      ${urlConfirmacion ? `<p><a href="${urlConfirmacion}">Ver confirmacion en linea</a></p>` : ''}
+      ${urlConfirmacion ? `<p><a href="${escaparHtml(urlConfirmacion)}">Ver confirmacion en linea</a></p>` : ''}
     `;
 
     return this.enviar({
@@ -105,14 +203,6 @@ export class EmailServicio {
 
     return this.enviar({ para: correo, asunto, texto, html });
   }
-}
-
-function escaparHtml(valor) {
-  return String(valor ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 export const emailServicio = new EmailServicio();

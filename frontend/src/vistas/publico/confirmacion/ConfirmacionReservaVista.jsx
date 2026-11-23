@@ -47,14 +47,19 @@ export default function ConfirmacionReservaVista() {
   if (error) return <MensajeError titulo="Reserva no encontrada" mensaje={error} />;
   if (!confirmacion) return null;
 
-  const { cita, calendario, mensajeConfirmacion } = confirmacion;
+  const { cita, calendario, mensajeConfirmacion, avisos } = confirmacion;
   const nombreMarca = marca?.nombreComercial ?? cita.marca.nombreComercial;
-  const whatsappReserva = marca?.whatsapp;
+  const whatsappReserva = marca?.whatsapp ?? avisos?.contacto?.whatsapp;
+  const telefonoMarca = marca?.telefono ?? avisos?.contacto?.telefono;
   const slugMarca = marca?.slug ?? cita.marca.slug;
   const paramsGaleria = new URLSearchParams();
   if (cita.id) paramsGaleria.set('cita', String(cita.id));
   if (cita.servicio?.id) paramsGaleria.set('servicio', String(cita.servicio.id));
   const enlaceGaleria = `${RUTAS_PUBLICAS.galeria(slugMarca)}?${paramsGaleria.toString()}`;
+  const fallosAviso = (avisos?.resultados ?? []).filter(
+    (item) => item.estado === 'error' || item.estado === 'omitido'
+  );
+  const mostrarContactoDirecto = Boolean(avisos?.contactarDirecto) || fallosAviso.length > 0;
 
   return (
     <div className="confirmacion-reserva">
@@ -62,9 +67,32 @@ export default function ConfirmacionReservaVista() {
 
       <div className="confirmacion-reserva__tarjeta tarjeta-app">
         <span className="confirmacion-reserva__icono" aria-hidden="true">✓</span>
-        <h1>¡Cita confirmada!</h1>
+        <h1>¡Cita reservada!</h1>
         <p>{mensajeConfirmacion}</p>
+        <p className="confirmacion-reserva__sigue">Tu cita sigue activa en la agenda.</p>
       </div>
+
+      {mostrarContactoDirecto && (
+        <section className="confirmacion-reserva__aviso" aria-live="polite">
+          <h2>No pudimos enviarte el aviso automático</h2>
+          {fallosAviso.length > 0 ? (
+            <ul>
+              {fallosAviso.map((item) => (
+                <li key={`${item.canal}-${item.motivoCodigo || item.motivo}`}>
+                  {item.canal === 'correo' ? 'Correo' : 'WhatsApp'}: {item.motivo}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>{avisos?.contacto?.mensaje || 'Comunícate directamente con la marca.'}</p>
+          )}
+          <p>
+            Comunícate directamente con {nombreMarca}
+            {telefonoMarca ? ` al ${telefonoMarca}` : ''}
+            .
+          </p>
+        </section>
+      )}
 
       <dl className="confirmacion-reserva__detalle">
         <dt>Codigo</dt>

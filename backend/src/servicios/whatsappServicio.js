@@ -91,17 +91,37 @@ export class WhatsappServicio {
 
   async enviarConfirmacionReserva({ confirmacion, urlConfirmacion, credenciales }) {
     const { cita, mensajeConfirmacion } = confirmacion;
-    const lineas = [
-      mensajeConfirmacion,
-      urlConfirmacion ? `Detalle: ${urlConfirmacion}` : '',
-      `Codigo: ${cita.codigo}`,
-    ].filter(Boolean);
+    const { renderPlantillaTexto, valoresPlantillaCita, PLANTILLA_WHATSAPP_CONFIRMACION } = await import(
+      '../utilidades/plantillaNotificacion.js'
+    );
 
-    return this.enviarTexto({
-      telefono: cita.cliente.telefono,
-      mensaje: lineas.join('\n'),
-      credenciales,
+    const valores = valoresPlantillaCita({
+      nombre: cita.cliente?.nombre,
+      servicio: cita.servicio?.nombre,
+      fecha: cita.fecha,
+      hora: cita.horaInicio,
+      codigo: cita.codigo,
+      urlConfirmacion,
+      marca: cita.marca?.nombreComercial || credenciales?.nombreMarca,
     });
+
+    const plantilla = credenciales?.plantillaConfirmacion || PLANTILLA_WHATSAPP_CONFIRMACION;
+    const mensaje = renderPlantillaTexto(plantilla, valores).trim()
+      || [
+        mensajeConfirmacion,
+        urlConfirmacion ? `Detalle: ${urlConfirmacion}` : '',
+        `Codigo: ${cita.codigo}`,
+      ].filter(Boolean).join('\n');
+
+    try {
+      return await this.enviarTexto({
+        telefono: cita.cliente.telefono,
+        mensaje,
+        credenciales,
+      });
+    } catch (err) {
+      return { error: true, motivo: err?.message || 'error' };
+    }
   }
 
   async enviarPlantilla({

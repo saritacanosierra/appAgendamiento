@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { BotonPrincipal, CampoFormulario, MensajeError } from '../../../compartido/componentes';
+import { BotonPrincipal, CampoContrasena, CampoFormulario, MensajeError } from '../../../compartido/componentes';
 import { RUTAS_ADMIN, RUTAS_PLATAFORMA } from '../../../compartido/constantes';
 import { restablecerContrasena } from '../../../modulos/autenticacion/servicios/autenticacionServicio';
 import '../../../estilos/admin/login/login.css';
@@ -60,23 +60,23 @@ export default function RestablecerContrasenaVista() {
 
         {!listo && token && (
           <form className="login-vista__formulario" onSubmit={manejarSubmit}>
-            <CampoFormulario etiqueta="Contraseña nueva" id="contrasena-nueva" requerido>
-              <input
+            <CampoFormulario etiqueta="Contraseña nueva" id="contrasena-nueva" requerido ayuda="Mínimo 8 caracteres.">
+              <CampoContrasena
                 id="contrasena-nueva"
-                type="password"
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
+                placeholder="Elige una contraseña nueva"
                 autoComplete="new-password"
                 minLength={8}
                 required
               />
             </CampoFormulario>
             <CampoFormulario etiqueta="Repite la contraseña" id="contrasena-confirma" requerido>
-              <input
+              <CampoContrasena
                 id="contrasena-confirma"
-                type="password"
                 value={confirmacion}
                 onChange={(e) => setConfirmacion(e.target.value)}
+                placeholder="Vuelve a escribirla"
                 autoComplete="new-password"
                 minLength={8}
                 required

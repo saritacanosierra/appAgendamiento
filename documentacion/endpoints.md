@@ -29,7 +29,7 @@ Autenticacion admin: cabecera `Authorization: Bearer <token>`
 | POST | `/api/registro` | No | Crea un salon con admin de marca y 8 dias gratis |
 | POST | `/api/webhooks/wompi` | Firma Wompi | Confirma el pago del periodo elegido y abre la agenda. No borra datos |
 | GET | `/api/admin/suscripcion` | Si, marca | Estado del plan, los cuatro periodos y si Wompi esta listo |
-| POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro y la pantalla abre `https://checkout.wompi.co/p/` con esa firma. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Tambien si el plan ya vencio |
+| POST | `/api/admin/suscripcion/wompi` | Si, marca | Prepara el cobro; el panel envia un formulario GET a `https://checkout.wompi.co/p/`. Body `plan_tipo`: mensual (25.000), trimestral (90.000), semestral (180.000) o anual (360.000). Opcional `redirect_url` al panel admin. Tambien si el plan ya vencio |
 | GET | `/api/plataforma/wompi` | Si, superadmin | Estado de la cuenta Wompi (listo, llave publica, si hay secretos, URL de eventos). Los secretos no se devuelven |
 | PUT | `/api/plataforma/wompi` | Si, superadmin | Guarda llave publica y secretos en `configuracion_plataforma`. Body: `llave_publica`, `secreto_integridad` (vacio = no cambia), `secreto_eventos` (vacio = no cambia) |
 | POST | `/api/auth/login` | No | Iniciar sesion — devuelve token |
@@ -184,17 +184,22 @@ Respuesta `429` si se supera el limite.
 - El frontend guarda el nuevo token automaticamente.
 - Renovacion manual: `POST /api/auth/rotar` con el token actual.
 
-### Email de confirmacion
+### Avisos de confirmacion (correo y/o WhatsApp)
 
-Variables SMTP en `backend/.env`: `SMTP_HOST`, `SMTP_PUERTO`, `SMTP_USUARIO`, `SMTP_CONTRASENA`, `EMAIL_REMITENTE`.
+La marca elige canales en Admin → Mi marca → Confirmacion de citas (`notificaciones_cita` + `correo_smtp` + `whatsapp_api` en `configuracion_json`).
 
-Si SMTP no esta configurado, la reserva funciona igual; en desarrollo se registra un mensaje simulado en consola.
+| Metodo | Ruta | Auth | Descripcion |
+|--------|------|------|-------------|
+| GET | `/api/admin/integraciones/correo` | Si, marca | Estado de canales y SMTP (sin devolver la contraseña) |
+| POST | `/api/admin/integraciones/correo/probar` | Si, marca | Body `{ correo }` — prueba el SMTP del propietario |
+| GET | `/api/admin/integraciones/whatsapp` | Si, marca | Estado WhatsApp de la marca |
+| POST | `/api/admin/integraciones/whatsapp/probar` | Si, marca | Body `{ telefono }` |
 
-### WhatsApp de confirmacion
+Al crear una reserva publica, la respuesta incluye `avisos` (`resultados`, `contactarDirecto`, `contacto`). Si un canal falla, la cita sigue activa y se pide contacto directo.
 
-Variables en `backend/.env`: `WHATSAPP_HABILITADO=1`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_CODIGO_PAIS`.
+El SMTP de plataforma (`SMTP_*` / `EMAIL_REMITENTE`) queda para recuperacion de contraseña del panel, no para avisos de cita.
 
-Guia: `documentacion/whatsapp.md`. Verificar: `npm run verificar:whatsapp`.
+Guia WhatsApp: `documentacion/whatsapp.md`.
 
 ### Optimizacion de imagenes
 

@@ -1,6 +1,7 @@
 import { ConfiguracionRepositorio } from '../repositorios/configuracionRepositorio.js';
 import { MarcaRepositorio } from '../repositorios/index.js';
 import { texto } from '../utilidades/sanitizador.js';
+import { PLANTILLA_WHATSAPP_CONFIRMACION } from '../utilidades/plantillaNotificacion.js';
 
 const CLAVE_JSON = 'whatsapp_api';
 
@@ -12,6 +13,8 @@ function normalizarConfigWhatsapp(raw = {}) {
     codigoPais: texto(raw.codigo_pais ?? raw.codigoPais) || '',
     plantillaRecordatorio: texto(raw.plantilla_recordatorio ?? raw.plantillaRecordatorio) || null,
     plantillaIdioma: texto(raw.plantilla_idioma ?? raw.plantillaIdioma) || 'es_MX',
+    plantillaConfirmacion: texto(raw.plantilla_confirmacion ?? raw.plantillaConfirmacion)
+      || PLANTILLA_WHATSAPP_CONFIRMACION,
   };
 }
 
@@ -23,6 +26,7 @@ function aJsonWhatsapp(config) {
     codigo_pais: config.codigoPais || '',
     plantilla_recordatorio: config.plantillaRecordatorio || null,
     plantilla_idioma: config.plantillaIdioma || 'es_MX',
+    plantilla_confirmacion: config.plantillaConfirmacion || PLANTILLA_WHATSAPP_CONFIRMACION,
   };
 }
 
@@ -55,6 +59,7 @@ export class WhatsappMarcaServicio {
       codigoPais: wa.codigoPais,
       plantillaRecordatorio: wa.plantillaRecordatorio,
       plantillaIdioma: wa.plantillaIdioma,
+      plantillaConfirmacion: wa.plantillaConfirmacion,
       configurado,
       mensaje: configurado
         ? 'Esta marca enviara WhatsApp desde su propio numero de Meta.'
@@ -89,6 +94,10 @@ export class WhatsappMarcaServicio {
         datosEntrada.whatsapp_plantilla_idioma
         ?? datosEntrada.whatsappPlantillaIdioma
         ?? actual.plantillaIdioma,
+      plantilla_confirmacion:
+        datosEntrada.whatsapp_plantilla_confirmacion
+        ?? datosEntrada.whatsappPlantillaConfirmacion
+        ?? actual.plantillaConfirmacion,
     });
 
     await this.configRepo.actualizarConfiguracionJson(marcaId, {
@@ -114,6 +123,7 @@ export class WhatsappMarcaServicio {
       codigoPais: wa.codigoPais,
       plantillaRecordatorio: wa.plantillaRecordatorio,
       plantillaIdioma: wa.plantillaIdioma,
+      plantillaConfirmacion: wa.plantillaConfirmacion,
       numeroPublico: marca?.whatsapp ?? null,
       nombreMarca: marca?.nombre_comercial ?? null,
     };
@@ -132,6 +142,7 @@ export function mapearWhatsappApiAdmin(estado) {
     codigoPais: estado.codigoPais,
     plantillaRecordatorio: estado.plantillaRecordatorio,
     plantillaIdioma: estado.plantillaIdioma,
+    plantillaConfirmacion: estado.plantillaConfirmacion,
     configurado: estado.configurado,
     mensaje: estado.mensaje,
   };
